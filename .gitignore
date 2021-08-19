@@ -6,3 +6,12 @@
 *.mxd
 *.ini
 *.Rproj
+*.sbn
+*.pdf
+*.shp
+*.sbx
+*.shx
+*.cpg
+*.prj
+*.cst
+data/Shapefile_Germany/wfsrequest.txt
