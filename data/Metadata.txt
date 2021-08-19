@@ -1,0 +1,26 @@
+﻿Data from Helen Phillips (sWorm):
+
+SppOccData_sWorm_v2.csv - Species occurrence with site names
+SiteData_sWorm_v2.csv   - Coordinated of respective sites
+
+
+
+Data from GBIF:
+
+see "I:/eie/==PERSONAL/Macroecology/Students/Jessica/Grid/GBIF_Data"
+GBIF_Earthworms_combined.csv - output after combining all earthworm species
+
+
+
+Data from Edaphobase:
+
+Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv
+(manually changed ö/ä/ü/ß into oe/ae/ue/ss)
+
+
+
+Combined data:
+
+Earthworm_occurrence_GBIF_sWorm_Edaphobase.csv
+Earthworm_occurrence_Germany.txt - only points that intersect with German shapefile
+
