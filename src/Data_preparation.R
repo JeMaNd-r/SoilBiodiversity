@@ -5,13 +5,15 @@
 #       date: 18.08.2021          #
 #- - - - - - - - - - - - - - - - -#
 
-library(here)  #instead of setwd()
+#library(here)  #instead of setwd()
 library(tidyverse)
+
+setwd("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity")
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from sWorm ####
-sworm_occ <- readr::read_csv(here::here("data", "SppOccData_sWorm_v2.csv"))
-sworm_site <- readr::read_csv(here::here("data", "SiteData_sWorm_v2.csv"))
+sworm_occ <- readr::read_csv("data/SppOccData_sWorm_v2.csv")
+sworm_site <- readr::read_csv("data/SiteData_sWorm_v2.csv")
 
 sworm <- dplyr::full_join(sworm_occ, sworm_site)
 
@@ -50,7 +52,7 @@ rm(temp.data, gbif.wd, temp.wd, species.folders, i)
 # - - - - - - - - - - - - - - - - - - -
 ## Data from Edaphobase ####
 
-edapho <- readr::read_csv(here::here("data", "Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv"))
+edapho <- readr::read_csv("data/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv")
 
 #!!! Manually: We added the missing "Valid taxon" for Helodrilus sp.
 
@@ -89,9 +91,12 @@ data <- data[complete.cases(data$longitude, data$latitude),]
 data$OBJECTID <- 1:nrow(data) 
 
 ## Save data ####
-write.csv(data, here::here("data", "Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"),
+write.csv(data, "data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv",
           row.names = F)
 
 #!!! In ArcGIS: Select only points that fall into German shapefile.
 #               Save them as "Earthworm_occurrence_Germany.txt"
 
+## Count occurrences per species & datasource ####
+count.data <- data %>% group_by(datasource, species) %>% count()
+View(count.data)
