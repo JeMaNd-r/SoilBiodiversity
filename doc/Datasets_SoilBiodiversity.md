@@ -57,7 +57,17 @@ Tedersoo et al. 2014: Global fungi
 
 Bodendauerbeobachtungsflächen (long term monitoring sites)
 - no info found to soil organisms but to microbial biomass
-- data?
+- only for 2 earthworm species: _L. terrestris_ & _Aporrectodea longa_
+-- only number of individuals biomass (and faces biomass)
+-- sampling: octet method with electrodes, stored in liquid nitrogen(!)
+-- data on content of faces: elements like Ca, P, ...
+- soil properties per horizon
+-- water content (nach DIN ISO 11465) 
+-- Corg content (nach DIN ISO 10694) 
+-- carbonate content (soweit  zu  erwarten)  aus  Differenz Ctot - Corg 
+-- Korngrößenverteilung (nach DIN ISO 11277) 
+-- pH (H2O, CaCl2 and KCl), (nach DIN ISO 10390)
+- data: few points across Germany, data on physico-chemical properties only
 
 Bodenzustandserhebung (BZE, e.g. Wald)
 - only physico-chemical properties & vegetation
