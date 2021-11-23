@@ -10,6 +10,12 @@ Data from GBIF:
 see "I:/eie/==PERSONAL/Macroecology/Students/Jessica/Grid/GBIF_Data"
 GBIF_Earthworms_combined.csv - output after combining all earthworm species
 
+0060665-210914110416597
+Data downloaded from GBIF (Lumbricidae), received from CG
+
+0060661-210914110416597
+Species names from GBIF corresponding to the similarly named data file
+
 
 
 Data from Edaphobase:
@@ -23,4 +29,17 @@ Combined data:
 
 Earthworm_occurrence_GBIF_sWorm_Edaphobase.csv
 Earthworm_occurrence_Germany.txt - only points that intersect with German shapefile
+
+
+
+Shapefiles as base maps:
+
+Shapefile_Germany
+...
+
+World_Countries_Boundaries-shp
+Downloaded from ArcGIS
+
+Europe_coastline_shapefile
+Downloaded from EEA
 
