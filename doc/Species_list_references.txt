@@ -1,0 +1,37 @@
+How do we get species (backbone) lists of soil taxa?
+
+Earthworms (Lumbricidae)
+- German checklist
+- H. Phillips...
+
+Collembola
+- A. Potapov:
+-- table based on www.collembola.org (Frans Janssens), as part of last version of Cataloque of Life
+
+Nematoda
+...
+
+Fungi (& other eukaryotes)
+- L. Tedersoo: 
+-- ITS markers in UNITE based on FungalTraits initiative
+-- GSMc dataset (see Tedersoo et al. 2021)
+-- FungalTraits database to assign lifestyle of genera
+
+Bacteria
+- L. Tedersoo: no such list at ASV level
+...
+
+Mites (Oribatida, Gamasina)
+...
+
+Enchytraeids
+...
+
+Chilopods
+...
+
+Diplopods
+...
+
+Isopods 
+...
