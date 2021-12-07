@@ -18,3 +18,6 @@ data/Shapefile_Germany/wfsrequest.txt
 *.zip
 *.lyr
 *.xml
+*.png
+*.html
+*.log
