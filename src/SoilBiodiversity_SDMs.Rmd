@@ -1,0 +1,157 @@
+---
+title: "Soil Biodiversity SDMs"
+author: "Romy Zeiss"
+date: "12/3/2021"
+output: 
+  html_document:
+      toc: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(taxize)
+```
+
+This document works as a pipeline document from which several scripts will be runned. The general structure follows the table of content (see also Fig. 1).
+
+
+```{r, echo=F}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  rec1 [label = 'Step 1. Biodiversity Data']
+  rec2 [label = 'Step 2. Environmental Data']
+  rec3 [label =  'Step 3. Species Distribution Models (SDMs)']
+  rec4 [label = 'Step 4. Diversity Maps']
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4
+  }",
+  height = 500)
+```
+Figure 1: Workflow to create Species Distribution Models (SDMs) of several soil taxa.
+
+
+# Biodiversity data
+
+First, we have to get the biodiversity data that is, occurrence data on diverse soil taxa. Second, we need to get all data into the same data format, before we can merge all taxa together in a third step.
+
+## Download
+
+We use different data sources to download occurrence data. Same have to be downloaded manually.
+
+### Download using "taxize" package
+
+The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
+
+First, we define parameters specifying out search for occurrence data.
+
+```{r}
+# Name of the taxon we are interested in
+Taxon_name <- "Oligochaeta"
+
+```
+
+Next, we run the script to download the data. 
+
+```{r, include=F}
+source("Download_occurrences.R")
+```
+
+
+Alternatively, we use the dataset on earthworm occurrences that was prepared with ArcGIS.
+
+```{r}
+#read.csv()
+```
+
+
+### Download from GBIF
+
+We additionally download data from GBIF based on a pre-defined species list that contains only soil-living taxa (whenever it was possible to separate them from aquatic taxa). From the taxa in the species list, we first identify the GBIF taxonomic key, before we download all data based on these keys.
+
+```{r, include=F}
+
+```
+
+
+## Harmonization
+
+To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
+
+```{r}
+# Create a template dataframe with headers (and structure) but no rows
+df.occ <- tibble(Latitude=1.1, Longitude=1.1, 
+                 Species="Species", Database="Database")[0,]
+```
+
+
+## Merging
+
+We merge occurrences of taxa belonging to the same group of organism into one table. That way it will be easier to build the ensemble models later on. 
+
+```{r}
+
+```
+
+
+
+# Environmental data
+
+We selected the environmental variables according to the literature. After loading the data, we check for colinearity between the variables. We remove variables that show colinearity of more than XXX. 
+
+## Download
+
+We download the environmental variables manually. Table 1 shows the respective Reference and links.
+
+
+
+## Harmonization
+
+## Merging
+
+
+# Model input
+
+## Merging biodiversity and environmental data
+
+## Define model parameters
+
+
+# Modelling
+
+## Species Distribution Models
+
+# Repeat for all other taxa
+
+## Earthworms
+
+## Collembola
+
+## Nematoda
+
+## Fungi
+
+## Bacteria
+
+## Microarthropods (excluding Collembola)
+
+
+# Ensemble model
+
+## Model output
+
+
+# Results and Visualization
+
+## Individual SDMs
+
+## Diversity per group
+
+## Total diversity
+
+## Model performance
+
+
