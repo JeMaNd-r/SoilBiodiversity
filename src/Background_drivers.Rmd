@@ -1,0 +1,114 @@
+---
+title: "Soil drivers"
+author: "Romy Zeiss"
+date: "`r format(Sys.time(), '%B %Y')`"
+header-includes:
+- \usepackage{pdflscape} 
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+output: pdf_document
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding,
+  output_dir = "../doc", output_format = "all") })
+fontsize: 8pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(formattable)
+```
+
+## Literature review on drivers of soil biota
+
+First, we made a literature review on the drivers of different soil organisms. The results of this review can be found in the following table.
+
+```{r}
+setwd("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity")
+Env_Predictors_background <- read_csv("doc/Env_Predictors_background.csv")
+head(Env_Predictors_background)
+```
+
+Now, we will make this table a bit more nice, and combine similar relationships.
+
+```{r}
+
+Tab1 <- Env_Predictors_background %>% group_by(Category, Response) %>% 
+  mutate_all(~str_replace_na(., "")) %>%
+  mutate(values=paste(Reference, ": ", Predictor, " ", Effect_size, " ", Variance)) %>%
+  summarise_all(paste, collapse="/ ", na.action(na.omit))  %>%
+  select(Category, values, Response) %>%
+  pivot_wider(names_from=Response, values_from=values)
+```
+
+\newpage
+\blandscape
+
+```{r}
+options(knitr.kable.NA = "")
+knitr::kable(Tab1, caption = "Table 1. Drivers of soil biodiversity.")
+```
+\elandscape
+
+### Müller et al. 2016
+
+Here now separately the results of one extensive study.
+
+```{r}
+Tab2 <- Env_Predictors_background %>% 
+  filter(., Reference=="Mueller et al. 2016") %>%
+  group_by(Category, Response) %>% 
+  mutate_all(~str_replace_na(., "")) %>%
+  select(Category, Variance, Response, Long_name, Predictor) %>%
+  pivot_wider(names_from=Response, values_from=Variance)
+```
+
+\newpage
+\blandscape
+
+```{r echo=T} 
+# unfortunately, this doesn't work in PDF...
+
+formattable::formattable(Tab2, align =c("l","l","l","c","c", "c", "c", "c", "c", "c"), list(
+  `Category` = formatter("span", style = ~ style(color = "grey",font.weight = "bold")),
+  `Nematods`= color_bar("#DeF7E9"),
+  `Earthworms`= color_bar("#DeF7E9"),
+  `Mites`= color_bar("#DeF7E9"),
+  `Collembola`= color_bar("#DeF7E9"),
+  `Ants`=color_bar("#DeF7E9"),
+  `Invertebrates`= color_bar("#DeF7E9")))
+```
+
+```{r}
+Tab2 <- Env_Predictors_background %>% 
+  filter(., Reference=="Mueller et al. 2016") %>%
+  group_by(Predictor, Response, Category) %>% 
+  summarize(mean_Var = mean(Variance)) %>%
+  ungroup() %>% 
+  mutate_all(~str_replace_na(., "")) %>%
+  select(Category, mean_Var, Predictor, Response) %>%
+  pivot_wider(names_from=Response, values_from=mean_Var) %>%
+  arrange(Category)
+
+# create numeric matrix
+Mat2 <- matrix(
+    as.numeric(
+      as.matrix(Tab2[,3:8], ), 
+      ncol = 6), 
+    ncol=6, dimnames=list(Tab2$Predictor, colnames(Tab2[,3:8])))
+
+# define colors
+my_group <- as.numeric(as.factor(substr(Tab2$Category, 1 , 1)))
+colSide <- RColorBrewer::brewer.pal(4, "Set1")[my_group]
+
+mydf <- data.frame(row.names = rownames(Mat2), category = Tab2$Category)
+
+heatmap(Mat2, na.rm=T, Colv = NA, Rowv = NA, RowSideColors=colSide)
+
+pheatmap::pheatmap(Mat2 ,  na.rm=T, cluster_cols = F, cluster_rows = F, 
+                   annotation_row = mydf, gaps_row = c(5, 6, 15), cellheight = 10, cellwidth = 20)
+```
+
+\elandscape
+
+
