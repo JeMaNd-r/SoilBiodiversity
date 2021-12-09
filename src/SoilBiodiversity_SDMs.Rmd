@@ -27,7 +27,9 @@ DiagrammeR::grViz("digraph {
   rec4 [label = 'Step 4. Diversity Maps']
   
   # edge definitions with the node IDs
-  rec1 -> rec2 -> rec3 -> rec4
+  rec1 -> rec3;
+  rec2 -> rec3;
+  rec3 -> rec4
   }",
   height = 500)
 ```
@@ -61,7 +63,9 @@ source("Download_occurrences.R")
 ```
 
 
-Alternatively, we use the dataset on earthworm occurrences that was prepared with ArcGIS.
+### Load dataset that was prepared in ArcGIS
+
+Alternatively, we use a dataset on earthworm occurrences that was prepared with ArcGIS.
 
 ```{r}
 #read.csv()
@@ -73,7 +77,7 @@ Alternatively, we use the dataset on earthworm occurrences that was prepared wit
 We additionally download data from GBIF based on a pre-defined species list that contains only soil-living taxa (whenever it was possible to separate them from aquatic taxa). From the taxa in the species list, we first identify the GBIF taxonomic key, before we download all data based on these keys.
 
 ```{r, include=F}
-
+#with rgbif...
 ```
 
 
@@ -90,7 +94,15 @@ df.occ <- tibble(Latitude=1.1, Longitude=1.1,
 
 ## Merging
 
-We merge occurrences of taxa belonging to the same group of organism into one table. That way it will be easier to build the ensemble models later on. 
+We merge occurrences of taxa belonging to the same group of organism into one table and merge with the gridcell identifiers (GridID). That way it will be easier to build the ensemble models later on.
+
+First, we create again a dataframe with the pre-defined structure for the data.
+
+```{r}
+df.taxa <- tibble(GridID=1)[0,]
+```
+
+Then, we add each species as a column to that dataframe.
 
 ```{r}
 
@@ -106,12 +118,37 @@ We selected the environmental variables according to the literature. After loadi
 
 We download the environmental variables manually. Table 1 shows the respective Reference and links.
 
-
+TABLE 1
 
 ## Harmonization
 
+The environmental variables all come with different resolution and coordinate reference systems. We transform all variables into a 1km x 1km grid with WGS84 as coordinate reference system. 
+
+Because this is computationally intensive - especially in R - we do this in ArcGIS by creating a fishnet grid across Europe, and adding all variables to that grid. We get one table (GridID and variable value) for each variables. 
+
+If we merge these tables in ArcGIS, we will get 0 values instead of NA. Therefore, we decided to merge the individual tables in R in the following.
+
 ## Merging
 
+We start with the creation of the preferred output dataframe.
+
+```{r}
+df.env <- tibble(GridID=1)[0,]
+```
+
+Now, we can add all variables we want to include in our models to this dataframe.
+
+
+## Check for colinearity
+
+Before we start with the models, we check for colinearity between our environmental variables.
+
+```{r}
+#corrplot::corrplot(cor(df.env))
+```
+
+
+The selected environmental variables will be called **predictors** hereafter.
 
 # Model input
 
