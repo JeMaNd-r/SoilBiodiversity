@@ -3,35 +3,76 @@ How do we get species (backbone) lists of soil taxa?
 Earthworms (Lumbricidae)
 - German checklist
 - H. Phillips...
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- Clitellata -> Crassiclitellata & Enchytraedae (see below) & leeches
+--- Crassiclitellata only terrestrial: Lumbricus, Eisenia, Kynotus, Pelodrilus, Drawida (as common examples) of C., Haplotaxidae & Moniligastidae
+--- leeches not soil species (mostly in vegetation)
 
 Collembola
 - A. Potapov:
 -- table based on www.collembola.org (Frans Janssens), as part of last version of Cataloque of Life
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- mostly terrestrial, some exceptions (semi-aquatic species):
+--- Anurdia maritima, Anuridella calcarata (D'Haese 2002, 2003)
+--- Podura aquatica, Sminthurides aquaticus/sp. (D'Haese 2002, 2003)
+--- Pseudanurida sawayana, Isotogastrura sp., Spinactaletes bellingeri (D'Haese 2003)
 
 Nematoda
-...
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- no monophyletic terrestrial group, not clear to separate on phylogeny
+- K. Hohberg...
 
 Fungi (& other eukaryotes)
 - L. Tedersoo: 
 -- ITS markers in UNITE based on FungalTraits initiative
+--- search terms -> Source: Leaf litter, Soil fungal RNA, Fungal mycelium (ingrowth bag), [DNA from wood]?, Soil fungal DNA, Ericoid mycorrhiza, Orchid mycorrhiza, Ectomycorrhiza, [Fruit body]?, [Fungus]?
 -- GSMc dataset (see Tedersoo et al. 2021)
 -- FungalTraits database to assign lifestyle of genera
+--- https://docs.google.com/spreadsheets/d/1cxImJWMYVTr6uIQXcTLwK1YNNzQvKJJifzzNpKCM6O0/edit#gid=33668129
 
 Bacteria
 - L. Tedersoo: no such list at ASV level
+- Mo Bahram?...
 ...
 
-Mites (Oribatida, Gamasina)
+Chelicerates -> Mites, scorpiones, spiders...
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- fully terrestrial: Whip spiders (Uropygi & Amblypygi), Scorpiones, Pseudoscorpiones, Parasitiformes (Ticks), Solifugae (carnel spiders), Opiliones, Ricinulei (Tickspiders)
+-- secondary adaptations to aquatic env. -> some exceptional taxa in spiders & mites
+- Acariformes/ Mites (Oribatida, Gamasina)
+-- F. Beaulieu...
 ...
 
-Enchytraeids
-...
+Enchytraeids (potworms)
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- terrestrialization more diffucult to track
 
-Chilopods
-...
-
-Diplopods
-...
+Myriapoda
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- all terrestrial except extinct Euthycarcinoidea
+- Chilopods
+- Diplopods
+- Pauropoda
+- Symphyla
 
 Isopods 
-...
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- terrestrial suborder Oniscidea, ~3,700 species, 4 terrestrial sub(sub)orders: Crinocheta, Sinocheta, Microcheta, and Diplocheta
+
+Tardigrades
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- all terrestrial after Heterotardigrada (Arthrot. & Echiniscoidea), and except at least 62 exclusively freshwater-living species (see Garey et al. 2008)
+
+Insects (Hexapods)
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- mostly terrestrial, many with freshwater-stage
+-- fully terrestrial (!not necessarily soil): Hymenoptera (wasps, bees, ants), Dermaptera (earwigs), Apterygota (wingless hexapods), Isoptera (termites), Blattodea (cockroaches), mantodea (praying mantids), Phasmatodea (stick insects), Embioptera (webspinners), Orthoptera (grasshoppers, crickets)
+
+Platyhelminthes
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- order Tricladida: Bipaliidae, Microplaninae, Rhynchodeminae, Caenoplaninae, and Geoplaninae are terrestrial, remaining are aquatic
+
+Snails & slugs
+- soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
+-- land snails, e.g. Stylommatophora (Helix, Limax, Cepaea, Arion), some Systellommatophora (Veronicella) and some Ellobioidae (Carychium)
+-- Caenogastopoda: terrestrial taxa: Cyclophoroidae (Leptopoma, Arinia)
