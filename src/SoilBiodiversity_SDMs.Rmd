@@ -10,6 +10,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(CoordinateCleaner)
+library(rgbif)
 library(taxize)
 ```
 
@@ -50,17 +52,27 @@ The *taxize* package is searching in several databases for a specific taxon name
 
 First, we define parameters specifying out search for occurrence data.
 
-```{r}
+```{r, echo=TRUE}
 # Name of the taxon we are interested in
-Taxon_name <- "Oligochaeta"
+Taxon_name <- "Crassiclitellata"
+
+# Type of rank of the Taxon_name
+Taxon_rank <- "order"
+
+# geographic extent
+search_polygon <- "POLYGON((-28.94532 66.07036, -23.32032 29.18799, 38.55468 31.61348, 51.91406 43.80071, 56.83593 62.08195, 44.17968 72.69797, 7.61718 74.29467, -28.94532 66.07036))" 
 
 ```
 
-Next, we run the script to download the data. 
+Next, we run the script to download and clean the data. We use the package CoordinateCleaner to identify occurrence records with geospatial issues. We also remove records collected before 1990
 
-```{r, include=F}
+```{r, echo=T}
 source("Download_occurrences.R")
 ```
+
+For the order Crassiclitellata, we have many occurrences in the Netherlands (countryCode="NL"), but most of them have a too high coordinateUncertainty (more than 1km), and/or are not at the species level, but at the family level only. They were therefore excluded and appear as a "red cloud" on the map above.
+
+TODO: rm temporal env.
 
 
 ### Load dataset that was prepared in ArcGIS
@@ -118,7 +130,54 @@ We selected the environmental variables according to the literature. After loadi
 
 We download the environmental variables manually. Table 1 shows the respective Reference and links.
 
-TABLE 1
+
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+| Predictor | Full name | Unit  | Resolution | CRS   | Range | DOI   | Reference | Link  |
++===========+===========+=======+============+=======+=======+=======+===========+=======+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+|           |           |       |            |       |       |       |           |       |
++-----------+-----------+-------+------------+-------+-------+-------+-----------+-------+
+
+: Table 1: Selected environmental variables. CRS - Coordinate Reference System
+
+
 
 ## Harmonization
 
