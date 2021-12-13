@@ -21,3 +21,4 @@ data/Shapefiles/
 *.png
 *.html
 *.log
+*.R
