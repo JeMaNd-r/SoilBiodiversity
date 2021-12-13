@@ -14,7 +14,7 @@
 *.cpg
 *.prj
 *.cst
-data/Shapefile_Germany/wfsrequest.txt
+data/Shapefiles/
 *.zip
 *.lyr
 *.xml
