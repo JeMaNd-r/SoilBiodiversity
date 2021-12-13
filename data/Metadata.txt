@@ -37,9 +37,14 @@ Shapefiles as base maps:
 Shapefile_Germany
 ...
 
-World_Countries_Boundaries-shp
+World_Countries_Boundaries
 Downloaded from ArcGIS
 
-Europe_coastline_shapefile
+Europe_coastline
 Downloaded from EEA
+
+Europe_Coastline_Polygon
+Downloaded from EEA
+https://www.eea.europa.eu/data-and-maps/data/eea-coastline-for-analysis-2/gis-data/eea-coastline-polygon
+
 
