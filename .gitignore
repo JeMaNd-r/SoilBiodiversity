@@ -22,3 +22,5 @@ data/Shapefiles/
 *.html
 *.log
 *.R
+
+/SDMs
