@@ -24,3 +24,7 @@ data/Shapefiles/
 *.R
 
 /SDMs
+*.grd
+*.hdr
+*.gri
+*.bil
