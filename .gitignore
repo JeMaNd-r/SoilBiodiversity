@@ -23,7 +23,7 @@ data/Shapefiles/
 *.log
 *.R
 
-/SDMs
+/results/SDMs
 *.grd
 *.hdr
 *.gri
