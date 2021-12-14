@@ -6,6 +6,8 @@ Earthworms (Lumbricidae)
 - soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
 -- Clitellata -> Crassiclitellata & Enchytraedae (see below) & leeches
 --- Crassiclitellata only terrestrial: Lumbricus, Eisenia, Kynotus, Pelodrilus, Drawida (as common examples) of C., Haplotaxidae & Moniligastidae
+- Ailoscolex lacteospumosus (Lumbriculida) = freshwater species
+- Criodrilus lacuum (Crassiclitellata: Criodrilidae) = freshwater family
 --- leeches not soil species (mostly in vegetation)
 
 Collembola
