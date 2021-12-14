@@ -83,6 +83,18 @@ dat_cl <- dat_cl %>% select(key, acceptedScientificName, decimalLatitude, decima
                             year, month, references, license, geodeticDatum, countryCode, collectionCode, individualCount,
                             samplingProtocol, habitat)
 
+# add species ID
+dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")], 
+                             by=c("species" = "Species"))
+
+# transform into wide format
+dat_wide <- dat_cl
+dat_wide$presence <- 1
+dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude), 
+                            names_from = SpeciesID, values_from = presence,
+                            values_fn = max)
+dat_wide <- as.data.frame(dat_wide)
+
 # save only if we want to do so
 if (checkSave_cleanData==T){
 
@@ -91,6 +103,10 @@ if (checkSave_cleanData==T){
 
   # save cleaned occurrence records
   write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"), row.names = F)
+
+  # save cleaned occurrence records in wide format
+  write.csv(dat_wide, file=paste0(here::here(), "/results/Occurrences_wide_", Taxon_name, ".csv"), row.names = F)
+  
 }
 
 # remove temporal R objects
