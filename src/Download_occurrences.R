@@ -31,7 +31,7 @@ if (checkDownload_rawData==TRUE){
   print("Note: If you have 100,000 records here, you have to manually download the remaining data.")
   print("The limit per search request is set to 100,000.")
 
-  save(dat, file=paste0("RawOccurrences_", Taxon_name, ".R"))
+  save(dat, file=paste0("RawOccurrences_", Taxon_name, ".RData"))
 
   rm(dat)
 }
