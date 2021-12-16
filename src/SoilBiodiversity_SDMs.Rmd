@@ -73,10 +73,13 @@ Taxon_rank <- "order"
 # geographic extent
 Search_polygon <- "POLYGON((-28.94532 66.07036, -23.32032 29.18799, 38.55468 31.61348, 51.91406 43.80071, 56.83593 62.08195, 44.17968 72.69797, 7.61718 74.29467, -28.94532 66.07036))" 
 
-#create vector graph object called Border_EU for plotting
+# create vector graph object called Border_EU for plotting
 Border_EU <- borders(database="world",colour = "black",fill = "gray50",  
                  xlim = c(-23, 60), 
                  ylim = c(31, 75))
+
+# geographic extent of Europe
+extent_Europe <- c(-23, 60, 31, 75)
 
 # number of records that will be downloaded (max. 100,000)
 No_records <- 100000
@@ -268,6 +271,9 @@ The selected environmental variables will be called **predictors** hereafter.
 ## Species Distribution Models
 
 ```{r, include=F}
+# decide how many CPU to use for parallelization
+setCPU <- 5
+
 source(file=paste0(here::here(), "/src/SDMs.R"))
 ```
 
