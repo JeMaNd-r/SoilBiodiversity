@@ -13,9 +13,9 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobopho
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora chlorotica,Allo_chlo,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora minuscula,Allo_minu,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora muldali,Allo_muld,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora sturanyi dacidoides,Allo_stur,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora sturanyi,Allo_stur,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophoridella,Allolobophoridella eiseni,Allo_eise,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea caliginosa,Apor_cali,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea caliginosa,Apor_cali,including subspecies Aporrectodea caliginosa ssp. trapezoides
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea cupulifera,Apor_cupu,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea dubiosa,Apor_dubi,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea georgii,Apor_geor,
@@ -25,7 +25,7 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectoda
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea jassyensis,Apor_jass,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea limicola,Apor_limi,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea longa,Apor_long,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea nocturna,Apor_noct,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea nocturna,Apor_noct,Synonym subspecies Apporectodea calignosa ssp. noctura
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea rosea,Apor_rose,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea smaragdina,Apor_smar,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodea thaleri,Apor_thal,
@@ -78,9 +78,9 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus bretscher,Octo_bret,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus complanatus,Octo_comp,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus complanatus,Octo_comp,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus exacystis,Octo_exac,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus exacystis,Allo_exac,Synonym Allolobophora exacystis
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus lissaensis,Octo_liss,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus mimu,Octo_mimu,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus mima,Allo_mima,Synonym Allolobophora mima
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus transpadanus,Octo_trans,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion cyaneum,Octo_cyan,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion lacteum,Octo_lact,
@@ -92,10 +92,10 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Proctodrilu
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Proctodrilus,Proctodrilus tuberculatus,Eoph_tube,Synonym Eophila tuberculatus
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Proctodrilus,Proctodrilus Zics,Proc_orle,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Prosellodrilus,Prosellodrilus albus,Pros_albu,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Satchellius,Satchellius madeirensis,Satc_made,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Satchellius,Satchellius madeirensis,Satc_made,Synonyms Allolobophora madeirensis and Dendrobaena madeirensis and Satchellius gatesi
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Satchellius,Satchellius mammalis,Satc_mamm,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Scherotheca,Scherotheca aquitania,Sche_aqui,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Scherotheca,Scherotheca hexatheca,Sche_hexa,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Scherotheca,Scherotheca hexatheca,Allo_hexa,Synonym Allolobophora hexatheca
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Scherotheca,Scherotheca portcrosana,Sche_port,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Megascolecidae,Amynthas,Amynthas agrestis,Amyn_agre,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Megascolecidae,Amynthas,Amynthas corticis,Amyn_cort,
@@ -104,3 +104,8 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Megascolecidae,Perichae
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Megascolecidae,Polypheretima,Polypheretima cordata,Poly_cord,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Octochaetidae,Agastrodrilus,Agastrodrilus multivesiculatus,Agas_mult,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Sparganophilidae,Sparganophilus,Sparganophilus tamesis,Spar_tame,many Synonyms
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora hexatheca,Allo_hexa,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora mima,Allo_mima,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora exacystis,Allo_exac,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Allolobophora,Allolobophora opisthosellata,Allo_ophi,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Aporrectodae,Aporrectodae opisthosellata,Allo_ophi,Synonym Allolobophora ophishosellata
