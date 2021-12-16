@@ -21,7 +21,6 @@ data/Shapefiles/
 *.png
 *.html
 *.log
-*.R
 
 /results/SDMs
 *.grd
