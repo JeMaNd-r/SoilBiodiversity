@@ -43,7 +43,11 @@ bg.glm <- BIOMOD_FormatingData(resp.var = myResp,
                                PA.strategy = temp.strategy)
 temp.time <- Sys.time() - tmp
 
-bg.glm <- cbind(bg.glm@PA, bg.glm@coord, bg.glm@data.env.var)
+if(temp.runs==1){
+  bg.glm <- cbind(bg.glm@data.species, bg.glm@coord, bg.glm@data.env.var)
+}else{
+  bg.glm <- cbind(bg.glm@PA, bg.glm@coord, bg.glm@data.env.var)
+}
 bg.glm$SpeciesID <- spID
 
 str(bg.glm)
@@ -73,7 +77,11 @@ bg.mars <- BIOMOD_FormatingData(resp.var = myResp,
                                 PA.strategy = temp.strategy)
 temp.time <- Sys.time() - tmp
 
-bg.mars <- cbind(bg.mars@PA, bg.mars@coord, bg.mars@data.env.var)
+if(temp.runs==1){
+  bg.mars <- cbind(bg.mars@data.species, bg.mars@coord, bg.mars@data.env.var)
+}else{
+  bg.mars <- cbind(bg.mars@PA, bg.mars@coord, bg.mars@data.env.var)
+}
 bg.mars$SpeciesID <- spID
 
 str(bg.mars)
@@ -112,7 +120,11 @@ bg.mda <- BIOMOD_FormatingData(resp.var = myResp,
                                 PA.strategy = temp.strategy, PA.dist.min = temp.min.dist)
 temp.time <- Sys.time() - tmp
 
-bg.mda <- cbind(bg.mda@PA, bg.mda@coord, bg.mda@data.env.var)
+if(temp.runs==1){
+  bg.mda <- cbind(bg.mda@data.species, bg.mda@coord, bg.mda@data.env.var)
+}else{
+  bg.mda <- cbind(bg.mda@PA, bg.mda@coord, bg.mda@data.env.var)
+}
 bg.mda$SpeciesID <- spID
 
 str(bg.mda)
@@ -157,7 +169,12 @@ bg.rf <- BIOMOD_FormatingData(resp.var = myResp,
                                 PA.strategy = temp.strategy, PA.dist.min = temp.min.dist)
 temp.time <- Sys.time() - tmp
 
-bg.rf <- cbind(v@PA, bg.rf@coord, bg.rf@data.env.var)
+if(temp.runs==1){
+  bg.rf <- cbind(bg.rf@data.species, bg.rf@coord, bg.rf@data.env.var)
+}else{
+  bg.rf <- cbind(bg.rf@PA, bg.rf@coord, bg.rf@data.env.var)
+}
+
 bg.rf$SpeciesID <- spID
 
 str(bg.rf)
@@ -175,4 +192,10 @@ print("The strategy used for GLM/GAM can be used for other models than listed.")
 
 # save model setting summary for later
 save(model.settings, file=paste0(here::here(), "/results/BackgroundData_modelSettings_", Taxon_name, ".RData"))
+
+# save background data
+write.csv(bg.glm, file=paste0(here::here(), "/results/BackgroundData_GLM_", Taxon_name, ".csv"), row.names = F)
+write.csv(bg.mars, file=paste0(here::here(), "/results/BackgroundData_MARS_", Taxon_name, ".csv"), row.names = F)
+write.csv(bg.mda, file=paste0(here::here(), "/results/BackgroundData_MDA_", Taxon_name, ".csv"), row.names = F)
+write.csv(bg.rf, file=paste0(here::here(), "/results/BackgroundData_RF_", Taxon_name, ".csv"), row.names = F)
 
