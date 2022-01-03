@@ -21,13 +21,6 @@
 ## Biodiversity data (occurrences, response variable)
 mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrences_wide_", Taxon_name, ".csv"))
 
-mySpeciesOcc$x <- mySpeciesOcc$decimalLongitude
-mySpeciesOcc$y <- mySpeciesOcc$decimalLatitude
-
-# remove NA in coordinates
-mySpeciesOcc <- mySpeciesOcc[complete.cases(mySpeciesOcc$x),]
-mySpeciesOcc <- mySpeciesOcc[complete.cases(mySpeciesOcc$y),]
-
 #- - - - - - - - - - - - - - - - - - - - - -#
 ## Define species names
 # check first if there are enough occurrence data for each species
@@ -97,8 +90,9 @@ MyBiomodSF <- function(sp.n){
     ## Building ensemble-models
     myBiomodEM <- BIOMOD_EnsembleModeling(
       modeling.output = myBiomodModelOut,
+      eem.by = 'all'
       chosen.models = 'all',
-      eval.metric = c('TSS'),
+      eval.metric = 'TSS',
       eval.metric.quality.threshold = c(0.85),
       prob.mean = T,
       prob.cv = T,
@@ -107,7 +101,8 @@ MyBiomodSF <- function(sp.n){
       prob.median = T,
       committee.averaging = T,
       prob.mean.weight = T,
-      prob.mean.weight.decay = 'proportional' )
+      prob.mean.weight.decay = 'proportional',
+      VarImport=3)
   })
   
   # if ensemble modelling gets an error, stop here
@@ -117,7 +112,8 @@ MyBiomodSF <- function(sp.n){
     rm(myBiomodData, myBiomodModelOut)
     
     # print error message
-    print("There are no models kept for EnsembleModeling due to threshold filtering.")
+    print("There are no models kept for EnsembleModeling due to threshold filtering. 
+          Please check your environmental predictors or adapt the threshold if necessary.")
   
   }else{ #if there is no error, continue
     

@@ -19,9 +19,11 @@ library(taxize)
 library(raster)
 library(sp)
 library(extremevalues)
+library(sdmpredictors)
 
-library(biomod2)
+library(biomod2) # also to create pseudo-absences
 library(snowfall) # for parallelization
+library(SSDM)
 
 here::here()
 ```
@@ -90,8 +92,17 @@ checkDownload_rawData <- FALSE
 # do we want to save the cleaned data? If so, say TRUE
 checkSave_cleanData <- TRUE
 
+# do we want to save the cleaned environmental data?
+checkSave_precitor <- FALSE
+
 # define the species you wanted names
 speciesNames <- read.csv(file=paste0(here::here(), "/doc/Species_list_", Taxon_name, ".csv"))
+
+# define names of predictor variables
+predictorNames <- c("bio1", "bio2", "bio3", "bio4", "bio5", "bio6", "bio7", "bio8", "bio9", "bio10", "bio11", "bio12", "bio13", "bio14", "bio15", "bio16", "bio17", "bio18", "bio19" , "Latitude")
+
+# define first species
+spID <- speciesNames[1, "SpeciesID"]
 ```
 
 Next, we run the script to download and clean the data. We use the package CoordinateCleaner to identify occurrence records with geospatial issues. We also remove records collected before 1990. 
@@ -237,7 +248,7 @@ We start with the creation of the preferred output dataframe.
 df.env <- tibble(GridID=1)[0,]
 ```
 
-```{r, include=F}
+```{r, echo=F}
 source("Prepare_predictors.R")
 ```
 
@@ -253,11 +264,52 @@ Before we start with the models, we check for colinearity between our environmen
 ```
 
 
-The selected environmental variables will be called **predictors** hereafter.
+The selected environmental variables will be called **predictors** hereafter. We save the names of those selected variables into a vector for later.
+
+```{r}
+covarsNames <- predictorNames 
+```
+
 
 # Model input
 
-## (Merging biodiversity and environmental data)
+## Background data or pseudo-absences
+
+We create background data (pseudo-absences) for the different modeling approaches. The selected methods to create background data were chosen according to Barbet-Massin et al. (2012).
+
+* large number (e.g. 10,000) of pseudo-absences with 
+  * equal weighting for presences and absences when using regression techniques (e.g. generalised linear model and generalised additive model); 
+  * averaging several runs (e.g. 10) with fewer pseudo-absences (e.g. 100) with equal weighting for presences and absences with multiple adaptive regression splines and discriminant analyses; 
+  * using the same number of pseudo-absences as available presences (averaging several runs if few pseudo-absences) for classification techniques such as boosted regression trees, classification trees and random forest 
+* random selection of pseudo-absences when using regression techniques and 
+* random selection of geographically and environmentally stratified pseudo-absences when using classification and machine-learning techniques
+
+```{r}
+source("Create_backgroundData.R")
+```
+
+
+## Merging biodiversity and environmental data
+
+```{r}
+# add environmental data to presence data
+env <- read.csv(file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".csv"))
+occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
+occ.env <- cbind(occ, env)
+
+write.csv(occ.env, file=paste0(here::here(), "/results/OccEnv_", Taxon_name, ".csv"), row.names = F)
+```
+
+If you get an error message here regarding the length (nrow) of the dataframes, check if you extracted the environmental values with the selected occurrences.
+
+## Split data into training, testing, and validation data
+
+Split the dataset into training (60%), testing (20%) and validation (20%) data. In the same step, get the data into the right data format.
+
+```{r}
+source("Prepare_input.R")
+```
+
 
 ## Define model parameters
 
@@ -273,6 +325,11 @@ The selected environmental variables will be called **predictors** hereafter.
 ```{r, include=F}
 # decide how many CPU to use for parallelization
 setCPU <- 5
+
+source(file=paste0(here::here(), "/src/SDMs.R"))
+```
+
+```{r, include=F}
 
 source(file=paste0(here::here(), "/src/SDMs.R"))
 ```
