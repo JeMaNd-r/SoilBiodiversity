@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-load(file=paste0(here::here(), "/results/RawOccurrences_", Taxon_name, ".R"))
+load(file=paste0(here::here(), "/results/RawOccurrences_", Taxon_name, ".RData"))
 
 ## Cleaning coordinates based on meta-data ####
 
@@ -78,7 +78,7 @@ print({
 dat_cl <- dat_cl[flags$.summary, ]
 
 # filter data columns
-dat_cl <- dat_cl %>% select(key, acceptedScientificName, decimalLatitude, decimalLongitude, issues, occurrenceStatus, 
+dat_cl <- dat_cl %>% dplyr::select(key, acceptedScientificName, decimalLatitude, decimalLongitude, issues, occurrenceStatus, 
                             speciesKey, order, family, species, genus, specificEpithet, coordinateUncertaintyInMeters,
                             year, month, references, license, geodeticDatum, countryCode, collectionCode, individualCount,
                             samplingProtocol, habitat)
@@ -87,10 +87,22 @@ dat_cl <- dat_cl %>% select(key, acceptedScientificName, decimalLatitude, decima
 dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")], 
                              by=c("species" = "Species"))
 
+# create x and y column
+dat_cl$x <- dat_cl$decimalLongitude
+dat_cl$y <- dat_cl$decimalLatitude
+
+# remove NA in coordinates
+dat_cl <- dat_cl[complete.cases(dat_cl$x),]
+dat_cl <- dat_cl[complete.cases(dat_cl$y),]
+
+# remove commata
+dat_cl$issues <- gsub(","," ",dat_cl$issues)
+dat_cl$acceptedScientificName <- gsub(","," ",dat_cl$acceptedScientificName)
+
 # transform into wide format
 dat_wide <- dat_cl
 dat_wide$presence <- 1
-dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude), 
+dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude, x, y), 
                             names_from = SpeciesID, values_from = presence,
                             values_fn = max)
 dat_wide <- as.data.frame(dat_wide)

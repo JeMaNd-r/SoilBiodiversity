@@ -5,8 +5,8 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-# get Worldclim raster data layers
-env.bioclim <- getData('worldclim', var='bio', res=10)
+# load environmental raster data layers
+env.bioclim <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
 
 #summary(env.bioclim[[1]])
 plot(env.bioclim[[1]], main="BioClim 1 (raw)")
@@ -62,5 +62,3 @@ envbd.bioclim$Latitude <- coordinates(occ)[,"decimalLatitude"]
 # save as csv file
 write.csv(envbd.bioclim, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".csv"), row.names = F)
 
-# save also environmental data as raster file
-writeRaster(env.bioclim, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
