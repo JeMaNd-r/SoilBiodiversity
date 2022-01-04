@@ -22,7 +22,7 @@ data/Shapefiles/
 *.html
 *.log
 
-/results/maxent
+/results/Crassiclitellata
 /results/SDMs
 *.grd
 *.hdr
