@@ -31,7 +31,7 @@ here::here()
 This document works as a pipeline document from which several scripts will be runned. The general structure follows the table of content (see also Fig. 1).
 
 
-```{r, echo=F}
+```{r workflow, echo=F}
 DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
   
@@ -50,22 +50,9 @@ DiagrammeR::grViz("digraph {
 ```
 Figure 1: Workflow to create Species Distribution Models (SDMs) of several soil taxa.
 
+First, we need to define some fixed parameters.
 
-# Biodiversity data
-
-First, we have to get the biodiversity data that is, occurrence data on diverse soil taxa. Second, we need to get all data into the same data format, before we can merge all taxa together in a third step.
-
-## Download
-
-We use different data sources to download occurrence data. Same have to be downloaded manually.
-
-### Download using "taxize" package
-
-The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
-
-First, we define parameters specifying out search for occurrence data.
-
-```{r, echo=TRUE}
+```{r parameters, echo=TRUE}
 # Name of the taxon we are interested in
 Taxon_name <- "Crassiclitellata"
 
@@ -102,18 +89,30 @@ speciesNames <- read.csv(file=paste0(here::here(), "/doc/Species_list_", Taxon_n
 predictorNames <- c("bio1", "bio2", "bio3", "bio4", "bio5", "bio6", "bio7", "bio8", "bio9", "bio10", "bio11", "bio12", "bio13", "bio14", "bio15", "bio16", "bio17", "bio18", "bio19" , "Latitude")
 
 # define first species
-spID <- speciesNames[1, "SpeciesID"]
+spID <- speciesNames[73, "SpeciesID"]
 ```
 
-Next, we run the script to download and clean the data. We use the package CoordinateCleaner to identify occurrence records with geospatial issues. We also remove records collected before 1990. 
+
+# Biodiversity data
+
+First, we have to get the biodiversity data that is, occurrence data on diverse soil taxa. Second, we need to get all data into the same data format, before we can merge all taxa together in a third step.
+
+## Download
+
+We use different data sources to download occurrence data. Same have to be downloaded manually.
+
+### Download using "taxize" package
+
+The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
+
+We first run the script to download and clean the data. We use the package CoordinateCleaner to identify occurrence records with geospatial issues. We also remove records collected before 1990. 
 
 Note: If we download all available data (or the maximum limit of 100,000), it will take a while. If GBIF has more than 100,000 occurrence records, we need to download the data in several steps.
 
-```{r, include=FALSE}
-source("Download_occurrences.R")
+```{r downloadTaxize, include=FALSE}
 ```
 
-```{r}
+```{r cleanOcc}
 source("Clean_occurrences.R")
 ```
 
@@ -125,7 +124,7 @@ For the order Crassiclitellata, we have many occurrences in the Netherlands (cou
 
 Alternatively, we use a dataset on earthworm occurrences that was prepared with ArcGIS.
 
-```{r}
+```{r loadArcGIS}
 #read.csv()
 ```
 
@@ -134,8 +133,8 @@ Alternatively, we use a dataset on earthworm occurrences that was prepared with 
 
 We additionally download data from GBIF based on a pre-defined species list that contains only soil-living taxa (whenever it was possible to separate them from aquatic taxa). From the taxa in the species list, we first identify the GBIF taxonomic key, before we download all data based on these keys.
 
-```{r, include=F}
-#with rgbif...
+```{r downloadGBIF, include=F}
+source("Download_occurrences.R")
 ```
 
 
@@ -143,7 +142,7 @@ We additionally download data from GBIF based on a pre-defined species list that
 
 To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
 
-```{r}
+```{r harmonization}
 # Create a template dataframe with headers (and structure) but no rows
 df.occ <- tibble(Latitude=1.1, Longitude=1.1, 
                  Species="Species", Database="Database")[0,]
@@ -154,16 +153,10 @@ df.occ <- tibble(Latitude=1.1, Longitude=1.1,
 
 We merge occurrences of taxa belonging to the same group of organism into one table and merge with the gridcell identifiers (GridID). That way it will be easier to build the ensemble models later on.
 
-First, we create again a dataframe with the pre-defined structure for the data.
+First, we create again a dataframe with the pre-defined structure for the data. Then, we add each species as a column to that dataframe.
 
-```{r}
+```{r mergeSpecies}
 df.taxa <- tibble(GridID=1)[0,]
-```
-
-Then, we add each species as a column to that dataframe.
-
-```{r}
-
 ```
 
 
@@ -225,7 +218,7 @@ We download the environmental variables manually. Table 1 shows the respective R
 
 We may need to extract point-specific (climatic) values.
 
-```{r, include=TRUE}
+```{r extractPredictors, include=TRUE}
 source("Extract_predictor.R")
 ```
 
@@ -245,10 +238,11 @@ If we merge these tables in ArcGIS, we will get 0 values instead of NA. Therefor
 We start with the creation of the preferred output dataframe.
 
 ```{r}
-df.env <- tibble(GridID=1)[0,]
 ```
 
-```{r, echo=F}
+```{r preparePredictors, echo=F}
+df.env <- tibble(GridID=1)[0,]
+
 source("Prepare_predictors.R")
 ```
 
@@ -259,15 +253,15 @@ Now, we can add all variables we want to include in our models to this dataframe
 
 Before we start with the models, we check for colinearity between our environmental variables.
 
-```{r}
+```{r colinearity}
 #corrplot::corrplot(cor(df.env))
 ```
 
 
 The selected environmental variables will be called **predictors** hereafter. We save the names of those selected variables into a vector for later.
 
-```{r}
-covarsNames <- predictorNames 
+```{r covarsNames}
+covarsNames <- predictorNames[predictorNames!="Latitude"] 
 ```
 
 
@@ -284,14 +278,14 @@ We create background data (pseudo-absences) for the different modeling approache
 * random selection of pseudo-absences when using regression techniques and 
 * random selection of geographically and environmentally stratified pseudo-absences when using classification and machine-learning techniques
 
-```{r}
+```{r backgroundData, echo=FALSE}
 source("Create_backgroundData.R")
 ```
 
 
 ## Merging biodiversity and environmental data
 
-```{r}
+```{r mergeEnvOcc, include=F}
 # add environmental data to presence data
 env <- read.csv(file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".csv"))
 occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
@@ -306,7 +300,7 @@ If you get an error message here regarding the length (nrow) of the dataframes, 
 
 Split the dataset into training (60%), testing (20%) and validation (20%) data. In the same step, get the data into the right data format.
 
-```{r}
+```{r prepareModelInput}
 source("Prepare_input.R")
 ```
 
@@ -322,16 +316,16 @@ source("Prepare_input.R")
 
 ## Species Distribution Models
 
-```{r, include=F}
+```{r SDMs, include=F}
 # decide how many CPU to use for parallelization
 setCPU <- 5
 
 source(file=paste0(here::here(), "/src/SDMs.R"))
 ```
 
-```{r, include=F}
+```{r SDM_Valavi, include=F}
 
-source(file=paste0(here::here(), "/src/SDMs.R"))
+source(file=paste0(here::here(), "/src/SDM_Valavi.R"))
 ```
 
 # Repeat for all other taxa
@@ -358,7 +352,7 @@ source(file=paste0(here::here(), "/src/SDMs.R"))
 
 ## Input data
 
-```{r}
+```{r resultInput}
 dat_cl <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
 
 table(dat_cl$species)
@@ -367,7 +361,7 @@ table(dat_cl$species)
 
 ## Individual SDMs
 
-```{r, include=F}
+```{r resultSDM, include=F}
 source("Result_SDMs.R")
 ```
 
@@ -375,19 +369,19 @@ source("Result_SDMs.R")
 ## Diversity per group
 
 
-```{r, include=F}
+```{r resultGroupDiv, include=F}
 source("Result_richness_perGroup.R")
 ```
 
 ## Total diversity
 
-```{r, include=F}
+```{r resultDiv, include=F}
 source("Result_richness.R")
 ```
 
 ## Model performance
 
-```{r}
+```{r modelPerformance}
 
 ```
 
