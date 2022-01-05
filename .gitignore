@@ -22,6 +22,7 @@ data/Shapefiles/
 *.html
 *.log
 
+/occ
 /results/Crassiclitellata
 /results/SDMs
 *.grd

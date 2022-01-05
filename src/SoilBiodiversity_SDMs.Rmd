@@ -328,6 +328,12 @@ source(file=paste0(here::here(), "/src/SDMs.R"))
 source(file=paste0(here::here(), "/src/SDM_Valavi.R"))
 ```
 
+## Model performance
+
+```{r modelPerformance}
+
+```
+
 # Repeat for all other taxa
 
 ## (Earthworms)
@@ -381,7 +387,7 @@ source("Result_richness.R")
 
 ## Model performance
 
-```{r modelPerformance}
+```{r resultModelPerformance}
 
 ```
 

@@ -23,6 +23,12 @@ library(dismo) # for MaxEnt and BRT
 library(maxnet) # for MaxNet
 
 library(xgboost) # for XGBoost
+library(randomForest) # for RF
+library(e1071) # for SVM
+
+library(precrec) # for performance measure
+# devtools::install_github("meeliskull/prg/R_package/prg")
+library(prg)
 
 # note: we will load the datasets before each individual model
 
@@ -78,6 +84,12 @@ par(mfrow=c(1,1))
 #plot(gm, pages = 1, rug = TRUE, shade = TRUE)
 # Note: plots are useless for binary data
 
+# predict
+gm_pred <- predict(gm, testing_env)
+head(gm_pred)
+
+gm_pred <- list(gm_pred, modelName)
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -93,6 +105,11 @@ wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 lm1 <- glm(occ ~., data = training, weights = wt, 
            family = binomial(link = "logit"))
 summary(lm1)
+
+lm1_pred <- predict(lm1, testing_env)
+head(lm1_pred)
+
+lm1_pred <- list(lm1_pred, modelName)
 
 # model scope for subset selection
 mod_scope <- gam.scope(frame = training, form=F,
@@ -123,6 +140,10 @@ Sys.time() - tmp
 
 summary(lm_subset)
 
+lm_subset_pred <- predict(lm_subset, testing_env)
+head(lm_subset_pred)
+
+lm_subset_pred <- list(lm_subset_pred, modelName)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: lasso and ridge regression ####
@@ -148,16 +169,7 @@ prNum <- as.numeric(table(training_quad$occ)["1"]) # number of presences
 bgNum <- as.numeric(table(training_quad$occ)["0"]) # number of backgrounds
 wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 
-# fitting lasso
-tmp <- Sys.time()
-set.seed(32639)
-lasso <- glmnet(x = training_sparse,
-                y = training_quad$occ,
-                family = "binomial",
-                alpha = 1, # here 1 means fitting lasso
-                weights = wt)
-Sys.time() - tmp
-
+## fitting lasso
 # Note: The alpha parameter in this model ranges from 0 to 1, where selecting an 
 # alpha of 0 leads to ridge regression and 1 to lasso and anything in between 
 # is a combination of both called elastic-net.
@@ -189,17 +201,7 @@ plot(lasso_cv)
 
 print("One of the two Lambda (dashed lines) needs to be selected for prediction.")
 
-# fitting ridge resgression (alpha=0)
-set.seed(32639)
-ridge <- glmnet(x = training_sparse,
-                y = training_quad$occ,
-                family = "binomial",
-                alpha = 0, # here 1 means fitting ridge regression
-                weights = wt)
-# plot the regularization path and shrinkage in the coefficients
-plot(ridge, xvar = "lambda", label = TRUE)
-
-# identify the right lambda
+# fitting ridge resgression (alpha=0) while identify the right lambda
 tmp <- Sys.time()
 set.seed(32639)
 ridge_cv <- cv.glmnet(x = training_sparse,
@@ -213,12 +215,16 @@ Sys.time() - tmp
 plot(ridge_cv)
 
 # predicting with lasso model
-lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")
+lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 head(lasso_pred)
 
+lasso_pred <- list(lasso_pred, modelName)
+
 # predict ridge
-ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")
+ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 head(ridge_pred)
+
+ridge_pred <- list(ridge_pred, modelName)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -257,6 +263,17 @@ stopCluster(cluster)
 registerDoSEQ()
 Sys.time() - tmp
 plot(mars_fit)
+
+mars_pred <- predict(mars_fit, testing_env)
+# transform occurrence back into numeric
+mars_pred <- as.character(mars_pred)
+mars_pred[mars_pred=="C0"] <- 0
+mars_pred[mars_pred=="C1"] <- 1
+mars_pred <- as.numeric(mars_pred)
+names(mars_pred) <- rownames(testing_env) #add site names
+head(mars_pred)
+
+mars_pred <- list(mars_pred, modelName)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -342,6 +359,12 @@ maxmod <- dismo::maxent(x = training[, covars],
                         rgs = param_optim)
 Sys.time() - tmp
 
+maxmod_pred <- predict(maxmod, testing_env)
+names(maxmod_pred) <- rownames(testing_env) #add site names
+head(maxmod_pred)
+
+maxmod_pred <- list(maxmod_pred, modelName)
+
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
 covariates <- training[, 2:ncol(training)] # predictor covariates
@@ -354,8 +377,10 @@ mxnet <- maxnet::maxnet(p = presences,
 Sys.time() - tmp
 
 # predicting with MaxNet
-maxnet_pred <- predict(mxnet, testing_env, type = c("cloglog"))
+maxnet_pred <- predict(mxnet, testing_env, type = c("cloglog"))[, 1]
 head(maxnet_pred)
+
+maxnet_pred <- list(maxnet_pred, modelName)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -397,6 +422,8 @@ brt$gbm.call$best.trees
 # predicting with the best trees
 brt_pred <- predict(brt, testing_env, n.trees = brt$gbm.call$best.trees, type = "response")
 head(brt_pred)
+
+brt_pred <- list(brt_pred, modelName)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -449,6 +476,14 @@ plot(xgb_fit)
 
 print(xgb_fit$bestTune)
 
+xgb_pred <- predict(xgb_fit, testing_env)
+head(xgb_pred)
+
+xgb_pred <- list(xgb_pred, modelName)
+
+# transform occurrence column back to numeric
+training$occ <- as.numeric(training$occ)
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## cforest ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -475,6 +510,49 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
 lapply(temp.files, load, .GlobalEnv)
 
+# convert the response to factor for producing class relative likelihood
+training$occ <- as.factor(training$occ)
+tmp <- Sys.time()
+set.seed(32639)
+rf <- randomForest(formula = occ ~.,
+                   data = training,
+                   ntree = 500) # the default number of trees
+Sys.time() - tmp
+
+# predict with RF
+rf_pred <- predict(rf, testing_env, type = "prob")[, "1"] # prob = continuous prediction
+head(rf_pred)
+
+rf_pred <- list(rf_pred, modelName)
+
+plot(rf, main = "RF")
+
+## down-sampling RF
+# for this, background and presence data should be the same number
+prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+
+# the sample size in each class; the same as presence number
+smpsize <- c("0" = prNum, "1" = prNum)
+tmp <- Sys.time()
+set.seed(32639)
+rf_downsample <- randomForest(formula = occ ~.,
+                              data = training,
+                              ntree = 1000,
+                              sampsize = smpsize,
+                              replace = TRUE)
+Sys.time() - tmp
+
+plot(rf_downsample, main = "RF down-sampled")
+
+# predict with RF down-sampled
+rf_downsample_pred <- predict(rf_downsample, testing_env, type = "prob")[, "1"] # prob = continuous prediction
+head(rf_downsample_pred)
+
+rf_downsample_pred <- list(rf_downsample_pred, modelName)
+
+# transform occurrence column back to numeric
+training$occ <- as.numeric(training$occ)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## SVM ####
@@ -487,16 +565,141 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
 lapply(temp.files, load, .GlobalEnv)
 
+# change the response to factor
+training$occ <- as.factor(training$occ)
 
+# calculate weights the class weight
+prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+cwt <- c("0" = prNum / bgNum, "1" = 1)
+tmp <- Sys.time()
+set.seed(32639)
+svm_e <- e1071::svm(formula = occ ~ .,
+                    data = training,
+                    kernel = "radial",
+                    lass.weights = cwt,
+                    probability = TRUE)
+Sys.time() - tmp
+
+# predicting on test data
+svm_pred <- predict(svm_e, testing_env, probability = TRUE)
+svm_prob <- attr(svm_pred, "probabilities")[,"1"]
+
+# see the first few predictions
+head(svm_prob)
+
+svm_pred <- list(svm_prob, modelName)
+ 
+# transform occurrence column back to numeric
+training$occ <- as.numeric(training$occ)
+                    
 #- - - - - - - - - - - - - - - - - - - - -
 ## biomod ####
 #- - - - - - - - - - - - - - - - - - - - -
 
 modelName <- "bg.glm"
 
-# identify and load all relevant data files
-temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
+# re-loading the species data (we need the x & y column)
+# load background data (pseudo-absences) for each modeling approach
+load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", spID, ".RData"))
+data <- bg.list[[modelName]] %>% rename("occ"=1)
+
+pr <- data[!is.na(data$occ),]
+bg <- data[is.na(data$occ),]
+
+# define parameters
+training <- rbind(pr, bg)
+myRespName <- "occ"
+myResp <- as.numeric(training[, myRespName])
+myResp[which(myResp == 0)] <- NA
+myExpl <- data.frame(training[, covars])
+myRespXY <- training[, c("x", "y")]
+
+# create biomod data format
+myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
+                                     expl.var = myExpl,
+                                     resp.name = myRespName,
+                                     resp.xy = myRespXY,
+                                     PA.nb.absences = 50000,
+                                     PA.strategy = 'random',
+                                     na.rm = TRUE)
+
+# using the default options
+# you can change the mentioned parameters by changes this
+myBiomodOption <- BIOMOD_ModelingOptions()
+
+# models to predict with
+mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
+
+# model fitting
+tmp <- Sys.time()
+set.seed(32639)
+myBiomodModelOut <- BIOMOD_Modeling(myBiomodData,
+                                    models = mymodels,
+                                    models.options = myBiomodOption,
+                                    NbRunEval = 1,
+                                    DataSplit = 100, # use all the data for training
+                                    models.eval.meth = c("ROC"),
+                                    SaveObj = TRUE,
+                                    rescal.all.models = FALSE,
+                                    do.full.models = TRUE,
+                                    modeling.id = paste(myRespName,"NCEAS_Modeling", sep = ""))
+
+# ensemble modeling using mean probability
+myBiomodEM <- BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
+                                      chosen.models = 'all',
+                                      em.by = 'all',
+                                      eval.metric = c("ROC"),
+                                      eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
+                                      prob.mean = TRUE,
+                                      prob.cv = FALSE,
+                                      prob.ci = FALSE,
+                                      prob.median = FALSE,
+                                      committee.averaging = FALSE,
+                                      prob.mean.weight = FALSE)
+Sys.time() - tmp
+
+# project single models
+myBiomodProj <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+                                  new.env = as.data.frame(testing_env[, covars]),
+                                  proj.name = "nceas_modeling",
+                                  selected.models = "all",
+                                  binary.meth = "ROC",
+                                  compress = TRUE,
+                                  clamping.mask = TRUE)
+
+# project ensemble of all models
+myBiomodEnProj <- BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
+                                             EM.output = myBiomodEM,
+                                             selected.models = "all")
+
+# extracting the values for ensemble prediction
+myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
+
+# see the first few predictions
+# the prediction scale of biomod is between 0 and 1000
+head(myEnProjDF)
+
+biomod_pred <- myEnProjDF[,1]
+names(biomod_pred) <- rownames(testing_env)
+biomod_pred <- list(biomod_pred, modelName)
+   
+                                          
+#- - - - - - - - - - - - - - - - - - - - -
+## Saving ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+# save all models to calculate model performance later
+SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
+     mars_pred, maxmod_pred, maxnet_pred, brt_pred, xgb_pred, svm_pred,
+     rf_pred, rf_downsample_pred, biomod_pred)
+names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
+                "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "xgb_pred", "svm_pred",
+                "rf_pred", "rf_downsample_pred", "biomod_pred")
+head(SDMs)
+
+save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))
+
+
 
 
