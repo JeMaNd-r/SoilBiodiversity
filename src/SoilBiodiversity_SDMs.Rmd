@@ -22,8 +22,43 @@ library(extremevalues)
 library(sdmpredictors)
 
 library(biomod2) # also to create pseudo-absences
-library(snowfall) # for parallelization
-library(SSDM)
+#library(snowfall) # for parallelization
+#library(SSDM)
+
+library(mgcv) # for GAM
+library(gam)  # for GLM (!)
+library(remotes) #to download package from github
+
+## for regularized regressions
+# installing the package from github
+remotes::install_github("rvalavi/myspatial")
+library(glmnet)
+library(myspatial)
+
+library(caret) # for MARS and BRT
+library(earth) # for MARS
+library(doParallel) # for MARS and XGBoost
+
+library(dismo) # for MaxEnt and BRT
+library(maxnet) # for MaxNet
+
+library(xgboost) # for XGBoost
+library(randomForest) # for RF
+library(e1071) # for SVM
+
+library(ROCR) # for Ensemble model
+library(scales) # for Ensemble model
+
+library(precrec) # for performance measure
+# devtools::install_github("meeliskull/prg/R_package/prg")
+library(prg)
+
+# for model performance:
+library(precrec)
+library(ggplot2) # for plotting the curves
+# devtools::install_github("meeliskull/prg/R_package/prg")
+library(prg)
+library(ggpubr)
 
 here::here()
 ```
@@ -328,11 +363,7 @@ source(file=paste0(here::here(), "/src/SDMs.R"))
 source(file=paste0(here::here(), "/src/SDM_Valavi.R"))
 ```
 
-## Model performance
-
-```{r modelPerformance}
-
-```
+Please be aware that the validation data sets are randomly simulated (10 times) for some of the models. They would need to be averaged before use!
 
 # Repeat for all other taxa
 

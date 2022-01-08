@@ -5,31 +5,6 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-library(mgcv) # for GAM
-library(gam)  # for GLM (!)
-library(remotes) #to download package from github
-
-## for regularized regressions
-# installing the package from github
-remotes::install_github("rvalavi/myspatial")
-library(glmnet)
-library(myspatial)
-
-library(caret) # for MARS and BRT
-library(earth) # for MARS
-library(doParallel) # for MARS and XGBoost
-
-library(dismo) # for MaxEnt and BRT
-library(maxnet) # for MaxNet
-
-library(xgboost) # for XGBoost
-library(randomForest) # for RF
-library(e1071) # for SVM
-
-library(precrec) # for performance measure
-# devtools::install_github("meeliskull/prg/R_package/prg")
-library(prg)
-
 # note: we will load the datasets before each individual model
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -69,7 +44,7 @@ gm <- mgcv::gam(formula = as.formula(form),
                 method = "REML")
 
 # get running time
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 # check the appropriateness of Ks
 # the model parameter k should not be higher than the number of unique values 
@@ -88,7 +63,7 @@ par(mfrow=c(1,1))
 gm_pred <- predict(gm, testing_env)
 head(gm_pred)
 
-gm_pred <- list(gm_pred, modelName)
+gm_pred <- list(gm_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -101,15 +76,20 @@ prNum <- as.numeric(table(training$occ)["1"]) # number of presences
 bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
 wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 
+tmp <- Sys.time()
+
 # the base glm model with linear terms
 lm1 <- glm(occ ~., data = training, weights = wt, 
            family = binomial(link = "logit"))
 summary(lm1)
 
+temp.time <- as.numeric(Sys.time() - tmp)
+
 lm1_pred <- predict(lm1, testing_env)
 head(lm1_pred)
 
-lm1_pred <- list(lm1_pred, modelName)
+lm1_pred <- list(lm1_pred, modelName, temp.time)
+
 
 # model scope for subset selection
 mod_scope <- gam.scope(frame = training, form=F,
@@ -136,14 +116,14 @@ lm_subset <- step.Gam(object = lm1,
                       direction = "both",
                       data = training, # this is optional
                       trace = FALSE)
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 summary(lm_subset)
 
 lm_subset_pred <- predict(lm_subset, testing_env)
 head(lm_subset_pred)
 
-lm_subset_pred <- list(lm_subset_pred, modelName)
+lm_subset_pred <- list(lm_subset_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: lasso and ridge regression ####
@@ -174,12 +154,6 @@ wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 # alpha of 0 leads to ridge regression and 1 to lasso and anything in between 
 # is a combination of both called elastic-net.
 
-# # plot the regularization path and shrinkage in the coefficients
-# plot(lasso, xvar = "lambda", label = TRUE)
-# # As you can see by changing (log) Lambda the coefficients shrink (the y-axes) 
-# # and the number of covariates included in the model, decreases (x-axes, top) 
-# # as the coefficients can be set to zeros in the lasso
-
 # The lambda parameter controls regularization – it is the penalty applied 
 # to the model’s coefficients. To select the best lambda, internal cross-
 # validation was used (in cv.glmnet function).
@@ -191,7 +165,7 @@ lasso_cv <- cv.glmnet(x = training_sparse,
                       alpha = 1, # fitting lasso
                       weights = wt,
                       nfolds = 10) # number of folds for cross-validation
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 # the cross-validation result
 plot(lasso_cv)
@@ -201,7 +175,14 @@ plot(lasso_cv)
 
 print("One of the two Lambda (dashed lines) needs to be selected for prediction.")
 
-# fitting ridge resgression (alpha=0) while identify the right lambda
+# predicting with lasso model
+lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
+head(lasso_pred)
+
+lasso_pred <- list(lasso_pred, modelName, temp.time)
+
+
+## fitting ridge resgression (alpha=0) while identify the right lambda
 tmp <- Sys.time()
 set.seed(32639)
 ridge_cv <- cv.glmnet(x = training_sparse,
@@ -210,21 +191,15 @@ ridge_cv <- cv.glmnet(x = training_sparse,
                       alpha = 0, # fitting lasso
                       weights = wt,
                       nfolds = 10) # number of folds for cross-validation
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 plot(ridge_cv)
-
-# predicting with lasso model
-lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-head(lasso_pred)
-
-lasso_pred <- list(lasso_pred, modelName)
 
 # predict ridge
 ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 head(ridge_pred)
 
-ridge_pred <- list(ridge_pred, modelName)
+ridge_pred <- list(ridge_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -235,45 +210,65 @@ modelName <- "bg.mars"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
 
-# change the response to factor variables with non-numeric levels
-training$occ <- as.factor(training$occ)
-levels(training$occ) <- c("C0", "C1")
+# how often do we have to run the loop? depending on number of background data simulated
+no.loop.runs <- length(temp.files)/4
 
-mytuneGrid <- expand.grid(nprune = 2:20,
-                          degree = 2) # no interaction = 1
-mytrControl <- trainControl(method = "cv",
-                            number = 5, # 5-fold cross-validation
-                            classProbs = TRUE,
-                            summaryFunction = twoClassSummary,
-                            allowParallel = TRUE)
-tmp <- Sys.time()
-cluster <- makeCluster(6) # you can use all cores of your machine instead e.g. 8
-registerDoParallel(cluster)
-set.seed(32639)
-mars_fit <- train(form = occ ~ .,
-                  data = training,
-                  method = "earth",
-                  metric = "ROC",
-                  trControl = mytrControl,
-                  tuneGrid = mytuneGrid,
-                  thresh = 0.00001)
-stopCluster(cluster)
-registerDoSEQ()
-Sys.time() - tmp
-plot(mars_fit)
+mars_pred_list <- list()
 
-mars_pred <- predict(mars_fit, testing_env)
-# transform occurrence back into numeric
-mars_pred <- as.character(mars_pred)
-mars_pred[mars_pred=="C0"] <- 0
-mars_pred[mars_pred=="C1"] <- 1
-mars_pred <- as.numeric(mars_pred)
-names(mars_pred) <- rownames(testing_env) #add site names
-head(mars_pred)
+for(no.runs in 1:no.loop.runs){
+  
+  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                           pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
+  
+  lapply(temp.files.subset, load, .GlobalEnv)
+  
+  # change the response to factor variables with non-numeric levels
+  training$occ <- as.factor(training$occ)
+  levels(training$occ) <- c("C0", "C1")
+  
+  mytuneGrid <- expand.grid(nprune = 2:20,
+                            degree = 2) # no interaction = 1
+  mytrControl <- trainControl(method = "cv",
+                              number = 5, # 5-fold cross-validation
+                              classProbs = TRUE,
+                              summaryFunction = twoClassSummary,
+                              allowParallel = TRUE)
+  tmp <- Sys.time()
+  cluster <- makeCluster(6) # you can use all cores of your machine instead e.g. 8
+  registerDoParallel(cluster)
+  set.seed(32639)
+  mars_fit <- caret::train(form = occ ~ .,
+                    data = training,
+                    method = "earth",
+                    metric = "ROC",
+                    trControl = mytrControl,
+                    tuneGrid = mytuneGrid,
+                    thresh = 0.00001)
+  stopCluster(cluster)
+  registerDoSEQ()
+  temp.time <- as.numeric(Sys.time() - tmp)
+  plot(mars_fit)
+  
+  mars_pred <- predict(mars_fit, testing_env)
+  # transform occurrence back into numeric
+  mars_pred <- as.character(mars_pred)
+  mars_pred[mars_pred=="C0"] <- 0
+  mars_pred[mars_pred=="C1"] <- 1
+  mars_pred <- as.numeric(mars_pred)
+  names(mars_pred) <- rownames(testing_env) #add site names
+  head(mars_pred)
+  
+  mars_pred_list[[no.runs]] <- list(mars_pred, modelName, temp.time)
+}
 
-mars_pred <- list(mars_pred, modelName)
+# average all MARS predictions
+mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 1))
+mars_pred <- rowMeans(mars_pred, na.rm=T)
+temp.time <- mean(sapply(mars_pred_list, "[[", 3), na.rm=T)
+
+mars_pred <- list(mars_pred, modelName, temp.time)
+
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -303,7 +298,6 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
     folds <- caret::createFolds(y = as.factor(data$occ), k = k)
   }
   names(data)[which(names(data) == y)] <- "occ"
-  covars <- names(data)[which(names(data) != y)]
   # regularization multipliers
   ms <- c(0.5, 1, 2, 3, 4)
   grid <- expand.grid(
@@ -323,7 +317,7 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
       trainSet <- unlist(folds[-i])
       testSet <- unlist(folds[i])
       if(inherits(try(
-        maxmod <- dismo::maxent(x = data[trainSet, covars],
+        maxmod <- dismo::maxent(x = data[trainSet, covarsNames],
                                 p = data$occ[trainSet],
                                 removeDuplicates = FALSE,
                                 path = filepath,
@@ -331,7 +325,7 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
       ), "try-error")){
         next
       }
-      modpred <- predict(maxmod, data[testSet, covars], args = "outputformat=cloglog")
+      modpred <- predict(maxmod, data[testSet, covarsNames], args = "outputformat=cloglog")
       pred_df <- data.frame(score = modpred, label = data$occ[testSet])
       full_pred <- rbind(full_pred, pred_df)
     }
@@ -352,18 +346,18 @@ param_optim <- maxent_param(data = training,
                             k = nfolds,
                             filepath = paste0("results/", Taxon_name, "/maxent_files"))
 # fit a maxent model with the tuned parameters
-maxmod <- dismo::maxent(x = training[, covars],
+maxmod <- dismo::maxent(x = training[, covarsNames],
                         p = training$occ,
                         removeDuplicates = FALSE,
                         path = paste0("results/", Taxon_name, "/maxent_files"),
                         rgs = param_optim)
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 maxmod_pred <- predict(maxmod, testing_env)
 names(maxmod_pred) <- rownames(testing_env) #add site names
 head(maxmod_pred)
 
-maxmod_pred <- list(maxmod_pred, modelName)
+maxmod_pred <- list(maxmod_pred, modelName, temp.time)
 
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
@@ -374,13 +368,13 @@ mxnet <- maxnet::maxnet(p = presences,
                         data = covariates,
                         regmult = 1, # regularization multiplier
                         maxnet::maxnet.formula(presences, covariates, classes = "default"))
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 # predicting with MaxNet
 maxnet_pred <- predict(mxnet, testing_env, type = c("cloglog"))[, 1]
 head(maxnet_pred)
 
-maxnet_pred <- list(maxnet_pred, modelName)
+maxnet_pred <- list(maxnet_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -391,39 +385,58 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
 
-# calculating the case weights
-prNum <- as.numeric(table(training$occ)["1"]) # number of presences
-bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
-wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
+# how often do we have to run the loop? depending on number of background data simulated
+no.loop.runs <- length(temp.files)/4
 
-tmp <- Sys.time()
-set.seed(32639)
-brt <- gbm.step(data = training,
-                gbm.x = 2:ncol(training), # column indices for covariates
-                gbm.y = 1, # column index for response
-                family = "bernoulli",
-                tree.complexity = ifelse(prNum < 50, 1, 5),
-                learning.rate = 0.001,
-                bag.fraction = 0.75,
-                max.trees = 10000,
-                n.trees = 50,
-                n.folds = 5, # 5-fold cross-validation
-                site.weights = wt,
-                silent = TRUE) # avoid printing the cv results
+brt_pred_list <- list()
 
-Sys.time() - tmp
-# Note: model tuning with ~50,000 background points may take ~1h.
+for(no.runs in 1:no.loop.runs){
+  
+  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                  pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
+  
+  lapply(temp.files.subset, load, .GlobalEnv)
+    
+  # calculating the case weights
+  prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+  bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+  wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
+  
+  tmp <- Sys.time()
+  set.seed(32639)
+  brt <- gbm.step(data = training,
+                  gbm.x = 2:ncol(training), # column indices for covariates
+                  gbm.y = 1, # column index for response
+                  family = "bernoulli",
+                  tree.complexity = ifelse(prNum < 50, 1, 5),
+                  learning.rate = 0.001,
+                  bag.fraction = 0.75,
+                  max.trees = 10000,
+                  n.trees = 50,
+                  n.folds = 5, # 5-fold cross-validation
+                  site.weights = wt,
+                  silent = TRUE) # avoid printing the cv results
+  
+  temp.time <- as.numeric(Sys.time() - tmp)
+  # Note: model tuning with ~50,000 background points may take ~1h.
+  
+  #the optimal number of trees (intersect of green and red line in plot)
+  brt$gbm.call$best.trees
+  
+  # predicting with the best trees
+  brt_pred <- predict(brt, testing_env, n.trees = brt$gbm.call$best.trees, type = "response")
+  head(brt_pred)
+  
+  brt_pred_list[[no.runs]] <- list(brt_pred, modelName, temp.time)
+}
 
-#the optimal number of trees (intersect of green and red line in plot)
-brt$gbm.call$best.trees
+# average all BRT predictions
+brt_pred <- as.data.frame(sapply(brt_pred_list, "[[", 1))
+brt_pred <- rowMeans(brt_pred, na.rm=T)
+temp.time <- mean(sapply(brt_pred_list, "[[", 3), na.rm=T)
 
-# predicting with the best trees
-brt_pred <- predict(brt, testing_env, n.trees = brt$gbm.call$best.trees, type = "response")
-head(brt_pred)
-
-brt_pred <- list(brt_pred, modelName)
+brt_pred <- list(brt_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -434,52 +447,71 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
 
-# change the response to factor variables with non-numeric levels
-training$occ <- as.factor(training$occ)
-levels(training$occ) <- c("C0", "C1") # caret does not accept 0 and 1 as factor levels
+# how often do we have to run the loop? depending on number of background data simulated
+no.loop.runs <- length(temp.files)/4
 
-# train control for cross-validation for model tuning
-mytrControl <- trainControl(method = "cv",
-                            number = 5, # 5 fold cross-validation
-                            summaryFunction = twoClassSummary,
-                            classProbs = TRUE,
-                            allowParallel = TRUE)
-# setting the range of parameters for grid search tuning
-mytuneGrid <- expand.grid(
-  nrounds = seq(from = 500, to = 15000, by = 500),
-  eta = 0.001,
-  max_depth = 5,
-  subsample = 0.75,
-  gamma = 0,
-  colsample_bytree = 0.8,
-  min_child_weight = 1
-)
-tmp <- Sys.time()
-cluster <- makeCluster(6) # you can use all cores of your machine instead e.g. 8
-registerDoParallel(cluster)
-set.seed(32639)
-xgb_fit <- train(form = occ ~ .,
-                 data = training,
-                 method = "xgbTree",
-                 metric = "ROC",
-                 trControl = mytrControl,
-                 tuneGrid = mytuneGrid,
-                 verbose = TRUE)
+xgb_pred_list <- list()
 
-stopCluster(cluster)
-registerDoSEQ()
-Sys.time() - tmp
+for(no.runs in 1:no.loop.runs){
+  
+  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                  pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
+  
+  lapply(temp.files.subset, load, .GlobalEnv)
+  
+  # change the response to factor variables with non-numeric levels
+  training$occ <- as.factor(training$occ)
+  levels(training$occ) <- c("C0", "C1") # caret does not accept 0 and 1 as factor levels
+  
+  # train control for cross-validation for model tuning
+  mytrControl <- trainControl(method = "cv",
+                              number = 5, # 5 fold cross-validation
+                              summaryFunction = twoClassSummary,
+                              classProbs = TRUE,
+                              allowParallel = TRUE)
+  # setting the range of parameters for grid search tuning
+  mytuneGrid <- expand.grid(
+    nrounds = seq(from = 500, to = 15000, by = 500),
+    eta = 0.001,
+    max_depth = 5,
+    subsample = 0.75,
+    gamma = 0,
+    colsample_bytree = 0.8,
+    min_child_weight = 1
+  )
+  tmp <- Sys.time()
+  cluster <- makeCluster(6) # you can use all cores of your machine instead e.g. 8
+  registerDoParallel(cluster)
+  set.seed(32639)
+  xgb_fit <- train(form = occ ~ .,
+                   data = training,
+                   method = "xgbTree",
+                   metric = "ROC",
+                   trControl = mytrControl,
+                   tuneGrid = mytuneGrid,
+                   verbose = TRUE)
+  
+  stopCluster(cluster)
+  registerDoSEQ()
+  temp.time <- as.numeric(Sys.time() - tmp)
+  
+  plot(xgb_fit)
+  
+  print(xgb_fit$bestTune)
+  
+  xgb_pred <- predict(xgb_fit, testing_env)
+  head(xgb_pred)
+  
+  xgb_pred_list[[no.runs]] <- list(xgb_pred, modelName, temp.time)
+}
 
-plot(xgb_fit)
+# average all XGBoost predictions
+xgb_pred <- as.data.frame(sapply(xgb_pred_list, "[[", 1))
+xgb_pred <- rowMeans(xgb_pred, na.rm=T)
+temp.time <- mean(sapply(xgb_pred_list, "[[", 3), na.rm=T)
 
-print(xgb_fit$bestTune)
-
-xgb_pred <- predict(xgb_fit, testing_env)
-head(xgb_pred)
-
-xgb_pred <- list(xgb_pred, modelName)
+xgb_pred <- list(xgb_pred, modelName, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -508,48 +540,75 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
 
-# convert the response to factor for producing class relative likelihood
-training$occ <- as.factor(training$occ)
-tmp <- Sys.time()
-set.seed(32639)
-rf <- randomForest(formula = occ ~.,
-                   data = training,
-                   ntree = 500) # the default number of trees
-Sys.time() - tmp
+# how often do we have to run the loop? depending on number of background data simulated
+no.loop.runs <- length(temp.files)/4
 
-# predict with RF
-rf_pred <- predict(rf, testing_env, type = "prob")[, "1"] # prob = continuous prediction
-head(rf_pred)
+rf_pred_list <- list()
+rf_downsampled_pred_list <- list()
 
-rf_pred <- list(rf_pred, modelName)
+for(no.runs in 1:no.loop.runs){
+  
+  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                  pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
+  
+  lapply(temp.files.subset, load, .GlobalEnv)
+  
+  # convert the response to factor for producing class relative likelihood
+  training$occ <- as.factor(training$occ)
+  tmp <- Sys.time()
+  set.seed(32639)
+  rf <- randomForest(formula = occ ~.,
+                     data = training,
+                     ntree = 500) # the default number of trees
+  temp.time <- as.numeric(Sys.time() - tmp)
+  
+  # predict with RF
+  rf_pred <- predict(rf, testing_env, type = "prob")[, "1"] # prob = continuous prediction
+  head(rf_pred)
+  
+  rf_pred_list[[no.runs]] <- list(rf_pred, modelName, temp.time)
+  
+  plot(rf, main = "RF")
+  
+  ## down-sampling RF
+  # for this, background and presence data should be the same number
+  prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+  bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+  
+  # the sample size in each class; the same as presence number
+  smpsize <- c("0" = prNum, "1" = prNum)
+  tmp <- Sys.time()
+  set.seed(32639)
+  rf_downsample <- randomForest(formula = occ ~.,
+                                data = training,
+                                ntree = 1000,
+                                sampsize = smpsize,
+                                replace = TRUE)
+  temp.time <- as.numeric(Sys.time() - tmp)
+  
+  plot(rf_downsample, main = "RF down-sampled")
+  
+  # predict with RF down-sampled
+  rf_downsample_pred <- predict(rf_downsample, testing_env, type = "prob")[, "1"] # prob = continuous prediction
+  head(rf_downsample_pred)
+  
+  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample_pred, modelName, temp.time)
+}
 
-plot(rf, main = "RF")
+# average all RF predictions
+rf_pred <- as.data.frame(sapply(rf_pred_list, "[[", 1))
+rf_pred <- rowMeans(rf_pred, na.rm=T)
+temp.time <- mean(sapply(rf_pred_list, "[[", 3), na.rm=T)
 
-## down-sampling RF
-# for this, background and presence data should be the same number
-prNum <- as.numeric(table(training$occ)["1"]) # number of presences
-bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+rf_pred <- list(rf_pred, modelName, temp.time)
 
-# the sample size in each class; the same as presence number
-smpsize <- c("0" = prNum, "1" = prNum)
-tmp <- Sys.time()
-set.seed(32639)
-rf_downsample <- randomForest(formula = occ ~.,
-                              data = training,
-                              ntree = 1000,
-                              sampsize = smpsize,
-                              replace = TRUE)
-Sys.time() - tmp
+# average all RF_downsampled predictions
+rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 1))
+rf_downsample_pred <- rowMeans(rf_downsample_pred, na.rm=T)
+temp.time <- mean(sapply(rf_downsample_pred_list, "[[", 3), na.rm=T)
 
-plot(rf_downsample, main = "RF down-sampled")
-
-# predict with RF down-sampled
-rf_downsample_pred <- predict(rf_downsample, testing_env, type = "prob")[, "1"] # prob = continuous prediction
-head(rf_downsample_pred)
-
-rf_downsample_pred <- list(rf_downsample_pred, modelName)
+rf_downsample_pred <- list(rf_downsample_pred, modelName, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -563,33 +622,52 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
 
-# change the response to factor
-training$occ <- as.factor(training$occ)
+# how often do we have to run the loop? depending on number of background data simulated
+no.loop.runs <- length(temp.files)/4
 
-# calculate weights the class weight
-prNum <- as.numeric(table(training$occ)["1"]) # number of presences
-bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
-cwt <- c("0" = prNum / bgNum, "1" = 1)
-tmp <- Sys.time()
-set.seed(32639)
-svm_e <- e1071::svm(formula = occ ~ .,
-                    data = training,
-                    kernel = "radial",
-                    lass.weights = cwt,
-                    probability = TRUE)
-Sys.time() - tmp
+svm_pred_list <- list()
 
-# predicting on test data
-svm_pred <- predict(svm_e, testing_env, probability = TRUE)
-svm_prob <- attr(svm_pred, "probabilities")[,"1"]
+for(no.runs in 1:no.loop.runs){
+  
+  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                  pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
+  
+  lapply(temp.files.subset, load, .GlobalEnv)
+  
+  # change the response to factor
+  training$occ <- as.factor(training$occ)
+  
+  # calculate weights the class weight
+  prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+  bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+  cwt <- c("0" = prNum / bgNum, "1" = 1)
+  tmp <- Sys.time()
+  set.seed(32639)
+  svm_e <- e1071::svm(formula = occ ~ .,
+                      data = training,
+                      kernel = "radial",
+                      lass.weights = cwt,
+                      probability = TRUE)
+  temp.time <- as.numeric(Sys.time() - tmp)
+  
+  # predicting on test data
+  svm_pred <- predict(svm_e, testing_env, probability = TRUE)
+  svm_prob <- attr(svm_pred, "probabilities")[,"1"]
+  
+  # see the first few predictions
+  head(svm_prob)
+  
+  svm_pred_list[[no.runs]] <- list(svm_prob, modelName, temp.time)
+}
 
-# see the first few predictions
-head(svm_prob)
+# average all SVM predictions
+svm_pred <- as.data.frame(sapply(svm_pred_list, "[[", 1))
+svm_pred <- rowMeans(svm_pred, na.rm=T)
+temp.time <- mean(sapply(svm_pred_list, "[[", 3), na.rm=T)
 
-svm_pred <- list(svm_prob, modelName)
- 
+svm_pred <- list(svm_pred, modelName, temp.time)
+
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
                     
@@ -612,8 +690,10 @@ training <- rbind(pr, bg)
 myRespName <- "occ"
 myResp <- as.numeric(training[, myRespName])
 myResp[which(myResp == 0)] <- NA
-myExpl <- data.frame(training[, covars])
+myExpl <- data.frame(training[, covarsNames])
 myRespXY <- training[, c("x", "y")]
+
+tmp <- Sys.time()
 
 # create biomod data format
 myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
@@ -626,13 +706,52 @@ myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
 
 # using the default options
 # you can change the mentioned parameters by changes this
-myBiomodOption <- BIOMOD_ModelingOptions()
+myBiomodOption <- BIOMOD_ModelingOptions(
+  GAM = list( algo = 'GAM_mgcv',
+               type = 's_smoother',
+               k = -1,
+               interaction.level = 0,
+               myFormula = as.formula(form),
+               family = binomial(link = 'logit'),
+               method = 'GCV.Cp',
+               optimizer = c('outer','newton'),
+               select = FALSE,
+               knots = NULL,
+               paraPen = NULL,
+               control = list(nthreads = 1, irls.reg = 0, epsilon = 1e-07, maxit = 200, trace = FALSE,
+                              mgcv.tol = 1e-07, mgcv.half = 15, rank.tol = 1.49011611938477e-08,
+                              nlm = list(ndigit=7, gradtol=1e-06, stepmax=2, steptol=1e-04, iterlim=200, check.analyticals=0),
+                              optim = list(factr=1e+07),
+                              newton = list(conv.tol=1e-06, maxNstep=5, maxSstep=2, maxHalf=30, use.svd=0), outerPIsteps = 0,
+                              idLinksBases = TRUE, scalePenalty = TRUE, keepData = FALSE, scale.est = "fletcher",
+                              edge.correct = FALSE)),
+   MAXENT.Phillips = list( path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/maxent_files"), # change it to maxent directory
+                           memory_allocated = 512,
+                           background_data_dir = 'default',
+                           maximumbackground = 50000,
+                           maximumiterations = 200,
+                           visible = FALSE,
+                           linear = TRUE,
+                           quadratic = TRUE,
+                           product = TRUE,
+                           threshold = TRUE,
+                           hinge = TRUE,
+                           lq2lqptthreshold = 80,
+                           l2lqthreshold = 10,
+                           hingethreshold = 15,
+                           beta_threshold = -1,
+                           beta_categorical = -1,
+                           beta_lqp = -1,
+                           beta_hinge = -1,
+                           betamultiplier = 1,
+                           defaultprevalence = 0.5)
+)
 
 # models to predict with
 mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
 
 # model fitting
-tmp <- Sys.time()
+
 set.seed(32639)
 myBiomodModelOut <- BIOMOD_Modeling(myBiomodData,
                                     models = mymodels,
@@ -643,7 +762,7 @@ myBiomodModelOut <- BIOMOD_Modeling(myBiomodData,
                                     SaveObj = TRUE,
                                     rescal.all.models = FALSE,
                                     do.full.models = TRUE,
-                                    modeling.id = paste(myRespName,"NCEAS_Modeling", sep = ""))
+                                    modeling.id = paste(myRespName,"_Modeling", sep = ""))
 
 # ensemble modeling using mean probability
 myBiomodEM <- BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
@@ -657,12 +776,12 @@ myBiomodEM <- BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
                                       prob.median = FALSE,
                                       committee.averaging = FALSE,
                                       prob.mean.weight = FALSE)
-Sys.time() - tmp
+temp.time <- as.numeric(Sys.time() - tmp)
 
 # project single models
 myBiomodProj <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                  new.env = as.data.frame(testing_env[, covars]),
-                                  proj.name = "nceas_modeling",
+                                  new.env = as.data.frame(testing_env[, covarsNames]),
+                                  proj.name = "modeling",
                                   selected.models = "all",
                                   binary.meth = "ROC",
                                   compress = TRUE,
@@ -682,9 +801,29 @@ head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
 names(biomod_pred) <- rownames(testing_env)
-biomod_pred <- list(biomod_pred, modelName)
-   
-                                          
+biomod_pred <- list(biomod_pred, modelName, temp.time)
+ 
+  
+#- - - - - - - - - - - - - - - - - - - - -
+## simple Ensemble model ####
+#- - - - - - - - - - - - - - - - - - - - -
+# note: this model should be run after all the component 
+# models, MaxEnt, Lasso, GAM, BRT, RF down-sampled
+
+modelName <- "bg.glm"
+
+gm <- scales::rescale(gm_pred[[1]], to = c(0,1))
+lasso <- scales::rescale(lasso_pred[[1]], to = c(0,1))
+brt <- scales::rescale(brt_pred[[1]], to = c(0,1))
+rf <- scales::rescale(rf_pred[[1]], to = c(0,1))
+maxt <- scales::rescale(maxmod_pred[[1]], to = c(0,1))
+
+ensm_pred <- rowMeans(cbind(gm, lasso, brt, rf, maxt), na.rm=T)
+
+temp.time <- sum(gm_pred[[3]], lasso_pred[[3]], brt_pred[[3]], rf_pred[[3]], maxmod_pred[[3]])
+
+ensm_pred <- list(ensm_pred, modelName, temp.time)
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## Saving ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -692,10 +831,10 @@ biomod_pred <- list(biomod_pred, modelName)
 # save all models to calculate model performance later
 SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
      mars_pred, maxmod_pred, maxnet_pred, brt_pred, xgb_pred, svm_pred,
-     rf_pred, rf_downsample_pred, biomod_pred)
+     rf_pred, rf_downsample_pred, biomod_pred, ensm_pred)
 names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
                 "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "xgb_pred", "svm_pred",
-                "rf_pred", "rf_downsample_pred", "biomod_pred")
+                "rf_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
 head(SDMs)
 
 save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))

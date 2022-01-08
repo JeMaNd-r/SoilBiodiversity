@@ -5,22 +5,23 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-library(precrec)
-library(ggplot2) # for plotting the curves
-# devtools::install_github("meeliskull/prg/R_package/prg")
-library(prg)
-library(ggpubr)
-
 load(file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Model performance ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-for(i in length(names(SDMs))){
+mod_eval <- data.frame(species = NA, 
+                       roc = NA,
+                       prg = NA,
+                       cor = NA,
+                       model = NA,
+                       time = NA)
+
+for(i in 1:length(names(SDMs))){
   temp.model <- names(SDMs)[[i]]
   
-  # load relevant files
+  # define background dataset (for testing data)
   modelName <- SDMs[[i]][[2]]
   
   # identify and load all relevant data files
@@ -52,9 +53,17 @@ for(i in length(names(SDMs))){
   prg <- plot_prg(prg_curve)
   
   # plot all plots into one
-  # ####TODO: ADD precrec obj to plot as text...?
-  ggpubr::ggarrange(roc, pr, prg, plot(label=print(precrec_obj)),
+  ggpubr::ggarrange(roc, pr, prg,
                     labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
+  
+  mod_eval[i,]$species <- spID
+  try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4])
+  try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve))
+  try(mod_eval[i,]$cor <- cor(prediction,  testing_pa[,"occ"]))
+  mod_eval[i,]$model <- temp.model
+  try(mod_eval[i,]$time <- SDMs[[i]][[3]])
                     
 }
+
+write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
 
