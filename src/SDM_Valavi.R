@@ -873,15 +873,15 @@ biomod_pred <- list(myBiomodEM, biomod_pred, modelName, temp.time)
 
 modelName <- "bg.glm"
 
-gm <- scales::rescale(gm_pred[[1]], to = c(0,1))
-lasso <- scales::rescale(lasso_pred[[1]], to = c(0,1))
-brt <- scales::rescale(brt_pred[[1]], to = c(0,1))
-rf <- scales::rescale(rf_pred[[1]], to = c(0,1))
-maxt <- scales::rescale(maxmod_pred[[1]], to = c(0,1))
+gm <- scales::rescale(gm_pred[[2]], to = c(0,1))
+lasso <- scales::rescale(lasso_pred[[2]], to = c(0,1))
+brt <- scales::rescale(brt_pred[[2]], to = c(0,1))
+rf <- scales::rescale(rf_pred[[2]], to = c(0,1))
+maxt <- scales::rescale(maxmod_pred[[2]], to = c(0,1))
 
-ensm_pred <- rowMeans(cbind(gm, lasso, brt, rf, maxt), na.rm=T)
+ensm_pred <- rowMeans(cbind(gm, lasso, maxt), na.rm=T) #,brt, rf  !they have different background data
 
-temp.time <- sum(gm_pred[[3]], lasso_pred[[3]], brt_pred[[3]], rf_pred[[3]], maxmod_pred[[3]])
+temp.time <- sum(gm_pred[[4]], lasso_pred[[4]], maxmod_pred[[4]]) #,brt_pred[[3]], rf_pred[[3]]
 
 ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp.time)
 
