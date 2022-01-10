@@ -16,13 +16,19 @@ mod_eval <- data.frame(species = NA,
                        prg = NA,
                        cor = NA,
                        model = NA,
-                       time = NA)
+                       time = NA,
+                       bg= NA)
 
 for(i in 1:length(names(SDMs))){
   temp.model <- names(SDMs)[[i]]
   
+  # # if necessary, unlist models
+  # if(length(SDMs[[i]])!=3) {
+  #   
+  # }
+    
   # define background dataset (for testing data)
-  modelName <- SDMs[[i]][[2]]
+  modelName <- SDMs[[i]][[3]]
   
   # identify and load all relevant data files
   temp.files <- list.files(path = paste0("./results/",Taxon_name), 
@@ -31,23 +37,23 @@ for(i in 1:length(names(SDMs))){
   
   ## ROC and PR
   # load prediction
-  prediction <- SDMs[[temp.model]][[1]]
+  prediction <- SDMs[[temp.model]][[2]]
   
   # calculate area under the ROC and PR curves
   precrec_obj <- evalmod(scores = prediction, labels = testing_pa[,"occ"])
-  print(precrec_obj)
+  #print(precrec_obj)
   
   # plot the ROC and PR curves
   roc <- autoplot(precrec_obj, curvetype = "ROC")
   pr <- autoplot(precrec_obj, curvetype = "PR")
   
   ## PRG
-  # calculate the PRG curve for RF down-sampled
+  # calculate the PRG curve
   prg_curve <- create_prg_curve(labels = testing_pa[,"occ"], pos_scores = prediction)
   
-  # calculate area under the PRG cure
+  # calculate area under the PRG cure (AUC PRG)
   au_prg <- calc_auprg(prg_curve)
-  print(au_prg)
+  #print(au_prg)
   
   # plot the PRG curve
   prg <- plot_prg(prg_curve)
@@ -61,9 +67,29 @@ for(i in 1:length(names(SDMs))){
   try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve))
   try(mod_eval[i,]$cor <- cor(prediction,  testing_pa[,"occ"]))
   mod_eval[i,]$model <- temp.model
-  try(mod_eval[i,]$time <- SDMs[[i]][[3]])
+  try(mod_eval[i,]$time <- SDMs[[i]][[4]])
+  mod_eval[i,]$bg <- modelName
                     
 }
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
+
+
+## calculate additional indices according to equations in Allouche et al. 2006
+
+# Sensitivity
+
+
+# Specificity 
+
+
+
+# TSS
+
+
+# kappa
+
+
+
+
 

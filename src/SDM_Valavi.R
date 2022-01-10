@@ -61,9 +61,9 @@ par(mfrow=c(1,1))
 
 # predict
 gm_pred <- predict(gm, testing_env)
-head(gm_pred)
+#head(gm_pred)
 
-gm_pred <- list(gm_pred, modelName, temp.time)
+gm_pred <- list(gm, gm_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -86,9 +86,9 @@ summary(lm1)
 temp.time <- as.numeric(Sys.time() - tmp)
 
 lm1_pred <- predict(lm1, testing_env)
-head(lm1_pred)
+#head(lm1_pred)
 
-lm1_pred <- list(lm1_pred, modelName, temp.time)
+lm1_pred <- list(lm1, lm1_pred, modelName, temp.time)
 
 
 # model scope for subset selection
@@ -121,9 +121,9 @@ temp.time <- as.numeric(Sys.time() - tmp)
 summary(lm_subset)
 
 lm_subset_pred <- predict(lm_subset, testing_env)
-head(lm_subset_pred)
+#head(lm_subset_pred)
 
-lm_subset_pred <- list(lm_subset_pred, modelName, temp.time)
+lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: lasso and ridge regression ####
@@ -168,7 +168,7 @@ lasso_cv <- cv.glmnet(x = training_sparse,
 temp.time <- as.numeric(Sys.time() - tmp)
 
 # the cross-validation result
-plot(lasso_cv)
+#plot(lasso_cv)
 # Note: dashed lines show options for best Lambda parameter
 # left: Lambda with minimum deviance (lambda.min)
 # right: best Lambda within one standard deviation of left-dashed line (l...1se)
@@ -177,9 +177,9 @@ print("One of the two Lambda (dashed lines) needs to be selected for prediction.
 
 # predicting with lasso model
 lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-head(lasso_pred)
+#head(lasso_pred)
 
-lasso_pred <- list(lasso_pred, modelName, temp.time)
+lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp.time)
 
 
 ## fitting ridge resgression (alpha=0) while identify the right lambda
@@ -193,13 +193,13 @@ ridge_cv <- cv.glmnet(x = training_sparse,
                       nfolds = 10) # number of folds for cross-validation
 temp.time <- as.numeric(Sys.time() - tmp)
 
-plot(ridge_cv)
+#plot(ridge_cv)
 
 # predict ridge
 ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-head(ridge_pred)
+#head(ridge_pred)
 
-ridge_pred <- list(ridge_pred, modelName, temp.time)
+ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -248,7 +248,7 @@ for(no.runs in 1:no.loop.runs){
   stopCluster(cluster)
   registerDoSEQ()
   temp.time <- as.numeric(Sys.time() - tmp)
-  plot(mars_fit)
+  #plot(mars_fit)
   
   mars_pred <- predict(mars_fit, testing_env)
   # transform occurrence back into numeric
@@ -257,17 +257,19 @@ for(no.runs in 1:no.loop.runs){
   mars_pred[mars_pred=="C1"] <- 1
   mars_pred <- as.numeric(mars_pred)
   names(mars_pred) <- rownames(testing_env) #add site names
-  head(mars_pred)
+  #head(mars_pred)
   
-  mars_pred_list[[no.runs]] <- list(mars_pred, modelName, temp.time)
+  mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp.time)
 }
 
 # average all MARS predictions
-mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 1))
+mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 2))
 mars_pred <- rowMeans(mars_pred, na.rm=T)
-temp.time <- mean(sapply(mars_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(mars_pred_list, "[[", 4), na.rm=T)
 
-mars_pred <- list(mars_pred, modelName, temp.time)
+temp.models <- sapply(mars_pred_list, "[[", 1)
+
+mars_pred <- list(temp.models, mars_pred, modelName, temp.time)
 
 
 # transform occurrence column back to numeric
@@ -355,9 +357,9 @@ temp.time <- as.numeric(Sys.time() - tmp)
 
 maxmod_pred <- predict(maxmod, testing_env)
 names(maxmod_pred) <- rownames(testing_env) #add site names
-head(maxmod_pred)
+#head(maxmod_pred)
 
-maxmod_pred <- list(maxmod_pred, modelName, temp.time)
+maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp.time)
 
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
@@ -374,7 +376,7 @@ temp.time <- as.numeric(Sys.time() - tmp)
 maxnet_pred <- predict(mxnet, testing_env, type = c("cloglog"))[, 1]
 head(maxnet_pred)
 
-maxnet_pred <- list(maxnet_pred, modelName, temp.time)
+maxnet_pred <- list(mxnet, maxnet_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -402,41 +404,92 @@ for(no.runs in 1:no.loop.runs){
   prNum <- as.numeric(table(training$occ)["1"]) # number of presences
   bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
   wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
-  
-  tmp <- Sys.time()
   set.seed(32639)
-  brt <- gbm.step(data = training,
-                  gbm.x = 2:ncol(training), # column indices for covariates
-                  gbm.y = 1, # column index for response
-                  family = "bernoulli",
-                  tree.complexity = ifelse(prNum < 50, 1, 5),
-                  learning.rate = 0.001,
-                  bag.fraction = 0.75,
-                  max.trees = 10000,
-                  n.trees = 50,
-                  n.folds = 5, # 5-fold cross-validation
-                  site.weights = wt,
-                  silent = TRUE) # avoid printing the cv results
   
-  temp.time <- as.numeric(Sys.time() - tmp)
+  # settings
+  brt <- NULL
+  ntrees <- 50
+  tcomplexity <- ifelse(prNum < 50, 1, 5)
+  lrate <- 0.001
+  m <- 0
+  
+  # start modeling! We use the "try" notation so if a species fails to fit, the loop will continue.
+  while(is.null(brt)){
+    m <- m + 1
+    if(m < 11){
+      ntrees <- 50
+      lrate <- 0.001
+    } else if(m < 21){
+      lrate <- 0.0001
+    } else if(m < 31){
+      ntrees <- 25
+      lrate <- 0.0001
+    } else if(m < 41){
+      ntrees <- 25
+      lrate <- 0.0001
+      tcomplexity <- ifelse(prNum < 50, 1, 3)
+    } else{
+      break
+    }
+    
+    tmp <- Sys.time()
+  
+    if(inherits(try(
+      
+      brt <- gbm.step(data = training,
+                      gbm.x = 2:ncol(training), # column indices for covariates
+                      gbm.y = 1, # column index for response
+                      family = "bernoulli",
+                      tree.complexity = tcomplexity,
+                      learning.rate = lrate,
+                      bag.fraction = 0.75,
+                      max.trees = 10000,
+                      n.trees = ntrees,
+                      n.folds = 5, # 5-fold cross-validation
+                      site.weights = wt,
+                      silent = TRUE) # avoid printing the cv results
+    ), "try-error")){
+      cat("Couldn't fit model", spID, "in the iteration", m, "\n")
+    } 
+    temp.time <- as.numeric(Sys.time() - tmp)
+  }
+  if(is.null(brt)){
+    next
+  }
+  
   # Note: model tuning with ~50,000 background points may take ~1h.
   
   #the optimal number of trees (intersect of green and red line in plot)
   brt$gbm.call$best.trees
   
+  # get interactions of predictors
+  temp.find.int <- gbm.interactions(brt)
+  
   # predicting with the best trees
   brt_pred <- predict(brt, testing_env, n.trees = brt$gbm.call$best.trees, type = "response")
-  head(brt_pred)
+  #head(brt_pred)
   
-  brt_pred_list[[no.runs]] <- list(brt_pred, modelName, temp.time)
+  brt_pred_list[[no.runs]] <- list(brt, brt_pred, modelName, temp.time, 
+                                   data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
+                                   temp.find.int$interactions)
 }
 
 # average all BRT predictions
-brt_pred <- as.data.frame(sapply(brt_pred_list, "[[", 1))
+brt_pred <- as.data.frame(sapply(brt_pred_list, "[[", 2))
 brt_pred <- rowMeans(brt_pred, na.rm=T)
-temp.time <- mean(sapply(brt_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(brt_pred_list, "[[", 4), na.rm=T)
 
-brt_pred <- list(brt_pred, modelName, temp.time)
+temp.settings <- rowMeans(as.data.frame(unlist(sapply(brt_pred_list, "[[", 5))), na.rm=T)
+temp.settings <- data.frame("parameter"=names(brt_pred_list[[1]][[5]]), "setting"=temp.settings)
+
+temp.interactions <- rowMeans(sapply(brt_pred_list, "[[", 5), na.rm=T)
+temp.interactions <- as.data.frame(matrix(temp.interactions, ncol=length(covarsNames)))
+rownames(temp.interactions) <- covarsNames
+colnames(temp.interactions) <- covarsNames
+
+temp.models <- sapply(brt_pred_list, "[[", 1)
+
+brt_pred <- list(temp.models, brt_pred, modelName, temp.time, temp.settings, temp.interactions)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -496,22 +549,24 @@ for(no.runs in 1:no.loop.runs){
   registerDoSEQ()
   temp.time <- as.numeric(Sys.time() - tmp)
   
-  plot(xgb_fit)
+  #plot(xgb_fit)
   
   print(xgb_fit$bestTune)
   
   xgb_pred <- predict(xgb_fit, testing_env)
-  head(xgb_pred)
+  #head(xgb_pred)
   
-  xgb_pred_list[[no.runs]] <- list(xgb_pred, modelName, temp.time)
+  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time)
 }
 
 # average all XGBoost predictions
-xgb_pred <- as.data.frame(sapply(xgb_pred_list, "[[", 1))
+xgb_pred <- as.data.frame(sapply(xgb_pred_list, "[[", 2))
 xgb_pred <- rowMeans(xgb_pred, na.rm=T)
-temp.time <- mean(sapply(xgb_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(xgb_pred_list, "[[", 4), na.rm=T)
 
-xgb_pred <- list(xgb_pred, modelName, temp.time)
+temp.models <- sapply(xgb_pred_list, "[[", 1)
+
+xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -565,11 +620,11 @@ for(no.runs in 1:no.loop.runs){
   
   # predict with RF
   rf_pred <- predict(rf, testing_env, type = "prob")[, "1"] # prob = continuous prediction
-  head(rf_pred)
+  #head(rf_pred)
   
-  rf_pred_list[[no.runs]] <- list(rf_pred, modelName, temp.time)
+  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp.time)
   
-  plot(rf, main = "RF")
+  #plot(rf, main = "RF")
   
   ## down-sampling RF
   # for this, background and presence data should be the same number
@@ -587,28 +642,32 @@ for(no.runs in 1:no.loop.runs){
                                 replace = TRUE)
   temp.time <- as.numeric(Sys.time() - tmp)
   
-  plot(rf_downsample, main = "RF down-sampled")
+  #plot(rf_downsample, main = "RF down-sampled")
   
   # predict with RF down-sampled
   rf_downsample_pred <- predict(rf_downsample, testing_env, type = "prob")[, "1"] # prob = continuous prediction
-  head(rf_downsample_pred)
+  #head(rf_downsample_pred)
   
-  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample_pred, modelName, temp.time)
+  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp.time)
 }
 
 # average all RF predictions
-rf_pred <- as.data.frame(sapply(rf_pred_list, "[[", 1))
+rf_pred <- as.data.frame(sapply(rf_pred_list, "[[", 2))
 rf_pred <- rowMeans(rf_pred, na.rm=T)
-temp.time <- mean(sapply(rf_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(rf_pred_list, "[[", 4), na.rm=T)
 
-rf_pred <- list(rf_pred, modelName, temp.time)
+temp.models <- sapply(rf_pred_list, "[[", 1)
+
+rf_pred <- list(temp.models, rf_pred, modelName, temp.time)
 
 # average all RF_downsampled predictions
-rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 1))
+rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 2))
 rf_downsample_pred <- rowMeans(rf_downsample_pred, na.rm=T)
-temp.time <- mean(sapply(rf_downsample_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(rf_downsample_pred_list, "[[", 4), na.rm=T)
 
-rf_downsample_pred <- list(rf_downsample_pred, modelName, temp.time)
+temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
+
+rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -656,17 +715,19 @@ for(no.runs in 1:no.loop.runs){
   svm_prob <- attr(svm_pred, "probabilities")[,"1"]
   
   # see the first few predictions
-  head(svm_prob)
+  #head(svm_prob)
   
-  svm_pred_list[[no.runs]] <- list(svm_prob, modelName, temp.time)
+  svm_pred_list[[no.runs]] <- list(svm_e, svm_prob, modelName, temp.time)
 }
 
 # average all SVM predictions
-svm_pred <- as.data.frame(sapply(svm_pred_list, "[[", 1))
+svm_pred <- as.data.frame(sapply(svm_pred_list, "[[", 2))
 svm_pred <- rowMeans(svm_pred, na.rm=T)
-temp.time <- mean(sapply(svm_pred_list, "[[", 3), na.rm=T)
+temp.time <- mean(sapply(svm_pred_list, "[[", 4), na.rm=T)
 
-svm_pred <- list(svm_pred, modelName, temp.time)
+temp.models <- sapply(svm_pred_list, "[[", 1)
+
+svm_pred <- list(temp.models, svm_pred, modelName, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -797,18 +858,18 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
 
 # see the first few predictions
 # the prediction scale of biomod is between 0 and 1000
-head(myEnProjDF)
+#head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
 names(biomod_pred) <- rownames(testing_env)
-biomod_pred <- list(biomod_pred, modelName, temp.time)
+biomod_pred <- list(myBiomodEM, biomod_pred, modelName, temp.time)
  
   
 #- - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
 #- - - - - - - - - - - - - - - - - - - - -
 # note: this model should be run after all the component 
-# models, MaxEnt, Lasso, GAM, BRT, RF down-sampled
+# models (MaxEnt, Lasso, GAM, BRT, RF down-sampled)
 
 modelName <- "bg.glm"
 
@@ -822,7 +883,7 @@ ensm_pred <- rowMeans(cbind(gm, lasso, brt, rf, maxt), na.rm=T)
 
 temp.time <- sum(gm_pred[[3]], lasso_pred[[3]], brt_pred[[3]], rf_pred[[3]], maxmod_pred[[3]])
 
-ensm_pred <- list(ensm_pred, modelName, temp.time)
+ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Saving ####
@@ -835,7 +896,7 @@ SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred,
 names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
                 "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "xgb_pred", "svm_pred",
                 "rf_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
-head(SDMs)
+#head(SDMs)
 
 save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))
 
