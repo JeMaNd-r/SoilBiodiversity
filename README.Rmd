@@ -1,0 +1,87 @@
+
+```{r setting, echo=FALSE}
+print(paste0("Last updated: " ,Sys.Date())
+```
+
+
+# Soil Biodiversity across Europe based on SDMs
+
+The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for soil organisms across Europe.
+
+
+## Description
+
+Belowground biodiversity does not necessarily follow aboveground biodiversity patterns, but maps of soil biodiversity remain scarce because of limited data availability. Earthworms belong to the most thoroughly studied soil organisms, and  - in their role as ecosystem engineers - have a significant impact on ecosystem functioning. Here, we address the questions where and what is needed to protect European earthworm species. We focus on common species only, that is on species with broad geographic ranges and therefore an appropriate number of occurrence records in Europe (min. XX records). First, we map the spatial distribution of common earthworm species and the respective total species richness (i.e., number of species with a probability of presence above 60%). We use multiple environmental predictors spanning climatic, edaphic, and topological factors. In accordance with the literature, we predicted potential species distributions by well-performing models (i.e., MaxEnt, BRT, RF-downsized, and Ensemble modeling) (Valavi et al. 2021). Second, we investigate how well the different types of protected areas cover mean and individual species ranges by estimating the respective proportion of range area. Based on the protection coverage, we are able to identify vulnerable species, that is species whose ranges only sparsely overlap with current protected areas. 
+
+## Getting Started
+
+### Dependencies
+
+* Windows 10
+* R version 4.1.2
+* RStudio version 1.2.5033
+
+R packages
+
+```{r Rpackages, echo=FALSE}
+sessionInfo()
+```
+
+
+### Installing
+
+* Code is available at GitHub.
+* Data can be downloaded according to Zeiss et al. 2022.
+
+Folder structure should be maintained. Additionally, please start with loading the SoilBiodiversity.Rproj file, and load individual R scripts from there. This is necessary to access all data files that will be called with `here::here()`.
+
+
+### Executing program
+
+* Open the RMarkdown document called *SoilBiodiversity_SDMs.Rmd*.
+* Follow its written workflow and load the attached R scripts.
+
+If any of the individual R scripts doesn't run when using `load()`, please run the whole scripts manually. Open the respective R file (.R), select all lines, and run them in the console. 
+
+
+## Help
+
+Any advise for common problems or issues.
+```
+command to run if program contains helper info
+```
+
+## Authors
+
+Contributors names and contact info
+
+Romy Zeiss  
+[@RomyZeiss](https://twitter.com/romyzeiss)
+
+## Version History
+
+* 0.2
+    * Various bug fixes and optimizations
+    * See [commit change]() or See [release history]()
+* 0.1
+    * Initial Release
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+## Acknowledgments
+
+This code is based on Valavi et al. 2021 [1]
+
+
+
+## References
+
+[1] Valavi et al. (2021) Predictive performance of presence-only species distribution models: a benchmark study with reproducible code. Ecological Mponographs.
+
+[2]
+
+
+
+
