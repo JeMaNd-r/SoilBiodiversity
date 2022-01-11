@@ -11,21 +11,38 @@ load(file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID
 ## Model performance ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-mod_eval <- data.frame(species = NA, 
-                       roc = NA,
-                       prg = NA,
-                       cor = NA,
-                       model = NA,
-                       time = NA,
-                       bg= NA)
+mod_eval <- data.frame(species = NA, # name of the species (more important for later)
+                       roc = NA, # AUC roc
+                       prg = NA, # AUC prg
+                       cor = NA, # correlation between predicted & true values
+                       tss = NA, # True Skills Statistic
+                       model = NA, # name of the SDM algorithm
+                       time = NA, # mean computational time
+                       bg= NA, # background dataset used
+                       no.runs = NA) #how many background data runs to we have
 
-for(i in 1:length(names(SDMs))){
+# function to calculate TSS
+opt.cut <- function(perf, pred){
+  cut.ind <- mapply(FUN=function(x, y, p){
+    d <- (x - 0)^2 + (y-1)^2
+    ind <- which(d == min(d))
+    c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
+      cutoff = p[[ind]])
+  }, perf@x.values, perf@y.values, pred@cutoffs)
+}
+
+# function to calculate kappa
+library(SDMTools)
+
+
+for(i in 1:length(SDMs)){
   temp.model <- names(SDMs)[[i]]
+  number.models <- 1
   
-  # # if necessary, unlist models
-  # if(length(SDMs[[i]])!=3) {
-  #   
-  # }
+  # if necessary, unlist models
+  if(length(SDMs[[i]])!=4) {
+    number.models <- length(SDMs[[i]])
+  }
     
   # define background dataset (for testing data)
   modelName <- SDMs[[i]][[3]]
@@ -58,37 +75,41 @@ for(i in 1:length(names(SDMs))){
   # plot the PRG curve
   prg <- plot_prg(prg_curve)
   
-  # plot all plots into one
-  ggpubr::ggarrange(roc, pr, prg,
-                    labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
+  # # plot all plots into one
+  # ggpubr::ggarrange(roc, pr, prg,
+  #                   labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
+   
+  #- - - - - - - - - - - - - - - - - - - 
+  # scale predictions between 0 and 1
+  prediction <- scales::rescale(prediction, to = c(0,1))
   
+  ## TSS and Kappa
+  roc.pred <- prediction(prediction[names(prediction) %in% rownames(testing_pa)], testing_pa[rownames(testing_pa) %in% names(prediction),"occ"])
+  roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
+  
+  # calculate Sensitivity and Specificity
+  sen_spe <- opt.cut(roc.perf, roc.pred)
+  
+  # calculate TSS
+  temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
+  
+  # calculate Kappa
+  #...
+  
+  # save in output data frame
   mod_eval[i,]$species <- spID
   try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4])
   try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve))
   try(mod_eval[i,]$cor <- cor(prediction,  testing_pa[,"occ"]))
+  try(mod_eval[i,]$tss <- temp.tss)
   mod_eval[i,]$model <- temp.model
   try(mod_eval[i,]$time <- SDMs[[i]][[4]])
   mod_eval[i,]$bg <- modelName
+  mod_eval[i,]$no.runs <- number.models
                     
 }
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
-
-
-## calculate additional indices according to equations in Allouche et al. 2006
-
-# Sensitivity
-
-
-# Specificity 
-
-
-
-# TSS
-
-
-# kappa
-
 
 
 
