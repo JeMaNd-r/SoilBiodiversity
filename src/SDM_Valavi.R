@@ -63,6 +63,10 @@ par(mfrow=c(1,1))
 gm_pred <- predict(gm, testing_env)
 #head(gm_pred)
 
+gm_pred <- as.numeric(gm_pred)
+names(gm_pred) <- rownames(testing_env) #add site names
+
+
 gm_pred <- list(gm, gm_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -88,8 +92,10 @@ temp.time <- as.numeric(Sys.time() - tmp)
 lm1_pred <- predict(lm1, testing_env)
 #head(lm1_pred)
 
-lm1_pred <- list(lm1, lm1_pred, modelName, temp.time)
+lm1_pred <- as.numeric(lm1_pred)
+names(lm1_pred) <- rownames(testing_env) #add site names
 
+lm1_pred <- list(lm1, lm1_pred, modelName, temp.time)
 
 # model scope for subset selection
 mod_scope <- gam.scope(frame = training, form=F,
@@ -122,6 +128,10 @@ summary(lm_subset)
 
 lm_subset_pred <- predict(lm_subset, testing_env)
 #head(lm_subset_pred)
+
+lm_subset_pred <- as.numeric(lm_subset_pred)
+names(lm_subset_pred) <- rownames(testing_env) #add site names
+
 
 lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp.time)
 
@@ -179,6 +189,10 @@ print("One of the two Lambda (dashed lines) needs to be selected for prediction.
 lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_pred)
 
+lasso_pred <- as.numeric(lasso_pred)
+names(lasso_pred) <- rownames(testing_env) #add site names
+
+
 lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp.time)
 
 
@@ -198,6 +212,10 @@ temp.time <- as.numeric(Sys.time() - tmp)
 # predict ridge
 ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_pred)
+
+ridge_pred <- as.numeric(ridge_pred)
+names(ridge_pred) <- rownames(testing_env) #add site names
+
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp.time)
 
@@ -270,6 +288,9 @@ temp.time <- mean(sapply(mars_pred_list, "[[", 4), na.rm=T)
 temp.models <- sapply(mars_pred_list, "[[", 1)
 
 mars_pred <- list(temp.models, mars_pred, modelName, temp.time)
+
+mars_pred <- as.numeric(mars_pred)
+names(mars_pred) <- rownames(testing_env) #add site names
 
 
 # transform occurrence column back to numeric
@@ -359,6 +380,10 @@ maxmod_pred <- predict(maxmod, testing_env)
 names(maxmod_pred) <- rownames(testing_env) #add site names
 #head(maxmod_pred)
 
+maxmod_pred <- as.numeric(maxmod_pred)
+names(maxmod_pred) <- rownames(testing_env) #add site names
+
+
 maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp.time)
 
 ## MaxNet
@@ -375,6 +400,9 @@ temp.time <- as.numeric(Sys.time() - tmp)
 # predicting with MaxNet
 maxnet_pred <- predict(mxnet, testing_env, type = c("cloglog"))[, 1]
 head(maxnet_pred)
+
+maxnet_pred <- as.numeric(maxnet_pred)
+names(maxnet_pred) <- rownames(testing_env) #add site names
 
 maxnet_pred <- list(mxnet, maxnet_pred, modelName, temp.time)
 
@@ -469,6 +497,9 @@ for(no.runs in 1:no.loop.runs){
   brt_pred <- predict(brt, testing_env, n.trees = brt$gbm.call$best.trees, type = "response")
   #head(brt_pred)
   
+  brt_pred <- as.numeric(brt_pred)
+  names(brt_pred) <- rownames(testing_env) #add site names
+  
   brt_pred_list[[no.runs]] <- list(brt, brt_pred, modelName, temp.time, 
                                    data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
                                    temp.find.int$interactions)
@@ -537,7 +568,7 @@ for(no.runs in 1:no.loop.runs){
   cluster <- makeCluster(6) # you can use all cores of your machine instead e.g. 8
   registerDoParallel(cluster)
   set.seed(32639)
-  xgb_fit <- train(form = occ ~ .,
+  xgb_fit <- caret::train(form = occ ~ .,
                    data = training,
                    method = "xgbTree",
                    metric = "ROC",
@@ -551,17 +582,26 @@ for(no.runs in 1:no.loop.runs){
   
   #plot(xgb_fit)
   
-  print(xgb_fit$bestTune)
+  #print(xgb_fit$bestTune)
   
   xgb_pred <- predict(xgb_fit, testing_env)
   #head(xgb_pred)
+  
+  # transform occurrence back into numeric
+  xgb_pred <- as.character(xgb_pred)
+  xgb_pred[xgb_pred=="C0"] <- 0
+  xgb_pred[xgb_pred=="C1"] <- 1
+  xgb_pred <- as.numeric(xgb_pred)
+  names(xgb_pred) <- rownames(testing_env) #add site names
   
   xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time)
 }
 
 # average all XGBoost predictions
 xgb_pred <- as.data.frame(sapply(xgb_pred_list, "[[", 2))
+
 xgb_pred <- rowMeans(xgb_pred, na.rm=T)
+
 temp.time <- mean(sapply(xgb_pred_list, "[[", 4), na.rm=T)
 
 temp.models <- sapply(xgb_pred_list, "[[", 1)
@@ -622,6 +662,9 @@ for(no.runs in 1:no.loop.runs){
   rf_pred <- predict(rf, testing_env, type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_pred)
   
+  rf_pred <- as.numeric(rf_pred)
+  names(rf_pred) <- rownames(testing_env) #add site names
+  
   rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp.time)
   
   #plot(rf, main = "RF")
@@ -647,6 +690,9 @@ for(no.runs in 1:no.loop.runs){
   # predict with RF down-sampled
   rf_downsample_pred <- predict(rf_downsample, testing_env, type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_downsample_pred)
+  
+  rf_downsample_pred <- as.numeric(rf_downsample_pred)
+  names(rf_downsample_pred) <- rownames(testing_env) #add site names
   
   rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp.time)
 }
@@ -716,6 +762,9 @@ for(no.runs in 1:no.loop.runs){
   
   # see the first few predictions
   #head(svm_prob)
+  
+  svm_prob <- as.numeric(svm_prob)
+  names(svm_prob) <- rownames(testing_env) #add site names
   
   svm_pred_list[[no.runs]] <- list(svm_e, svm_prob, modelName, temp.time)
 }
