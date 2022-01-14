@@ -59,7 +59,7 @@ par(mfrow=c(1,1))
 #plot(gm, pages = 1, rug = TRUE, shade = TRUE)
 # Note: plots are useless for binary data
 
-# predict
+# predict (only for model performance)
 gm_pred <- predict(gm, testing_env)
 #head(gm_pred)
 
@@ -487,8 +487,8 @@ for(no.runs in 1:no.loop.runs){
   
   # Note: model tuning with ~50,000 background points may take ~1h.
   
-  #the optimal number of trees (intersect of green and red line in plot)
-  brt$gbm.call$best.trees
+  # the optimal number of trees (intersect of green and red line in plot)
+  #brt$gbm.call$best.trees
   
   # get interactions of predictors
   temp.find.int <- gbm.interactions(brt)
@@ -521,6 +521,89 @@ colnames(temp.interactions) <- covarsNames
 temp.models <- sapply(brt_pred_list, "[[", 1)
 
 brt_pred <- list(temp.models, brt_pred, modelName, temp.time, temp.settings, temp.interactions)
+
+#- - - - - - - - - - - - - - - - 
+## Model BRT2 for ensemble modelling with consistent background data (bg.glm)
+modelName <- "bg.glm"
+
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+
+
+# calculating the case weights
+prNum <- as.numeric(table(training$occ)["1"]) # number of presences
+bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
+wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
+set.seed(32639)
+
+# settings
+brt2 <- NULL
+ntrees <- 50
+tcomplexity <- ifelse(prNum < 50, 1, 5)
+lrate <- 0.001
+m <- 0
+  
+# start modeling! We use the "try" notation so if a species fails to fit, the loop will continue.
+while(is.null(brt2)){
+  m <- m + 1
+  if(m < 11){
+    ntrees <- 50
+    lrate <- 0.001
+  } else if(m < 21){
+    lrate <- 0.0001
+  } else if(m < 31){
+    ntrees <- 25
+    lrate <- 0.0001
+  } else if(m < 41){
+    ntrees <- 25
+    lrate <- 0.0001
+    tcomplexity <- ifelse(prNum < 50, 1, 3)
+  } else{
+    break
+  }
+  
+  tmp <- Sys.time()
+  
+  if(inherits(try(
+    
+    brt2 <- gbm.step(data = training,
+                    gbm.x = 2:ncol(training), # column indices for covariates
+                    gbm.y = 1, # column index for response
+                    family = "bernoulli",
+                    tree.complexity = tcomplexity,
+                    learning.rate = lrate,
+                    bag.fraction = 0.75,
+                    max.trees = 10000,
+                    n.trees = ntrees,
+                    n.folds = 5, # 5-fold cross-validation
+                    site.weights = wt,
+                    silent = TRUE) # avoid printing the cv results
+  ), "try-error")){
+    cat("Couldn't fit model", spID, "in the iteration", m, "\n")
+  } 
+  temp.time <- as.numeric(Sys.time() - tmp)
+}
+if(is.null(brt2)){
+  next
+}
+
+# Note: model tuning with ~50,000 background points may take ~1h.
+
+# the optimal number of trees (intersect of green and red line in plot)
+#brt2$gbm.call$best.trees
+
+# get interactions of predictors
+temp.find.int <- gbm.interactions(brt2)
+
+# predicting with the best trees
+brt2_pred <- predict(brt2, testing_env, n.trees = brt2$gbm.call$best.trees, type = "response")
+#head(brt_pred)
+
+brt2_pred <- as.numeric(brt2_pred)
+names(brt2_pred) <- rownames(testing_env) #add site names
+
+brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -715,6 +798,36 @@ temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
 
 rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp.time)
 
+#- - - - - - - - - - - - - - - - - - - - - 
+## Model RF2 for ensemble modelling using consistent background data (bg.glm)
+
+modelName <- "bg.glm"
+
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+
+lapply(temp.files, load, .GlobalEnv)
+
+# convert the response to factor for producing class relative likelihood
+training$occ <- as.factor(training$occ)
+tmp <- Sys.time()
+set.seed(32639)
+rf2 <- randomForest(formula = occ ~.,
+                   data = training,
+                   ntree = 500) # the default number of trees
+temp.time <- as.numeric(Sys.time() - tmp)
+
+# predict with RF
+rf2_pred <- predict(rf2, testing_env, type = "prob")[, "1"] # prob = continuous prediction
+#head(rf_pred)
+
+rf2_pred <- as.numeric(rf2_pred)
+names(rf2_pred) <- rownames(testing_env) #add site names
+
+rf2_pred <- list(rf2, rf2_pred, modelName, temp.time)
+
+
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
 
@@ -785,34 +898,19 @@ training$occ <- as.numeric(training$occ)
 ## biomod ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-modelName <- "bg.glm"
+modelName <- "bg.biomod"
 
-# re-loading the species data (we need the x & y column)
-# load background data (pseudo-absences) for each modeling approach
-load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", spID, ".RData"))
-data <- bg.list[[modelName]] %>% rename("occ"=1)
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
 
-pr <- data[!is.na(data$occ),]
-bg <- data[is.na(data$occ),]
+lapply(temp.files, load, .GlobalEnv)
 
-# define parameters
-training <- rbind(pr, bg)
-myRespName <- "occ"
-myResp <- as.numeric(training[, myRespName])
-myResp[which(myResp == 0)] <- NA
-myExpl <- data.frame(training[, covarsNames])
-myRespXY <- training[, c("x", "y")]
 
 tmp <- Sys.time()
 
 # create biomod data format
-myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
-                                     expl.var = myExpl,
-                                     resp.name = myRespName,
-                                     resp.xy = myRespXY,
-                                     PA.nb.absences = 50000,
-                                     PA.strategy = 'random',
-                                     na.rm = TRUE)
+myBiomodData <- training
 
 # using the default options
 # you can change the mentioned parameters by changes this
@@ -910,8 +1008,7 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
 #head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
-names(biomod_pred) <- rownames(testing_env)
-biomod_pred <- list(myBiomodEM, biomod_pred, modelName, temp.time)
+biomod_pred <- list(list(myBiomodEM, myBiomodModelOut), biomod_pred, modelName, temp.time)
  
   
 #- - - - - - - - - - - - - - - - - - - - -
@@ -922,16 +1019,20 @@ biomod_pred <- list(myBiomodEM, biomod_pred, modelName, temp.time)
 
 modelName <- "bg.glm"
 
+# scale the predictions between 0 and 1
 gm <- scales::rescale(gm_pred[[2]], to = c(0,1))
 lasso <- scales::rescale(lasso_pred[[2]], to = c(0,1))
-brt <- scales::rescale(brt_pred[[2]], to = c(0,1))
-rf <- scales::rescale(rf_pred[[2]], to = c(0,1))
+brt <- scales::rescale(brt2_pred[[2]], to = c(0,1))
+rf <- scales::rescale(rf2_pred[[2]], to = c(0,1))
 maxt <- scales::rescale(maxmod_pred[[2]], to = c(0,1))
 
-ensm_pred <- rowMeans(cbind(gm, lasso, maxt), na.rm=T) #,brt, rf  !they have different background data
+# average the predictions
+ensm_pred <- rowMeans(cbind(gm, lasso, maxt, brt, rf), na.rm=T) #, brt, rf  !brt and rf have different background data
 
-temp.time <- sum(gm_pred[[4]], lasso_pred[[4]], maxmod_pred[[4]]) #,brt_pred[[3]], rf_pred[[3]]
+# sum up computational time
+temp.time <- sum(gm_pred[[4]], lasso_pred[[4]], maxmod_pred[[4]], brt2_pred[[4]], rf2_pred[[4]]) 
 
+# model output
 ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -941,13 +1042,13 @@ ensm_pred <- list("No model output available. Predictions have to be averaged ag
 # save all models to calculate model performance later
 SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
      mars_pred, maxmod_pred, maxnet_pred, brt_pred, xgb_pred, svm_pred,
-     rf_pred, rf_downsample_pred, biomod_pred, ensm_pred)
+     rf_pred, rf_downsample_pred, biomod_pred, brt2_pred, rf2_pred, ensm_pred)
 names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
                 "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "xgb_pred", "svm_pred",
-                "rf_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
+                "rf_pred", "rf_downsample_pred", "biomod_pred", "brt2_pred", "rf2_pred", "ensm_pred")
 #head(SDMs)
 
-save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))
+save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/SDM_Models_", spID, ".RData"))
 
 
 
