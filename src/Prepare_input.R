@@ -8,7 +8,7 @@
 # load background data (pseudo-absences) for each modeling approach
 load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", spID, ".RData"))
 
-for(i in 1:length(bg.list)){
+for(i in 1:(length(bg.list)-1)){ #exclude biomod data
   if(ncol(bg.list[[i]])>(length(covarsNames)+4)){
     # define presence and absence as new colum
     bg.list[[i]]$occ <- 1
@@ -34,7 +34,7 @@ for(i in 1:length(bg.list)){
     bg.list[[i]][is.na(bg.list[[i]]$PA1),]$occ <- 0
   }
 }  
- 
+
 ## split all datasets into training, testing and validation data
 # define function to do so
 split.data <- function(x){
@@ -83,15 +83,15 @@ split.data <- function(x){
 }
 
 # now we run the function for all data
-for(k in 1:length(bg.list)){
+for(k in 1:(length(bg.list)-1)){ #exclude biomod data
   modelName <- names(bg.list)[k]
   
   # if we have only a dataframe in the current list element, its easy
   if(class(bg.list[[k]])!="list"){
     runningNumber <- 1
     split.data(bg.list[[k]])
-  
-  # if we have a list of dataframes, we have to specify the right list layer
+    
+    # if we have a list of dataframes, we have to specify the right list layer
   }else{
     for(l in 1:length(bg.list[[k]])){
       runningNumber <- l
@@ -99,6 +99,25 @@ for(k in 1:length(bg.list)){
     }
   }
 }
+
+## For BIOMOD ####
+modelName <- "bg.biomod"
+runningNumber <- 1
+
+training <- bg.list$bg.biomod
+
+# take testing anjd validation data from bg.glm
+load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", "bg.glm",runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", "bg.glm",runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", "bg.glm",runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+
+# save datasets for BIOMOD
+save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+save(testing_pa, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", modelName,runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+save(testing_env, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", modelName,runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+save(validation.data, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", modelName,runningNumber, "_", Taxon_name,"_", spID, ".RData"))
+
+
 
 print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 print(paste0("The model input data is now saved for ", Taxon_name, ": ", spID, "."))

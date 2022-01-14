@@ -182,9 +182,34 @@ if(temp.runs==1){
   bg.rf$SpeciesID <- spID
 }
 
-
 # add model settings into summary table
 temp.dat <- data.frame(SpeciesID=spID, model="RF.BRT.CTA",strategy=temp.strategy, 
+                       No.runs=temp.runs, No.points=temp.number, 
+                       min.distance=NA, run.time=temp.time)
+model.settings <- rbind(model.settings, temp.dat)
+
+rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
+
+#- - - - - - - - - - - - - - - - - - - 
+## BIOMOD ####
+temp.runs <- 1
+temp.number <- 50000 * 0.6 # take only 60% of the data as the other ones will be splitted in "Prepare_inout.r"
+temp.strategy <- "random"
+
+tmp <- Sys.time()
+bg.biomod <- BIOMOD_FormatingData(resp.var = myResp,
+                               expl.var = myExpl,
+                               resp.xy = myRespCoord,
+                               resp.name = myRespName,
+                               PA.nb.rep = temp.runs,
+                               PA.nb.absences = temp.number,
+                               PA.strategy = temp.strategy)
+temp.time <- Sys.time() - tmp
+
+# NOTE: testing data and validation data will be used from bg.glm
+
+# add model settings into summary table
+temp.dat <- data.frame(SpeciesID=spID, model="BIOMOD", strategy=temp.strategy,
                        No.runs=temp.runs, No.points=temp.number, 
                        min.distance=NA, run.time=temp.time)
 model.settings <- rbind(model.settings, temp.dat)
@@ -195,12 +220,13 @@ rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
 print(model.settings)
 print("The strategy used for GLM/GAM can be used for other models than listed.")
 
+
 # save model setting summary for later
 save(model.settings, file=paste0(here::here(), "/results/BackgroundData_modelSettings_", Taxon_name, ".RData"))
 
 # save background data
-bg.list <- list(bg.glm, bg.mars, bg.mda, bg.rf)
-names(bg.list) <- c("bg.glm", "bg.mars", "bg.mda", "bg.rf")
+bg.list <- list(bg.glm, bg.mars, bg.mda, bg.rf, bg.biomod)
+names(bg.list) <- c("bg.glm", "bg.mars", "bg.mda", "bg.rf", "bg.biomod")
 save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", spID, ".RData"))
 # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_GLM_", Taxon_name, "_", spID, ".csv"), row.names = F)
 # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_MARS_", Taxon_name, "_", spID, ".csv"), row.names = F)
