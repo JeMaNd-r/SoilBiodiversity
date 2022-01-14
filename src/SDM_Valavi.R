@@ -906,11 +906,10 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 
 lapply(temp.files, load, .GlobalEnv)
 
-
-tmp <- Sys.time()
-
 # create biomod data format
 myBiomodData <- training
+
+myRespName <- "occ"
 
 # using the default options
 # you can change the mentioned parameters by changes this
@@ -959,6 +958,8 @@ myBiomodOption <- BIOMOD_ModelingOptions(
 mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
 
 # model fitting
+tmp <- Sys.time()
+setwd(paste0(here::here(), "/results/", Taxon_name))
 
 set.seed(32639)
 myBiomodModelOut <- BIOMOD_Modeling(myBiomodData,
@@ -1010,7 +1011,8 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
 biomod_pred <- myEnProjDF[,1]
 biomod_pred <- list(list(myBiomodEM, myBiomodModelOut), biomod_pred, modelName, temp.time)
  
-  
+setwd(here::here())  
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
 #- - - - - - - - - - - - - - - - - - - - -
