@@ -911,8 +911,7 @@ myBiomodData <- training
 
 myRespName <- "occ"
 
-# using the default options
-# you can change the mentioned parameters by changes this
+# create own function for GAM and MAXENT.Phillips
 myBiomodOption <- BIOMOD_ModelingOptions(
   GAM = list( algo = 'GAM_mgcv',
                type = 's_smoother',
@@ -1009,6 +1008,8 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
 #head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
+names(biomod_pred) <- rownames(testing_env) #add site names
+
 biomod_pred <- list(list(myBiomodEM, myBiomodModelOut), biomod_pred, modelName, temp.time)
  
 setwd(here::here())  
