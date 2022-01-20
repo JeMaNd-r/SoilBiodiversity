@@ -1,0 +1,126 @@
+Family,Genus,Subgenus_Bouche,Species,Subspecies_Bouche,Variety_Bouche,Ecogroup_Bouche,Percent_Epigeic,Percent_Anecic,Percent_Endogeic,Ecogroup_Bottinelli
+Lumbricidae,Scherotheca,Scherotheca,gigas,aquitania,NA,Anecic,0,94,6,Anecic
+Lumbricidae,Scherotheca,Scherotheca,gigas,rhodana,NA,Anecic,0,88,12,Anecic
+Lumbricidae,Scherotheca,Scherotheca,gigas,mifuga,NA,Anecic,0,94,6,Anecic
+Lumbricidae,Scherotheca,Scherotheca,gigas,orbiensis,NA,Anecic,0,88,12,Anecic
+Lumbricidae,Scherotheca,Rosanus,dugesi,dugesi,NA,Anecic,0,85,15,Anecic
+Lumbricidae,Scherotheca,Rosanus,dugesi,porotheca,NA,Anecic,0,91,9,Anecic
+Lumbricidae,Scherotheca,Rosanus,dugesi,brevisella,NA,Anecic,0,91,9,Anecic
+Lumbricidae,Scherotheca,Scherotheca,monospessulensis,idica,NA,Anecic,0,91,9,Anecic
+Lumbricidae,Scherotheca,Opothedrilus,savignyi,savignyi,NA,Anecic,0,95,5,Anecic
+Lumbricidae,Scherotheca,Opothedrilus,savignyi,minor,NA,Anecic,4,92,4,Anecic
+Lumbricidae,Octodrilus,NA,complanatus,NA,NA,Anecic,4,75,21,Anecic
+Lumbricidae,Nicodrilus,Nicodrilus,terrestris,terrestris,terrestris,Anecic,30,70,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,terrestris,voconcus,voconcus,Anecic,30,70,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,longus,longus,ambiguus,Anecic,32,68,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,longus,longus,longus,Anecic,32,68,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,longus,longus,amplisellus,Anecic,32,68,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,longus,ripicola,viridis,Anecic,41,59,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,longus,ripicola,NA,Anecic,36,64,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,caliginosus,meridionalis,NA,Anecic,51,49,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,nocturnus,nocturnus,NA,Anecic,49,51,0,Epi-anecic
+Lumbricidae,Nicodrilus,Nicodrilus,balisus,NA,NA,Anecic,10,90,0,Anecic
+Lumbricidae,Nicodrilus,Nicodrilus,velox,NA,NA,Anecic,0,85,15,Anecic
+Lumbricidae,Nicodrilus,Nicodrilus,nocturnus,cistercianus,NA,Anecic,49,51,0,Epi-anecic
+Lumbricidae,Nicodrilus,NA,terrestris,terrestris,lemovicus,Anecic,28,72,0,Epi-anecic
+Lumbricidae,Nicodrilus,NA,terrestris,terrestris,eduensis,Anecic,30,70,0,Epi-anecic
+Hormogastridae,Hormogaster,NA,samnitica,lirapora,NA,Endogeic,0,24,76,Endo-anecic
+Hormogastridae,Hemigastrodrilus,NA,monicae,NA,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,praticola,NA,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,pyrenaicus,NA,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,Kenleenus,amplisetosus,amplisetosus,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,Kenleenus,amplisetosus,hexathecosus,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Kritodrilus,NA,calarensis,NA,NA,Endogeic,4,0,96,Endogeic
+Lumbricidae,Octolasium,NA,lacteum,lacteum,NA,Endogeic,14,20,66,Endo-anecic
+Lumbricidae,Octolasium,NA,lacteum,gracile,NA,Endogeic,14,20,66,Endo-anecic
+Lumbricidae,Allolobophora,NA,icterica,icterica,NA,Endogeic,0,8,92,Endogeic
+Lumbricidae,Nicodrilus,Nicodrilus,caliginosus,caliginosus,NA,Endogeic,16,4,80,Endogeic
+Lumbricidae,Nicodrilus,Nicodrilus,caliginosus,alternisetosus,NA,Endogeic,0,22,78,Endogeic
+Lumbricidae,Allolobophora,NA,rosea,rosea,NA,Endogeic,15,0,85,Endogeic
+Lumbricidae,Allolobophora,NA,oculata,oculata,NA,Endogeic,15,0,85,Endogeic
+Lumbricidae,Allolobophora,NA,graffi,NA,NA,Endogeic,0,0,100,Endogeic
+Lumbricidae,Allolobophora,NA,ligrum,NA,NA,Endogeic,37,12,52,Epi-endogeic
+Lumbricidae,Allolobophora,NA,antipai,antipai,NA,Endogeic,25,0,75,Epi-endogeic
+Lumbricidae,Allolobophora,NA,muldali,NA,NA,Endogeic,44,0,56,Epi-endogeic
+Lumbricidae,Allolobophora,NA,bartoli,bartoli,NA,Endogeic,0,49,51,Endo-anecic
+Diporodrilidae,Diporodrilus ,NA,pilosus,NA,NA,Endogeic,0,8,92,Endogeic
+Lumbricidae,Nicodrilus,Rhodonicus,arvernus,NA,NA,Epigeic,81,19,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,castaneus,disjonctus,NA,Epigeic,90,10,0,Epigeic
+Lumbricidae,Lumbricus ,NA,castaneus,NA,NA,Epigeic,90,10,0,Epigeic
+Lumbricidae,Lumbricus ,NA,rubellus,rubellus,NA,Epigeic,85,15,0,Epigeic
+Lumbricidae,Lumbricus ,NA,rubellus,castanoides,NA,Epigeic,90,10,0,Epigeic
+Lumbricidae,Eisenia,NA,fetida,fetida,NA,Epigeic,93,4,3,Epigeic
+Lumbricidae,Eisenia,NA,fetida,andrei,NA,Epigeic,94,3,3,Epigeic
+Lumbricidae,Eisenia,NA,eiseni,NA,NA,Epigeic,92,0,8,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,octaedra,NA,NA,Epigeic,97,0,3,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,attemsi,NA,NA,Epigeic,83,0,17,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,alpina,zeugochaeta,NA,Epigeic,100,0,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,byblica,byblica,NA,Epigeic,100,0,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,pantaleonis,balagnensis,NA,Epigeic,64,0,36,Epi-endogeic
+Lumbricidae,Dendrobaena,Dendrobaena,mammalis,NA,NA,Epigeic,64,7,29,Epi-endogeic
+Lumbricidae,Dendrobaena,Dendrodrilus,rubida,rubida,NA,Epigeic,93,7,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrodrilus,rubida,tenuis,NA,Epigeic,93,7,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrodrilus,subrubicunda,rivulicola,NA,Epigeic,100,0,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrodrilus,subrubicunda,NA,NA,Epigeic,64,0,36,Epi-endogeic
+Acanthodrilidae,Microscolex,NA,phosphoreus,NA,NA,Epi-endogeic,29,0,71,Epi-endogeic
+Acanthodrilidae,Microscolex,NA,dubius,NA,NA,Epi-endogeic,30,0,70,Epi-endogeic
+Lumbricidae,Octolasium,NA,cyaneum,NA,NA,Epi-endogeic,21,24,55,Intermediate
+Lumbricidae,Allolobophora,NA,chlorotica,chlorotica,c_chlorotype,Epi-endogeic,31,31,38,Intermediate
+Lumbricidae,Allolobophora,NA,chlorotica,waldensis,NA,Epi-endogeic,22,43,35,Endo-anecic
+Lumbricidae,Allolobophora,NA,georgii,NA,NA,Epi-endogeic,2,16,81,Endogeic
+Lumbricidae,Allolobophora,NA,cupulifera,NA,NA,Epi-endogeic,2,0,98,Endogeic
+Lumbricidae,Allolobophora,NA,chaetophora,chaetophora,NA,Epi-endogeic,0,43,57,Endo-anecic
+Lumbricidae,Allolobophora,NA,atlantica,NA,NA,Epi-endogeic,33,28,39,Intermediate
+Diporodrilidae,Diporodrilus ,NA,omodeoi,NA,NA,Epi-endogeic,7,0,93,Endogeic
+Lumbricidae,Lumbricus ,NA,herculeus,NA,NA,Epi-anecic,34,66,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,friendi,lineatus,NA,Epi-anecic,66,34,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,friendi,NA,NA,Epi-anecic,34,66,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,centralis,NA,NA,Epi-anecic,34,66,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,festivus,NA,NA,Epi-anecic,66,34,0,Epi-anecic
+Lumbricidae,Lumbricus ,NA,moliboeus,NA,NA,Epi-anecic,64,36,0,Epi-anecic
+Megascolecidae,Phretima,NA,diffrengens,NA,NA,Endo-anecic,53,0,47,Epi-endogeic
+Ailoscolecidae,Ailoscolex,NA,lacteospumosus,NA,NA,Unassigned,0,0,100,Endogeic
+Hormogastridae,Vignysa,NA,popi,NA,NA,Unassigned,0,4,96,Endogeic
+Lumbricidae,Eiseniella,NA,tetraedra,NA,NA,Unassigned,78,22,0,Epigeic
+Lumbricidae,Orodrilus,NA,doderoi,NA,NA,Unassigned,90,10,0,Epigeic
+Lumbricidae,Ethnodrilus,NA,zajonci,NA,NA,Unassigned,5,0,95,Endogeic
+Lumbricidae,Ethnodrilus,NA,gatesi,NA,NA,Unassigned,13,0,87,Endogeic
+Lumbricidae,Ethnodrilus,NA,aveli,NA,NA,Unassigned,16,0,84,Endogeic
+Lumbricidae,Ethnodrilus,NA,lydiae,NA,NA,Unassigned,8,0,92,Endogeic
+Lumbricidae,Prosellodrilus,NA,idealis,NA,NA,Unassigned,3,0,97,Endogeic
+Lumbricidae,Prosellodrilus,NA,fragilis,fragilis,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,fragilis,polythecosus,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,fragilis,elusatus,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,fragilis,biserialis,NA,Unassigned,5,0,95,Endogeic
+Lumbricidae,Prosellodrilus,NA,biauriculatus,NA,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Prosellodrilus,NA,alatus,NA,NA,Unassigned,1,0,99,Endogeic
+Lumbricidae,Allolobophora,NA,chlorotica,chlorotica,c_leucotype,Intermediate,0,3,97,Endogeic
+Lumbricidae,Allolobophora,NA,chlorotica,chlorotica,indeterminee,Intermediate,31,31,38,Intermediate
+Lumbricidae,Allolobophora,NA,chlorotica,postepheba,p_leucotype,Intermediate,14,24,61,Endo-anecic
+Lumbricidae,Allolobophora,NA,chlorotica,postepheba,p_chlorotype,Intermediate,31,31,38,Intermediate
+Lumbricidae,Allolobophora,NA,chlorotica,postepheba,inter,Intermediate,31,31,38,Intermediate
+Lumbricidae,Allolobophora,NA,chlorotica,burgondiae,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Scherotheca,Corsicadrilus,corsicana,corsicana,NA,Endo-anecic,16,70,14,Epi-anecic
+Lumbricidae,Scherotheca,Corsicadrilus,corsicana,albomaculata,NA,Unassigned,0,73,27,Anecic
+Lumbricidae,Scherotheca,Scherotheca,coineaui,NA,NA,Unassigned,0,74,26,Anecic
+Lumbricidae,Scherotheca,Opothedrilus,savignyi,nivicola,NA,Unassigned,0,88,12,Anecic
+Lumbricidae,Nicodrilus,Nicodrilus,gognus,NA,NA,Unassigned,0,100,0,Anecic
+Lumbricidae,Nicodrilus,Rhodonicus,rubicundus,rubicundus,NA,Unassigned,89,11,0,Epigeic
+Lumbricidae,Nicodrilus,Rhodonicus,rubicundus,acidicola,NA,Unassigned,73,24,3,Epi-anecic
+Lumbricidae,Lumbricus ,NA,rubellus,friendoides,NA,Unassigned,76,24,0,Epigeic
+Lumbricidae,Lumbricus ,NA,improvisus,NA,NA,Unassigned,84,16,0,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,pygmea,cognetti,NA,Unassigned,87,0,13,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,lacustris,NA,NA,Unassigned,82,4,13,Epigeic
+Lumbricidae,Dendrobaena,Dendrobaena,platyura,depressa,NA,Unassigned,56,44,0,Epi-anecic
+Lumbricidae,Allolobophora,NA,zicsii,NA,NA,Unassigned,0,0,100,Endogeic
+Lumbricidae,Allolobophora,NA,satchatelli,NA,NA,Unassigned,19,0,81,Endogeic
+Lumbricidae,Allolobophora,NA,micella,NA,NA,Unassigned,2,0,98,Endogeic
+Lumbricidae,Allolobophora,NA,putricola,putricola,NA,Unassigned,11,1,88,Endogeic
+Lumbricidae,Allolobophora,NA,putricola,tebra,NA,Unassigned,16,0,84,Endogeic
+Lumbricidae,Allolobophora,NA,antipai,tuberculata,NA,Unassigned,25,0,75,Epi-endogeic
+Lumbricidae,Allolobophora,NA,antipai,vogesiana,NA,Unassigned,26,0,74,Epi-endogeic
+Lumbricidae,Allolobophora,NA,bartoli,meougensis,NA,Unassigned,0,49,51,Endo-anecic
+Lumbricidae,Allolobophora,NA,segalensis,NA,NA,Unassigned,4,41,55,Endo-anecic
+Lumbricidae,Allolobophora,NA,tiginosa,NA,NA,Unassigned,13,0,87,Endogeic
+Lumbricidae,Allolobophora,NA,sardonica,catalaunensis,NA,Unassigned,0,9,91,Endogeic
+Lumbricidae,Allolobophora,NA,pereli,NA,NA,Unassigned,30,2,68,Epi-endogeic
