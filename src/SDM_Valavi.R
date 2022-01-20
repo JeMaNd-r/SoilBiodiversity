@@ -36,6 +36,14 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 tmp <- Sys.time()
 set.seed(32639)
 
+# setting of family: according to Valavi et al. 2020, but see also following:
+# ResearchGate dicussion from 2019: Jincheng Zhou
+# "Gaussian family : for continuous decimal data with normal distribution, like weight, length, et al.
+# Poisson or quasipoisson family: for positive integer or small natural number like count, individual number, frequency.
+# Binomial or quasibinomial family: binary data like 0 and 1, or proportion like survival number vs death number, positive frequency vs negative frequency, winning times vs the number of failtures, et al...
+# Gamma family : usually describe time data like the time or duration of the occurrence of the event.
+# If your model is overdispered, you should make a correction by choosing quasi-binomial or quasi-poisson"
+
 # run model
 gm <- mgcv::gam(formula = as.formula(form),
                 data = training,
@@ -45,19 +53,6 @@ gm <- mgcv::gam(formula = as.formula(form),
 
 # get running time
 temp.time <- as.numeric(Sys.time() - tmp)
-
-# check the appropriateness of Ks
-# the model parameter k should not be higher than the number of unique values 
-# in each covariate
-par(mfrow=c(2,2))
-gam.check(gm)
-# Note: k-index The further below 1 this is, the more likely it is that there 
-# is missed pattern left in the residuals;
-# and if edf close to k', basic dimension k' has been set too low
-
-par(mfrow=c(1,1))
-#plot(gm, pages = 1, rug = TRUE, shade = TRUE)
-# Note: plots are useless for binary data
 
 # predict (only for model performance)
 gm_pred <- predict(gm, testing_env)
@@ -513,7 +508,13 @@ temp.time <- mean(sapply(brt_pred_list, "[[", 4), na.rm=T)
 temp.settings <- rowMeans(as.data.frame(unlist(sapply(brt_pred_list, "[[", 5))), na.rm=T)
 temp.settings <- data.frame("parameter"=names(brt_pred_list[[1]][[5]]), "setting"=temp.settings)
 
-temp.interactions <- rowMeans(sapply(brt_pred_list, "[[", 5), na.rm=T)
+# calculate mean of tuned number of trees (if necessary)
+if(ncol(sapply(brt_pred_list, "[[", 6))!=1) {
+  temp.interactions <- rowMeans(as.numeric(sapply(brt_pred_list, "[[", 6)), na.rm=T)
+}else{
+  temp.interactions <- sapply(brt_pred_list, "[[", 6)
+}
+
 temp.interactions <- as.data.frame(matrix(temp.interactions, ncol=length(covarsNames)))
 rownames(temp.interactions) <- covarsNames
 colnames(temp.interactions) <- covarsNames
@@ -529,7 +530,7 @@ modelName <- "bg.glm"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-
+lapply(temp.files, load, .GlobalEnv)
 
 # calculating the case weights
 prNum <- as.numeric(table(training$occ)["1"]) # number of presences
@@ -600,10 +601,12 @@ temp.find.int <- gbm.interactions(brt2)
 brt2_pred <- predict(brt2, testing_env, n.trees = brt2$gbm.call$best.trees, type = "response")
 #head(brt_pred)
 
+temp.settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
+
 brt2_pred <- as.numeric(brt2_pred)
 names(brt2_pred) <- rownames(testing_env) #add site names
 
-brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int)
+brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int$interactions)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -952,6 +955,10 @@ myBiomodOption <- BIOMOD_ModelingOptions(
                            betamultiplier = 1,
                            defaultprevalence = 0.5)
 )
+
+# alternative: default algorithms
+# Note: try this out to see if GAM works
+#myBiomodOption <- BIOMOD_ModelingOptions()
 
 # models to predict with
 mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
