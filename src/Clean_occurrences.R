@@ -51,31 +51,34 @@ df.cleaning <- df.cleaning %>% add_row(CleaningStep="taxonRank_Species", NumberR
 print("Records during the cleaning process:"); print(df.cleaning)
 print("Records removed [%]:"); print(round((nrow(dat$data) - nrow(dat_cl)) / nrow(dat$data) * 100, 0))
 
-# flag problems
-dat_cl <- data.frame(dat_cl)
-flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "decimalLongitude", lat = "decimalLatitude", countries = "countryCode", 
-                                              species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
-                                              country_ref = rnaturalearth::ne_countries("small"), 
-                                              country_refcol = "iso_a3", seas_ref = buffland)
-sum(flags$.summary) #those not flagged! = 287841
+## will be done in a later step 
+# # flag problems
+# dat_cl <- data.frame(dat_cl)
+# flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "decimalLongitude", lat = "decimalLatitude", countries = "countryCode", 
+#                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
+#                                               country_ref = rnaturalearth::ne_countries("small"), 
+#                                               country_refcol = "iso_a3", seas_ref = buffland)
+# sum(flags$.summary) #those not flagged! = 287841
+# 
+# # remove flagged records from the clean data (i.e., only keep non-flagged ones)
+# dat_cl <- dat_cl[flags$.summary, ]
 
 ## Plot flagged records
 world.inp <- map_data("world")
 
 print({
-  ggplot() + 
-    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") + 
-    xlim(min(dat$data$decimalLongitude, na.rm = T), max(dat$data$decimalLongitude, na.rm = T)) + 
-    ylim(min(dat$data$decimalLatitude, na.rm = T), max(dat$data$decimalLatitude, na.rm = T)) + 
-    geom_point(data = dat$data, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkred", size = 1, show.legend = T) + 
-    geom_point(data = dat_cl, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkgreen", size = 1, show.legend = T) + 
-    coord_fixed() + 
-    scale_color_manual(name='CoordinateCleaner',
-                       values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+ 
+  ggplot() +
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(min(dat$data$decimalLongitude, na.rm = T), max(dat$data$decimalLongitude, na.rm = T)) +
+    ylim(min(dat$data$decimalLatitude, na.rm = T), max(dat$data$decimalLatitude, na.rm = T)) +
+    geom_point(data = dat$data, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkred", size = 1, show.legend = T) +
+    geom_point(data = dat_cl, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkgreen", size = 1, show.legend = T) +
+    coord_fixed() +
+    scale_color_manual(name='ManualCleaning',
+                       values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+
     theme_bw() + theme(axis.title = element_blank())
 })
-# remove flagged records from the clean data (i.e., only keep non-flagged ones)
-dat_cl <- dat_cl[flags$.summary, ]
+
 
 # filter data columns
 dat_cl <- dat_cl %>% dplyr::select(key, acceptedScientificName, decimalLatitude, decimalLongitude, issues, occurrenceStatus, 
@@ -83,17 +86,7 @@ dat_cl <- dat_cl %>% dplyr::select(key, acceptedScientificName, decimalLatitude,
                             year, month, references, license, geodeticDatum, countryCode, collectionCode, individualCount,
                             samplingProtocol, habitat)
 
-# add species ID
-dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")], 
-                             by=c("species" = "Species"))
 
-# create x and y column
-dat_cl$x <- dat_cl$decimalLongitude
-dat_cl$y <- dat_cl$decimalLatitude
-
-# remove NA in coordinates
-dat_cl <- dat_cl[complete.cases(dat_cl$x),]
-dat_cl <- dat_cl[complete.cases(dat_cl$y),]
 
 # remove commata
 dat_cl$issues <- gsub(","," ",dat_cl$issues)
@@ -102,8 +95,8 @@ dat_cl$acceptedScientificName <- gsub(","," ",dat_cl$acceptedScientificName)
 # transform into wide format
 dat_wide <- dat_cl
 dat_wide$presence <- 1
-dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude, x, y), 
-                            names_from = SpeciesID, values_from = presence,
+dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude), 
+                            names_from = species, values_from = presence,
                             values_fn = max)
 dat_wide <- as.data.frame(dat_wide)
 
@@ -114,10 +107,10 @@ if (checkSave_cleanData==T){
   write.csv(df.cleaning, file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"), row.names = F)
 
   # save cleaned occurrence records
-  write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"), row.names = F)
+  write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_GBIF_", Taxon_name, ".csv"), row.names = F)
 
   # save cleaned occurrence records in wide format
-  write.csv(dat_wide, file=paste0(here::here(), "/results/Occurrences_wide_", Taxon_name, ".csv"), row.names = F)
+  write.csv(dat_wide, file=paste0(here::here(), "/results/Occurrences_GBIF_wide_", Taxon_name, ".csv"), row.names = F)
   
 }
 
