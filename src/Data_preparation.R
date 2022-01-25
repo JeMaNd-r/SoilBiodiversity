@@ -132,7 +132,7 @@ dat_cl <- dat_cl[complete.cases(dat_cl$y),]
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save clean data ####
-write.csv(dat_cl, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"),
+write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"),
           row.names = F)
 
 # load number of records during cleaning process
