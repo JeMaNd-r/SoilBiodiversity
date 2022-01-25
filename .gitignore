@@ -30,3 +30,4 @@ data/Shapefiles/
 *.gri
 *.bil
 *.db
+/Trash
