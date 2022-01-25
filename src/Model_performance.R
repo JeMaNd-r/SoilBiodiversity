@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-load(file=paste0(here::here(), "/results/", Taxon_name, "/Predicted_SDMs_", spID, ".RData"))
+load(file=paste0(here::here(), "/results/", Taxon_name, "/SDM_Models_", spID, ".RData"))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Model performance ####
@@ -34,72 +34,91 @@ opt.cut <- function(perf, pred){
 }
 
 
-for(i in 1:length(SDMs)){ # all except BIOMOD modelling
+for(i in 1:length(SDMs)){ 
   temp.model <- names(SDMs)[[i]]
   number.models <- 1
   
-  # if necessary, unlist models
-  if(length(SDMs[[i]])>6) {
-    number.models <- length(SDMs[[i]])
-  }
-    
-  # define background dataset (for testing data)
-  modelName <- SDMs[[i]][[3]]
-  
-  # identify and load all relevant data files
-  temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-                           pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-  lapply(temp.files, load, .GlobalEnv)
-  
-  # load prediction
-  prediction <- SDMs[[temp.model]][[2]]
-  
-  # try loop (not stopping if error)
-  try({
-    ## ROC and PR
-    # calculate area under the ROC and PR curves
-    precrec_obj <- evalmod(scores = prediction, labels = testing_pa[,"occ"])
-    #print(precrec_obj)
-    
-    # plot the ROC and PR curves
-    roc <- autoplot(precrec_obj, curvetype = "ROC")
-    pr <- autoplot(precrec_obj, curvetype = "PR")
-    
-    ## PRG
-    # calculate the PRG curve
-    prg_curve <- create_prg_curve(labels = testing_pa[,"occ"], pos_scores = prediction)
-    
-    # calculate area under the PRG cure (AUC PRG)
-    au_prg <- calc_auprg(prg_curve)
-    #print(au_prg)
-    
-    # plot the PRG curve
-    prg <- plot_prg(prg_curve)
-    
-    # # plot all plots into one
-    # ggpubr::ggarrange(roc, pr, prg,
-    #                   labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
-  })
-  
   #- - - - - - - - - - - - - - - - - - - 
-  # scale predictions between 0 and 1
-  prediction <- scales::rescale(prediction, to = c(0,1))
-  
-  ## TSS and Kappa
-  roc.pred <- prediction(prediction[names(prediction) %in% rownames(testing_pa)], testing_pa[rownames(testing_pa) %in% names(prediction),"occ"])
-  roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
-  
-  # calculate Sensitivity and Specificity
-  sen_spe <- opt.cut(roc.perf, roc.pred)
-  
-  # calculate TSS
-  temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
-  
-  # calculate Kappa
-  library(sdm)
-  mod.object <- sdm::evaluates(x = testing_pa[,"occ"], p = prediction)
-  temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max TSS
-  temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #respective threshold
+  ## calculate statistics for BIOMOD ####
+  if(temp.model=="biomod") {
+     myBiomodModelEval <- SDMs[["biomod_pred"]][[1]]
+     
+     # save in output data frame
+     mod_eval[i,]$species <- spID
+     try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
+     try(mod_eval[i,]$prg <- NA)
+     try(mod_eval[i,]$cor <- NA)
+     try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
+     try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
+     try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"]) # threshold at max. tss
+     mod_eval[i,]$model <- temp.model
+     try(mod_eval[i,]$time <- SDMs[[i]][[4]])
+     mod_eval[i,]$bg <- modelName
+     mod_eval[i,]$no.runs <- number.models
+     
+  }else{  # all except BIOMOD modelling
+    
+    # if necessary, unlist models
+    if(length(SDMs[[i]])>6) {
+      number.models <- length(SDMs[[i]])
+    }
+      
+    # define background dataset (for testing data)
+    modelName <- SDMs[[i]][[3]]
+    
+    # identify and load all relevant data files
+    temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                             pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+    lapply(temp.files, load, .GlobalEnv)
+    
+    # load prediction
+    prediction <- SDMs[[temp.model]][[2]]
+    
+    # try loop (not stopping if error)
+    try({
+      ## ROC and PR
+      # calculate area under the ROC and PR curves
+      precrec_obj <- evalmod(scores = prediction, labels = testing_pa[,"occ"])
+      #print(precrec_obj)
+      
+      # plot the ROC and PR curves
+      roc <- autoplot(precrec_obj, curvetype = "ROC")
+      pr <- autoplot(precrec_obj, curvetype = "PR")
+      
+      ## PRG
+      # calculate the PRG curve
+      prg_curve <- create_prg_curve(labels = testing_pa[,"occ"], pos_scores = prediction)
+      
+      # calculate area under the PRG cure (AUC PRG)
+      au_prg <- calc_auprg(prg_curve)
+      #print(au_prg)
+      
+      # plot the PRG curve
+      prg <- plot_prg(prg_curve)
+      
+      # # plot all plots into one
+      # ggpubr::ggarrange(roc, pr, prg,
+      #                   labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
+    })
+    
+    #- - - - - - - - - - - - - - - - - - - 
+    # scale predictions between 0 and 1 
+    prediction <- scales::rescale(prediction, to = c(0,1))
+    
+    ## TSS and Kappa
+    roc.pred <- prediction(prediction[names(prediction) %in% rownames(testing_pa)], testing_pa[rownames(testing_pa) %in% names(prediction),"occ"])
+    roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
+    
+    # calculate Sensitivity and Specificity
+    sen_spe <- opt.cut(roc.perf, roc.pred)
+    
+    # calculate TSS
+    temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
+    
+    # calculate Kappa
+    mod.object <- sdm::evaluates(x = testing_pa[,"occ"], p = prediction)
+    temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max TSS
+    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #respective threshold
   
   # save in output data frame
   mod_eval[i,]$species <- spID
@@ -113,16 +132,17 @@ for(i in 1:length(SDMs)){ # all except BIOMOD modelling
   try(mod_eval[i,]$time <- SDMs[[i]][[4]])
   mod_eval[i,]$bg <- modelName
   mod_eval[i,]$no.runs <- number.models
+  }
   
   rm(roc, temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
 }
 
 
+
+#- - - - - - - - - - - - - - - - - - - 
+## Save ####
+
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
-
-
-## compare to output of biomod2::calculate.stat
-calculate.stat(SDMs[["biomod_pred"]][[1]], stat='TSS')
 
 
 
