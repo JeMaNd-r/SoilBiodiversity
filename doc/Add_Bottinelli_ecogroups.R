@@ -25,9 +25,28 @@ Bottinelli$SpeciesID <- paste0(substr(Bottinelli$Genus, 1,4), "_",
 # check how different the SpeciesID's are
 setdiff(Bottinelli$SpeciesID, ew_list$SpeciesID)
 
+## merge Buoche species and genus name
+for(i in 1:nrow(Bottinelli)){
+  # check if Subgenus_Bouche is NA
+  if(is.na(Bottinelli[i,]$Subgenus_Bouche)){
+    # check if Subspecies_Bouche is NA
+    if(is.na(Bottinelli[i,]$Subspecies_Bouche)){
+    Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Genus, " ", Bottinelli[i,]$Species)
+    }else{
+      Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Genus, " ", Bottinelli[i,]$Subspecies_Bouche)
+    }
+  }else{
+    # check if Subspecies_Bouche is NA
+    if(is.na(Bottinelli[i,]$Subspecies_Bouche)){
+      Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Subgenus_Bouche, " ", Bottinelli[i,]$Species)
+    }else{
+    Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Subgenus_Bouche, " ", Bottinelli[i,]$Subspecies_Bouche)  
+    }
+  }
+}
+
 # try with [genus] [species] names
 Bottinelli$Species <- paste0(Bottinelli$Genus, " ", Bottinelli$Species)
-Bottinelli$Species_Bouche <- paste0(Bottinelli$Subgenus_Bouche, " ", Bottinelli$Subspecies_Bouche)
 
 setdiff(Bottinelli$Species, ew_list$Species)
 setdiff(Bottinelli$Species_Bouche, ew_list$Species)
