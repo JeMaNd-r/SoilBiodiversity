@@ -27,7 +27,7 @@ registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all Federal State folders ####
-foreach(myRespName = speciesNames$SpeciesID, .export = c("mySpeciesOcc"), 
+foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
   # define response variable index

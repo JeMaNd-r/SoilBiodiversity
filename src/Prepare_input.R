@@ -13,7 +13,7 @@ no.cores <- detectCores()/2; no.cores
 registerDoParallel(no.cores)
 
 # for loop
-foreach(temp.species=speciesNames$SpeciesID, .export = c("Taxon_name", "covarsNames"), .packages = c("tidyverse")) %dopar% {
+foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export = c("Taxon_name", "covarsNames"), .packages = c("tidyverse")) %dopar% {
 
   try({
     

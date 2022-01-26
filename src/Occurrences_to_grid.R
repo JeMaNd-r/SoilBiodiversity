@@ -19,13 +19,18 @@ occ.points <- data.frame(x=0, y=0)[0,]
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all Federal State folders ####
-for(sp in speciesNames$SpeciesID){
+for(sp in unique(speciesNames$SpeciesID)){
   
   # ignore errors
   try({
-          
-  # make occurrences as SpatialPoints object
+  
+  # load occurrences for specific species
   temp.occ <- occ[occ$SpeciesID==sp, c("x", "y", "occ", "SpeciesID")]
+  
+  ## save number of records for later ####
+  speciesNames[speciesNames$SpeciesID==sp,]$Records <- nrow(temp.occ)
+    
+  # make occurrences as SpatialPoints object
   coordinates(temp.occ) <- ~x+y
   
   # make points to raster
@@ -62,6 +67,14 @@ for(sp in speciesNames$SpeciesID){
 #   geom_point()
   
 
+## Calculate number of grid cells with presence ####
+speciesNames$NumCells <- 0
+
+for(sp in unique(speciesNames$SpeciesID)){ try({
+  temp.records <- nrow(mySpeciesOcc) - as.numeric(summary(mySpeciesOcc[,sp])["NA's"])
+  speciesNames[speciesNames$SpeciesID==sp,"NumCells"] <- temp.records
+})}
+
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## Save ####
 # # save raster stack
@@ -73,7 +86,5 @@ write.csv(occ.points, file=paste0(here::here(), "/results/Occurrence_rasterized_
 # # save individual species as own files
 # raster::writeRaster(occ.stack, filename=names(occ.stack), bylayer=TRUE, format="GTiff")
 
-
-
-
+write.csv(speciesNames, file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"), row.names = F)
 

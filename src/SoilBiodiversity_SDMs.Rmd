@@ -59,6 +59,8 @@ library(ggplot2) # for plotting the curves
 # devtools::install_github("meeliskull/prg/R_package/prg")
 library(prg)
 library(ggpubr)
+library (ROCR)
+library(sdm) # to calculate kappa
 
 here::here()
 ```
@@ -156,22 +158,12 @@ source(file=paste0(here::here(),"Clean_occurrences.R"))
 
 For the order Crassiclitellata, we have many occurrences in the Netherlands (countryCode="NL"), but most of them have a too high coordinateUncertainty (more than 1km), and/or are not at the species level, but at the family level only. They were therefore excluded and appear as a "red cloud" on the map above.
 
-
-### Load dataset that was prepared in ArcGIS
-
-Alternatively, we use a dataset on earthworm occurrences that was prepared with ArcGIS.
-
-```{r loadArcGIS}
-#read.csv()
-```
-
-
 ### Download from GBIF
 
 We additionally download data from GBIF based on a pre-defined species list that contains only soil-living taxa (whenever it was possible to separate them from aquatic taxa). From the taxa in the species list, we first identify the GBIF taxonomic key, before we download all data based on these keys.
 
 ```{r downloadGBIF, include=F}
-source(file=paste0(here::here(),"Download_occurrences.R"))
+source(file=paste0(here::here(),"/src/Download_occurrences.R"))
 ```
 
 
@@ -180,11 +172,8 @@ source(file=paste0(here::here(),"Download_occurrences.R"))
 To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
 
 ```{r harmonization}
-# Create a template dataframe with headers (and structure) but no rows
-df.occ <- tibble(Latitude=1.1, Longitude=1.1, 
-                 Species="Species", Database="Database")[0,]
+source(file=paste0(here::here(),"src/Harmonize_occurrences.R"))
 ```
-
 
 ## Merging
 
@@ -193,7 +182,20 @@ We merge occurrences of taxa belonging to the same group of organism into one ta
 First, we create again a dataframe with the pre-defined structure for the data. Then, we add each species as a column to that dataframe.
 
 ```{r mergeSpecies}
-#df.taxa <- tibble(GridID=1)[0,]
+source(file=paste0(here::here(),"src/Occurrences_to_grid.R"))
+```
+
+## Quick visualization
+
+```{r}
+# load raster stack with occurrences
+
+
+# show structure
+occ.stack
+
+# plot some of the species' occurrences
+plot(occ.stack, col=c("orange", "red", "darkred"))
 ```
 
 
@@ -248,10 +250,16 @@ Now, we can add all variables we want to include in our models to this dataframe
 
 ## Check for colinearity
 
-Before we start with the models, we check for colinearity between our environmental variables.
+Before we start with the models, we check for colinearity between our environmental variables. Because most of the environmental variables have been calculated and or extrapolated, we can check for their theoretical relationships.
 
-```{r colinearity}
-#corrplot::corrplot(cor(df.env))
+```{r relationshipPredictors}
+read.csv("Env_predictors_estimation.csv")
+# corrplot or similar plot to show raw correlations
+```
+
+
+```{r colinearityPredictors}
+source(file=paste0(here::here(), "Colinearity_predictors.R"))
 ```
 
 
@@ -329,13 +337,18 @@ Please be aware that the validation data sets are randomly simulated (10 times) 
 ## predict SDMS
 
 ```{r}
-source(file=paste0(here::here(), "/src/Predict_SDM.R"))
+source(file=paste0(here::here(), "/src/Predict_SDMs.R"))
 ```
 
 
 # Repeat for all other taxa
 
 ## (Earthworms)
+
+```{r}
+# for loop has to contain following: for(spID in speciesNames[speciesNames$NumCells >=5,]$SpeciesID){}
+```
+
 
 ## Collembola
 
