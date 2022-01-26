@@ -145,3 +145,5 @@ Ca,Soil_calcium_0-20,Soil_nutrients,Invertebrates,Diversity,Integrated_soil_inve
 CN,Soil_carbon_nitrogen_ratio,Soil_nutrients,Invertebrates,Diversity,Integrated_soil_invertebrate_diversity,,-0.27,regional,Mueller et al. 2016,,"Poland, top 10 predictors"
 T,Soil_temperature,Climate,Invertebrates,Diversity,Integrated_soil_invertebrate_diversity,,0.45,regional,Mueller et al. 2016,,"Poland, top 10 predictors"
 MibiCN,Microbial_carbon_nitrogen_ratio,Biotic_interactions,Invertebrates,Diversity,Integrated_soil_invertebrate_diversity,,0.27,regional,Mueller et al. 2016,,"Poland, top 10 predictors"
+Elev,,,Bacteria,Diversity,,,,,Ma et al. 2022,https://www.sciencedirect.com/science/article/abs/pii/S0038071722000232,Subtropical Forest
+,,,Fungi,Diversity,,,,,Ma et al. 2022,https://www.sciencedirect.com/science/article/abs/pii/S0038071722000232,Subtropical Forest

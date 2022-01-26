@@ -19,10 +19,10 @@ Nit_Depo,V006,Stratospheric NO2,C,MAT,Temperature profile,,
 Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Elev,Elevation (Copernicus),,
 Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Impervious, Imperviousness Density from 2018,,
 Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Forest,Tree Cover Density from 2015,,masked from primary product but extrapolated in gap-filled
-Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Urban,Urban areas,,masked from primary product
-Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Agriculture,CLC2018 agriculture areas,,
+Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Urban,CLC2012 urban areas,,masked from primary product
+Snow,V007,Gap-filled Fractional Snow Cover (GFSC),C,Agriculture,CLC2012 agriculture areas,,
 Agriculture,V008,CLC 2018,C,,,,
-Dist_Urb,V009,CLC 2018,C,,,,
+Dist_Urb,V009,CLC 2018,C,Urban,CLC2012 urban areas,,
 Forest,V010,CLC 2018,C,,,,
 Land_Frag,V011,Landscape fragmentation/ effective mesh density/ number of fragmented landscape elements,C,,,,
 Pastures,V012,CLC 2018,C,,,,
