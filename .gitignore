@@ -31,3 +31,4 @@ data/Shapefiles/
 *.bil
 *.db
 /Trash
+*.RData
