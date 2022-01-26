@@ -32,3 +32,17 @@ data/Shapefiles/
 *.db
 /Trash
 *.RData
+*.out
+*.eval
+*.prediction
+*.data
+*.lines
+*.options
+*.evaluation
+*_Full_ANN
+*_Full_CTA
+*_Full_FDA
+*_Full_GBM
+*_Full_GLM
+*_Full_MARS
+*_Full_RF
