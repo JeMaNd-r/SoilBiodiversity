@@ -210,7 +210,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
   temp.strategy <- "random"
   
   tmp <- Sys.time()
-  bg.biomod <- BIOMOD_FormatingData(resp.var = myResp,
+  bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
                                  expl.var = myExpl,
                                  resp.xy = myRespCoord,
                                  resp.name = myRespName,
@@ -220,6 +220,9 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
   temp.time <- Sys.time() - tmp
   
   # NOTE: testing data and validation data will be used from bg.glm
+  # therefore, we need to save some parameters for later
+  bg.biomod <- list("bg.biomod"=bg.biomod, "myResp"=myResp, "myRespCoord"=myRespCoord, "myRespName"=myRespName,
+                     "temp.runs"=temp.runs, "temp.number"=temp.number, "temp.strategy"=temp.strategy)
   
   # add model settings into summary table
   temp.dat <- data.frame(SpeciesID=myRespName, model="BIOMOD", strategy=temp.strategy,

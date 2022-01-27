@@ -5,6 +5,14 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+## needed for biomod again
+# environmental (explanatory) variables as raster file
+myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
+# crop to Europe
+for(i in 1:nlayers(myExpl)) {
+  myExpl[[i]] <- raster::mask(myExpl[[i]], 
+                              as(extent(extent_Europe), 'SpatialPolygons'))}
+
 ## parallelize
 # Calculate the number of cores
 no.cores <- detectCores()/2; no.cores
@@ -116,17 +124,37 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
   modelName <- "bg.biomod"
   runningNumber <- 1
   
-  training <- bg.list$bg.biomod
+  ## re-create background data with bg.glm background data as evaluation data
+  # load testing background data
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_bg.glm1_", Taxon_name,"_", temp.species, ".RData"))  #testing_pa
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_bg.glm1_", Taxon_name,"_", temp.species, ".RData")) #testing_env
   
-  # take testing anjd validation data from bg.glm
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  tmp <- Sys.time()
+  bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = bg.list[["bg.biomod"]][["myResp"]],
+                                    expl.var = myExpl,
+                                    resp.xy = bg.list[["bg.biomod"]][["myRespCoord"]],
+                                    resp.name = bg.list[["bg.biomod"]][["myRespName"]],
+                                    PA.nb.rep = bg.list[["bg.biomod"]][["temp.runs"]],
+                                    PA.nb.absences = bg.list[["bg.biomod"]][["temp.number"]],
+                                    PA.strategy = bg.list[["bg.biomod"]][["temp.strategy"]],
+                                    eval.expl.var = testing_env,
+                                    eval.resp.var = testing_pa[,"occ"], 
+                                    eval.resp.xy = testing_pa[,c("x", "y")])
+  temp.time <- Sys.time() - tmp
+  
+  
+  training <- bg.biomod
+  
+  ## take testing anjd validation data from bg.glm 
+  # NOTE: testing only needed if no evaluation data provided above (eval.expl etc. ...)!
+  #load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  #load(file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
   load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
   
   # save datasets for BIOMOD
   save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-  save(testing_pa, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-  save(testing_env, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  #save(testing_pa, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  #save(testing_env, file=paste0(here::here(), "/results/", Taxon_name, "/TestingData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
   save(validation.data, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
   
   }) # end of try loop
