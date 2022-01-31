@@ -138,7 +138,7 @@ names(lm_subset_pred) <- rownames(validation_env) #add site names
 lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
-## Regularized regressions: lasso and ridge regression ####
+## Regularized regressions: LASSO and RIDGE regression ####
 ##- - - - - - - - - - - - - - - - - - - - -
 
 # generating the quadratic terms for all continuous variables
@@ -230,6 +230,7 @@ modelName <- "bg.mars"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/4
@@ -284,17 +285,22 @@ for(no.runs in 1:no.loop.runs){
   names(mars_pred) <- rownames(validation_env) #add site names
   #head(mars_pred)
   
-  mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp.time)
+  # caluclate variable importance (for later)
+  mars_varImp <- caret::varImp(mars_fit, scale=T) #scaled between 0 and 100% 
+  mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp))
+  
+  mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp.time, mars_varImp)
 }
 
 # average all MARS predictions
 mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 2))
 mars_pred <- rowMeans(mars_pred, na.rm=T)
 temp.time <- mean(sapply(mars_pred_list, "[[", 4), na.rm=T)
+temp.varImp <- mean(sapply(mars_pred_list, "[[", 5), na.rm=T)
 
 temp.models <- sapply(mars_pred_list, "[[", 1)
 
-mars_pred <- list(temp.models, mars_pred, modelName, temp.time)
+mars_pred <- list(temp.models, mars_pred, modelName, temp.time, temp.varImp)
 
 mars_pred <- as.numeric(mars_pred)
 names(mars_pred) <- rownames(validation_env) #add site names
@@ -944,51 +950,53 @@ for(i in 1:nlayers(myExpl)) {
   myExpl[[i]] <- raster::mask(myExpl[[i]], 
                               as(extent(extent_Europe), 'SpatialPolygons'))}
 
-# create own function for GAM and MAXENT.Phillips
-myBiomodOption <- BIOMOD_ModelingOptions(
-  GAM = list( algo = 'GAM_mgcv',
-              type = 's_smoother',
-              k = -1,
-              interaction.level = 0,
-              myFormula = as.formula(form),
-              family = binomial(link = 'logit'),
-              method = 'GCV.Cp',
-              optimizer = c('outer','newton'),
-              select = FALSE,
-              knots = NULL,
-              paraPen = NULL,
-              control = list(nthreads = 1, irls.reg = 0, epsilon = 1e-07, maxit = 200, trace = FALSE,
-                             mgcv.tol = 1e-07, mgcv.half = 15, rank.tol = 1.49011611938477e-08,
-                             nlm = list(ndigit=7, gradtol=1e-06, stepmax=2, steptol=1e-04, iterlim=200, check.analyticals=0),
-                             optim = list(factr=1e+07),
-                             newton = list(conv.tol=1e-06, maxNstep=5, maxSstep=2, maxHalf=30, use.svd=0), outerPIsteps = 0,
-                             idLinksBases = TRUE, scalePenalty = TRUE, keepData = FALSE, scale.est = "fletcher",
-                             edge.correct = FALSE)),
-  MAXENT.Phillips = list( path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/maxent_files"), # change it to maxent directory
-                          memory_allocated = 512,
-                          background_data_dir = 'default',
-                          maximumbackground = 50000,
-                          maximumiterations = 200,
-                          visible = FALSE,
-                          linear = TRUE,
-                          quadratic = TRUE,
-                          product = TRUE,
-                          threshold = TRUE,
-                          hinge = TRUE,
-                          lq2lqptthreshold = 80,
-                          l2lqthreshold = 10,
-                          hingethreshold = 15,
-                          beta_threshold = -1,
-                          beta_categorical = -1,
-                          beta_lqp = -1,
-                          beta_hinge = -1,
-                          betamultiplier = 1,
-                          defaultprevalence = 0.5)
-)
+# # create own function for GAM and MAXENT.Phillips
+# myBiomodOption <- BIOMOD_ModelingOptions(
+#   GAM = list( algo = 'GAM_mgcv',
+#               type = 's_smoother',
+#               k = -1,
+#               interaction.level = 0,
+#               myFormula = as.formula(form),
+#               family = binomial(link = 'logit'),
+#               method = 'GCV.Cp',
+#               optimizer = c('outer','newton'),
+#               select = FALSE,
+#               knots = NULL,
+#               paraPen = NULL,
+#               control = list(nthreads = 1, irls.reg = 0, epsilon = 1e-07, maxit = 200, trace = FALSE,
+#                              mgcv.tol = 1e-07, mgcv.half = 15, rank.tol = 1.49011611938477e-08,
+#                              nlm = list(ndigit=7, gradtol=1e-06, stepmax=2, steptol=1e-04, iterlim=200, check.analyticals=0),
+#                              optim = list(factr=1e+07),
+#                              newton = list(conv.tol=1e-06, maxNstep=5, maxSstep=2, maxHalf=30, use.svd=0), outerPIsteps = 0,
+#                              idLinksBases = TRUE, scalePenalty = TRUE, keepData = FALSE, scale.est = "fletcher",
+#                              edge.correct = FALSE)),
+#   MAXENT.Phillips = list( path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/maxent_files"), # change it to maxent directory
+#                           memory_allocated = 512,
+#                           background_data_dir = 'default',
+#                           maximumbackground = 50000,
+#                           maximumiterations = 200,
+#                           visible = FALSE,
+#                           linear = TRUE,
+#                           quadratic = TRUE,
+#                           product = TRUE,
+#                           threshold = TRUE,
+#                           hinge = TRUE,
+#                           lq2lqptthreshold = 80,
+#                           l2lqthreshold = 10,
+#                           hingethreshold = 15,
+#                           beta_threshold = -1,
+#                           beta_categorical = -1,
+#                           beta_lqp = -1,
+#                           beta_hinge = -1,
+#                           betamultiplier = 1,
+#                           defaultprevalence = 0.5)
+# )
 
 # alternative: default algorithms
 # Note: try this out to see if GAM works
-#myBiomodOption <- BIOMOD_ModelingOptions()
+myBiomodOption <- BIOMOD_ModelingOptions(
+  GAM = list (k = -1), #avoid error messages
+  )
 
 # models to predict with
 mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
@@ -1004,7 +1012,7 @@ myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
                                              NbRunEval = 1,   # 1 evaluation run
                                              DataSplit = 100, # use all the data for training
                                              models.eval.meth = c("ROC"),
-                                             #SaveObj = TRUE, #save output on hard drive?
+                                             SaveObj = TRUE, #save output on hard drive?
                                              rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                              do.full.models = TRUE, # do evaluation & calibration with whole dataset
                                              modeling.id = paste(myRespName,"_Modeling", sep = ""))
@@ -1021,7 +1029,7 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                prob.median = FALSE, #estimate the median of probabilities
                                                committee.averaging = FALSE, #estimate committee averaging across predictions
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
-                                               prob.mea.weight.decay = 'proportional', #the better a model (performance), the higher weight
+                                               prob.mean.weight.decay = 'proportional', #the better a model (performance), the higher weight
                                                VarImport = 5)    #number of permutations to estimate variable importance
 temp.time <- as.numeric(Sys.time() - tmp)
 
