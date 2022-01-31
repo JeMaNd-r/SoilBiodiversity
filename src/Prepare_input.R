@@ -13,7 +13,52 @@ for(i in 1:nlayers(myExpl)) {
   myExpl[[i]] <- raster::mask(myExpl[[i]], 
                               as(extent(extent_Europe), 'SpatialPolygons'))}
 
-## parallelize
+#- - - - - - - - - - - - - - - - - - - - - -
+## define function to split data ####
+split.data <- function(x){
+  training <- x
+  
+  # split data into training (80%, including testing data), and validation data (20%)
+  set.seed(1)
+  random.rows <- sample(1:nrow(training), nrow(training))
+  
+  validation_env <- training[random.rows[1:round(0.2*nrow(training))], 
+                             covarsNames[covarsNames %in% colnames(x)]]
+  validation_pa <- training[random.rows[1:round(0.2*nrow(training))], 
+                            c("x","y", "SpeciesID", "occ")]
+  
+  training <- training[random.rows[round(0.2*nrow(training)):nrow(training)],]
+  
+  # subset uncorrelated covariates
+  training <- training[, c("occ", covarsNames[covarsNames %in% colnames(x)])]
+  validation_env <- validation_env[, covarsNames[covarsNames %in% colnames(x)]]
+  
+  # # convert the categoricals to factor
+  # training$vegsys <- as.factor(training$vegsys)
+  # validation_env$vegsys <- as.factor(validation_env$vegsys)
+  
+  # normalize the covariates (exept categorical)
+  # *notice: not all the models are fitted on normalized data in
+  # the main analysis! Please check Valavi et al. 2021.
+  for(v in covarsNames[covarsNames %in% colnames(x)]){
+    meanv <- mean(training[,v], na.rm=T)
+    sdv <- sd(training[,v], na.rm=T)
+    training[,v] <- (training[,v] - meanv) / sdv
+    validation_env[,v] <- (validation_env[,v] - meanv) / sdv
+  }
+  
+  # # print the first few rows and columns
+  # print(paste0("Head of the prepared dataset for ", modelName, "."))
+  # print(training[1:5, 1:5])
+  
+  # save all datasets
+  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+  save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+}
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## parallelize ####
 # Calculate the number of cores
 no.cores <- detectCores()/2; no.cores
 
@@ -21,7 +66,9 @@ no.cores <- detectCores()/2; no.cores
 registerDoParallel(no.cores)
 
 # for loop
-foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export = c("Taxon_name", "covarsNames"), .packages = c("tidyverse")) %dopar% {
+foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, 
+        .export = c("Taxon_name", "covarsNames"), 
+        .packages = c("tidyverse")) %dopar% {
   
   try({
     
@@ -29,6 +76,8 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
     load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", temp.species, ".RData"))
     
     for(i in 1:(length(bg.list)-1)){ #exclude biomod data
+      
+      # for models with multiple background data runs
       if(ncol(bg.list[[i]])>(length(covarsNames)+4)){
         # define presence and absence as new colum
         bg.list[[i]]$occ <- 1
@@ -42,12 +91,14 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
           bg.temp.list[[j]] <- bg.list[[i]][,temp.columns]
           
           bg.temp.list[[j]]$occ <- 0
-          bg.temp.list[[j]][bg.temp.list[[j]][,1]==TRUE,]$occ <- 1
+          bg.temp.list[[j]][bg.temp.list[[j]][,1]==TRUE | is.na(bg.temp.list[[j]][,1]),]$occ <- 1
         }
         bg.list[[i]] <- bg.temp.list
+        
+      # for models with single background runs  
       }else{
         # rename column with presence-absence information
-        bg.list[[i]] <- rename(bg.list[[i]], "PA1"=colnames(bg.list[[i]])[str_detect(colnames(bg.list[[i]]), "data.species")])
+        bg.list[[i]] <- rename(bg.list[[i]], "PA1"=colnames(bg.list[[i]])[stringr::str_detect(colnames(bg.list[[i]]), "data.species")])
         
         # define presence and absence as new column
         bg.list[[i]]$occ <- 1
@@ -56,49 +107,7 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
     }  
     
     ## split all datasets into training, testing and validation data
-    # define function to do so
-    split.data <- function(x){
-      training <- x
-      
-      # split data into training (80%, including testing data), and validation data (20%)
-      set.seed(1)
-      random.rows <- sample(1:nrow(training), nrow(training))
-      
-      validation_env <- training[random.rows[1:round(0.2*nrow(training))], 
-                                 covarsNames[covarsNames %in% colnames(x)]]
-      validation_pa <- training[random.rows[1:round(0.2*nrow(training))], 
-                                c("x","y", "SpeciesID", "occ")]
-      
-      training <- training[random.rows[round(0.2*nrow(training)):nrow(training)],]
-      
-      # subset uncorrelated covariates
-      training <- training[, c("occ", covarsNames[covarsNames %in% colnames(x)])]
-      validation_env <- validation_env[, covarsNames[covarsNames %in% colnames(x)]]
-      
-      # # convert the categoricals to factor
-      # training$vegsys <- as.factor(training$vegsys)
-      # validation_env$vegsys <- as.factor(validation_env$vegsys)
-      
-      # normalize the covariates (exept categorical)
-      # *notice: not all the models are fitted on normalized data in
-      # the main analysis! Please check Valavi et al. 2021.
-      for(v in covarsNames[covarsNames %in% colnames(x)]){
-        meanv <- mean(training[,v], na.rm=T)
-        sdv <- sd(training[,v], na.rm=T)
-        training[,v] <- (training[,v] - meanv) / sdv
-        validation_env[,v] <- (validation_env[,v] - meanv) / sdv
-      }
-      
-      # # print the first few rows and columns
-      # print(paste0("Head of the prepared dataset for ", modelName, "."))
-      # print(training[1:5, 1:5])
-      
-      # save all datasets
-      save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-      save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-      save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-    }
-    
+   
     # now we run the function for all data
     for(k in 1:(length(bg.list)-1)){ #exclude biomod data
       modelName <- names(bg.list)[k]
@@ -149,8 +158,8 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
     
     # save datasets for BIOMOD
     save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-    #save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-    #save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+    save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
+    save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
     
   }) # end of try loop
   
