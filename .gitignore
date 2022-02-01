@@ -46,3 +46,4 @@ data/Shapefiles/
 *_Full_GLM
 *_Full_MARS
 *_Full_RF
+*.predictions
