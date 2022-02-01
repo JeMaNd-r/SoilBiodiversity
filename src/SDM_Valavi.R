@@ -185,7 +185,7 @@ temp.time <- as.numeric(Sys.time() - tmp)
 # left: Lambda with minimum deviance (lambda.min)
 # right: best Lambda within one standard deviation of left-dashed line (l...1se)
 
-print("One of the two Lambda (dashed lines) needs to be selected for prediction.")
+#print("One of the two Lambda (dashed lines) needs to be selected for prediction.")
 
 # predicting with lasso model
 lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
@@ -436,6 +436,7 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/4
@@ -642,6 +643,7 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/4
@@ -747,6 +749,7 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/4
@@ -871,6 +874,7 @@ modelName <- "bg.rf"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/4
@@ -1108,7 +1112,7 @@ names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_p
 #head(SDMs)
 
 save(SDMs, file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData"))
-
+save(SDMs, file=paste0("Desktop/SDM_Models_", spID, ".RData")) #double save - just to make sure...
 
 
 
