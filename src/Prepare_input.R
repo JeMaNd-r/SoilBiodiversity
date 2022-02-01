@@ -65,6 +65,11 @@ no.cores <- detectCores()/2; no.cores
 # Initiate cluster used in foreach function
 registerDoParallel(no.cores)
 
+# check if right data are loaded
+if(length(speciesNames$NumCells) == 0){
+  print("Error: Please make sure to load the Species List containing the column NumCells (from results folder)!")
+}
+
 # for loop
 foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, 
         .export = c("Taxon_name", "covarsNames"), 
