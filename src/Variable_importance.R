@@ -6,7 +6,7 @@
 #- - - - - - - - - - - - - - - - - - - - - -#
 
 ## load models ####
-load(file=paste0(here::here(), "/results/", Taxon_name, "/SDM_Models_", spID, ".RData")) #SDMs
+load(file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData")) #SDMs
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance (VI) ####

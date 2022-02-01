@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-load(file=paste0(here::here(), "/results/", Taxon_name, "/SDM_Models_", spID, ".RData"))
+load(file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData"))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Model performance ####
@@ -58,7 +58,7 @@ for(i in 1:length(SDMs)){
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- number.models
     
-  }else{  # all except BIOMOD modelling
+  }else{  # all except BIOMOD modeling
     
     # if necessary, unlist models
     if(length(SDMs[[i]])>6) {

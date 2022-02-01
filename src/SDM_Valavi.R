@@ -1107,7 +1107,7 @@ names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_p
                  "rf_pred", "rf_downsample_pred", "biomod_pred", "brt2_pred", "rf2_pred", "ensm_pred")
 #head(SDMs)
 
-save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/SDM_Models_", spID, ".RData"))
+save(SDMs, file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData"))
 
 
 
