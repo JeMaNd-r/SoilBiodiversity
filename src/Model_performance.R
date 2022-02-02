@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-load(file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData"))
+load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Model performance ####
@@ -17,8 +17,7 @@ mod_eval <- data.frame(species = NA, # name of the species (more important for l
                        cor = NA, # correlation between predicted & true values
                        tss = NA, # True Skills Statisti
                        kappa = NA, # Cohen's kappa
-                       thres.maxTSS = NA, # Threshold (presence vs. absence) at max. TSS
-                       thres.axROC = NA, # Threshold at max. AUC under ROC
+                       thres.maxTSS = NA, # Threshold (presence vs. absence) at max. TSS (max(se+sp))
                        model = NA, # name of the SDM algorithm
                        time = NA, # mean computational time
                        bg= NA, # background dataset used
@@ -51,8 +50,7 @@ for(i in 1:length(SDMs)){
     try(mod_eval[i,]$cor <- NA)
     try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
     try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
-    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"]) # threshold at max. tss
-    try(mod_eval[i,]$thres.maxROC <-  myBiomodModelEval["ROC", "Cutoff"]) # threshold at max. roc
+    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"]) # threshold at max(se+sp)
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- SDMs[[i]][[4]])
     mod_eval[i,]$bg <- modelName
@@ -91,12 +89,12 @@ for(i in 1:length(SDMs)){
       # calculate the PRG curve
       prg_curve <- create_prg_curve(labels = validation_pa[,"occ"], pos_scores = prediction)
       
-      # calculate area under the PRG cure (AUC PRG)
-      au_prg <- calc_auprg(prg_curve)
-      #print(au_prg)
-      
-      # plot the PRG curve
-      prg <- plot_prg(prg_curve)
+      # # calculate area under the PRG cure (AUC PRG)
+      # au_prg <- calc_auprg(prg_curve)
+      # #print(au_prg)
+      # 
+      # # plot the PRG curve
+      # prg <- plot_prg(prg_curve)
       
       # # plot all plots into one
       # ggpubr::ggarrange(roc, pr, prg,
@@ -119,9 +117,8 @@ for(i in 1:length(SDMs)){
     
     # calculate Kappa
     mod.object <- sdm::evaluates(x = validation_pa[,"occ"], p = prediction)
-    temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="ROC", "Kappa"] #kappa at max ROC
-    temp.tresh.tss <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold at max TSS
-    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="ROC)", "threshold"] #threshold at ROC
+    temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
+    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp))", "threshold"] #threshold max(se+sp)
     
     # save in output data frame
     mod_eval[i,]$species <- spID
@@ -130,8 +127,7 @@ for(i in 1:length(SDMs)){
     try(mod_eval[i,]$cor <- cor(prediction,  validation_pa[,"occ"]))
     try(mod_eval[i,]$tss <- temp.tss)
     try(mod_eval[i,]$kappa <- temp.kappa)
-    try(mod_eval[i,]$thres.maxTSS <- temp.tresh.tss) # threshold at max. tss
-    try(mod_eval[i,]$thres.maxROC <-  temp.tresh) # threshold at max. roc
+    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- SDMs[[i]][[4]])
     mod_eval[i,]$bg <- modelName
@@ -141,7 +137,7 @@ for(i in 1:length(SDMs)){
   rm(roc, temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
 }
 
-
+mod_eval
 
 #- - - - - - - - - - - - - - - - - - - 
 ## Save ####
