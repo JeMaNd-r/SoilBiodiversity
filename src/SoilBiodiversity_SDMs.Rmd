@@ -49,10 +49,6 @@ library(e1071) # for SVM
 library(ROCR) # for Ensemble model
 library(scales) # for Ensemble model
 
-library(precrec) # for performance measure
-# devtools::install_github("meeliskull/prg/R_package/prg")
-library(prg)
-
 # for model performance:
 library(precrec)
 library(ggplot2) # for plotting the curves
@@ -122,7 +118,8 @@ checkSave_cleanData <- TRUE
 checkSave_precitor <- FALSE
 
 # define the species you wanted names
-speciesNames <- read.csv(file=paste0(here::here(), "/doc/Species_list_", Taxon_name, ".csv"))
+#speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv")) #number of records added
 
 # define names of predictor variables
 predictorNames <- c("bio1", "bio2", "bio3", "bio4", "bio5", "bio6", "bio7", "bio8", "bio9", "bio10", "bio11", "bio12", "bio13", "bio14", "bio15", "bio16", "bio17", "bio18", "bio19" , "Latitude")
@@ -347,6 +344,8 @@ source(file=paste0(here::here(), "/src/Predict_SDMs.R"))
 
 ```{r}
 # for loop has to contain following: for(spID in speciesNames[speciesNames$NumCells >=5,]$SpeciesID){}
+
+# and please! only 10 cores (in SDM_Valavi.R: 2x 2 cores used)
 ```
 
 
