@@ -26,6 +26,7 @@ Bottinelli$SpeciesID <- paste0(substr(Bottinelli$Genus, 1,4), "_",
 setdiff(Bottinelli$SpeciesID, ew_list$SpeciesID)
 
 ## merge Buoche species and genus name
+Bottinelli$Species_Bouche <- NA
 for(i in 1:nrow(Bottinelli)){
   # check if Subgenus_Bouche is NA
   if(is.na(Bottinelli[i,]$Subgenus_Bouche)){
@@ -40,10 +41,14 @@ for(i in 1:nrow(Bottinelli)){
     if(is.na(Bottinelli[i,]$Subspecies_Bouche)){
       Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Subgenus_Bouche, " ", Bottinelli[i,]$Species)
     }else{
-    Bottinelli[i,]$Species_Bouche <-paste0(Bottinelli[i,]$Subgenus_Bouche, " ", Bottinelli[i,]$Subspecies_Bouche)  
+    Bottinelli[i,]$Species_Bouche <- paste0(Bottinelli[i,]$Subgenus_Bouche, " ", Bottinelli[i,]$Subspecies_Bouche)  
     }
   }
+  
+  # remove double space in some species' names
+  Bottinelli[i,]$Species_Bouche <- stringr::str_squish(Bottinelli[i,]$Species_Bouche)
 }
+
 
 # try with [genus] [species] names
 Bottinelli$Species <- paste0(Bottinelli$Genus, " ", Bottinelli$Species)
@@ -51,26 +56,33 @@ Bottinelli$Species <- paste0(Bottinelli$Genus, " ", Bottinelli$Species)
 setdiff(Bottinelli$Species, ew_list$Species)
 setdiff(Bottinelli$Species_Bouche, ew_list$Species)
 
-
 # keep only unique rows based on some criteria
+ew_data <- Bottinelli[0,c("Species", "Percent_Epigeic", "Percent_Anecic",
+                        "Percent_Endogeic")]
 for(i in unique(Bottinelli$Species)){
   data <- Bottinelli[Bottinelli$Species==i,]
-  temp.species <- NA
+  temp.species <- i
   temp.subspecies <- NA
   
-  if(nrow(data)==1){next()}
-  temp.species <- !stringr::str_detect(data$Subspecies_Bouche, data$Species)
+  # take mean if having multiple Bouche names (= rows) for that species
+  if(nrow(data)!=1){
+    temp.species <- !stringr::str_detect(data$Subspecies_Bouche, data$Species)
+  }  
+  # average percentages
+  temp.data <- data %>% select(Species, Percent_Epigeic, Percent_Anecic, Percent_Endogeic) %>% 
+    group_by(Species) %>% summarise_all(mean)
+
+  # take most frequently used Botinelli group for this species
+  temp.data$Ecogroup_Bottinelli <- names(table(data$Ecogroup_Bottinelli)[
+    table(data$Ecogroup_Bottinelli)==max(table(data$Ecogroup_Bottinelli))])[1]
   
-  if(summary(temp.species==TRUE)[2]<=2){
-    temp.subspecies <- stringr::str_detect(data$Variety_Bouche, "int")
-  }
-  
-  data %>% filter(temp.species)
-  
-  aggregate(data, by=list(data$Family, data$Genus, data$Species), mean)
-  
+  ew_data <- rbind(ew_data, temp.data)
 }
 
+ew_data
 
 ## Add ecological groups to ew_list
-ew_list2 <- dplyr::full_join(ew_list, Bottinelli)
+ew_list2 <- dplyr::left_join(ew_list, ew_data)
+
+## Save expanded ew_list
+write.csv(ew_list2, file="../data/Species_list_Crassiclitellata.csv", row.names = F)
