@@ -233,7 +233,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/4
+no.loop.runs <- length(temp.files)/3
 
 mars_pred_list <- list()
 
@@ -439,7 +439,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/4
+no.loop.runs <- length(temp.files)/3
 
 brt_pred_list <- list()
 
@@ -646,7 +646,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/4
+no.loop.runs <- length(temp.files)/3
 
 xgb_pred_list <- list()
 
@@ -752,7 +752,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/4
+no.loop.runs <- length(temp.files)/3
 
 rf_pred_list <- list()
 rf_downsampled_pred_list <- list()
@@ -877,7 +877,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/4
+no.loop.runs <- length(temp.files)/3
 
 svm_pred_list <- list()
 
@@ -1111,8 +1111,8 @@ names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_p
                  "rf_pred", "rf_downsample_pred", "biomod_pred", "brt2_pred", "rf2_pred", "ensm_pred")
 #head(SDMs)
 
-save(SDMs, file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData"))
-save(SDMs, file=paste0("Desktop/SDM_Models_", spID, ".RData")) #double save - just to make sure...
+
+save(SDMs, file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) 
 
 
 
