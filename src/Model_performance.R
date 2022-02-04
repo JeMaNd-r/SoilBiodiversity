@@ -40,21 +40,42 @@ for(i in 1:length(SDMs)){
   
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
-  if(temp.model=="biomod") {
+  if(temp.model=="biomod_pred") {
     myBiomodModelEval <- SDMs[["biomod_pred"]][[1]]
+    
+    # define background dataset (for testing data)
+    modelName <- SDMs[[i]][[3]]
+    
+    # identify and load all relevant data files
+    temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                             pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+    lapply(temp.files, load, .GlobalEnv)
+    
+    precrec_obj <- precrec::auc(precrec::evalmod(scores = SDMs[["biomod_pred"]][[2]], 
+                                                     labels = validation_pa$occ))
+    temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation_pa$occ, 
+                                                             pos_scores = SDMs[["biomod_pred"]][[2]]))
     
     # save in output data frame
     mod_eval[i,]$species <- spID
+    try(mod_eval[i,]$roc <- precrec_obj[precrec_obj$curvetypes=="ROC", "aucs"])
     try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
+    # try(mod_eval[i,]$prg <- temp.prg)
     try(mod_eval[i,]$prg <- NA)
+    #try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation_pa$occ))
     try(mod_eval[i,]$cor <- NA)
     try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
     try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
-    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"]) # threshold at max(se+sp)
+    
+    # threshold at max TSS (Note: biomod predicion not scaled, their range is 0-1000
+    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"] / 1000) 
+   
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- SDMs[[i]][[4]])
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- number.models
+    
+    rm(prg, temp.model, modelName, precrec_obj)
     
   }else{  # all except BIOMOD modeling
     
@@ -81,10 +102,10 @@ for(i in 1:length(SDMs)){
       precrec_obj <- evalmod(scores = prediction, labels = validation_pa[,"occ"])
       #print(precrec_obj)
       
-      # plot the ROC and PR curves
-      roc <- autoplot(precrec_obj, curvetype = "ROC")
-      pr <- autoplot(precrec_obj, curvetype = "PR")
-      
+      # # plot the ROC and PR curves
+      # roc <- autoplot(precrec_obj, curvetype = "ROC")
+      # pr <- autoplot(precrec_obj, curvetype = "PR")
+      # 
       ## PRG
       # calculate the PRG curve
       prg_curve <- create_prg_curve(labels = validation_pa[,"occ"], pos_scores = prediction)
@@ -118,7 +139,7 @@ for(i in 1:length(SDMs)){
     # calculate Kappa
     mod.object <- sdm::evaluates(x = validation_pa[,"occ"], p = prediction)
     temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
-    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp))", "threshold"] #threshold max(se+sp)
+    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
     
     # save in output data frame
     mod_eval[i,]$species <- spID
@@ -134,7 +155,7 @@ for(i in 1:length(SDMs)){
     mod_eval[i,]$no.runs <- number.models
   }
   
-  rm(roc, temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
+  rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
 }
 
 mod_eval

@@ -287,7 +287,7 @@ for(no.runs in 1:no.loop.runs){
   
   # caluclate variable importance (for later)
   mars_varImp <- caret::varImp(mars_fit, scale=T) #scaled between 0 and 100% 
-  mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp))
+  mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp$importance))
   
   mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp.time, mars_varImp)
 }
@@ -1013,21 +1013,21 @@ set.seed(32639)
 myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
                                              models = mymodels,
                                              models.options = myBiomodOption,
-                                             NbRunEval = 1,   # 1 evaluation run
-                                             DataSplit = 100, # use all the data for training
+                                             NbRunEval = 3,   # 3-fold crossvalidation evaluation run
+                                             DataSplit = 80, # use subset of the data for training
                                              models.eval.meth = c("ROC"),
                                              SaveObj = TRUE, #save output on hard drive?
                                              rescal.all.models = FALSE, #scale all predictions with binomial GLM?
-                                             do.full.models = TRUE, # do evaluation & calibration with whole dataset
+                                             do.full.models = FALSE, # do evaluation & calibration with whole dataset
                                              modeling.id = paste(myRespName,"_Modeling", sep = ""))
 
 # ensemble modeling using mean probability
 myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
                                                chosen.models = 'all',  # all algorithms
                                                em.by = 'all',    #evaluated over evaluation data if given (it is, see Prepare_input.R)
-                                               eval.metric = 'all', #all takes same as above in BIOMOD_Modelling
+                                               eval.metric = c('ROC'), # 'all' would takes same as above in BIOMOD_Modelling
                                                eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
-                                               prob.mean = FALSE, #estimate mean probabilities across predictions
+                                               prob.mean = TRUE, #estimate mean probabilities across predictions
                                                prob.cv = FALSE,   #estimate coefficient of variation across predictions
                                                prob.ci = FALSE,  #estimate confidence interval around the prob.mean
                                                prob.median = FALSE, #estimate the median of probabilities
@@ -1057,7 +1057,7 @@ myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiom
                                                       selected.models = "all")
 
 # extracting the values for ensemble prediction
-myEnProjDF <- as.data.frame(get_predictions(myBiomodEnProj))
+myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[2,]) #for weighted probability mean
 
 # see the first few predictions
 # the prediction scale of biomod is between 0 and 1000
