@@ -62,8 +62,8 @@ gm_pred <- predict(gm, validation_env)
 gm_pred <- as.numeric(gm_pred)
 names(gm_pred) <- rownames(validation_env) #add site names
 
-
 gm_pred <- list(gm, gm_pred, modelName, temp.time)
+rm(gm, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -92,6 +92,7 @@ lm1_pred <- as.numeric(lm1_pred)
 names(lm1_pred) <- rownames(validation_env) #add site names
 
 lm1_pred <- list(lm1, lm1_pred, modelName, temp.time)
+rm(lm1, temp.time)
 
 # model scope for subset selection
 mod_scope <- gam::gam.scope(frame = training, form=F,
@@ -136,6 +137,7 @@ names(lm_subset_pred) <- rownames(validation_env) #add site names
 
 
 lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp.time)
+rm(lm_subset, temp.time, mod_scope)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: LASSO and RIDGE regression ####
@@ -196,7 +198,7 @@ names(lasso_pred) <- rownames(validation_env) #add site names
 
 
 lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp.time)
-
+rm(lasso_cv, temp.time)
 
 ## fitting ridge resgression (alpha=0) while identify the right lambda
 tmp <- Sys.time()
@@ -220,6 +222,7 @@ names(ridge_pred) <- rownames(validation_env) #add site names
 
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp.time)
+rm(ridge_cv, temp.time, training_sparse, tratining_quad, testing_sparse)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -300,11 +303,11 @@ temp.varImp <- mean(sapply(mars_pred_list, "[[", 5), na.rm=T)
 
 temp.models <- sapply(mars_pred_list, "[[", 1)
 
-mars_pred <- list(temp.models, mars_pred, modelName, temp.time, temp.varImp)
-
 mars_pred <- as.numeric(mars_pred)
 names(mars_pred) <- rownames(validation_env) #add site names
 
+mars_pred <- list(temp.models, mars_pred, modelName, temp.time, temp.varImp)
+rm(mars_fit, temp.time, mars_varImp, mars_pred_list)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -404,6 +407,7 @@ names(maxmod_pred) <- rownames(validation_env) #add site names
 
 
 maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp.time)
+rm(maxmod, temp.time)
 
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
@@ -412,20 +416,21 @@ covariates <- training[, covarsNames] # predictor covariates
 tmp <- Sys.time()
 set.seed(32639)
 
-mxnet <- maxnet::maxnet(p = presences,
+maxnet <- maxnet::maxnet(p = presences,
                         data = covariates,
                         regmult = as.numeric(stringr::str_split(param_optim[1], "=")[[1]][2]), # regularization multiplier, a constant, taken from maxmod
                         maxnet::maxnet.formula(presences, covariates, classes = "default"))
 temp.time <- as.numeric(Sys.time() - tmp)
 
 # predicting with MaxNet
-maxnet_pred <- predict(mxnet, validation_env, type = c("cloglog"))[, 1]
+maxnet_pred <- predict(maxnet, validation_env, type = c("cloglog"))[, 1]
 head(maxnet_pred)
 
 maxnet_pred <- as.numeric(maxnet_pred)
 names(maxnet_pred) <- rownames(validation_env) #add site names
 
-maxnet_pred <- list(mxnet, maxnet_pred, modelName, temp.time)
+maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp.time)
+rm(maxnet, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -548,6 +553,7 @@ colnames(temp.interactions) <- covarsNames
 temp.models <- sapply(brt_pred_list, "[[", 1)
 
 brt_pred <- list(temp.models, brt_pred, modelName, temp.time, temp.settings, temp.interactions)
+rm(brt, temp.time, brt_pred_list)
 
 #- - - - - - - - - - - - - - - - 
 ## Model BRT2 for ensemble modelling with consistent background data (bg.glm)
@@ -633,6 +639,7 @@ brt2_pred <- as.numeric(brt2_pred)
 names(brt2_pred) <- rownames(validation_env) #add site names
 
 brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int$interactions)
+rm(brt2, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -722,6 +729,7 @@ temp.time <- mean(sapply(xgb_pred_list, "[[", 4), na.rm=T)
 temp.models <- sapply(xgb_pred_list, "[[", 1)
 
 xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time)
+rm(xgb_fit, temp.time, xgb_pred_list)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -822,6 +830,7 @@ temp.time <- mean(sapply(rf_pred_list, "[[", 4), na.rm=T)
 temp.models <- sapply(rf_pred_list, "[[", 1)
 
 rf_pred <- list(temp.models, rf_pred, modelName, temp.time)
+rm(rf, temp.time, rf_pred_list)
 
 # average all RF_downsampled predictions
 rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 2))
@@ -831,6 +840,7 @@ temp.time <- mean(sapply(rf_downsample_pred_list, "[[", 4), na.rm=T)
 temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
 
 rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp.time)
+rm(rf_downsample, temp.time, rf_downsample_pred_list)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Model RF2 for ensemble modelling using consistent background data (bg.glm)
@@ -860,7 +870,7 @@ rf2_pred <- as.numeric(rf2_pred)
 names(rf2_pred) <- rownames(validation_env) #add site names
 
 rf2_pred <- list(rf2, rf2_pred, modelName, temp.time)
-
+rm(rf2, temp.time)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -926,6 +936,7 @@ temp.time <- mean(sapply(svm_pred_list, "[[", 4), na.rm=T)
 temp.models <- sapply(svm_pred_list, "[[", 1)
 
 svm_pred <- list(temp.models, svm_pred, modelName, temp.time)
+rm(svm_e, temp.time, svm_prob, svm_pred_list)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
