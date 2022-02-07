@@ -299,7 +299,8 @@ for(no.runs in 1:no.loop.runs){
 mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 2))
 mars_pred <- rowMeans(mars_pred, na.rm=T)
 temp.time <- mean(sapply(mars_pred_list, "[[", 4), na.rm=T)
-temp.varImp <- mean(sapply(mars_pred_list, "[[", 5), na.rm=T)
+temp.varImp <- do.call(rbind, lapply(mars_pred_list, "[[", 5)) %>% 
+  group_by(Predictor) %>% summarise_all(mean, na.rm=T)
 
 temp.models <- sapply(mars_pred_list, "[[", 1)
 
@@ -1034,9 +1035,9 @@ myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
 
 # ensemble modeling using mean probability
 myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
-                                               chosen.models = 'all',  # all algorithms
-                                               em.by = 'all',    #evaluated over evaluation data if given (it is, see Prepare_input.R)
-                                               eval.metric = c('ROC'), # 'all' would takes same as above in BIOMOD_Modelling
+                                               chosen.models = "all",  # all algorithms
+                                               em.by = c("ROC"),    #evaluated over evaluation data if given (it is, see Prepare_input.R)
+                                               eval.metric = c("ROC"), # 'all' would takes same as above in BIOMOD_Modelling
                                                eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
                                                prob.mean = TRUE, #estimate mean probabilities across predictions
                                                prob.cv = FALSE,   #estimate coefficient of variation across predictions
@@ -1044,7 +1045,7 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                prob.median = FALSE, #estimate the median of probabilities
                                                committee.averaging = FALSE, #estimate committee averaging across predictions
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
-                                               prob.mean.weight.decay = 'proportional', #the better a model (performance), the higher weight
+                                               prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
                                                VarImport = 5)    #number of permutations to estimate variable importance
 temp.time <- as.numeric(Sys.time() - tmp)
 
@@ -1068,7 +1069,7 @@ myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiom
                                                       selected.models = "all")
 
 # extracting the values for ensemble prediction
-myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[2,]) #for weighted probability mean
+myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted probability mean
 
 # see the first few predictions
 # the prediction scale of biomod is between 0 and 1000
