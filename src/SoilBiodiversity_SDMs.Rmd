@@ -7,7 +7,7 @@ output:
       toc: TRUE
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
@@ -59,6 +59,10 @@ library(prg)
 library(ggpubr)
 library (ROCR)
 library(sdm) # to calculate kappa
+
+## different input data required and package quite newly released...:
+#remotes::install_github("peterbat1/fitMaxnet")
+#library(fitMaxnet) #for variable importance of maxnet object
 
 # plotting
 library(GGally) #for correlations with ggpairs
