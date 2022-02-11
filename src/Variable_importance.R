@@ -6,7 +6,7 @@
 #- - - - - - - - - - - - - - - - - - - - - -#
 
 ## load models ####
-load(file=paste0(here::here(), "/results/SDM_Models_", spID, ".RData")) #SDMs
+load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) #SDMs
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance (VI) ####
@@ -17,6 +17,9 @@ var_imp <- data.frame("Predictor"= predictorNames)
 for(i in 1:length(SDMs)){ try({
   temp.model <- names(SDMs)[[i]]
   number.models <- 1
+  
+  print("###################################################")
+  print(paste0("Variable importance for model No.",i, ": ", temp.model))
   
   #- - - - - - - - - - - - - - - - - - - - - -
   ## GLM and GAM ####
@@ -53,32 +56,13 @@ for(i in 1:length(SDMs)){ try({
   }
   
   #- - - - - - - - - - - - - - - - - - - - - -
-  ## MARS ####
-  if(temp.model == "mars_pred"){# if necessary, unlist models
+  ## MARS & XGBoost ####
+  if(temp.model == "mars_pred" | temp.model == "xgb_pred"){# if necessary, unlist models
   
    temp.vi <- SDMs[[temp.model]][[5]]
-   temp.vi <- as.data.frame(temp.vi) %>% dplyr::rename("mars_pred" = "Overall")
+   temp.vi <- as.data.frame(temp.vi)
+   colnames(temp.vi)[2] <- as.character(temp.model)
    #print(temp.vi)
-  }
-  
-  #- - - - - - - - - - - - - - - - - - - - - -
-  ##  ####    
-  if(temp.model == ""){   
-   # calculate VI
-    temp.vi <- caret::varImp(SDMs[[temp.model]][[1]][,j], scale=T,) #scaled between 0 and 100% 
-    
-    # check if it looks right
-    print(temp.vi)
-    
-    temp.vi$Predictor <- rownames(temp.vi)
-    colnames(temp.vi)[1] <- temp.model
-    
-    # replace NA with 0
-    temp.vi[,2] <- temp.vi[,2] %>% tidyr::replace_na(0)
-    
-    temp.vi.df <- dplyr::full_join(temp.vi.df, temp.vi)
-    
-    rm(temp.vi) 
   }
   
   #- - - - - - - - - - - - - - - - - - - - - -
@@ -90,7 +74,7 @@ for(i in 1:length(SDMs)){ try({
     
     # extract predictor names
     temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[:punct:]", 2)[,1]
-    colnames(temp.vi)[1] <- temp.model
+    colnames(temp.vi) <- c(temp.model, "Predictor")
     
     # plot variable importance
     #plot(SDMs[[temp.model]][[1]])
@@ -125,6 +109,61 @@ for(i in 1:length(SDMs)){ try({
     rm(temp.results)
   }    
   
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## BRT ####
+  if(temp.model == "brt_pred"){
+    
+    temp.vi <- vector(mode="list", length=ncol(SDMs[[temp.model]][[1]]))
+    
+    # if multiple model runs, run over models
+    for(j in 1:ncol(SDMs[[temp.model]][[1]])){
+      
+      # extract VI
+      temp.temp.vi <- SDMs[[temp.model]][[1]][,j]$contributions
+      
+      # check if it looks right
+      #print(temp.vi)
+      
+      temp.temp.vi <- temp.temp.vi %>% mutate("Predictor" =rownames(temp.temp.vi))
+      temp.temp.vi <- temp.temp.vi[-1]
+      colnames(temp.temp.vi)[1] <- temp.model
+      
+      temp.vi[[j]] <- temp.temp.vi
+    }
+    
+    temp.vi <- do.call(rbind, temp.vi) %>% 
+      group_by(Predictor) %>% summarise_all(mean, na.rm=T) %>%
+      as.data.frame()
+  }
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## RF and RF downsampled ####
+  if(temp.model == "rf_pred" | temp.model == "rf_downsample_pred"){
+    
+    temp.vi <- vector(mode="list", length=ncol(SDMs[[temp.model]][[1]]))
+    
+    # if multiple model runs, run over models
+    for(j in 1:ncol(SDMs[[temp.model]][[1]])){
+      
+      # extract VI
+      temp.temp.vi <- as.data.frame(SDMs[[temp.model]][[1]][,j]$importance)
+      
+      # check if it looks right
+      #print(temp.vi)
+      
+      # extract varImp as mean decreae in Gini index (alternative: decrease in accuracy)
+      temp.temp.vi <- temp.temp.vi %>% mutate("Predictor" =rownames(temp.temp.vi))
+      temp.temp.vi <- temp.temp.vi[,c("Predictor", "MeanDecreaseGini")]
+      colnames(temp.temp.vi)[2] <- temp.model
+      
+      temp.vi[[j]] <- temp.temp.vi
+    }
+    
+    temp.vi <- do.call(rbind, temp.vi) %>% 
+      group_by(Predictor) %>% summarise_all(mean, na.rm=T) %>%
+      as.data.frame()
+  }
+  
   # harmonizes predictor column structure
   temp.vi$Predictor <- as.character(temp.vi$Predictor)
   
@@ -137,35 +176,33 @@ for(i in 1:length(SDMs)){ try({
   var_imp[,ncol(var_imp)][is.na(var_imp[,ncol(var_imp)])] <- 0
   
   rm(temp.vi)
-})}
+  
+}, silent=T)}
 
 var_imp
 
-#- - - - - - - - - - - - - - - - - - - - - -
-## for BIOMOD ####
-
-# https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
-
-# Calculate variable importance across all PA sets, eval runs and algorithms 
-varImportance <- biomod2::get_variables_importance(myBiomodModelOut)
-#varImportanceByVariableAVG <- apply(varImportance,1,mean)
-#varImportanceByVariableSTD <- apply(varImportance,1,sd)
-
-varImportanceByVariableAVG <- apply(varImportance,1,mean, na.rm=TRUE)
-varImportanceByVariableSTD <- apply(varImportance,1,sd, na.rm=TRUE)
-
-vimpDF <- data.frame(cnames=names(varImportanceByVariableAVG),
-                     vimpAVG = varImportanceByVariableAVG, 
-                     varImpSTD=varImportanceByVariableSTD) %>% 
-  arrange(desc(vimpAVG))
-
-write.csv(vimpDF, file = paste(getwd(),"/",sp,"/",sp,"_varImportance.csv",sep=""))
-
-
-
+# #- - - - - - - - - - - - - - - - - - - - - -
+# ## for BIOMOD ####
+# 
+# # https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
+# 
+# # Calculate variable importance across all PA sets, eval runs and algorithms 
+# varImportance <- biomod2::get_variables_importance(myBiomodModelOut)
+# #varImportanceByVariableAVG <- apply(varImportance,1,mean)
+# #varImportanceByVariableSTD <- apply(varImportance,1,sd)
+# 
+# varImportanceByVariableAVG <- apply(varImportance,1,mean, na.rm=TRUE)
+# varImportanceByVariableSTD <- apply(varImportance,1,sd, na.rm=TRUE)
+# 
+# vimpDF <- data.frame(cnames=names(varImportanceByVariableAVG),
+#                      vimpAVG = varImportanceByVariableAVG, 
+#                      varImpSTD=varImportanceByVariableSTD) %>% 
+#   arrange(desc(vimpAVG))
+# 
+# write.csv(vimpDF, file = paste(getwd(),"/",sp,"/",sp,"_varImportance.csv",sep=""))
 
 #- - - - - - - - - - - - - - - - - - - - - -
-## LASSO and RIDGE varImp - long and accurrate way... ####
+## LASSO and RIDGE varImp - long and accurrate way... unfinished ####
 # # define background dataset (for testing data)
 # modelName <- SDMs[[i]][[3]]
 # 
