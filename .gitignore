@@ -48,3 +48,5 @@ data/Shapefiles/
 *_Full_RF
 *.predictions
 *.xlsx
+*.mdmp
+*.jar
