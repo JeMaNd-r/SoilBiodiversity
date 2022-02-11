@@ -47,7 +47,7 @@ for(i in 1:length(SDMs)){
     modelName <- SDMs[[i]][[3]]
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -56,20 +56,41 @@ for(i in 1:length(SDMs)){
     temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation_pa$occ, 
                                                              pos_scores = SDMs[["biomod_pred"]][[2]]))
     
+    prg_curve <- create_prg_curve(labels = validation_pa[,"occ"], pos_scores = prediction)
+      
+    
+    ## TSS and Kappa
+    roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation_pa)], validation_pa[rownames(validation_pa) %in% names(prediction),"occ"])
+    roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
+    
+    # calculate Sensitivity and Specificity
+    sen_spe <- opt.cut(roc.perf, roc.pred)
+    
+    # calculate TSS
+    temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
+    
+    # calculate Kappa
+    mod.object <- sdm::evaluates(x = validation_pa[,"occ"], p = prediction)
+    temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
+    temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
+    
     # save in output data frame
     mod_eval[i,]$species <- spID
     try(mod_eval[i,]$roc <- precrec_obj[precrec_obj$curvetypes=="ROC", "aucs"])
-    try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
-    # try(mod_eval[i,]$prg <- temp.prg)
-    try(mod_eval[i,]$prg <- NA)
-    #try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation_pa$occ))
-    try(mod_eval[i,]$cor <- NA)
-    try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
-    try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
+    #try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
+    try(mod_eval[i,]$prg <- temp.prg)
+    #try(mod_eval[i,]$prg <- NA)
+    try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation_pa$occ))
+    #try(mod_eval[i,]$cor <- NA)
+    #try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
+    try(mod_eval[i,]$tss <- temp.tss)
+    #try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
+    try(mod_eval[i,]$kappa <- temp.kappa)
     
     # threshold at max TSS (Note: biomod predicion not scaled, their range is 0-1000
     try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"] / 1000) 
-   
+    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
+     
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- SDMs[[i]][[4]])
     mod_eval[i,]$bg <- modelName
@@ -88,7 +109,7 @@ for(i in 1:length(SDMs)){
     modelName <- SDMs[[i]][[3]]
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
