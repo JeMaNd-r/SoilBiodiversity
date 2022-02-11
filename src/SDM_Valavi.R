@@ -69,6 +69,13 @@ rm(gm, temp.time)
 ## GLM ####
 #- - - - - - - - - - - - - - - - - - - - -
 
+modelName <- "bg.glm"
+
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
+
 # calculating the weights
 # the order of weights should be the same as presences and backgrounds in the 
 # training data
@@ -92,10 +99,13 @@ lm1_pred <- as.numeric(lm1_pred)
 names(lm1_pred) <- rownames(validation_env) #add site names
 
 lm1_pred <- list(lm1, lm1_pred, modelName, temp.time)
-rm(lm1, temp.time)
+rm(temp.time)
+
+# load library again to make sure that function works correctly
+library(gam)
 
 # model scope for subset selection
-mod_scope <- gam::gam.scope(frame = training, form=F,
+mod_scope <- gam::gam.scope(frame = training, form=FALSE, #form=T: formular, else character vector
                             response = 1) #column with response variable
 
 # Note: alternatively, you can define one by your own
@@ -115,15 +125,11 @@ mod_scope <- gam::gam.scope(frame = training, form=F,
 tmp <- Sys.time()
 set.seed(32639)
 
-## parallelize if wanted
-require(doMC)
-registerDoMC(cores=2)
-
 lm_subset <- gam::step.Gam(object = lm1,
                            scope = mod_scope,
                            direction = "both", # up and down-moving of terms
                            data = training, # this is optional
-                           parallel = TRUE,   # optional
+                           parallel = FALSE,   # optional
                            trace = FALSE) #if information is printed or not
 temp.time <- as.numeric(Sys.time() - tmp)
 
@@ -137,7 +143,7 @@ names(lm_subset_pred) <- rownames(validation_env) #add site names
 
 
 lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp.time)
-rm(lm_subset, temp.time, mod_scope)
+rm(lm_subset, lm1, temp.time, mod_scope)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: LASSO and RIDGE regression ####
@@ -219,7 +225,6 @@ ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.m
 
 ridge_pred <- as.numeric(ridge_pred)
 names(ridge_pred) <- rownames(validation_env) #add site names
-
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp.time)
 rm(ridge_cv, temp.time, training_sparse, tratining_quad, testing_sparse)
@@ -368,7 +373,7 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
       ), "try-error")){
         next
       }
-      modpred <- predict(maxmod, data[testSet, covarsNames], args = "outputformat=cloglog")
+      modpred <- predict(maxmod, data[testSet, covarsNames]) #, args = "outputformat=cloglog"
       pred_df <- data.frame(score = modpred, label = data$occ[testSet])
       full_pred <- rbind(full_pred, pred_df)
     }
@@ -660,7 +665,7 @@ xgb_pred_list <- list()
 
 for(no.runs in 1:no.loop.runs){
   
-  temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+  temp.files.subset <- list.files(path = paste0(here::here(), "/results/",Taxon_name), 
                                   pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID), full.name = T)
   
   lapply(temp.files.subset, load, .GlobalEnv)
@@ -717,7 +722,11 @@ for(no.runs in 1:no.loop.runs){
   xgb_pred <- as.numeric(xgb_pred)
   names(xgb_pred) <- rownames(validation_env) #add site names
   
-  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time)
+  # caluclate variable importance (for later)
+  xgb_varImp <- caret::varImp(xgb_fit, scale=T) #scaled between 0 and 100% 
+  xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
+  
+  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time, xgb_varImp)
 }
 
 # average all XGBoost predictions
@@ -729,8 +738,11 @@ temp.time <- mean(sapply(xgb_pred_list, "[[", 4), na.rm=T)
 
 temp.models <- sapply(xgb_pred_list, "[[", 1)
 
-xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time)
-rm(xgb_fit, temp.time, xgb_pred_list)
+temp.varImp <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>% 
+  group_by(Predictor) %>% summarise_all(mean, na.rm=T)
+
+xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time, temp.varImp)
+rm(xgb_fit, temp.time, xgb_pred_list, temp.varImp, xgb_varImp)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -764,7 +776,7 @@ lapply(temp.files, load, .GlobalEnv)
 no.loop.runs <- length(temp.files)/3
 
 rf_pred_list <- list()
-rf_downsampled_pred_list <- list()
+rf_downsample_pred_list <- list()
 
 for(no.runs in 1:no.loop.runs){
   
@@ -780,6 +792,7 @@ for(no.runs in 1:no.loop.runs){
   
   rf <- randomForest::randomForest(formula = occ ~.,
                                    data = training,
+                                   importance = T, # assess importance of predictors
                                    ntree = 500) # the default number of trees = 500
   temp.time <- as.numeric(Sys.time() - tmp)
   
@@ -808,6 +821,7 @@ for(no.runs in 1:no.loop.runs){
                                               data = training,
                                               ntree = 1000,
                                               sampsize = smpsize,
+                                              importance = T,
                                               replace = TRUE)
   temp.time <- as.numeric(Sys.time() - tmp)
   
@@ -1036,7 +1050,7 @@ myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
 # ensemble modeling using mean probability
 myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
                                                chosen.models = "all",  # all algorithms
-                                               em.by = c("ROC"),    #evaluated over evaluation data if given (it is, see Prepare_input.R)
+                                               em.by = "all",    #evaluated over evaluation data if given (it is, see Prepare_input.R)
                                                eval.metric = c("ROC"), # 'all' would takes same as above in BIOMOD_Modelling
                                                eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
                                                prob.mean = TRUE, #estimate mean probabilities across predictions
@@ -1046,7 +1060,7 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                committee.averaging = FALSE, #estimate committee averaging across predictions
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
-                                               VarImport = 5)    #number of permutations to estimate variable importance
+                                               VarImport = 3)    #number of permutations to estimate variable importance
 temp.time <- as.numeric(Sys.time() - tmp)
 
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
