@@ -18,8 +18,8 @@ for(i in 1:length(SDMs)){ try({
   temp.model <- names(SDMs)[[i]]
   number.models <- 1
   
-  print("###################################################")
-  print(paste0("Variable importance for model No.",i, ": ", temp.model))
+  # print("###################################################")
+  # print(paste0("Variable importance for model No.",i, ": ", temp.model))
   
   #- - - - - - - - - - - - - - - - - - - - - -
   ## GLM and GAM ####
@@ -137,6 +137,18 @@ for(i in 1:length(SDMs)){ try({
   }
   
   #- - - - - - - - - - - - - - - - - - - - - -
+  ## BRT 2 (for Ensemble) ####
+  if(temp.model == "brt2_pred"){
+    
+    # extract VI
+    temp.vi <- SDMs[[temp.model]][[1]]$contributions
+    colnames(temp.vi) <- c("Predictor", temp.model)
+    
+    # check if it looks right
+    #print(temp.vi)
+  }
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
   ## RF and RF downsampled ####
   if(temp.model == "rf_pred" | temp.model == "rf_downsample_pred"){
     
@@ -164,11 +176,80 @@ for(i in 1:length(SDMs)){ try({
       as.data.frame()
   }
   
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## RF 2 (for Ensemble) ####
+  if(temp.model == "rf2_pred"){
+    
+    temp.vi <- as.data.frame(SDMs[[temp.model]][[1]]$importance)
+    
+    temp.vi$Predictor <- rownames(temp.vi)
+    colnames(temp.vi)[1] <- temp.model
+  }
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## SVM ####
+  if(temp.model == "svm_pred"){
+    
+    temp.vi <- vector(mode="list", length=ncol(SDMs[[temp.model]][[1]]))
+    
+    # if multiple model runs, run over models
+    for(j in 1:ncol(SDMs[[temp.model]][[1]])){
+      
+      # extract model output for run j
+      temp.results <- SDMs[[temp.model]][[1]][,j]
+      
+      # calculate variable importance according to 
+      # https://stackoverflow.com/questions/34781495/how-to-find-important-factors-in-support-vector-machine
+      w <- t(temp.results$coefs) %*% temp.results$SV # weight vectors
+      w <- apply(w, 2, function(v){sqrt(sum(v^2))})  # weight
+      w <- sort(w, decreasing = T)
+      
+      # structure variable importance
+      temp.temp.vi <- w %>% as.data.frame() %>% 
+        mutate(Predictor = names(w))
+      
+      colnames(temp.temp.vi)[1] <- temp.model
+      
+      # check if it looks right
+      #print(temp.vi)
+      
+      temp.vi[[j]] <- temp.temp.vi
+    }
+    
+    temp.vi <- do.call(rbind, temp.vi) %>% 
+      group_by(Predictor) %>% summarise_all(mean, na.rm=T) %>%
+      as.data.frame()
+  }
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ##  BIOMOD ####
+  # based on https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
+  if(temp.model == "biomod_pred"){ 
+   
+  # extract variable importance calculated in SDM_Valavi script
+  temp.vi <- SDMs[[temp.model]][[5]]
+  
+  # average across 3 runs
+  temp.vi <- temp.vi %>% as.data.frame() %>%
+    mutate(mean_vi = as.numeric(rowMeans(temp.vi, na.rm=T)),
+           Predictor = rownames(temp.vi))
+  
+  colnames(temp.vi)[colnames(temp.vi) == "mean_vi"] <- temp.model
+  
+  }
+  
+  ## Ensemble ##
+  # see below
+  if(temp.model == "ensm_pred"){ next }
+    
   # harmonizes predictor column structure
   temp.vi$Predictor <- as.character(temp.vi$Predictor)
   
   # scale variable importance values between 0 and 10
   temp.vi[,temp.model] <- scales::rescale(abs(temp.vi[,temp.model]), c(0,10))
+  
+  # round variable importance to 3 decimals
+  temp.vi[,temp.model] <- round(temp.vi[,temp.model], 3)
   
   var_imp <- dplyr::full_join(var_imp, temp.vi)
   
@@ -177,29 +258,18 @@ for(i in 1:length(SDMs)){ try({
   
   rm(temp.vi)
   
-}, silent=T)}
+}, silent=F)}
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Ensemble ####
+# average variable importances of individual models
+var_imp$ensemble <- rowMeans(var_imp[,c("gm_pred", "lasso_pred", "brt2_pred", "rf2_pred", "maxmod_pred")], na.rm=T) 
 
 var_imp
 
-# #- - - - - - - - - - - - - - - - - - - - - -
-# ## for BIOMOD ####
-# 
-# # https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
-# 
-# # Calculate variable importance across all PA sets, eval runs and algorithms 
-# varImportance <- biomod2::get_variables_importance(myBiomodModelOut)
-# #varImportanceByVariableAVG <- apply(varImportance,1,mean)
-# #varImportanceByVariableSTD <- apply(varImportance,1,sd)
-# 
-# varImportanceByVariableAVG <- apply(varImportance,1,mean, na.rm=TRUE)
-# varImportanceByVariableSTD <- apply(varImportance,1,sd, na.rm=TRUE)
-# 
-# vimpDF <- data.frame(cnames=names(varImportanceByVariableAVG),
-#                      vimpAVG = varImportanceByVariableAVG, 
-#                      varImpSTD=varImportanceByVariableSTD) %>% 
-#   arrange(desc(vimpAVG))
-# 
-# write.csv(vimpDF, file = paste(getwd(),"/",sp,"/",sp,"_varImportance.csv",sep=""))
+## Save ####
+write_csv(var_imp, file=paste0(here::here(), "/results/", Taxon_name, "/Variable_importance_", spID, ".csv"))
+
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## LASSO and RIDGE varImp - long and accurrate way... unfinished ####
