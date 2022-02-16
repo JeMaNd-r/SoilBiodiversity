@@ -50,6 +50,7 @@ Land_Frag,V011,Landscape fragmentation/ effective mesh density/ number of fragme
 Land_Frag,V011,Landscape fragmentation/ effective mesh density/ number of fragmented landscape elements,C,Shrubland,CLC shrubland areas,,
 Land_Frag,V011,Landscape fragmentation/ effective mesh density/ number of fragmented landscape elements,C,Pasture,CLC pasture areas,,
 Land_Frag,V011,Landscape fragmentation/ effective mesh density/ number of fragmented landscape elements,C,Agriculture,CLC agriculture areas,,
+NDVI,,NDVI Copernicus,C,Dist_Coast,Sea mask,,
 Pastures,V012,CLC 2018,C,Urban,CLC urban areas,,
 Pastures,V012,CLC 2018,C,Elev,DEM,,ground controll points for geometric correction
 Pastures,V012,CLC 2018,C,Forest,CLC forest areas,,
