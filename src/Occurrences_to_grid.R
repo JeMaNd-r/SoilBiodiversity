@@ -81,7 +81,7 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 # raster::writeRaster(occ.stack,file=paste0(here::here(), "/results/OccurrenceGrid_", Taxon_name, ".grd"), format="raster")
 
 # save point data frame
-write.csv(occ.points, file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"))
+write.csv(occ.points, file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"), row.names=F)
 
 # # save individual species as own files
 # raster::writeRaster(occ.stack, filename=names(occ.stack), bylayer=TRUE, format="GTiff")
