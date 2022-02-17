@@ -207,16 +207,66 @@ species.list <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 hist(species.list$NumCells)
 ```
 
+First, raw occurrences as we downloaded them.
+
+```{r plotOccRaw}
+# load species list containing information on number of occurrence records in grid
+occ.raw <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
+
+# load background map
+#...
+
+# plot total species' occurrences
+plotOccRaw <- ggplot(occ.raw, 
+       aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
+  #geom_polygon(data=bg.map)
+  geom_point(cex=0.3)+
+  scale_x_continuous(limits=c(-20, 60))+ 
+  scale_y_continuous(limits=c(30,75))+
+  theme_bw()+
+  theme(legend.position = "bottom")+
+  guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
+
+plotOccRaw
+
+# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perDatasource.pdf")); plotOccRaw; dev.off()
+
+```
+
+Zoom to Germany
+
+```{r plotOccRaw_Germany}
+# plot total species' occurrences
+plotOccRawGER <- ggplot(occ.raw, 
+       aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
+  #geom_polygon(data=bg.map)
+  geom_point(cex=0.6)+
+  scale_x_continuous(limits=c(5, 17))+ 
+  scale_y_continuous(limits=c(46,57))+
+  theme_bw()+
+  theme(legend.position = "bottom")+
+  guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
+
+plotOccRawGER
+
+# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perDatasource_GER.pdf")); plotOccRawGER; dev.off()
+
+```
+
 ```{r plotOcc}
-# load species list containing information on number of occurrence records
+# load species list containing information on number of occurrence records in grid
 occ.points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"))
 
 # load background map
 #...
 
 # plot total species' occurrences
-plotOcc <- ggplot(occ.points %>% group_by(Latitude=round(x,0), Longitude=round(y,0)) %>% 
-                    count(name="Number of Records"), 
+plotOcc <- ggplot(occ.points %>% 
+                    dplyr::select(c(x, y, all_of(speciesNames[speciesNames$NumCells>=5,"SpeciesID"]))) %>%
+                    group_by(x,y) %>% 
+                    count(name="Number of Records") %>%
+                    group_by(Latitude=round(x,0), Longitude=round(y,0)) %>%
+                    summarize("Number of Records" = sum(`Number of Records`), .groups ="keep"), 
        aes(x=Latitude, y=Longitude, color=`Number of Records`))+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)
   geom_point()+
@@ -225,11 +275,11 @@ plotOcc <- ggplot(occ.points %>% group_by(Latitude=round(x,0), Longitude=round(y
     values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
     breaks = c(5, 20, 50, 100, 200))+
   theme_bw()+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
 
 plotOcc
 
-# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, ".pdf")); plotOcc; dev.off()
+# pdf(paste0(here::here(), "/figures/GriddedOccurrences_", Taxon_name, ".pdf")); plotOcc; dev.off()
 ```
 
 Now, we make one plot with raw occurrences per species.
@@ -272,7 +322,7 @@ plotOccSpecies <- ggplot(occ.points.species,
         legend.position = "bottom", legend.text = element_text(size=5))
 plotOccSpecies
 
-# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perSpecies.pdf")); plotOccSpecies; dev.off()
+# pdf(paste0(here::here(), "/figures/GriddedOccurrences_", Taxon_name, "_perSpecies.pdf")); plotOccSpecies; dev.off()
 ```
 
 
