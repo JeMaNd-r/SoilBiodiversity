@@ -42,6 +42,12 @@ library(earth) # for MARS
 library(doParallel) # for MARS and XGBoost
 
 library(dismo) # for MaxEnt and BRT
+# download maxent.jar 3.3.3k, and place the file in the
+# desired folder
+utils::download.file(url = "https://raw.githubusercontent.com/mrmaxent/Maxent/master/ArchivedReleases/3.3.3k/maxent.jar", 
+    destfile = paste0(system.file("java", package = "dismo"), 
+        "/maxent.jar"), mode = "wb")  ## wb for binary file, otherwise maxent.jar can not execute
+
 library(maxnet) # for MaxNet
 
 library(xgboost) # for XGBoost
@@ -193,17 +199,81 @@ source(file=paste0(here::here(),"src/Occurrences_to_grid.R"))
 
 ## Quick visualization
 
-```{r}
-# load raster stack with occurrences
-
-
-# show structure
-occ.stack
+```{r numberOcc}
+# load species list containing information on number of occurrence records
+species.list <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
 
 # plot some of the species' occurrences
-plot(occ.stack, col=c("orange", "red", "darkred"))
+hist(species.list$NumCells)
 ```
 
+```{r plotOcc}
+# load species list containing information on number of occurrence records
+occ.points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"))
+
+# load background map
+#...
+
+# plot total species' occurrences
+plotOcc <- ggplot(occ.points %>% group_by(Latitude=round(x,0), Longitude=round(y,0)) %>% 
+                    count(name="Number of Records"), 
+       aes(x=Latitude, y=Longitude, color=`Number of Records`))+ #, alpha=`Number of Records`
+  #geom_polygon(data=bg.map)
+  geom_point()+
+   scale_color_gradientn(    # provide any number of colors
+    colors = c("black", "blue", "orange"),
+    values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
+    breaks = c(5, 20, 50, 100, 200))+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+plotOcc
+
+# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, ".pdf")); plotOcc; dev.off()
+```
+
+Now, we make one plot with raw occurrences per species.
+
+```{r plotOccSpecies}
+# calculate individual species' occurrences
+occ.points.species <- occ.points %>% 
+         pivot_longer(cols=speciesNames$SpeciesID[speciesNames$SpeciesID %in% colnames(occ.points)], 
+                      names_to = "SpeciesID") %>% 
+        mutate("Latitude"=round(x,0), "Longitude"=round(y,0)) %>%
+        group_by(Latitude, Longitude, SpeciesID) %>%
+        filter(!is.na(value)) %>%
+        summarize("Number of Records"= n(), .groups="keep") %>%
+        filter("Number of Records" > 0) 
+
+# only keep species that will be analyzed (i.e., present in at least 5 grid cells)
+occ.points.species <- occ.points.species[occ.points.species$SpeciesID %in%
+                                           speciesNames[speciesNames$NumCells >=5, "SpeciesID"],]
+occ.points.species
+
+# plot some of the individual species' occurrences
+plotOccSpecies <- ggplot(occ.points.species, 
+       aes(x=Latitude, y=Longitude, color=`Number of Records`, group=SpeciesID))+
+  #geom_polygon(data=bg.map)
+  geom_point(cex=0.02)+
+  facet_wrap(vars(SpeciesID))+
+  scale_color_gradientn(    # provide any number of colors
+    colors = c("black", "blue", "orange"),
+    values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
+    breaks = c(5, 20, 50, 100, 200))+
+  
+  # add number of grid cells in which the species is present
+  geom_text(data=occ.points.species %>% group_by(SpeciesID) %>% summarize("n"=sum(`Number of Records`)), 
+             aes(x=50, y=33, label=paste0("n=", n)), color="black", 
+            inherit.aes=FALSE, parse=FALSE, cex=0.7)+
+  theme_bw()+
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        legend.position = "bottom", legend.text = element_text(size=5))
+plotOccSpecies
+
+# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perSpecies.pdf")); plotOccSpecies; dev.off()
+```
 
 
 # Environmental data
