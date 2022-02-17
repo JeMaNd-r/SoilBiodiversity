@@ -387,6 +387,8 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 
 ## Input data
 
+### Occurrence records
+
 First, raw occurrences as we downloaded them.
 
 ```{r plotOccRaw}
@@ -514,15 +516,76 @@ plotOccSpecies
 rm(plotOccSpecies, occ.points.species)
 ```
 
-## Variable correlations
+
+### Summary models
+
+We have to extract the following information per species:
+* best-performing model,
+* variable importance of that best model,
+* background-data used,
+* ...
+
+Let's do so.
 
 ```{r}
-# plot VIF
 
+data.frame
+
+for(temp.sp in speciesNames$SpeciesID){ try({
+  # name of the best model
+  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
+  temp.model <- mod_eval[mod_eval$tss==max(mod_eval$tss), "model"]
+  temp.model
+  
+  # information about modelling (running time, background data)
+  temp.details <- mod_eval[mod_eval$tss==max(mod_eval$tss), c("model", "tss", "time", "bg")]
+  temp.details
+  
+  # varImp of the best model
+  var_imp <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/Variable_importance_", spID, ".csv"))
+  temp.vi <- var_imp[,c("Predictor", temp.model)] %>% 
+    mutate("SpeciesID" = spID) %>% pivot_wider(id_cols=SpeciesID, names_from=Predictor, values_from=temp.model)
+  temp.vi
+  
+  # merge into one data frame
+  #...
+  
+})}
+```
+
+
+## Variable importance and correlations
+
+Let's have a look at the variable importance across all models.
+
+```{r resultVarImp}
+# load variable importance data
+var_imp <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/Variable_importance_", spID, ".csv"))
+var_imp
+
+# transform to long format
+var_imp <- var_imp %>%
+  pivot_longer(cols=colnames(var_imp[,-1]), names_to = "model", values_to = "varImp")
+
+# plot VIF
+plotVarImp <- ggplot(data=var_imp, aes(x=varImp, y=Predictor, fill=model))+
+  geom_bar(stat="identity")+
+  xlab("Variable importance (Sum of scaled importances [0,10])")+
+  theme_bw()
+plotVarImp
+
+# pdf(paste0(here::here(), "/figures/VariableImportance_", Taxon_name, "_", spID, ".pdf")); plotVarImp; dev.off()
+
+rm(plotVarImp, var_imp)
+
+```
+
+
+Now, let's look how the variables are correlated.
+
+```{r resultCorrelations}
 # plot correlations
 #GGally::ggpairs()
-
-# plot variable importance (averaged(?))
 ```
 
 
