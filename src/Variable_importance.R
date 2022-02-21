@@ -235,6 +235,7 @@ for(i in 1:length(SDMs)){ try({
            Predictor = rownames(temp.vi))
   
   colnames(temp.vi)[colnames(temp.vi) == "mean_vi"] <- temp.model
+  temp.vi <- temp.vi[,c(temp.model, "Predictor")]
   
   }
   
