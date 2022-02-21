@@ -391,7 +391,7 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 
 First, occurrence numbers.
 
-```{r}
+```{r numberOcc}
 # load raw data
 occ_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"))
 
@@ -408,13 +408,27 @@ full_join(occ_raw %>% group_by(datasource) %>% count(name="raw"),
 # load number removed records during cleaning
 read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
 
+
 # count occurrences per species & datasource
-count_data <- occ_clean %>% group_by(datasource, species) %>% count() %>%
+count_data <- occ_raw %>% group_by(datasource, species) %>% count() %>%
   pivot_wider(names_from = datasource, values_from = n) %>%
-  full_join(species.list[,c("Species", "NumCells", "Records")], by=c("species" = "Species"))
-count_data$TotalOcc <- rowSums(count_data[,2:4], na.rm=T)
+  full_join(occ_clean %>% group_by(datasource, species) %>% count() %>%
+  pivot_wider(names_from = datasource, values_from = n), suffix = c("_raw", "_clean"), by="species")
+count_data$RawOcc <- rowSums(count_data[,2:4], na.rm=T)
+count_data$CleanOcc <- rowSums(count_data[,5:7], na.rm=T)
+
+# add number of records after
+count_data <- count_data %>% full_join(speciesNames[,c("Species", "NumCells")], by=c("species" = "Species")) %>%
+  filter(!is.na(species))
+
+# replace NA with 0
+count_data[is.na(count_data)] <- 0
 
 count_data
+
+
+
+write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
 ```
 
 
