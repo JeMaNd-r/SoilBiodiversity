@@ -657,6 +657,9 @@ if(is.null(brt2)){
 # get interactions of predictors
 temp.find.int <- gbm.interactions(brt2)
 
+# predict to raster (for later)
+brt2_raster <- raster::predict(myExpl, brt2, n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
+
 # predicting with the best trees
 brt2_pred <- predict(brt2, validation_env, n.trees = brt2$gbm.call$best.trees, type = "response")
 #head(brt_pred)
@@ -666,7 +669,7 @@ temp.settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), 
 brt2_pred <- as.numeric(brt2_pred)
 names(brt2_pred) <- rownames(validation_env) #add site names
 
-brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int$interactions)
+brt2_pred <- list(brt2, brt2_pred, modelName, temp.time, temp.settings, temp.find.int$interactions, brt2_raster)
 rm(brt2, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -748,23 +751,27 @@ for(no.runs in 1:no.loop.runs){
   xgb_varImp <- caret::varImp(xgb_fit, scale=T) #scaled between 0 and 100% 
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
-  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time, xgb_varImp)
+  # predict to raster (for later)
+  xgb_raster <- raster::predict(Env, xgb_fit, type="prob")
+   
+  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp.time, xgb_varImp, xgb_raster)
 }
 
 # average all XGBoost predictions
 xgb_pred <- as.data.frame(sapply(xgb_pred_list, "[[", 2))
-
 xgb_pred <- rowMeans(xgb_pred, na.rm=T)
-
 temp.time <- mean(sapply(xgb_pred_list, "[[", 4), na.rm=T)
-
 temp.models <- sapply(xgb_pred_list, "[[", 1)
-
 temp.varImp <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>% 
   group_by(Predictor) %>% summarise_all(mean, na.rm=T)
 
-xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time, temp.varImp)
-rm(xgb_fit, temp.time, xgb_pred_list, temp.varImp, xgb_varImp)
+## extract predicted probabilities (for later)
+temp.prediction <- raster::stack(lapply(xgb_pred_list, "[[", 6), raster)
+# take mean across layers (i.e., across runs)
+temp.prediction <- raster::calc(temp.prediction, fun = mean)
+
+xgb_pred <- list(temp.models, xgb_pred, modelName, temp.time, temp.varImp, temp.prediction)
+rm(xgb_fit, temp.time, xgb_pred_list, temp.varImp, xgb_varImp, xgb_raster)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)

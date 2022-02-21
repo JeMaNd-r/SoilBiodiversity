@@ -389,7 +389,7 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 
 ### Occurrence records
 
-First, occurrence numbers.
+First, number of occurrences.
 
 ```{r numberOcc}
 # load raw data
@@ -425,8 +425,6 @@ count_data <- count_data %>% full_join(speciesNames[,c("Species", "NumCells")], 
 count_data[is.na(count_data)] <- 0
 
 count_data
-
-
 
 write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
 ```

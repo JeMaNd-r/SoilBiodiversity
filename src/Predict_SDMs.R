@@ -25,7 +25,7 @@ fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
 ## Start predicting ####
 #- - - - - - - - - - - - - - - - - - - - - -
 
-par(mfrow=c(3,3))
+par(mfrow=c(4,4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
@@ -110,8 +110,7 @@ mars_pred <- SDMs[["mars_pred"]][[6]]
 # define background dataset (for testing data)
 modelName <- SDMs[["mars_pred"]][[3]]
 
-plot(mars_pred, main = "MARS")
-text(x=0, y=29, labels="threshold = 0.00001 (pre-defined)")
+plot(mars_pred, main = "MARS") #, sub ="threshold = 0.00001 (pre-defined)")
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt ####
@@ -149,16 +148,20 @@ brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@da
 
 plot(brt_pred, main = "BRT (GBM)")
 
+## BRT 2 (for ensemble model)
+# extract already calculated predictions
+brt2_pred <- SDMs[["brt_pred"]][[7]]
+#brt_pred
+
+# rescale between 0 and 1
+brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pred@data@max)
+
+plot(brt2_pred, main = "BRT (GBM)")
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
-xbg_fit <- SDMs[["xgb_pred"]][[1]]
-xgb_pred <- raster::predict(Env, xgb_fit)
+xgb_pred <- SDMs[["xgb_pred"]][[6]]
 
-# transform occurrence back into numeric
-xgb_pred <- as.character(xgb_pred)
-xgb_pred[xgb_pred=="C0"] <- 0
-xgb_pred[xgb_pred=="C1"] <- 1
-xgb_pred <- as.numeric(xgb_pred)
 names(xgb_pred) <- rownames(Env) #add site names
 
 # rescale between 0 and 1
