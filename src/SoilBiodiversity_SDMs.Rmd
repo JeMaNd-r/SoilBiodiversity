@@ -389,17 +389,38 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 
 ### Occurrence records
 
-First, raw occurrences as we downloaded them.
+First, occurrence numbers.
+
+```{r}
+# load raw data
+occ.raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"))
+
+# load cleaned occurrence records 
+occ.clean <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
+
+# calculate number of records per datasource
+full_join(occ.raw %>% group_by(datasource) %>% count(name="raw"), 
+          occ.clean %>% group_by(datasource) %>% count(name="clean"))
+
+# count occurrences per species & datasource
+count.data <- occ.raw %>% group_by(datasource, species) %>% count() %>%
+  pivot_wider(names_from = datasource, values_from = n) %>%
+  mutate("TotalOcc" = rowSums(count.data[,2:4])
+
+count.data
+
+
+```
+
+
+Second, raw occurrences after we downloaded and cleaned them.
 
 ```{r plotOccRaw}
-# load species list containing information on number of occurrence records in grid
-occ.raw <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
-
 # load background map
 #...
 
 # plot total species' occurrences
-plotOccRaw <- ggplot(occ.raw, 
+plotOccRaw <- ggplot(occ.clean, 
        aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)
   geom_point(cex=0.3)+
@@ -420,7 +441,7 @@ Zoom to Germany
 
 ```{r plotOccRaw_Germany}
 # plot total species' occurrences
-plotOccRawGER <- ggplot(occ.raw, 
+plotOccRawGER <- ggplot(occ.clean, 
        aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)
   geom_point(cex=0.6)+
@@ -434,11 +455,11 @@ plotOccRawGER
 
 # pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perDatasource_GER.pdf")); plotOccRawGER; dev.off()
 
-rm(plotOccRawGER, occ.raw)
+rm(plotOccRawGER, occ.clean)
 ```
 
 
-Second, we plot the data we used for the models (i.e., the gridded or rasterized data).
+Third, we plot the data we used for the models (i.e., the gridded or rasterized data).
 
 ```{r plotOcc}
 # load species list containing information on number of occurrence records in grid

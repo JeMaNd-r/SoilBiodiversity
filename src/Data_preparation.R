@@ -21,9 +21,9 @@ rm(sworm_occ, sworm_site)
 # - - - - - - - - - - - - - - - - - - -
 ## Data from GBIF ####
 
-load(file=paste0(here::here(), "/results/Occurrences_GBIF_Crassiclitellata.RData")) #dat
+dat <- read.csv(file=paste0(here::here(), "/results/Occurrences_GBIF_Crassiclitellata.csv")) #dat
 
-gbif <- dat$data[,c("species", "decimalLatitude", "decimalLongitude")] %>%
+gbif <- dat[,c("species", "decimalLatitude", "decimalLongitude")] %>%
   mutate(datasource = "GBIF")
 
 rm(dat)
@@ -74,21 +74,6 @@ data$OBJECTID <- 1:nrow(data)
 write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"),
           row.names = F)
 
-#!!! In ArcGIS: Select only points that fall into German shapefile.
-#               Save them as "Earthworm_occurrence_Germany.txt"
-
-# - - - - - - - - - - - - - - - - - - -
-## Count occurrences per species & datasource ####
-count.data <- data %>% group_by(datasource, species) %>% count() %>%
-  pivot_wider(names_from = datasource, values_from = n)
-count.data$TotalOcc <- rowSums(count.data[,2:4])
-
-count.data
-
-ggplot(data=count.data, aes(x=TotalOcc, y=species))+
-  geom_bar(stat="identity")+
-  theme(axis.text = element_text(size=4))
-
 # - - - - - - - - - - - - - - - - - - -
 ## CoordinateCleaner ####
 # flag problems with coordinates
@@ -97,7 +82,7 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
-sum(flags$.summary) #those not flagged! = 75388
+sum(flags$.summary) #those not flagged! = 75441 of 78528
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]
@@ -145,32 +130,4 @@ df.cleaning
 
 # save updated number of records during cleaning process
 write.csv(df.cleaning, file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"), row.names = F)
-
-# - - - - - - - - - - - - - - - - - - -
-## OLD CODE ####
-# to add grids per species (prepared in ArcGIS) with other occurrence data
-
-# gbif.wd <- "I:/eie/==PERSONAL/Macroecology/Students/Jessica/Grid/GBIF_Data"
-# species.folders <- list.dirs(path=gbif.wd, recursive=F)[-46]
-# 
-# gbif <- tibble::tibble(countryCode="DE", decimalLatitude=1.1, decimalLongitude=1.1, 
-#                        family="Family", genus="Genus", specificEpithet="Species")[0,]
-# 
-# for(i in 1:length(species.folders)){
-#   temp.wd <- species.folders[i]
-#   
-#   temp.data <- read.delim(paste0(temp.wd, "/occurrence.txt")) 
-#   temp.data <- temp.data[,c("countryCode", "decimalLatitude", 
-#                             "decimalLongitude", "family", "genus", "specificEpithet")]
-#   
-#   gbif <- dplyr::full_join(gbif, temp.data)
-# }
-# 
-# gbif$species <- paste(gbif$genus, gbif$specificEpithet)
-# gbif$datasource <- "GBIF"
-# 
-# gbif
-# #write.csv(gbif, here::here("data", "GBIF_Earthworms_combined.csv"))
-# 
-# rm(temp.data, gbif.wd, temp.wd, species.folders, i)
 
