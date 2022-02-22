@@ -364,7 +364,9 @@ plots <- lapply(1:length(modelNames), function(x) {
 })
 
 require(gridExtra)
+#pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
 do.call(grid.arrange, plots)
+dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save maps ####
