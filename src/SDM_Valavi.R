@@ -747,7 +747,7 @@ for(no.runs in 1:no.loop.runs){
   xgb_pred <- as.numeric(xgb_pred)
   names(xgb_pred) <- rownames(validation_env) #add site names
   
-  # caluclate variable importance (for later)
+  # calculate variable importance (for later)
   xgb_varImp <- caret::varImp(xgb_fit, scale=T) #scaled between 0 and 100% 
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
@@ -832,7 +832,10 @@ for(no.runs in 1:no.loop.runs){
   rf_pred <- as.numeric(rf_pred)
   names(rf_pred) <- rownames(validation_env) #add site names
   
-  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp.time)
+  # predict to raster (for later)
+  rf_raster <- raster::predict(Env, rf, type="prob")
+  
+  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp.time, rf_raster)
   
   #plot(rf, main = "RF")
   
@@ -863,7 +866,10 @@ for(no.runs in 1:no.loop.runs){
   rf_downsample_pred <- as.numeric(rf_downsample_pred)
   names(rf_downsample_pred) <- rownames(validation_env) #add site names
   
-  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp.time)
+  # predict to raster (for later)
+  rf_downsample_raster <- raster::predict(Env, rf_downsample, type="prob")
+  
+  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp.time, rf_downsample_raster)
 }
 
 # average all RF predictions
@@ -873,7 +879,12 @@ temp.time <- mean(sapply(rf_pred_list, "[[", 4), na.rm=T)
 
 temp.models <- sapply(rf_pred_list, "[[", 1)
 
-rf_pred <- list(temp.models, rf_pred, modelName, temp.time)
+## extract predicted probabilities (for later)
+temp.prediction <- raster::stack(lapply(rf_pred_list, "[[", 5), raster)
+# take mean across layers (i.e., across runs)
+temp.prediction <- raster::calc(temp.prediction, fun = mean)
+
+rf_pred <- list(temp.models, rf_pred, modelName, temp.time, temp.prediction)
 rm(rf, temp.time, rf_pred_list)
 
 # average all RF_downsampled predictions
@@ -883,7 +894,12 @@ temp.time <- mean(sapply(rf_downsample_pred_list, "[[", 4), na.rm=T)
 
 temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
 
-rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp.time)
+## extract predicted probabilities (for later)
+temp.prediction <- raster::stack(lapply(rf_downsample_pred_list, "[[", 5), raster)
+# take mean across layers (i.e., across runs)
+temp.prediction <- raster::calc(temp.prediction, fun = mean)
+
+rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp.time, temp.prediction)
 rm(rf_downsample, temp.time, rf_downsample_pred_list)
 
 #- - - - - - - - - - - - - - - - - - - - - 

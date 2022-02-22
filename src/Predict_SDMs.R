@@ -35,7 +35,7 @@ gm_pred <- raster::predict(Env, gm)
 # rescale between 0 and 1
 gm_pred <- fct.rescale(gm_pred, x.min = gm_pred@data@min, x.max = gm_pred@data@max)
 
-plot(gm_pred, main = "GAM")
+#plot(gm_pred, main = "GAM")
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -44,14 +44,28 @@ lm1_pred <- raster::predict(Env, lm1)
 # rescale between 0 and 1
 lm1_pred <- fct.rescale(lm1_pred, x.min = lm1_pred@data@min, x.max = lm1_pred@data@max)
 
-plot(lm1_pred, main = "GLM")
+#plot(lm1_pred, main = "GLM")
+lm1 <- ggplot(data=data.frame(rasterToPoints(lm1_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("GLM")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 # second GLM
 lm_subset <- SDMs[["lm_subset_pred"]][[1]]
 lm_subset_pred <- raster::predict(Env, lm_subset)
 lm_subset_pred <- fct.rescale(lm_subset_pred, x.min = lm_subset_pred@data@min, x.max = lm_subset_pred@data@max)
 
-plot(lm_subset_pred, main = "GLM subset")
+#plot(lm_subset_pred, main = "GLM subset")
+lm_subset <- ggplot(data=data.frame(rasterToPoints(lm_subset_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("GLM subset")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Lasso ####
@@ -89,6 +103,13 @@ lasso_pred <- as.numeric(lasso_pred)
 names(lasso_pred) <- rownames(Env) #add site names
 
 plot(lasso_pred, main = "Lasso regression")
+# lasso <- ggplot(data=data.frame(rasterToPoints(lasso_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_raster()+
+#   ggtitle("Lasso regression")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Ridge ####
@@ -100,6 +121,13 @@ ridge_pred <- as.numeric(ridge_pred)
 names(ridge_pred) <- rownames(Env) #add site names
 
 plot(ridge_pred, main = "Ridge regression")
+# ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_raster()+
+#   ggtitle("Ridge regression")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -110,7 +138,14 @@ mars_pred <- SDMs[["mars_pred"]][[6]]
 # define background dataset (for testing data)
 modelName <- SDMs[["mars_pred"]][[3]]
 
-plot(mars_pred, main = "MARS") #, sub ="threshold = 0.00001 (pre-defined)")
+#plot(mars_pred, main = "MARS") #, sub ="threshold = 0.00001 (pre-defined)")
+mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("MARS")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt ####
@@ -121,7 +156,14 @@ maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = ma
 # rescale between 0 and 1
 maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
 
-plot(maxmod_pred, main = "MaxEnt")
+#plot(maxmod_pred, main = "MaxEnt")
+maxent <- ggplot(data=data.frame(rasterToPoints(maxmod_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("MaxEnt")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 print("Note: If the MaxEnt prediction looks bad, it is maybe because of wrong (or missing) predictors...")
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -135,7 +177,14 @@ maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = ma
 # rescale between 0 and 1
 maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = maxnet_pred@data@max)
 
-plot(maxnet_pred, main = "MaxNet")
+#plot(maxnet_pred, main = "MaxNet")
+maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("MaxNet")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BRT ####
@@ -146,17 +195,31 @@ brt_pred <- SDMs[["brt_pred"]][[7]]
 # rescale between 0 and 1
 brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@data@max)
 
-plot(brt_pred, main = "BRT (GBM)")
+#plot(brt_pred, main = "BRT (GBM)")
+brt <- ggplot(data=data.frame(rasterToPoints(brt_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("BRT (GBM)")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 ## BRT 2 (for ensemble model)
 # extract already calculated predictions
-brt2_pred <- SDMs[["brt_pred"]][[7]]
+brt2_pred <- SDMs[["brt2_pred"]][[7]]
 #brt_pred
 
 # rescale between 0 and 1
 brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pred@data@max)
 
-plot(brt2_pred, main = "BRT (GBM)")
+#plot(brt2_pred, main = "BRT (GBM)")
+brt2 <- ggplot(data=data.frame(rasterToPoints(brt2_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("BRT 2 (GBM)")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -164,28 +227,54 @@ xgb_pred <- SDMs[["xgb_pred"]][[6]]
 
 names(xgb_pred) <- rownames(Env) #add site names
 
-# rescale between 0 and 1
-xgb_pred <- fct.rescale(xgb_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
+## scaling not necessary if predict(..., type="prob"), see SDM script
+# # rescale between 0 and 1
+# xgb_pred <- fct.rescale(xgb_pred, x.min = xgb_pred@data@min, x.max = xgb_pred@data@max)
 
-plot(xgb_pred, main = "XGBoost")
+#plot(xgb_pred, main = "XGBoost")
+xgb <- ggplot(data=data.frame(rasterToPoints(xgb_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("XGBoost")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF ####
-rf <- SDMs[["rf_pred"]][[1]][,sample(1, 1:ncol(SDMs[["brt_pred"]][[1]]))]
-rf_pred <- raster::predict(Env, rf, type = "prob") # prob = continuous prediction
-#head(rf_pred)
+rf_pred <- SDMs[["rf_pred"]][[5]]
+#rf_pred
 
-rf_pred <- as.numeric(rf_pred)
-names(rf_pred) <- rownames(Env) #add site names
+## scaling not necessary if predict(..., type="prob"), see SDM script
+# # rescale between 0 and 1
+# rf_pred <- fct.rescale(rf_pred, x.min = rf_pred@data@min, x.max = rf_pred@data@max)
+
+#plot(rf_pred, main = "RF")
+rf <- ggplot(data=data.frame(rasterToPoints(rf_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("RF")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF downsampled ####
-rf_downsample <- SDMs[["rf_downsample_pred"]][[1]]
-rf_downsample_pred <- predict(rf_downsample, Env, type = "prob")[, "1"] # prob = continuous prediction
-#head(rf_downsample_pred)
+rf_downsample_pred <- SDMs[["rf_downsample_pred"]][[5]]
+#rf_downsample_pred
 
-rf_downsample_pred <- as.numeric(rf_downsample_pred)
-names(rf_downsample_pred) <- rownames(Env) #add site names
+## scaling not necessary if predict(..., type="prob"), see SDM script
+# # rescale between 0 and 1
+# rf_downsample_pred <- fct.rescale(rf_downsample_pred, x.min = rf_downsample_pred@data@min, x.max = rf_downsample_pred@data@max)
+
+#plot(rf_downsample_pred, main = "RF downsampled")
+rf_downsample <- ggplot(data=data.frame(rasterToPoints(rf_downsample_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("RF downsampled")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## SVM ####
@@ -193,11 +282,16 @@ svm_e <- SDMs[["svm_pred"]][[1]]
 svm_pred <- raster::predict(Env, svm_e, probability = TRUE)
 svm_prob <- attr(svm_pred, "probabilities")[,"1"]
 
-# see the first few predictions
-#head(svm_prob)
+#svm_prob
 
-svm_prob <- as.numeric(svm_prob)
-names(svm_prob) <- rownames(Env) #add site names
+#plot(svm_pred, main = "SVM")
+svm <- ggplot(data=data.frame(rasterToPoints(svm_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("SVM")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BIOMOD ####
@@ -218,6 +312,15 @@ myBiomodEnProj <- BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
                                              EM.output = myBiomodEM,
                                              selected.models = "all")
 
+#plot(myBiomodEnProj, main = "Biomod")
+biomod <- ggplot(data=data.frame(rasterToPoints(myBiomodEnProj)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("Biomod")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
 # create Raster stack of the models to be merged
@@ -226,6 +329,42 @@ ensm_pred <- raster::stack(gm_pred, maxmod_pred) #lasso_pred, brt2_pred, rf2_pre
 # average the predictions
 ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 
+#plot(ensm_pred, main = "Biomod")
+ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=layer))+
+  geom_raster()+
+  ggtitle("Ensemble")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Plot all maps ####
+#- - - - - - - - - - - - - - - - - - - - - -
+modelNames <- c("lm1", "lm_subset", "gm", "mars", "maxmod", "maxnet", "xgb", "rf", "rf_downsample", 
+                #"svm", "biomod", 
+                "ensm")
+
+model_list <- list(lm1_pred, lm_subset_pred, gm_pred, mars_pred, maxmod_pred, maxnet_pred, xgb_pred, rf_pred, rf_downsample_pred, 
+                   #svm_pred, biomod_pred,
+                   ensm_pred)
+names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred", "mars_pred", "maxmod_pred", "maxnet_pred", "xgb_pred", "rf_pred", "rf_downsample_pred", 
+                   #"svm_pred", "biomod_pred",
+                   "ensm_pred")
+
+plots <- lapply(1:length(modelNames), function(x) {
+  temp.pred <- model_list[[paste0(modelNames[x], "_pred")]]
+  ggplot(data=data.frame(rasterToPoints(temp.pred)), aes(x=x, y=y, fill=layer))+
+    geom_raster()+
+    ggtitle(modelNames[x])+
+    scale_fill_viridis_c(limits = c(0,1))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4))
+})
+
+require(gridExtra)
+do.call(grid.arrange, plots)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save maps ####
@@ -243,6 +382,7 @@ names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "r
 # save all predictions
 #save(stack_pred, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Taxon_name, "_", spID, ".RData"))
 
+#- - - - - - - - - - - - - - - - - - - - - -
 ## Save best performing model prediction only
 # read model performance evaluation table
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
