@@ -418,15 +418,17 @@ maxmod <- dismo::maxent(x = training[, covarsNames],
                         args = param_optim)
 temp.time <- Sys.time() - tmp
 
-maxmod_pred <- predict(maxmod, validation_env)
+maxmod_pred <- dismo::predict(maxmod, validation_env)
 names(maxmod_pred) <- rownames(validation_env) #add site names
 #head(maxmod_pred)
 
 maxmod_pred <- as.numeric(maxmod_pred)
 names(maxmod_pred) <- rownames(validation_env) #add site names
 
+# create raster layer of predictions for whole environmental space
+maxmod_raster <- raster::predict(myExpl, maxmod)
 
-maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp.time)
+maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp.time, maxmod_raster)
 rm(maxmod, temp.time)
 
 ## MaxNet
@@ -449,7 +451,10 @@ head(maxnet_pred)
 maxnet_pred <- as.numeric(maxnet_pred)
 names(maxnet_pred) <- rownames(validation_env) #add site names
 
-maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp.time)
+# create raster layer of predictions for whole environmental space
+maxnet_raster <- raster::predict(myExpl, maxnet)
+
+maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp.time, maxnet_raster)
 rm(maxnet, temp.time)
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1140,7 +1145,7 @@ myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM),
 temp.varImp <- biomod2::get_variables_importance(myBiomodEM)[, , "Lumb.terr_EMmeanByROC_mergedAlgo_mergedRun_mergedData"]
 
 biomod_pred <- list(myBiomodModelEval, biomod_pred, modelName, temp.time, temp.varImp)
-rm(temp.varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
+#rm(temp.varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
 
 setwd(here::here())  
 

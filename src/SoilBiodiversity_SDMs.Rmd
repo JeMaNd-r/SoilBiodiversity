@@ -33,7 +33,7 @@ library(remotes) #to download package from github
 
 ## for regularized regressions
 # installing the package from github
-remotes::install_github("rvalavi/myspatial")
+#remotes::install_github("rvalavi/myspatial")
 library(glmnet)
 library(myspatial)
 

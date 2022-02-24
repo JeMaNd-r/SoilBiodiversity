@@ -14,6 +14,9 @@ load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 Env <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
 Env <- crop(Env, extent_Europe) # crop to Europe
 
+# read model performance evaluation table (for threshold MaxEnt & saving best model)
+mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
+
 # define function to rescale raster (for predicted occurrence) between 0 and 1
 fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
   if(is.null(x.min)) {x.min = min(x)}
@@ -149,15 +152,14 @@ mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=la
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt ####
-maxmod <- SDMs[["maxmod_pred"]][[1]]
-maxmod_pred <- dismo::predict(maxmod, Env)
-maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
+maxmod_pred <- SDMs[["maxmod_pred"]][[5]]
+#maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
 
-# rescale between 0 and 1
-maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
+# get threshold from model evaluation table
+thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
 
 #plot(maxmod_pred, main = "MaxEnt")
-maxent <- ggplot(data=data.frame(rasterToPoints(maxmod_pred)), aes(x=x, y=y, fill=layer))+
+maxent <- ggplot(data=data.frame(rasterToPoints(maxmod_pred>=thresh)), aes(x=x, y=y, fill=layer))+
   geom_raster()+
   ggtitle("MaxEnt")+
   scale_fill_viridis_c(limits = c(0,1))+
@@ -166,19 +168,19 @@ maxent <- ggplot(data=data.frame(rasterToPoints(maxmod_pred)), aes(x=x, y=y, fil
         legend.position = c(0.1,0.4))
 print("Note: If the MaxEnt prediction looks bad, it is maybe because of wrong (or missing) predictors...")
 
+rm(thresh)
+
 #- - - - - - - - - - - - - - - - - - - - - -
 # MaxNet ####
-mxnet <- SDMs[["maxnet_pred"]][[1]]
-maxnet_pred <- raster::predict(Env, mxnet)
-maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = maxnet_pred@data@max)
-#maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@max, x.max = maxnet_pred@data@min)
+mxnet <- SDMs[["maxnet_pred"]][[5]]
+#maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = maxnet_pred@data@max)
 # Note: if max and min are changed, map fits better to GLM etc. ...
 
-# rescale between 0 and 1
-maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = maxnet_pred@data@max)
+# get threshold from model evaluation table
+thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
 
 #plot(maxnet_pred, main = "MaxNet")
-maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred)), aes(x=x, y=y, fill=layer))+
+maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=thresh)), aes(x=x, y=y, fill=layer))+
   geom_raster()+
   ggtitle("MaxNet")+
   scale_fill_viridis_c(limits = c(0,1))+
@@ -186,6 +188,7 @@ maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred)), aes(x=x, y=y, fil
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
 
+rm(thresh)
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BRT ####
 # extract already calculated predictions
@@ -386,9 +389,6 @@ names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "r
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save best performing model prediction only
-# read model performance evaluation table
-mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
-
 # select best model based on TSS
 best_model <- mod_eval[mod_eval$tss == max(mod_eval$tss), "model"]
 best_pred <- stack_pred[[best_model]]
