@@ -40,7 +40,7 @@ for(i in 1:length(SDMs)){
   
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
-  if(temp.model=="biomod_pred") {
+  if(temp.model=="biomod_pred") { try({
     myBiomodModelEval <- SDMs[["biomod_pred"]][[1]]
     
     # define background dataset (for testing data)
@@ -92,13 +92,13 @@ for(i in 1:length(SDMs)){
     try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
      
     mod_eval[i,]$model <- temp.model
-    try(mod_eval[i,]$time <- SDMs[[i]][[4]])
+    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- number.models
     
     rm(prg, temp.model, modelName, precrec_obj)
     
-  }else{  # all except BIOMOD modeling
+  })}else{ try({ # all except BIOMOD modeling
     
     # if necessary, unlist models
     if(length(SDMs[[i]])>6) {
@@ -171,10 +171,10 @@ for(i in 1:length(SDMs)){
     try(mod_eval[i,]$kappa <- temp.kappa)
     try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
     mod_eval[i,]$model <- temp.model
-    try(mod_eval[i,]$time <- SDMs[[i]][[4]])
+    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- number.models
-  }
+  })}
   
   rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
 }
