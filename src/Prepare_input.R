@@ -8,10 +8,8 @@
 ## needed for biomod again
 # environmental (explanatory) variables as raster file
 myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-# crop to Europe
-for(i in 1:nlayers(myExpl)) {
-  myExpl[[i]] <- raster::mask(myExpl[[i]], 
-                              as(extent(extent_Europe), 'SpatialPolygons'))}
+myExpl <- crop(myExpl, extent_Europe) # crop to Europe
+myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## define function to split data ####
@@ -140,26 +138,25 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
     load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_bg.glm1_", Taxon_name,"_", temp.species, ".RData"))  #validation_pa
     load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_bg.glm1_", Taxon_name,"_", temp.species, ".RData")) #validation_env
     
-    tmp <- Sys.time()
-    bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = bg.list[["bg.biomod"]][["myResp"]],
-                                               expl.var = myExpl,
-                                               resp.xy = bg.list[["bg.biomod"]][["myRespCoord"]],
-                                               resp.name = bg.list[["bg.biomod"]][["myRespName"]],
-                                               PA.nb.rep = bg.list[["bg.biomod"]][["temp.runs"]],
-                                               PA.nb.absences = bg.list[["bg.biomod"]][["temp.number"]],
-                                               PA.strategy = bg.list[["bg.biomod"]][["temp.strategy"]],
-                                               eval.expl.var = validation_env,
-                                               eval.resp.var = validation_pa[,"occ"], 
-                                               eval.resp.xy = validation_pa[,c("x", "y")])
-    temp.time <- Sys.time() - tmp
-    
-    
-    training <- bg.biomod
+    # tmp <- Sys.time()
+    # bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = bg.list[["bg.biomod"]][["myResp"]],
+    #                                            expl.var = myExpl,
+    #                                            resp.xy = bg.list[["bg.biomod"]][["myRespCoord"]],
+    #                                            resp.name = bg.list[["bg.biomod"]][["myRespName"]],
+    #                                            PA.nb.rep = bg.list[["bg.biomod"]][["temp.runs"]],
+    #                                            PA.nb.absences = bg.list[["bg.biomod"]][["temp.number"]],
+    #                                            PA.strategy = bg.list[["bg.biomod"]][["temp.strategy"]],
+    #                                            #eval.expl.var = validation_env,
+    #                                            #eval.resp.var = validation_pa[,"occ"], 
+    #                                            #eval.resp.xy = validation_pa[,c("x", "y")],
+    #                                            )
+    # temp.time <- Sys.time() - tmp
+    # 
+     
+    training <- bg.list[["bg.biomod"]]
     
     ## take validation data from bg.glm 
     # NOTE: validation only needed if no evaluation data provided above (eval.expl etc. ...)!
-    #load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-    #load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", "bg.glm",runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
     
     # save datasets for BIOMOD
     save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
