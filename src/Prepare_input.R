@@ -13,7 +13,7 @@ myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## define function to split data ####
-split.data <- function(x){
+split.data <- function(x, normalizing = TRUE){
   training <- x
   
   # split data into training (80%, including testing data), and validation data (20%)
@@ -38,11 +38,13 @@ split.data <- function(x){
   # normalize the covariates (exept categorical)
   # *notice: not all the models are fitted on normalized data in
   # the main analysis! Please check Valavi et al. 2021.
-  for(v in covarsNames[covarsNames %in% colnames(x)]){
-    meanv <- mean(training[,v], na.rm=T)
-    sdv <- sd(training[,v], na.rm=T)
-    training[,v] <- (training[,v] - meanv) / sdv
-    validation_env[,v] <- (validation_env[,v] - meanv) / sdv
+  if(isTRUE(normalizing)){
+    for(v in covarsNames[covarsNames %in% colnames(x)]){
+      meanv <- mean(training[,v], na.rm=T)
+      sdv <- sd(training[,v], na.rm=T)
+      training[,v] <- (training[,v] - meanv) / sdv
+      validation_env[,v] <- (validation_env[,v] - meanv) / sdv
+    }
   }
   
   # # print the first few rows and columns
@@ -110,22 +112,36 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
     }  
     
     ## split all datasets into training, testing and validation data
-   
+    # but first, copy bg.glm to choose to normalize/not normalize 
+    bg.list[["bg.maxent"]] <- bg.list[["bg.glm"]]
+    bg.list[["bg.lasso"]] <- bg.list[["bg.glm"]]
+    
     # now we run the function for all data
-    for(k in 1:(length(bg.list)-1)){ #exclude biomod data
+    for(k in 1:(length(bg.list))){
       modelName <- names(bg.list)[k]
       
-      # if we have only a dataframe in the current list element, its easy
-      if(class(bg.list[[k]])!="list"){
-        runningNumber <- 1
-        split.data(bg.list[[k]])
+      # GLM/ GAM
+      if(modelName == "bg.glm"){ 
+        split.data(bg.list[[k]], normalizing = TRUE)
+      }
+      
+      # MaxEnt or Lasso/ Ridge     
+      if(modelName == "bg.maxent" | modelName == "bg.lasso"){
+        split.data(bg.list[[k]], normalizing = FALSE)
+      }
+      
+      # MARS/ RF/ BRT/ SVM
+      if(modelName == "bg.mars" | modelName == "bg.rf" | modelName == "bg.mda"){
+          # if we have only a dataframe in the current list element, its easy
+          if(class(bg.list[[k]])!="list"){
+            runningNumber <- 1
+            plit.data(bg.list[[k]], normalizing = TRUE)
         
-        # if we have a list of dataframes, we have to specify the right list layer
-      }else{
-        for(l in 1:length(bg.list[[k]])){
-          runningNumber <- l
-          split.data(bg.list[[k]][[l]])
-        }
+          # if we have a list of dataframes, we have to specify the right list layer
+          }else{ for(l in 1:length(bg.list[[k]])){
+              runningNumber <- l
+              split.data(bg.list[[k]][[l]], normalizing = TRUE)
+          }}
       }
     }
     
