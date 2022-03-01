@@ -63,18 +63,6 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
                                  PA.strategy = temp.strategy)
   temp.time <- Sys.time() - tmp
   
-  ## save as it is for BIOMOD
-  bg.biomod <- list("bg.biomod"=bg.glm, "myResp"=myResp, "myRespCoord"=myRespCoord, "myRespName"=myRespName,
-                    "temp.runs"=temp.runs, "temp.number"=temp.number, "temp.strategy"=temp.strategy)
-  
-  # add model settings into summary table
-  temp.dat <- data.frame(SpeciesID=myRespName, model="BIOMOD", strategy=temp.strategy,
-                         No.runs=temp.runs, No.points=temp.number, 
-                         min.distance=NA, run.time=temp.time)
-  model.settings <- rbind(model.settings, temp.dat)
-  rm(temp.dat)
-  
-  # continue processing for GLM and GAM
   if(temp.runs==1){
     bg.glm <- cbind(bg.glm@data.species, bg.glm@coord, bg.glm@data.env.var)
   }else{
@@ -215,8 +203,35 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export
   
   rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
   
+  #- - - - - - - - - - - - - - - - - - - 
+  ## BIOMOD ####
+  temp.runs <- 1
+  temp.number <- 50000 * 0.8 # take only 80% of the data as the other ones will
+  # be splitted in "Prepare_input.r" in 80% trainign and 20% testing...
+  temp.strategy <- "random"
   
-  ## THE END
+  tmp <- Sys.time()
+  bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
+                                             expl.var = myExpl,
+                                             resp.xy = myRespCoord,
+                                             resp.name = myRespName,
+                                             PA.nb.rep = temp.runs,
+                                             PA.nb.absences = temp.number,
+                                             PA.strategy = temp.strategy)
+  temp.time <- Sys.time() - tmp
+  
+  # NOTE: testing data and validation data will be used from bg.glm
+  # therefore, we need to save some parameters for later
+  bg.biomod <- list("bg.biomod"=bg.biomod, "myResp"=myResp, "myRespCoord"=myRespCoord, "myRespName"=myRespName,
+                    "temp.runs"=temp.runs, "temp.number"=temp.number, "temp.strategy"=temp.strategy)
+  
+  # add model settings into summary table
+  temp.dat <- data.frame(SpeciesID=myRespName, model="BIOMOD", strategy=temp.strategy,
+                         No.runs=temp.runs, No.points=temp.number, 
+                         min.distance=NA, run.time=temp.time)
+  model.settings <- rbind(model.settings, temp.dat)
+  
+  rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
   
   print(model.settings)
   print("The strategy used for GLM/GAM can be used for other models than listed.")
