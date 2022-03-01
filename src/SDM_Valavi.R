@@ -13,6 +13,7 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 # load environmental variables (for projections)
 myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
 myExpl <- crop(myExpl, extent_Europe) # crop to Europe
+myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
@@ -1128,7 +1129,8 @@ myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
 # ensemble modeling using mean probability
 myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
                                                chosen.models = "all",  # all algorithms
-                                               em.by = "all",    #evaluated over evaluation data if given (it is, see Prepare_input.R)
+                                               em.by = "all",    #evaluated over evaluation data if given (it is not, see Prepare_input.R)
+                                               # note: evaluation not that important as we will calculate measures on independent data
                                                eval.metric = c("ROC"), # 'all' would takes same as above in BIOMOD_Modelling
                                                eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
                                                prob.mean = TRUE, #estimate mean probabilities across predictions
