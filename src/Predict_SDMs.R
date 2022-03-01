@@ -358,8 +358,9 @@ ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=la
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Plot all maps ####
 #- - - - - - - - - - - - - - - - - - - - - -
-modelNames <- c("lm1", "lm_subset", "gm", "mars", "maxmod", "maxnet", "xgb", "rf", "rf_downsample", 
-                #"svm", "biomod", 
+modelNames <- c("lm1", "lm_subset", "gm", "mars", "maxmod", "maxnet", "xgb", 
+                "rf", "rf_downsample", "svm", 
+                # "biomod", 
                 "ensm")
 
 model_list <- list(lm1_pred, lm_subset_pred, gm_pred, mars_pred, maxmod_pred, maxnet_pred, xgb_pred, rf_pred, rf_downsample_pred, 

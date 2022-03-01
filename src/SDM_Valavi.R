@@ -156,6 +156,13 @@ rm(lm_subset, lm1, temp.time, mod_scope)
 ## Regularized regressions: LASSO and RIDGE regression ####
 ##- - - - - - - - - - - - - - - - - - - - -
 
+modelName <- "bg.lasso"
+
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
+
 # generating the quadratic terms for all continuous variables
 # function to creat quadratic terms for lasso and ridge
 quad_obj <- make_quadratic(training, cols = covarsNames)
@@ -343,7 +350,7 @@ training$occ <- as.numeric(training$occ)
 ## MaxEnt and MaxNet ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-modelName <- "bg.glm"
+modelName <- "bg.maxent"
 
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name), 
@@ -1008,18 +1015,17 @@ for(no.runs in 1:no.loop.runs){
   svm_pred <- as.numeric(svm_pred)
   names(svm_pred) <- temp.names #add site names
   
-  # predict for whole environmental space (for later)
-  svm_raster <- e1071:::predict.svm(svm_e, as.data.frame(raster::rasterToPoints(myExpl))[,covarsNames], probability=TRUE)
-  svm_raster <- attr(svm_raster, "probabilities")[,"1"] 
+  ## predict for whole environmental space (for later)
+  # prepare raster
+  Env_df <- raster::rasterToPoints(myExpl, spatial=T)
   
-  svm_raster <- data.frame(site = names(svm_raster), prediction = svm_raster)
+  # predict
+  svm_raster <- e1071:::predict.svm(svm_e, Env_df@data[,covarsNames], probability=TRUE)
+  Env_df$pred <- attr(svm_raster, "probabilities")[,"1"] 
   
-  svm_raster <- svm_raster %>% full_join(as.data.frame(raster::rasterToPoints(myExpl)) %>%
-                             mutate("site" = rownames(as.data.frame(raster::rasterToPoints(myExpl)))) %>%
-                             dplyr::select("x", "y", "site"))
-  
-  rasterFromXYZ(svm_raster[,c("x", "y", "prediction")])
-  
+  # make to raster
+  svm_raster <- raster::rasterize(Env_df, Env, field="pred")
+
   svm_pred_list[[no.runs]] <- list(svm_e, svm_pred, modelName, temp.time, svm_raster)
 }
 
@@ -1035,11 +1041,8 @@ temp.prediction <- raster::stack(lapply(svm_pred_list, "[[", 5), raster)
 # take mean across layers (i.e., across runs)
 temp.prediction <- raster::calc(temp.prediction, fun = mean)
 
-svm_pred <- list(temp.models, svm_pred, modelName, temp.time)
+svm_pred <- list(temp.models, svm_pred, modelName, temp.time, temp.prediction)
 rm(svm_e, temp.time, svm_prob, svm_pred_list)
-
-# transform occurrence column back to numeric
-training$occ <- as.numeric(training$occ)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## biomod ####
