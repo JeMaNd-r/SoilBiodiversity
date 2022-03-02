@@ -434,11 +434,9 @@ temp.time <- Sys.time() - tmp
 temp.time <- c(round(as.numeric(temp.time), 3), units(temp.time))
 
 maxmod_pred <- dismo::predict(maxmod, validation_env)
-names(maxmod_pred) <- rownames(validation_env) #add site names
-#head(maxmod_pred)
-
 maxmod_pred <- as.numeric(maxmod_pred)
 names(maxmod_pred) <- rownames(validation_env) #add site names
+#head(maxmod_pred)
 
 # create raster layer of predictions for whole environmental space
 maxmod_raster <- raster::predict(myExpl, maxmod)
@@ -462,9 +460,9 @@ temp.time <- c(round(as.numeric(temp.time), 3), units(temp.time))
 
 # predicting with MaxNet
 maxnet_pred <- predict(maxnet, validation_env, type = c("cloglog"))[, 1]
+maxnet_pred <- as.numeric(maxnet_pred)
 head(maxnet_pred)
 
-maxnet_pred <- as.numeric(maxnet_pred)
 names(maxnet_pred) <- rownames(validation_env) #add site names
 
 # create raster layer of predictions for whole environmental space
@@ -1057,7 +1055,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # create biomod data format
-myBiomodData <- training
+myBiomodData <- training$bg.biomod
 
 myRespName <- "occ"
 
@@ -1107,7 +1105,7 @@ myRespName <- "occ"
 # Note: try this out to see if GAM works
 myBiomodOption <- BIOMOD_ModelingOptions(
   GAM = list (k = -1), #avoid error messages
-  MAXENT.Phillips = list( path_to_maxent.jar ="/maxent_files" ), # change it to maxent directory
+  MAXENT.Phillips = list( path_to_maxent.jar =paste0(here::here(), "/results/maxent.jar" )), # change it to maxent directory
   )
 
 # models to predict with
