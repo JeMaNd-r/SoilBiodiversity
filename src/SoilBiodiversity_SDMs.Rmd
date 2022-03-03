@@ -91,11 +91,13 @@ DiagrammeR::grViz("digraph {
   rec2 [label = 'Step 2. Environmental Data']
   rec3 [label =  'Step 3. Species Distribution Models (SDMs)']
   rec4 [label = 'Step 4. Diversity Maps']
+  rec5 [label = 'Step 5. Evaluation']
   
   # edge definitions with the node IDs
   rec1 -> rec3;
   rec2 -> rec3;
-  rec3 -> rec4
+  rec3 -> rec4;
+  rec4 -> rec5;
   }",
   height = 500)
 ```
@@ -153,16 +155,9 @@ First, we have to get the biodiversity data that is, occurrence data on diverse 
 
 We use different data sources to download occurrence data. Same have to be downloaded manually.
 
-### Download using "taxize" package
-
-The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
-
 We first run the script to download and clean the data. We use the package CoordinateCleaner to identify occurrence records with geospatial issues. We also remove records collected before 1990. 
 
 Note: If we download all available data (or the maximum limit of 100,000), it will take a while. If GBIF has more than 100,000 occurrence records, we need to download the data in several steps.
-
-```{r downloadTaxize, include=FALSE}
-```
 
 ```{r cleanOcc}
 source(file=paste0(here::here(),"Clean_occurrences.R"))
@@ -209,6 +204,10 @@ hist(species.list$NumCells)
 ```
 
 The histogram shows us that most species occur in less than 500 grid cells.
+
+## Species correlations
+
+... forgot why I wanted to do this...
 
 
 # Environmental data
@@ -425,11 +424,17 @@ count_data <- count_data %>% full_join(speciesNames[,c("Species", "NumCells")], 
 # replace NA with 0
 count_data[is.na(count_data)] <- 0
 
+# add info if species was analysed or not
+count_data$Included <- FALSE
+count_data[count_data$NumCells>=5, "Included"] <- TRUE 
+
+# sort by included or not, and have a look
+count_data <- count_data %>% arrange(desc(Included), species)
 count_data
 
+# save
 write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
 ```
-
 
 Second, raw occurrences after we downloaded and cleaned them.
 
