@@ -1,0 +1,36 @@
+---
+title: "Earthworms and their conservation"
+author: "Romy Zeiss"
+date: "3/3/2022"
+output: html_document
+---
+
+## Setup 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+library(taxize)
+
+here::here()
+```
+
+Load files
+
+```{r}
+# define the species you wanted names
+#speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv")) #number of records added
+```
+
+
+### Get protection status of each species using "taxize"
+
+The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
+
+```{r getRLStatus, include=FALSE}
+test <- lapply(speciesNames$Species, function(x) taxize::iucn_summary(x))
+test2 <- lapply(test, function(x) taxize::iucn_status(x))
+do.call(c, test2)
+```
