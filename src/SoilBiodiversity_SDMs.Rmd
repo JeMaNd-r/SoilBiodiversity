@@ -409,7 +409,7 @@ full_join(occ_raw %>% group_by(datasource) %>% count(name="raw"),
 read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
 
 
-# count occurrences per species & datasource
+# count occurrences per species & data source
 count_data <- occ_raw %>% group_by(datasource, species) %>% count() %>%
   pivot_wider(names_from = datasource, values_from = n) %>%
   full_join(occ_clean %>% group_by(datasource, species) %>% count() %>%
@@ -435,6 +435,18 @@ count_data
 # save
 write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
 ```
+
+Add information of functional (ecological) groups, and visualize.
+
+```{r numOccFG}
+count_data <- count_data %>% full_join(speciesNames %>%
+                                         dplyr::select(-NumCells, - Group_name), by=c("species" = "Species"))
+count_data
+
+ggplot(count_data %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup_Bottinelli))+
+  geom_bar(stat = "identity")
+```
+
 
 Second, raw occurrences after we downloaded and cleaned them.
 
