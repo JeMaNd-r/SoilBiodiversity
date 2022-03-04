@@ -1,5 +1,7 @@
 How do we get species (backbone) lists of soil taxa?
 
+-> direct request at Landesämter!(?)
+
 Earthworms (Lumbricidae)
 - German checklist
 - H. Phillips...
