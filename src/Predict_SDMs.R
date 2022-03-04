@@ -148,7 +148,7 @@ ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
 # load pre-calculated predictions
-mars_pred <- SDMs[["mars_pred"]][[6]]
+mars_pred <- SDMs[["mars_pred"]][[7]]
 #mars_pred
 
 # define background dataset (for testing data)
@@ -165,48 +165,44 @@ mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=la
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt ####
-maxmod_pred <- SDMs[["maxmod_pred"]][[5]]
-#maxmod_pred <- fct.rescale(maxmod_pred, x.min = maxmod_pred@data@min, x.max = maxmod_pred@data@max)
+maxent_pred <- SDMs[["maxmod_pred"]][[6]]
+#maxent_pred <- fct.rescale(maxmod_pred, x.min = maxent_pred@data@min, x.max = maxent_pred@data@max)
 
 # get threshold from model evaluation table
-thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
+maxent_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
 
-#plot(maxmod_pred, main = "MaxEnt")
-maxent <- ggplot(data=data.frame(rasterToPoints(maxmod_pred>=thresh)), aes(x=x, y=y, fill=layer))+
+#plot(maxent_pred, main = "MaxEnt")
+maxent <- ggplot(data=data.frame(rasterToPoints(maxent_pred>=maxent_thresh)), aes(x=x, y=y, fill=layer))+
   geom_tile()+
-  ggtitle("MaxEnt")+
+  ggtitle("MaxEnt", subtitle=paste0("Threshold = ", maxent_thresh))+
   scale_fill_viridis_c(limits = c(0,1))+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
 print("Note: If the MaxEnt prediction looks bad, it is maybe because of wrong (or missing) predictors...")
 
-rm(thresh)
-
 #- - - - - - - - - - - - - - - - - - - - - -
 # MaxNet ####
-maxnet_pred <- SDMs[["maxnet_pred"]][[5]]
+maxnet_pred <- SDMs[["maxnet_pred"]][[6]]
 #maxnet_pred <- fct.rescale(maxnet_pred, x.min = maxnet_pred@data@min, x.max = maxnet_pred@data@max)
 # Note: if max and min are changed, map fits better to GLM etc. ...
 
 # get threshold from model evaluation table
-thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
+maxnet_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
 
 #plot(maxnet_pred, main = "MaxNet")
-maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=thresh)), aes(x=x, y=y, fill=layer))+
+maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=maxnet_thresh)), aes(x=x, y=y, fill=layer))+
   geom_tile()+
-  ggtitle("MaxNet")+
+  ggtitle("MaxNet", subtitle=paste0("Threshold = ", maxnet_thresh))+
   scale_fill_viridis_c(limits = c(0,1))+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
 
-rm(thresh)
-
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BRT ####
 # extract already calculated predictions
-brt_pred <- SDMs[["brt_pred"]][[7]]
+brt_pred <- SDMs[["brt_pred"]][[8]]
 #brt_pred
 
 # rescale between 0 and 1
@@ -223,7 +219,7 @@ brt <- ggplot(data=data.frame(rasterToPoints(brt_pred)), aes(x=x, y=y, fill=laye
 
 ## BRT 2 (for ensemble model)
 # extract already calculated predictions
-brt2_pred <- SDMs[["brt2_pred"]][[7]]
+brt2_pred <- SDMs[["brt2_pred"]][[8]]
 #brt_pred
 
 # rescale between 0 and 1
@@ -240,7 +236,7 @@ brt2 <- ggplot(data=data.frame(rasterToPoints(brt2_pred)), aes(x=x, y=y, fill=la
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
-xgb_pred <- SDMs[["xgb_pred"]][[6]]
+xgb_pred <- SDMs[["xgb_pred"]][[7]]
 
 names(xgb_pred) <- rownames(Env) #add site names
 
@@ -259,7 +255,7 @@ xgb <- ggplot(data=data.frame(rasterToPoints(xgb_pred)), aes(x=x, y=y, fill=laye
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF ####
-rf_pred <- SDMs[["rf_pred"]][[5]]
+rf_pred <- SDMs[["rf_pred"]][[6]]
 #rf_pred
 
 ## scaling not necessary if predict(..., type="prob"), see SDM script
@@ -275,9 +271,26 @@ rf <- ggplot(data=data.frame(rasterToPoints(rf_pred)), aes(x=x, y=y, fill=layer)
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
 
+## RF 2
+rf2_pred <- SDMs[["rf2_pred"]][[6]]
+#rf_pred
+
+## scaling not necessary if predict(..., type="prob"), see SDM script
+# # rescale between 0 and 1
+# rf_pred <- fct.rescale(rf_pred, x.min = rf_pred@data@min, x.max = rf_pred@data@max)
+
+#plot(rf_pred, main = "RF")
+rf2 <- ggplot(data=data.frame(rasterToPoints(rf2_pred)), aes(x=x, y=y, fill=layer))+
+  geom_tile()+
+  ggtitle("RF for Ensemble")+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF downsampled ####
-rf_downsample_pred <- SDMs[["rf_downsample_pred"]][[5]]
+rf_downsample_pred <- SDMs[["rf_downsample_pred"]][[6]]
 #rf_downsample_pred
 
 ## scaling not necessary if predict(..., type="prob"), see SDM script
@@ -295,7 +308,7 @@ rf_downsample <- ggplot(data=data.frame(rasterToPoints(rf_downsample_pred)), aes
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## SVM ####
-svm_pred <- SDMs[["svm_pred"]][[5]]
+svm_pred <- SDMs[["svm_pred"]][[6]]
 
 ## scaling not necessary if predict(..., probability=TRUE), see SDM script
 # # rescale between 0 and 1
@@ -312,26 +325,15 @@ svm <- ggplot(data=data.frame(rasterToPoints(svm_pred)), aes(x=x, y=y, fill=laye
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BIOMOD ####
-myBiomodEM <- SDMs[["biomod_pred"]][[1]][[1]]
-myBiomodModelOut <- SDMs[["biomod_pred"]][[1]][[2]]
+biomod_pred <- SDMs[["biomod_pred"]][[7]]
 
-# project single models
-myBiomodProj <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                  new.env = as.data.frame(Env[, covarsNames]),
-                                  proj.name = "modeling",
-                                  selected.models = "all",
-                                  binary.meth = "ROC",
-                                  compress = TRUE,
-                                  clamping.mask = TRUE)
+# rescale between 0 and 1
+biomod_pred <- fct.rescale(biomod_pred, x.min = biomod_pred@data@min, x.max = biomod_pred@data@max)
+names(biomod_pred) <- "layer"
 
-# project ensemble of all models
-myBiomodEnProj <- BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
-                                             EM.output = myBiomodEM,
-                                             selected.models = "all")
-
-#plot(myBiomodEnProj, main = "Biomod")
-biomod <- ggplot(data=data.frame(rasterToPoints(myBiomodEnProj)), aes(x=x, y=y, fill=layer))+
-  geom_raster()+
+#plot(biomod_pred, main = "Biomod")
+biomod <- ggplot(data=data.frame(rasterToPoints(biomod_pred)), aes(x=x, y=y, fill=layer))+
+  geom_tile()+
   ggtitle("Biomod")+
   scale_fill_viridis_c(limits = c(0,1))+
   theme_bw()+
@@ -348,7 +350,7 @@ ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 
 #plot(ensm_pred, main = "Biomod")
 ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=layer))+
-  geom_raster()+
+  geom_tile()+
   ggtitle("Ensemble")+
   scale_fill_viridis_c(limits = c(0,1))+
   theme_bw()+
@@ -358,20 +360,51 @@ ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=la
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Plot all maps ####
 #- - - - - - - - - - - - - - - - - - - - - -
-modelNames <- c("lm1", "lm_subset", "gm", "mars", "maxmod", "maxnet", "xgb", 
-                "rf", "rf_downsample", "svm", 
-                # "biomod", 
-                "ensm")
+modelNames <- c("lm1", "lm_subset", "gm", 
+                # "lasso", "ridge",
+                "mars","maxent","maxnet", "xgb", 
+                "rf", "rf_downsample", "svm", "biomod", "ensm")
 
-model_list <- list(lm1_pred, lm_subset_pred, gm_pred, mars_pred, maxmod_pred, maxnet_pred, xgb_pred, rf_pred, rf_downsample_pred, 
-                   #svm_pred, biomod_pred,
-                   ensm_pred)
-names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred", "mars_pred", "maxmod_pred", "maxnet_pred", "xgb_pred", "rf_pred", "rf_downsample_pred", 
-                   #"svm_pred", "biomod_pred",
-                   "ensm_pred")
+model_list <- list(lm1_pred, lm_subset_pred, gm_pred, 
+                   # "lasso", "ridge",
+                   mars_pred, maxent_pred, 
+                   maxnet_pred,  xgb_pred, rf_pred, rf_downsample_pred, 
+                   svm_pred, biomod_pred, ensm_pred)
+names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred", 
+                       # "lasso", "ridge",
+                       "mars_pred", 
+                       "maxent_pred", "maxnet_pred", "xgb_pred", 
+                       "rf_pred", "rf_downsample_pred", "svm_pred", "biomod_pred","ensm_pred")
 
 plots <- lapply(1:length(modelNames), function(x) {
   temp.pred <- model_list[[paste0(modelNames[x], "_pred")]]
+  
+  # exception for maxent/maxnet: plot only above threshold
+  if(modelNames[x] == "maxent"){
+    # get threshold from model evaluation table
+    temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
+    
+    ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
+      geom_raster()+
+      ggtitle(modelNames[x], subtitle=paste0("Threshold = ", temp_thresh))+
+      scale_fill_viridis_c(limits = c(0,1))+
+      theme_bw()+
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position = c(0.1,0.4))
+  } else {
+    if( modelNames[x] == "maxnet"){
+      # get threshold from model evaluation table
+      temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
+      
+      ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
+        geom_raster()+
+        ggtitle(modelNames[x], subtitle=paste0("Threshold = ", temp_thresh))+
+        scale_fill_viridis_c(limits = c(0,1))+
+        theme_bw()+
+        theme(axis.title = element_blank(), legend.title = element_blank(),
+              legend.position = c(0.1,0.4))
+  } else {
+  
   ggplot(data=data.frame(rasterToPoints(temp.pred)), aes(x=x, y=y, fill=layer))+
     geom_raster()+
     ggtitle(modelNames[x])+
@@ -379,7 +412,7 @@ plots <- lapply(1:length(modelNames), function(x) {
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
-})
+}}})
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
