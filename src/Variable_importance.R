@@ -59,7 +59,7 @@ for(i in 1:length(SDMs)){ try({
   ## MARS & XGBoost ####
   if(temp.model == "mars_pred" | temp.model == "xgb_pred"){# if necessary, unlist models
   
-   temp.vi <- SDMs[[temp.model]][[5]]
+   temp.vi <- SDMs[[temp.model]][[6]]
    temp.vi <- as.data.frame(temp.vi)
    colnames(temp.vi)[2] <- as.character(temp.model)
    #print(temp.vi)
@@ -71,6 +71,10 @@ for(i in 1:length(SDMs)){ try({
     
     temp.results <- SDMs[[temp.model]][[1]]@results
     temp.vi <- as.data.frame(temp.results[str_detect(rownames(temp.results),"permutation.importance"),])
+    # Note: permutation importance = determine the importance of predictors 
+    # calculated by permuting values of each predictor &  resulting reduction
+    # in training AUC: large reduction = model is influenced by that predictor.
+    
     
     # extract predictor names
     temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[:punct:]", 2)[,1]
@@ -108,6 +112,16 @@ for(i in 1:length(SDMs)){ try({
     
     rm(temp.results)
   }    
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## XGB ####
+  if(temp.model == "xgb_pred"){
+    
+    temp.vi <- SDMs[[temp.model]][[6]]
+    temp.vi <- as.data.frame(temp.vi)
+    colnames(temp.vi)[2] <- as.character(temp.model)
+    #print(temp.vi)
+  }
   
   #- - - - - - - - - - - - - - - - - - - - - -
   ## BRT ####
@@ -227,7 +241,7 @@ for(i in 1:length(SDMs)){ try({
   if(temp.model == "biomod_pred"){ 
    
   # extract variable importance calculated in SDM_Valavi script
-  temp.vi <- SDMs[[temp.model]][[5]]
+  temp.vi <- SDMs[[temp.model]][[6]]
   
   # average across 3 runs
   temp.vi <- temp.vi %>% as.data.frame() %>%
