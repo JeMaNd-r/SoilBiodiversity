@@ -5,11 +5,8 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-## create grid (or load grid)
-r <- raster::raster(xmn=extent_Europe[1], xmx=extent_Europe[2], 
-                    ymn= extent_Europe[3], ymx=extent_Europe[4],
-                    res=0.01, 
-                    crs=CRS("+proj=longlat +datum=WGS84 +ellps=WGS84"))
+## load grid
+r <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 
 ## Load occurrence data
 occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
@@ -18,7 +15,7 @@ occ_stack <- raster()
 occ_points <- data.frame(x=0, y=0)[0,]
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
-## For loop through all Federal State folders ####
+## For loop through all species ####
 for(sp in unique(speciesNames$SpeciesID)){
   
   # ignore errors
