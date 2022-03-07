@@ -37,7 +37,8 @@ doParallel::registerDoParallel(cluster)
 # loop through the variable's folders
 #foreach(i = 1:length(folders), .packages = c("raster")) %dopar% { try({
  
-makeToGrid <- function(no_variable, raster_grid, temp_file=NULL, file_name=NULL){ 
+makeToGrid <- function(no_variable, raster_grid, temp_file=NULL, file_name=NULL){
+  
   # define variable name (= folder name)
   temp_pred <- stringr::str_extract(folders[no_variable], "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
   
@@ -47,7 +48,7 @@ makeToGrid <- function(no_variable, raster_grid, temp_file=NULL, file_name=NULL)
                             !is.na(pred_tab$ID), "File_name_processed"])
   }
   
-  print("Load raster.")
+  print(paste0("Load raster called ", temp_file, "."))
   
   # read tif files with raw predictor variables across Europe
   temp_raster <- raster::raster(paste0(folders[no_variable], "/", temp_file))
@@ -84,9 +85,9 @@ makeToGrid <- function(no_variable, raster_grid, temp_file=NULL, file_name=NULL)
 
 #parallel::stopCluster(cluster)
 
-for(i in 1:length(folders)){
+for(i in 1:length(folders)){ try({
   makeToGrid(no_variable=i, raster_grid=grid1k)
-}
+})}
 
 makeToGrid(no_variable=9, raster_grid=grid1k, temp_file = "Dist_Urban_2012_distance_1km_WGS84.tif")
 
