@@ -121,13 +121,13 @@ write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name,
           row.names = F)
 
 # load number of records during cleaning process
-df.cleaning <- read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
+df_cleaning <- read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
 
-df.cleaning <- df.cleaning %>% add_row(CleaningStep=c("mergedRecords","coordinateCleaner"), 
+df_cleaning <- df_cleaning %>% add_row(CleaningStep=c("mergedRecords","coordinateCleaner"), 
                                        NumberRecords=c(nrow(data), nrow(dat_cl)))
 
-df.cleaning
+df_cleaning
 
 # save updated number of records during cleaning process
-write.csv(df.cleaning, file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"), row.names = F)
+write.csv(df_cleaning, file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"), row.names = F)
 
