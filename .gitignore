@@ -51,3 +51,5 @@ data/Shapefiles/
 *.mdmp
 *.jar
 *.tif
+
+/data/GBIF_*
