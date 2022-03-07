@@ -389,7 +389,7 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 
 ### Occurrence records
 
-First, number of occurrences.
+First, number of raw occurrences.
 
 ```{r numberOcc}
 # load raw data
@@ -498,19 +498,25 @@ Third, we plot the data we used for the models (i.e., the gridded or rasterized 
 
 ```{r plotOcc}
 # load background map
-#...
+world.inp <- map_data("world")
+
+# calculate raw species richness
+occ_rich <- occ_points %>% 
+               group_by(Latitude = round(x,0), Longitude=round(y,0)) %>%
+               summarise_at(vars(c(speciesNames[speciesNames$NumCells>=5,"SpeciesID"])), sum, na.rm=T)
+occ_rich$Richness <- apply(occ_rich > 0, 1, sum)
 
 # plot total species' occurrences
-plotOcc <- ggplot(occ_points %>% 
-                    dplyr::select(c(x, y, all_of(speciesNames[speciesNames$NumCells>=5,"SpeciesID"]))) %>%
-                    group_by(x,y) %>% 
-                    count(name="Number of Records") %>%
-                    group_by(Latitude=round(x,0), Longitude=round(y,0)) %>%
-                    summarize("Number of Records" = sum(`Number of Records`), .groups ="keep"), 
-       aes(x=Latitude, y=Longitude, color=`Number of Records`))+ #, alpha=`Number of Records`
-  #geom_polygon(data=bg.map)
-  geom_point()+
-   scale_color_gradientn(    # provide any number of colors
+plotOcc <- ggplot()+ 
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
+  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+  
+  geom_point(data=occ_rich %>%
+              dplyr::select(c(Latitude, Longitude, Richness)),
+             aes(x=Latitude, y=Longitude, color=Richness))+ #, alpha=`Number of Species`
+   
+  scale_color_gradientn(    # provide any number of colors
     colors = c("black", "blue", "orange"),
     values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
     breaks = c(5, 20, 50, 100, 200))+
@@ -519,9 +525,34 @@ plotOcc <- ggplot(occ_points %>%
 
 plotOcc
 
-# pdf(paste0(here::here(), "/figures/GriddedOccurrences_", Taxon_name, ".pdf")); plotOcc; dev.off()
+# pdf(paste0(here::here(), "/figures/GriddedOccurrences_Richness_", Taxon_name, ".pdf")); plotOcc; dev.off()
 
-rm(plotOcc, occ_points)
+
+## Alternative but wrong. Gives number of species per cell + sum of cells per Lat/long
+# plotOcc <- ggplot()+ 
+#   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#   xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
+#   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+#   
+#   geom_point(data=occ_points %>% 
+#                     dplyr::select(c(x, y, all_of(speciesNames[speciesNames$NumCells>=5,"SpeciesID"]))) %>%
+#                     group_by(x,y) %>%
+#                     pivot_longer(cols = colnames(occ_points)[colnames(occ_points) %in%
+#                                                                speciesNames[speciesNames$NumCells>=5,"SpeciesID"]], 
+#                                  names_to = "SpeciesID", values_to = "occ",
+#                                  values_drop_na = TRUE) %>%
+#                     group_by(Latitude = round(x,0), Longitude = round(y,0)) %>%
+#                     count(name="Number of Records"),
+#              aes(x=Latitude, y=Longitude, color=`Number of Records`))+ #, alpha=`Number of Records`
+#    
+#   scale_color_gradientn(    # provide any number of colors
+#     colors = c("black", "blue", "orange"),
+#     values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
+#     breaks = c(5, 20, 50, 100, 200))+
+#   theme_bw()+
+#   theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
+# 
+# plotOcc
 ```
 
 Now, we make one plot with raw occurrences per species.
