@@ -5,8 +5,15 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-load(file=paste0(here::here(), "/results/RawOccurrences_", Taxon_name, ".RData"))
+## Load data ####
 
+# use data downloaded via R script
+#load(file=paste0(here::here(), "/results/RawOccurrences_", Taxon_name, ".RData"))
+
+# OR use data with DOI downloaded directly from GBIF
+dat <- read.csv(file=paste0(here::here(), "/results/RawOccurrences_", Taxon_name, ".csv"))
+
+#- - - - - - - - - - - - - - - - - - - - - -
 ## Cleaning coordinates based on meta-data ####
 
 # create a table to see how many records get removed.
