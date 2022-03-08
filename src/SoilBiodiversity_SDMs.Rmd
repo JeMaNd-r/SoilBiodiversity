@@ -9,6 +9,7 @@ output:
 
 ```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(here)
 
@@ -75,6 +76,8 @@ library(GGally) #for correlations with ggpairs
 library(gridExtra)
 
 here::here()
+
+write("TMPDIR = 'D://00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 ```
 
 Note: The command `here::here()` should give us the folder called *SoilBiodiversity*.
