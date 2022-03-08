@@ -40,13 +40,13 @@ gm_pred <- raster::predict(Env, gm)
 gm_pred <- fct.rescale(gm_pred, x.min = gm_pred@data@min, x.max = gm_pred@data@max)
 
 #plot(gm_pred, main = "GAM")
-gm <- ggplot(data=data.frame(rasterToPoints(gm_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("GAM")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# gm <- ggplot(data=data.frame(rasterToPoints(gm_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("GAM")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -56,13 +56,13 @@ lm1_pred <- raster::predict(Env, lm1)
 lm1_pred <- fct.rescale(lm1_pred, x.min = lm1_pred@data@min, x.max = lm1_pred@data@max)
 
 #plot(lm1_pred, main = "GLM")
-lm1 <- ggplot(data=data.frame(rasterToPoints(lm1_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("GLM")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# lm1 <- ggplot(data=data.frame(rasterToPoints(lm1_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("GLM")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 # second GLM
 lm_subset <- SDMs[["lm_subset_pred"]][[1]]
@@ -70,13 +70,13 @@ lm_subset_pred <- raster::predict(Env, lm_subset)
 lm_subset_pred <- fct.rescale(lm_subset_pred, x.min = lm_subset_pred@data@min, x.max = lm_subset_pred@data@max)
 
 #plot(lm_subset_pred, main = "GLM subset")
-lm_subset <- ggplot(data=data.frame(rasterToPoints(lm_subset_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("GLM subset")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# lm_subset <- ggplot(data=data.frame(rasterToPoints(lm_subset_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("GLM subset")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Lasso ####
@@ -107,7 +107,8 @@ sparse_covarsNames <- paste0(rep(covarsNames, each=2), "_", 1:2)
 # select all quadratic (and non-quadratic) columns, except the y (occ)
 testing_sparse <- sparse.model.matrix( ~. -1, testing_quad[, sparse_covarsNames])
 
-lasso_pred <- raster::predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
+lasso_pred <- glmnet:::predict.glmnet(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
+#lasso_pred <- raster::predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_pred)
 
 lasso_pred <- data.frame("site" = names(lasso_pred), "prediction" = as.numeric(lasso_pred)) %>%
@@ -145,6 +146,7 @@ ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
 # load pre-calculated predictions
@@ -155,13 +157,13 @@ mars_pred <- SDMs[["mars_pred"]][[7]]
 modelName <- SDMs[["mars_pred"]][[3]]
 
 #plot(mars_pred, main = "MARS") #, sub ="threshold = 0.00001 (pre-defined)")
-mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("MARS")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("MARS")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt ####
@@ -172,14 +174,14 @@ maxent_pred <- SDMs[["maxmod_pred"]][[6]]
 maxent_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
 
 #plot(maxent_pred, main = "MaxEnt")
-maxent <- ggplot(data=data.frame(rasterToPoints(maxent_pred>=maxent_thresh)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("MaxEnt", subtitle=paste0("Threshold = ", maxent_thresh))+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
-print("Note: If the MaxEnt prediction looks bad, it is maybe because of wrong (or missing) predictors...")
+# maxent <- ggplot(data=data.frame(rasterToPoints(maxent_pred>=maxent_thresh)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("MaxEnt", subtitle=paste0("Threshold = ", maxent_thresh))+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
+# print("Note: If the MaxEnt prediction looks bad, it is maybe because of wrong (or missing) predictors...")
 
 #- - - - - - - - - - - - - - - - - - - - - -
 # MaxNet ####
@@ -191,13 +193,13 @@ maxnet_pred <- SDMs[["maxnet_pred"]][[6]]
 maxnet_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
 
 #plot(maxnet_pred, main = "MaxNet")
-maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=maxnet_thresh)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("MaxNet", subtitle=paste0("Threshold = ", maxnet_thresh))+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=maxnet_thresh)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("MaxNet", subtitle=paste0("Threshold = ", maxnet_thresh))+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BRT ####
@@ -209,13 +211,13 @@ brt_pred <- SDMs[["brt_pred"]][[8]]
 brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@data@max)
 
 #plot(brt_pred, main = "BRT (GBM)")
-brt <- ggplot(data=data.frame(rasterToPoints(brt_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("BRT (GBM)")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# brt <- ggplot(data=data.frame(rasterToPoints(brt_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("BRT (GBM)")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 ## BRT 2 (for ensemble model)
 # extract already calculated predictions
@@ -226,13 +228,13 @@ brt2_pred <- SDMs[["brt2_pred"]][[8]]
 brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pred@data@max)
 
 #plot(brt2_pred, main = "BRT (GBM)")
-brt2 <- ggplot(data=data.frame(rasterToPoints(brt2_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("BRT 2 (GBM)")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# brt2 <- ggplot(data=data.frame(rasterToPoints(brt2_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("BRT 2 (GBM)")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -245,13 +247,13 @@ names(xgb_pred) <- rownames(Env) #add site names
 # xgb_pred <- fct.rescale(xgb_pred, x.min = xgb_pred@data@min, x.max = xgb_pred@data@max)
 
 #plot(xgb_pred, main = "XGBoost")
-xgb <- ggplot(data=data.frame(rasterToPoints(xgb_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("XGBoost")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# xgb <- ggplot(data=data.frame(rasterToPoints(xgb_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("XGBoost")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF ####
@@ -263,13 +265,13 @@ rf_pred <- SDMs[["rf_pred"]][[6]]
 # rf_pred <- fct.rescale(rf_pred, x.min = rf_pred@data@min, x.max = rf_pred@data@max)
 
 #plot(rf_pred, main = "RF")
-rf <- ggplot(data=data.frame(rasterToPoints(rf_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("RF")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# rf <- ggplot(data=data.frame(rasterToPoints(rf_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("RF")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 ## RF 2
 rf2_pred <- SDMs[["rf2_pred"]][[6]]
@@ -280,13 +282,13 @@ rf2_pred <- SDMs[["rf2_pred"]][[6]]
 # rf_pred <- fct.rescale(rf_pred, x.min = rf_pred@data@min, x.max = rf_pred@data@max)
 
 #plot(rf_pred, main = "RF")
-rf2 <- ggplot(data=data.frame(rasterToPoints(rf2_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("RF for Ensemble")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# rf2 <- ggplot(data=data.frame(rasterToPoints(rf2_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("RF for Ensemble")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## RF downsampled ####
@@ -298,13 +300,13 @@ rf_downsample_pred <- SDMs[["rf_downsample_pred"]][[6]]
 # rf_downsample_pred <- fct.rescale(rf_downsample_pred, x.min = rf_downsample_pred@data@min, x.max = rf_downsample_pred@data@max)
 
 #plot(rf_downsample_pred, main = "RF downsampled")
-rf_downsample <- ggplot(data=data.frame(rasterToPoints(rf_downsample_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("RF downsampled")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# rf_downsample <- ggplot(data=data.frame(rasterToPoints(rf_downsample_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("RF downsampled")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## SVM ####
@@ -315,13 +317,13 @@ svm_pred <- SDMs[["svm_pred"]][[6]]
 # rf_downsample_pred <- fct.rescale(rf_downsample_pred, x.min = rf_downsample_pred@data@min, x.max = rf_downsample_pred@data@max)
 
 #plot(svm_pred, main = "SVM")
-svm <- ggplot(data=data.frame(rasterToPoints(svm_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("SVM")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# svm <- ggplot(data=data.frame(rasterToPoints(svm_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("SVM")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## BIOMOD ####
@@ -332,13 +334,13 @@ biomod_pred <- fct.rescale(biomod_pred, x.min = biomod_pred@data@min, x.max = bi
 names(biomod_pred) <- "layer"
 
 #plot(biomod_pred, main = "Biomod")
-biomod <- ggplot(data=data.frame(rasterToPoints(biomod_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("Biomod")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# biomod <- ggplot(data=data.frame(rasterToPoints(biomod_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("Biomod")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
@@ -349,13 +351,13 @@ ensm_pred <- raster::stack(gm_pred, maxmod_pred) #lasso_pred, brt2_pred, rf2_pre
 ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 
 #plot(ensm_pred, main = "Biomod")
-ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=layer))+
-  geom_tile()+
-  ggtitle("Ensemble")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=layer))+
+#   geom_tile()+
+#   ggtitle("Ensemble")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Plot all maps ####
