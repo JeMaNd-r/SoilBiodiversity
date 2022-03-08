@@ -14,14 +14,16 @@ library(here)
 library(taxize)
 
 here::here()
+
+api_key <- "46ddd77445742df2a9ed38aeb6ef3e133f616e74184429f05b865e1fb9ea9c22"
 ```
 
 Load files
 
 ```{r}
 # define the species you wanted names
-#speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
-speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv")) #number of records added
+#speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_Crassiclitellata.csv"))    #pre-defined list only
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_Crassiclitellata.csv")) #number of records added
 ```
 
 
@@ -30,7 +32,25 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 The *taxize* package is searching in several databases for a specific taxon name, and simultaneously checks for spelling mistakes/ typos.
 
 ```{r getRLStatus, include=FALSE}
-test <- lapply(speciesNames$Species, function(x) taxize::iucn_summary(x))
-test2 <- lapply(test, function(x) taxize::iucn_status(x))
+get_populationTrend <- function(species_name, key_api){
+  #test <- rredlist::rl_threats("Lynx lynx", key = api_key)
+  temp_result <- rredlist::rl_narrative(species_name, key = api_key)
+  temp_trend <- temp_result$result$populationtrend
+  
+  c(species_name, temp_trend)
+}
+
+
+trends <- lapply(speciesNames$Species, get_populationTrend)
+do.call(rbind, trends)
+
+
+test <- lapply(speciesNames$Species, function(x) taxize::iucn_summary(x, key = api_key))
+test2 <- lapply(test, function(x) taxize::iucn_status(x, key = api_key))
 do.call(c, test2)
+
+
 ```
+
+
+
