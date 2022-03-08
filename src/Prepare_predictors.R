@@ -12,7 +12,7 @@ grid1k <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 grid2k <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file=paste0("../doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
 
 # list the names of the variable's folders that will be included in the analysis
 folders <- c(list.dirs("D:/00_datasets/Climate", recursive=F))
@@ -46,7 +46,9 @@ makeToGrid <- function(no_variable, raster_grid, temp_file=NULL, file_name=NULL)
   if( is.null(temp_file)) {
     temp_file <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
                             !is.na(pred_tab$ID), "File_name_processed"])
-  }
+    }
+  
+  
   
   print(paste0("Load raster called ", temp_file, "."))
   
@@ -89,14 +91,28 @@ for(i in 1:length(folders)){ try({
   makeToGrid(no_variable=i, raster_grid=grid1k)
 })}
 
-makeToGrid(no_variable=9, raster_grid=grid1k, temp_file = "Dist_Urban_2012_distance_1km_WGS84.tif")
+# Note: Error in some variables will be solved individually
+
+#- - - - - - - - - - - - - - - - - - - - - 
+## Calculate some missing 1km grids ####
+
+# Forest: there are multiple files in the same folder
+makeToGrid(no_variable=10, raster_grid=grid1k, temp_file = "Forest_2012_noGrid_WGS84.tif", 
+           file_name = "Forest_2012_1km_mean.tif")
+
+makeToGrid(no_variable=10, raster_grid=grid1k, temp_file = "Forest_Coni_2012_noGrid_WGS84.tif", 
+           file_name = "Forest_Coni_2012_1km_mean.tif")
+
+makeToGrid(no_variable=10, raster_grid=grid1k, temp_file = "Forest_Deci_2012_noGrid_WGS84.tif", 
+           file_name = "Forest_Deci_2012_1km_mean.tif")
 
 ## Check what has been calculated
 files <- list.files(folders, include.dirs = F, recursive=F)
 files[stringr::str_detect(files, "_1km_mean.tif$")]
 
+
 #- - - - - - - - - - - - - - - - - - - - - 
-## Calculate some missing 2km grids ####
+## Calculate some missing 2km (!) grids ####
 
 # calculate Agriculture percentage for 2km grid
 makeToGrid(no_variable = 8, raster_grid = grid2k, temp_file = "Agriculture_2012_noGrid_WGS84.tif", 
