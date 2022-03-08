@@ -794,7 +794,8 @@ for(no.runs in 1:no.loop.runs){
   # predict to raster (for later)
   xgb_raster <- raster::predict(myExpl, xgb_fit, type="prob")
    
-  xgb_pred_list[[no.runs]] <- list(xgb_fit, xgb_pred, modelName, temp_time, xgb_varImp, xgb_raster)
+  # NULL for xgb_fit (to save memory)
+  xgb_pred_list[[no.runs]] <- list(NULL, xgb_pred, modelName, temp_time, xgb_varImp, xgb_raster)
 }
 
 # average all XGBoost predictions
@@ -1135,7 +1136,7 @@ myRespName <- "occ"
 # Note: try this out to see if GAM works
 myBiomodOption <- BIOMOD_ModelingOptions(
   GAM = list (k = -1), #avoid error messages
-  MAXENT.Phillips = list( path_to_maxent.jar =paste0(here::here(), "/results/maxent.jar" )), # change it to maxent directory
+  MAXENT.Phillips = list( path_to_maxent.jar =paste0(here::here(), "/results" )), # change it to maxent directory
   )
 
 # models to predict with
@@ -1152,7 +1153,7 @@ myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
                                              NbRunEval = 3,   # 3-fold crossvalidation evaluation run
                                              DataSplit = 80, # use subset of the data for training
                                              models.eval.meth = c("ROC"),
-                                             SaveObj = TRUE, #save output on hard drive?
+                                             SaveObj = FALSE, #save output on hard drive?
                                              rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                              do.full.models = FALSE, # do evaluation & calibration with whole dataset
                                              modeling.id = paste(myRespName,"_Modeling", sep = ""))
