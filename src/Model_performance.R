@@ -94,16 +94,11 @@ for(i in 1:length(SDMs)){
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
     mod_eval[i,]$bg <- modelName
-    mod_eval[i,]$no.runs <- number.models
+    mod_eval[i,]$no.runs <- 1
     
     rm(prg, temp.model, modelName, precrec_obj)
     
   })}else{ try({ # all except BIOMOD modeling
-    
-    # if necessary, unlist models
-    if(length(SDMs[[i]])>6) {
-      number.models <- length(SDMs[[i]])
-    }
     
     # define background dataset (for testing data)
     modelName <- SDMs[[i]][[3]]
@@ -173,7 +168,7 @@ for(i in 1:length(SDMs)){
     mod_eval[i,]$model <- temp.model
     try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
     mod_eval[i,]$bg <- modelName
-    mod_eval[i,]$no.runs <- number.models
+    mod_eval[i,]$no.runs <- SDMs[[i]][[5]]
   })}
   
   rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh)
