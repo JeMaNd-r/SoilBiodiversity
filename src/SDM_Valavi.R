@@ -172,22 +172,32 @@ lapply(temp.files, load, .GlobalEnv)
 # function to creat quadratic terms for lasso and ridge
 quad_obj <- make_quadratic(training, cols = covarsNames)
 
-# now we can predict this quadratic object on the training and testing data
+# for the next step, we need the myExpl as data frame
+myExpl.df <- raster::rasterToPoints(myExpl)
+
+# now we can predict this quadratic object on the training, testing, and prediction data
 # this make two columns for each covariates used in the transformation
 training_quad <- predict(quad_obj, newdata = training)
 testing_quad <- predict(quad_obj, newdata = validation_env)
+predicting_quad <- predict(quad_obj, newdata = as.data.frame(myExpl.df))
+
+# Define vector with appropriate covarsNames for sparse matrix.
+# More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
+sparse_covarsNames <- paste0(rep(covarsNames, each=2), "_", 1:2)
 
 # convert the data.frames to sparse matrices
 # select all quadratic (and non-quadratic) columns, except the y (occ)
 new_vars <- names(training_quad)[names(training_quad) != "occ"]
 training_sparse <- sparse.model.matrix(~. -1, training_quad[, new_vars])
 testing_sparse <- sparse.model.matrix( ~. -1, testing_quad[, new_vars])
+predicting_sparse <- sparse.model.matrix( ~. -1, predicting_quad[, sparse_covarsNames])
 
 # calculating the case weights
 prNum <- as.numeric(table(training_quad$occ)["1"]) # number of presences
 bgNum <- as.numeric(table(training_quad$occ)["0"]) # number of backgrounds
 wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 
+#- - - - - - - - - - - - - - - - - - - - -
 ## fitting lasso
 # Note: The alpha parameter in this model ranges from 0 to 1, where selecting an 
 # alpha of 0 leads to ridge regression and 1 to lasso and anything in between 
@@ -222,10 +232,20 @@ lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.m
 lasso_pred <- as.numeric(lasso_pred)
 names(lasso_pred) <- rownames(validation_env) #add site names
 
+# predict for whole environment
+#lasso_prediction <- glmnet:::predict.glmnet(object = lasso_cv, newx = predicting_sparse, type = "response", s = "lambda.min")[,1]
+lasso_prediction <- raster::predict(lasso_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
+#head(lasso_prediction)
+lasso_prediction <- data.frame("site" = names(lasso_prediction), "prediction" = as.numeric(lasso_prediction)) %>%
+  full_join(as.data.frame(myExpl.df) %>% mutate("site" = rownames(as.data.frame(myExpl.df))), by = "site")
+lasso_prediction <- raster::rasterFromXYZ(lasso_prediction[,c("x", "y", "prediction")])
 
-lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp_time)
+temp_runs <- 1
+
+lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp_time, temp_runs, lasso_prediction)
 rm(lasso_cv, temp_time)
 
+#- - - - - - - - - - - - - - - - - - - - -
 ## fitting ridge resgression (alpha=0) while identify the right lambda
 tmp <- Sys.time()
 set.seed(32639)
@@ -249,7 +269,14 @@ names(ridge_pred) <- rownames(validation_env) #add site names
 
 temp_runs <- 1
 
-ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs)
+# predict for whole environment
+ridge_prediction <- raster::predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
+#head(ridge_prediction)
+ridge_prediction <- data.frame("site" = names(ridge_prediction), "prediction" = as.numeric(ridge_prediction)) %>%
+  full_join(as.data.frame(myExpl.df) %>% mutate("site" = rownames(as.data.frame(myExpl.df))), by = "site")
+ridge_prediction <- raster::rasterFromXYZ(ridge_prediction[,c("x", "y", "prediction")])
+
+ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
 rm(ridge_cv, temp_time, training_sparse, tratining_quad, testing_sparse)
 
 #- - - - - - - - - - - - - - - - - - - - -

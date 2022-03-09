@@ -80,72 +80,29 @@ lm_subset_pred <- fct.rescale(lm_subset_pred, x.min = lm_subset_pred@data@min, x
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Lasso ####
-lasso_cv <- SDMs[["lasso_pred"]][[1]]
-
-# we have to load again the training data set
-# identify and load all relevant data files
-temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-                         pattern = paste0("bg.glm", "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
-
-# generating the quadratic terms for all continuous variables
-# function to creat quadratic terms for lasso and ridge
-quad_obj <- make_quadratic(training, cols = covarsNames)
-
-# for the next step, we need the Env as data frame
-Env.df <- raster::rasterToPoints(Env)
-
-# now we can predict this quadratic object on the training and testing data
-# this make two columns for each covariates used in the transformation
-testing_quad <- predict(quad_obj, newdata = as.data.frame(Env.df))
-
-# Define vector with appropriate covarsNames for sparse matrix.
-# More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
-sparse_covarsNames <- paste0(rep(covarsNames, each=2), "_", 1:2)
-
-# convert the data.frames to sparse matrices
-# select all quadratic (and non-quadratic) columns, except the y (occ)
-testing_sparse <- sparse.model.matrix( ~. -1, testing_quad[, sparse_covarsNames])
-
-lasso_pred <- glmnet:::predict.glmnet(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-#lasso_pred <- raster::predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-#head(lasso_pred)
-
-lasso_pred <- data.frame("site" = names(lasso_pred), "prediction" = as.numeric(lasso_pred)) %>%
-  full_join(testing_quad %>% mutate(site = rownames(testing_quad)) %>%
-                                      dplyr::select("x", "y", "site"))
-
-lasso_pred <- raster::rasterFromXYZ(lasso_pred[,c("x", "y", "prediction")])
+lasso_pred <- SDMs[["lasso_pred"]][[6]]
 
 #plot(lasso_pred, main = "Lasso regression")
-lasso <- ggplot(data=data.frame(rasterToPoints(lasso_pred)), aes(x=x, y=y, fill=prediction))+
-  geom_tile()+
-  ggtitle("Lasso regression")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# lasso <- ggplot(data=data.frame(rasterToPoints(lasso_pred)), aes(x=x, y=y, fill=prediction))+
+#   geom_tile()+
+#   ggtitle("Lasso regression")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Ridge ####
-ridge_cv <- SDMs[["ridge_pred"]][[1]]
-ridge_pred <- raster::predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
-#head(lasso_pred)
-
-ridge_pred <- data.frame("site" = names(ridge_pred), "prediction" = as.numeric(ridge_pred)) %>%
-  full_join(testing_quad %>% mutate(site = rownames(testing_quad)) %>%
-              dplyr::select("x", "y", "site"))
-
-ridge_pred <- raster::rasterFromXYZ(ridge_pred[,c("x", "y", "prediction")])
+ridge_pred <- SDMs[["ridge_pred"]][[6]]
 
 #plot(ridge_pred, main = "Ridge regression")
-ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=prediction))+
-  geom_tile()+
-  ggtitle("Ridge regression")+
-  scale_fill_viridis_c(limits = c(0,1))+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+# ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=prediction))+
+#   geom_tile()+
+#   ggtitle("Ridge regression")+
+#   scale_fill_viridis_c(limits = c(0,1))+
+#   theme_bw()+
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position = c(0.1,0.4))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
