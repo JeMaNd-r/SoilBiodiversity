@@ -5,14 +5,19 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+# Note: to run the other grid, you have to comment & un-comment 4 lines
+
 ## load grid
-r <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
+#r <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
+r <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
 
 ## Load occurrence data
 occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
 occ$occ <- 1
 occ_stack <- raster()
 occ_points <- data.frame(x=0, y=0)[0,]
+
+speciesNames$Records <- NA
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all species ####
@@ -34,6 +39,9 @@ for(sp in unique(speciesNames$SpeciesID)){
   occ_grid <- raster::rasterize(temp_occ, r, "occ", fun=sum)
   names(occ_grid) <- sp
 
+  # crop to raster extent
+  occ_grid2 <- raster::mask(occ_grid, r)
+  
   # # add to raster stack
   # occ_stack <- raster::stack(occ_stack, occ_grid)
   
@@ -65,11 +73,13 @@ for(sp in unique(speciesNames$SpeciesID)){
   
 
 ## Calculate number of grid cells with presence ####
-speciesNames$NumCells <- 0
+#speciesNames$NumCells_1km <- 0
+speciesNames$NumCells_2km <- 0
 
 for(sp in unique(speciesNames$SpeciesID)){ try({
   temp_records <- nrow(occ_points) - as.numeric(summary(occ_points[,sp])["NA's"])
-  speciesNames[speciesNames$SpeciesID==sp,"NumCells"] <- temp_records
+  #speciesNames[speciesNames$SpeciesID==sp,"NumCells_1km"] <- temp_records
+  speciesNames[speciesNames$SpeciesID==sp,"NumCells_2km"] <- temp_records
   temp_records <- 0
 })}
 
@@ -79,7 +89,8 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 # raster::writeRaster(occ_stack,file=paste0(here::here(), "/results/OccurrenceGrid_", Taxon_name, ".grd"), format="raster")
 
 # save point data frame
-write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"), row.names=F)
+#write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"), row.names=F)
+write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"), row.names=F)
 
 # # save individual species as own files
 # raster::writeRaster(occ_stack, filename=names(occ_stack), bylayer=TRUE, format="GTiff")

@@ -1,111 +1,111 @@
-"Group_name","Kingdom","Phylum","Class","Order","Family","Genus","Species","SpeciesID","Fct_group","Comment","Percent_Epigeic","Percent_Anecic","Percent_Endogeic","Ecogroup_Bottinelli","NumCells"
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Acanthodrilidae","Microscolex","Microscolex dubius","Micr_dubi",NA,"",30,0,70,"Epi-endogeic",18
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Acanthodrilidae","Microscolex","Microscolex phosphoreus","Micr_phos",NA,"",29,0,71,"Epi-endogeic",34
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hemigastrodrilus","Hemigastrodrilus monicae","Hemi_moni",NA,"",0,0,100,"Endogeic",1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster najaformis","Horm_naja",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster riojana","Horm_rioj",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster samnitica","Horm_samn",NA,"",0,24,76,"Endo-anecic",1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Vignysa","Vignysa popi","Vign_popi",NA,"",0,4,96,"Endogeic",1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Xana","Xana omodeoi","Xana_omod",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora altimontana","Allo_alti",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora antipae","Allo_anti",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora carpathica","Allo_carp",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora chlorotica","Allo_chlo",NA,"",20,24.25,55.625,"Intermediate",1572
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora minuscula","Allo_minu",NA,"",NA,NA,NA,NA,4
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora muldali","Allo_muld",NA,"",44,0,56,"Epi-endogeic",54
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora sturanyi","Allo_stur",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophoridella","Allolobophoridella eiseni","Allo_eise",NA,"",NA,NA,NA,NA,62
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea caliginosa","Apor_cali",NA,"including subspecies Aporrectodea caliginosa ssp. trapezoides",NA,NA,NA,NA,2554
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea cupulifera","Apor_cupu",NA,"",NA,NA,NA,NA,15
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea dubiosa","Apor_dubi",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea georgii","Apor_geor",NA,"",NA,NA,NA,NA,8
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea giardi","Apor_giar",NA,"",NA,NA,NA,NA,3
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea handlirschi","Apor_hand",NA,"",NA,NA,NA,NA,20
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea icterica","Apor_icte",NA,"",NA,NA,NA,NA,36
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea jassyensis","Apor_jass",NA,"",NA,NA,NA,NA,5
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea limicola","Apor_limi",NA,"",NA,NA,NA,NA,151
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea longa","Apor_long",NA,"",NA,NA,NA,NA,912
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea nocturna","Apor_noct",NA,"Synonym subspecies Apporectodea calignosa ssp. noctura",NA,NA,NA,NA,31
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea rosea","Apor_rose",NA,"",NA,NA,NA,NA,1871
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea smaragdina","Apor_smar",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea thaleri","Apor_thal",NA,"",NA,NA,NA,NA,3
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Bimastos","Bimastos eiseni","Bima_eise",NA,"",NA,NA,NA,NA,145
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Bimastos","Bimastos rubidus","Bima_rubi",NA,"",NA,NA,NA,NA,562
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Cataladrilus","Cataladrilus porquerollensis","Cata_porq",NA,"Marchan et al. 2020 Eur Journ Taxonomy",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena alpina","Dend_alpi",NA,"",100,0,0,"Epigeic",8
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena attemsi","Dend_atte",NA,"",83,0,17,"Epigeic",134
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena auriculata","Dend_auri",NA,"",NA,NA,NA,NA,5
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena byblica","Dend_bybl",NA,"",100,0,0,"Epigeic",11
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena cognettii","Dend_cogn",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena hortensis","Dend_hort",NA,"",NA,NA,NA,NA,57
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena illyrica","Dend_illy",NA,"",NA,NA,NA,NA,117
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena octaedra","Dend_octa",NA,"",97,0,3,"Epigeic",891
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena pygmaea","Dend_pygm",NA,"",NA,NA,NA,NA,42
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena vejdovskyi","Dend_vejd",NA,"",NA,NA,NA,NA,16
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena veneta","Dend_vene",NA,"",NA,NA,NA,NA,39
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrodrilus","Dendrodrilus rubidus","Dend_rubi",NA,"",NA,NA,NA,NA,378
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia andrei","Eise_andr",NA,"",NA,NA,NA,NA,23
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia fetida","Eise_feti",NA,"",93.5,3.5,3,"Epigeic",277
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia lucens","Eise_luce",NA,"",NA,NA,NA,NA,5
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia nordenskioldi","Eise_nord",NA,"",NA,NA,NA,NA,3
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia spelea","Eise_spel",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eiseniella","Eiseniella tetraedra","Eise_tetr",NA,"",78,22,0,"Epigeic",5613
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Enterion cyaneum","Octo_cyan",NA,"Synonym Octolasion cyaneum",NA,NA,NA,NA,525
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Enterion festivum","Lumb_fest",NA,"Synonym Lumbricus festivus",NA,NA,NA,NA,161
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Enterion polyphemus","Lumb_poly",NA,"Synonym Lumbricus polyphemus",NA,NA,NA,NA,34
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Enterion pygmaeum","Dend_pygm",NA,"Synonym Dendrobaena pygmaea",NA,NA,NA,NA,42
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Enterion tyrtaeum","Octo_tyrt",NA,"Synonym Octolasion tyrtaeum",NA,NA,NA,NA,619
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eophila","Eophila icterica","Eoph_icte",NA,"",NA,NA,NA,NA,49
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eophila","Eophila tellinii","Eoph_tell",NA,"",NA,NA,NA,NA,4
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Fitzingeria","Fitzingeria platyura","Fitz_plat",NA,"",NA,NA,NA,NA,24
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Helodrilus","Helodrilus oculatus","Helo_ocul",NA,"",NA,NA,NA,NA,19
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus badensis","Lumb_bade",NA,"",NA,NA,NA,NA,7
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus baicalensis","Lumb_baic",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus castaneus","Lumb_cast",NA,"",NA,NA,NA,NA,1138
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus centralis","Lumb_cent",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus festivus","Lumb_fest",NA,"",NA,NA,NA,NA,161
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus friendi","Lumb_frie",NA,"",NA,NA,NA,NA,40
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus herculeus","Lumb_herc",NA,"",NA,NA,NA,NA,20
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus klarae","Lumb_klar",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus lucens","Lumb_luce",NA,"",NA,NA,NA,NA,3
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus meliboeus","Lumb_meli",NA,"",NA,NA,NA,NA,9
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus polyphemus","Lumb_poly",NA,"",NA,NA,NA,NA,34
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus rubellus","Lumb_rube",NA,"",NA,NA,NA,NA,2280
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus terrestris","Lumb_terr",NA,"",NA,NA,NA,NA,2175
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Murchieona","Murchieona minuscula","Murc_minu",NA,"",NA,NA,NA,NA,5
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Murchieona","Murchieona muldali","Murc_muld",NA,"",NA,NA,NA,NA,17
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus argoviensis","Octo_argo",NA,"",NA,NA,NA,NA,12
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus bretscher","Octo_bret",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus complanatus","Octo_comp",NA,"",4,75,21,"Anecic",30
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus complanatus","Octo_comp",NA,"",4,75,21,"Anecic",30
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus exacystis","Allo_exac",NA,"Synonym Allolobophora exacystis",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus lissaensis","Octo_liss",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus mima","Allo_mima",NA,"Synonym Allolobophora mima",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus transpadanus","Octo_trans",NA,"",NA,NA,NA,NA,10
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion cyaneum","Octo_cyan",NA,"",NA,NA,NA,NA,525
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion lacteum","Octo_lact",NA,"",NA,NA,NA,NA,315
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion Örley","Octo_orle",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion tyrtaeum","Octo_tyrt",NA,"",NA,NA,NA,NA,619
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Perelia","Perelia gestroi","Pere_gest",NA,"",NA,NA,NA,NA,7
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Perelia","Perelia tuberosa","Pere_tube",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus antipae","Proc_anti",NA,"",NA,NA,NA,NA,39
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus tuberculatus","Eoph_tube",NA,"Synonym Eophila tuberculatus",NA,NA,NA,NA,23
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus Zics","Proc_orle",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Prosellodrilus","Prosellodrilus albus","Pros_albu",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Satchellius","Satchellius madeirensis","Satc_made",NA,"Synonyms Allolobophora madeirensis and Dendrobaena madeirensis and Satchellius gatesi",NA,NA,NA,NA,20
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Satchellius","Satchellius mammalis","Satc_mamm",NA,"",NA,NA,NA,NA,221
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca aquitania","Sche_aqui",NA,"",NA,NA,NA,NA,7
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca hexatheca","Allo_hexa",NA,"Synonym Allolobophora hexatheca",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca portcrosana","Sche_port",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Amynthas","Amynthas agrestis","Amyn_agre",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Amynthas","Amynthas corticis","Amyn_cort",NA,"",NA,NA,NA,NA,7
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Metaphire","Metaphire kiengiangensis","Meta_kien",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Perichaeta","Perichaeta morrisi","Amyn_morr",NA,"Synonym Amynthas morrisi",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Polypheretima","Polypheretima cordata","Poly_cord",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Octochaetidae","Agastrodrilus","Agastrodrilus multivesiculatus","Agas_mult",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Sparganophilidae","Sparganophilus","Sparganophilus tamesis","Spar_tame",NA,"many Synonyms",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora hexatheca","Allo_hexa",NA,"",NA,NA,NA,NA,1
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora mima","Allo_mima",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora exacystis","Allo_exac",NA,"",NA,NA,NA,NA,2
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora opisthosellata","Allo_ophi",NA,"",NA,NA,NA,NA,0
-"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodae opisthosellata","Allo_ophi",NA,"Synonym Allolobophora ophishosellata",NA,NA,NA,NA,0
+"Group_name","Kingdom","Phylum","Class","Order","Family","Genus","Species","SpeciesID","Fct_group","Comment","Percent_Epigeic","Percent_Anecic","Percent_Endogeic","Ecogroup_Bottinelli","NumCells","NumCells_2km","NumCells_1km"
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Acanthodrilidae","Microscolex","Microscolex dubius","Micr_dubi",NA,"",30,0,70,"Epi-endogeic",0,18,18
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Acanthodrilidae","Microscolex","Microscolex phosphoreus","Micr_phos",NA,"",29,0,71,"Epi-endogeic",0,34,34
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hemigastrodrilus","Hemigastrodrilus monicae","Hemi_moni",NA,"",0,0,100,"Endogeic",0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster najaformis","Horm_naja",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster riojana","Horm_rioj",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Hormogaster","Hormogaster samnitica","Horm_samn",NA,"",0,24,76,"Endo-anecic",0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Vignysa","Vignysa popi","Vign_popi",NA,"",0,4,96,"Endogeic",0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Hormogastridae","Xana","Xana omodeoi","Xana_omod",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora altimontana","Allo_alti",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora antipae","Allo_anti",NA,"",NA,NA,NA,NA,0,2,2
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora carpathica","Allo_carp",NA,"",NA,NA,NA,NA,0,2,2
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora chlorotica","Allo_chlo",NA,"",20,24.25,55.625,"Intermediate",0,1436,1572
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora minuscula","Allo_minu",NA,"",NA,NA,NA,NA,0,4,4
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora muldali","Allo_muld",NA,"",44,0,56,"Epi-endogeic",0,48,54
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora sturanyi","Allo_stur",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophoridella","Allolobophoridella eiseni","Allo_eise",NA,"",NA,NA,NA,NA,0,59,62
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea caliginosa","Apor_cali",NA,"including subspecies Aporrectodea caliginosa ssp. trapezoides",NA,NA,NA,NA,0,2361,2554
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea cupulifera","Apor_cupu",NA,"",NA,NA,NA,NA,0,14,15
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea dubiosa","Apor_dubi",NA,"",NA,NA,NA,NA,0,2,2
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea georgii","Apor_geor",NA,"",NA,NA,NA,NA,0,8,8
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea giardi","Apor_giar",NA,"",NA,NA,NA,NA,0,3,3
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea handlirschi","Apor_hand",NA,"",NA,NA,NA,NA,0,20,20
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea icterica","Apor_icte",NA,"",NA,NA,NA,NA,0,31,36
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea jassyensis","Apor_jass",NA,"",NA,NA,NA,NA,0,5,5
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea limicola","Apor_limi",NA,"",NA,NA,NA,NA,0,147,151
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea longa","Apor_long",NA,"",NA,NA,NA,NA,0,826,912
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea nocturna","Apor_noct",NA,"Synonym subspecies Apporectodea calignosa ssp. noctura",NA,NA,NA,NA,0,28,31
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea rosea","Apor_rose",NA,"",NA,NA,NA,NA,0,1755,1871
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea smaragdina","Apor_smar",NA,"",NA,NA,NA,NA,0,2,2
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodea thaleri","Apor_thal",NA,"",NA,NA,NA,NA,0,3,3
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Bimastos","Bimastos eiseni","Bima_eise",NA,"",NA,NA,NA,NA,0,134,145
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Bimastos","Bimastos rubidus","Bima_rubi",NA,"",NA,NA,NA,NA,0,524,562
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Cataladrilus","Cataladrilus porquerollensis","Cata_porq",NA,"Marchan et al. 2020 Eur Journ Taxonomy",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena alpina","Dend_alpi",NA,"",100,0,0,"Epigeic",0,8,8
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena attemsi","Dend_atte",NA,"",83,0,17,"Epigeic",0,123,134
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena auriculata","Dend_auri",NA,"",NA,NA,NA,NA,0,5,5
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena byblica","Dend_bybl",NA,"",100,0,0,"Epigeic",0,11,11
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena cognettii","Dend_cogn",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena hortensis","Dend_hort",NA,"",NA,NA,NA,NA,0,53,57
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena illyrica","Dend_illy",NA,"",NA,NA,NA,NA,0,112,117
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena octaedra","Dend_octa",NA,"",97,0,3,"Epigeic",0,828,891
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena pygmaea","Dend_pygm",NA,"",NA,NA,NA,NA,0,33,33
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena vejdovskyi","Dend_vejd",NA,"",NA,NA,NA,NA,0,16,16
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Dendrobaena veneta","Dend_vene",NA,"",NA,NA,NA,NA,0,39,39
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrodrilus","Dendrodrilus rubidus","Dend_rubi",NA,"",NA,NA,NA,NA,0,362,378
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia andrei","Eise_andr",NA,"",NA,NA,NA,NA,0,23,23
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia fetida","Eise_feti",NA,"",93.5,3.5,3,"Epigeic",0,269,277
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia lucens","Eise_luce",NA,"",NA,NA,NA,NA,0,5,5
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia nordenskioldi","Eise_nord",NA,"",NA,NA,NA,NA,0,3,3
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eisenia","Eisenia spelea","Eise_spel",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eiseniella","Eiseniella tetraedra","Eise_tetr",NA,"",78,22,0,"Epigeic",0,5283,5613
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Enterion cyaneum","Octo_cyan",NA,"Synonym Octolasion cyaneum",NA,NA,NA,NA,0,158,168
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Enterion festivum","Lumb_fest",NA,"Synonym Lumbricus festivus",NA,NA,NA,NA,0,49,49
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Enterion polyphemus","Lumb_poly",NA,"Synonym Lumbricus polyphemus",NA,NA,NA,NA,0,24,27
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Dendrobaena","Enterion pygmaeum","Dend_pygm",NA,"Synonym Dendrobaena pygmaea",NA,NA,NA,NA,0,33,33
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Enterion tyrtaeum","Octo_tyrt",NA,"Synonym Octolasion tyrtaeum",NA,NA,NA,NA,0,435,444
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eophila","Eophila icterica","Eoph_icte",NA,"",NA,NA,NA,NA,0,48,49
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Eophila","Eophila tellinii","Eoph_tell",NA,"",NA,NA,NA,NA,0,4,4
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Fitzingeria","Fitzingeria platyura","Fitz_plat",NA,"",NA,NA,NA,NA,0,24,24
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Helodrilus","Helodrilus oculatus","Helo_ocul",NA,"",NA,NA,NA,NA,0,19,19
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus badensis","Lumb_bade",NA,"",NA,NA,NA,NA,0,6,7
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus baicalensis","Lumb_baic",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus castaneus","Lumb_cast",NA,"",NA,NA,NA,NA,0,1067,1138
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus centralis","Lumb_cent",NA,"",NA,NA,NA,NA,0,2,2
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus festivus","Lumb_fest",NA,"",NA,NA,NA,NA,0,49,49
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus friendi","Lumb_frie",NA,"",NA,NA,NA,NA,0,40,40
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus herculeus","Lumb_herc",NA,"",NA,NA,NA,NA,0,19,20
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus klarae","Lumb_klar",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus lucens","Lumb_luce",NA,"",NA,NA,NA,NA,0,3,3
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus meliboeus","Lumb_meli",NA,"",NA,NA,NA,NA,0,9,9
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus polyphemus","Lumb_poly",NA,"",NA,NA,NA,NA,0,24,27
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus rubellus","Lumb_rube",NA,"",NA,NA,NA,NA,0,2114,2280
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Lumbricus","Lumbricus terrestris","Lumb_terr",NA,"",NA,NA,NA,NA,0,2035,2175
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Murchieona","Murchieona minuscula","Murc_minu",NA,"",NA,NA,NA,NA,0,5,5
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Murchieona","Murchieona muldali","Murc_muld",NA,"",NA,NA,NA,NA,0,17,17
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus argoviensis","Octo_argo",NA,"",NA,NA,NA,NA,0,12,12
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus bretscher","Octo_bret",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus complanatus","Octo_comp",NA,"",4,75,21,"Anecic",0,30,30
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus complanatus","Octo_comp",NA,"",4,75,21,"Anecic",0,30,30
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus exacystis","Allo_exac",NA,"Synonym Allolobophora exacystis",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus lissaensis","Octo_liss",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus mima","Allo_mima",NA,"Synonym Allolobophora mima",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octodrilus","Octodrilus transpadanus","Octo_trans",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion cyaneum","Octo_cyan",NA,"",NA,NA,NA,NA,0,158,168
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion lacteum","Octo_lact",NA,"",NA,NA,NA,NA,0,288,315
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion Örley","Octo_orle",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Octolasion","Octolasion tyrtaeum","Octo_tyrt",NA,"",NA,NA,NA,NA,0,435,444
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Perelia","Perelia gestroi","Pere_gest",NA,"",NA,NA,NA,NA,0,6,7
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Perelia","Perelia tuberosa","Pere_tube",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus antipae","Proc_anti",NA,"",NA,NA,NA,NA,0,39,39
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus tuberculatus","Eoph_tube",NA,"Synonym Eophila tuberculatus",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Proctodrilus","Proctodrilus Zics","Proc_orle",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Prosellodrilus","Prosellodrilus albus","Pros_albu",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Satchellius","Satchellius madeirensis","Satc_made",NA,"Synonyms Allolobophora madeirensis and Dendrobaena madeirensis and Satchellius gatesi",NA,NA,NA,NA,0,20,20
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Satchellius","Satchellius mammalis","Satc_mamm",NA,"",NA,NA,NA,NA,0,204,221
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca aquitania","Sche_aqui",NA,"",NA,NA,NA,NA,0,7,7
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca hexatheca","Allo_hexa",NA,"Synonym Allolobophora hexatheca",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Scherotheca","Scherotheca portcrosana","Sche_port",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Amynthas","Amynthas agrestis","Amyn_agre",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Amynthas","Amynthas corticis","Amyn_cort",NA,"",NA,NA,NA,NA,0,7,7
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Metaphire","Metaphire kiengiangensis","Meta_kien",NA,"",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Perichaeta","Perichaeta morrisi","Amyn_morr",NA,"Synonym Amynthas morrisi",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Megascolecidae","Polypheretima","Polypheretima cordata","Poly_cord",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Octochaetidae","Agastrodrilus","Agastrodrilus multivesiculatus","Agas_mult",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Sparganophilidae","Sparganophilus","Sparganophilus tamesis","Spar_tame",NA,"many Synonyms",NA,NA,NA,NA,0,1,1
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora hexatheca","Allo_hexa",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora mima","Allo_mima",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora exacystis","Allo_exac",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Allolobophora","Allolobophora opisthosellata","Allo_ophi",NA,"",NA,NA,NA,NA,0,0,0
+"Earthworms","Animalia","Annelida","Clitellata","Crassiclitellata","Lumbricidae","Aporrectodae","Aporrectodae opisthosellata","Allo_ophi",NA,"Synonym Allolobophora ophishosellata",NA,NA,NA,NA,0,0,0
