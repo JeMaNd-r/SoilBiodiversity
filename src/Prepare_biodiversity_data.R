@@ -12,7 +12,7 @@ sworm_site <- readr::read_csv(file=paste0(here::here(), "/data/SiteData_sWorm_v2
 
 sworm <- dplyr::full_join(sworm_occ, sworm_site)
 
-sworm <- sworm %>% filter(Abundance>0)
+sworm <- sworm %>% filter(Abundance>0, !is.na(SpeciesBinomial))
 
 sworm$datasource <- "sWorm"
 
@@ -36,8 +36,12 @@ edapho <- readr::read_csv(file=paste0(here::here(), "/data/Edaphobase_download_2
 #!!! Manually: We already added one missing "Valid taxon" for Helodrilus sp.
 
 # extract the first 2 words of the species' names
-edapho$species <- word(edapho$'Valid taxon', 1, 2)
+edapho$species <- word(edapho$"Valid taxon", 1, 2)
 edapho$species <- sub(",*", "\\1", edapho$species)
+edapho$species <- gsub(",", "", edapho$species)
+
+# exclude species with only Genus name (followed by identifier's name)
+edapho <- edapho %>% filter(!str_detect(species, " [:upper:]"))
 
 edapho$datasource <- "Edaphobase"
 
@@ -64,8 +68,8 @@ data <- tibble::tibble(species=data$SpeciesBinomial,
                        longitude=data$Longitude_decimal_degrees, 
                        datasource=data$datasource)
 
-data
-data <- data[complete.cases(data$longitude, data$latitude),]
+data #nrow = 89675
+data <- data[complete.cases(data$longitude, data$latitude),] #nrow=88897
 
 data$OBJECTID <- 1:nrow(data) 
 
@@ -82,7 +86,7 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
-sum(flags$.summary) #those not flagged! = 75441 of 78528
+sum(flags$.summary) #those not flagged! = 86181 out of 88897
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]
