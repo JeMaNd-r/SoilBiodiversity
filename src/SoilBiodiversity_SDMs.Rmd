@@ -77,7 +77,7 @@ library(gridExtra)
 
 here::here()
 
-write("TMPDIR = 'D://00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 ```
 
 Note: The command `here::here()` should give us the folder called *SoilBiodiversity*.

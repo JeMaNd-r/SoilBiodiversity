@@ -5,6 +5,9 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+# change temporary directory for files
+raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+
 # load the 1km grid
 grid1k <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 
