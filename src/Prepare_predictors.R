@@ -35,9 +35,9 @@ folders
 # Note: All raster files need to be in WGS1984 reference system.
 #       Use ArcGIS tool "Project Raster" if necessary.
 
-# prepare for parallal processing
-cluster <- parallel::makeCluster(8)
-doParallel::registerDoParallel(cluster)
+# # prepare for parallal processing
+# cluster <- parallel::makeCluster(8)
+# doParallel::registerDoParallel(cluster)
 
 # loop through the variable's folders
 #foreach(i = 1:length(folders), .packages = c("raster")) %dopar% { try({
