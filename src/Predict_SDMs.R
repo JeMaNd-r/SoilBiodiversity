@@ -384,11 +384,15 @@ dev.off()
 # stack all predictions
 stack_pred <- raster::stack(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
                             mars_pred, maxmod_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
-                            rf_pred, rf2_pred, rf_downsample_pred, biomod_pred, ensm_pred)
+                            rf_pred, rf2_pred, rf_downsample_pred, 
+                            #biomod_pred, 
+                            ensm_pred)
 
 names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
                  "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
-                 "rf_pred", "rf2_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
+                 "rf_pred", "rf2_pred", "rf_downsample_pred", 
+                 #"biomod_pred", 
+                 "ensm_pred")
 
 
 # save all predictions
@@ -397,11 +401,11 @@ names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "r
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save best performing model prediction only
 # select best model based on TSS
-best_model <- mod_eval[mod_eval$tss == max(mod_eval$tss), "model"]
+best_model <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$model), "model"]
 best_pred <- stack_pred[[best_model]]
 
 # save best model prediction
-save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Taxon_name, "_", spID, ".RData"))
+save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", Taxon_name, "_", spID, ".RData"))
 
 plot(best_pred, main = names(best_pred))
 
