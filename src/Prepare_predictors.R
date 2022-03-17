@@ -42,7 +42,7 @@ folders
 # loop through the variable's folders
 #foreach(i = 1:length(folders), .packages = c("raster")) %dopar% { try({
  
-makeToGrid <- function(raster_grid, temp_path=NULL, temp_file=NULL, file_name=NULL){
+makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
   
   # makeToGrid takes the temp_file to re-project it into the same extent and resolution as raster_grid.
   
@@ -58,27 +58,32 @@ makeToGrid <- function(raster_grid, temp_path=NULL, temp_file=NULL, file_name=NU
   if( is.null(temp_file)) {
     temp_file <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
                             !is.na(pred_tab$ID), "File_name_processed"])
-    }
+  }
   
-    print(paste0("Load raster called ", temp_file, "."))
+  print(paste0("Load raster called ", temp_file, "."))
     
   # read tif files with raw predictor variables across Europe
   temp_raster <- raster::raster(paste0(temp_path, "/", temp_file))
   
   # add info on coordinate reference system
-  raster::crs(temp_raster) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+  #raster::crs(temp_raster) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   
-  print("Crop raster.")
-  
+  ## no cropping needed anymore (?)
   # crop to same extent (extract out all the cells within the defined extent)
-  temp_raster <- raster::crop(temp_raster, raster::extent(raster_grid))
+  #temp_raster <- raster::crop(temp_raster, raster::extent(raster_grid))
   #raster::extent(temp_raster) <- raster::extent(raster_grid) 
   
   print("Average per grid cell(s).")
   
   # calculate average per grid cell
   temp_raster_mean <- raster::resample(temp_raster, raster_grid)
-  temp_raster_mean <- raster::rasterize(rasterToPolygons(raster_grid), temp_raster, fun=mean)
+  #temp_raster_mean <- raster::rasterize(rasterToPolygons(raster_grid), temp_raster, fun=mean)
+
+  print("Mask raster.")
+  
+  # mask to same extent (extract out all the cells within the defined extent)
+  temp_raster_mean <- raster::mask(temp_raster_mean, raster_grid)
+  #raster::extent(temp_raster) <- raster::extent(raster_grid) 
 
   # extract short predictor's name
   temp_name <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
@@ -96,6 +101,9 @@ makeToGrid <- function(raster_grid, temp_path=NULL, temp_file=NULL, file_name=NU
   raster::writeRaster(temp_raster_mean, file=paste0(temp_path, "/",file_name), overwrite=T)
   
   print(paste0("Raster called ", temp_path, "/",file_name, " saved." ))
+  
+  rm(temp_raster, temp_raster_mean)
+  temp_file <- NULL
 
 }
 
