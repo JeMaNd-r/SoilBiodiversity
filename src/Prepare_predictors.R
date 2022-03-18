@@ -145,6 +145,24 @@ makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_f
 
 
 #- - - - - - - - - - - - - - - - - - - - - 
+## Mask selected 1km grids ####
+
+# load mask file (one of CORINE land cover files)
+temp_mask <- raster::raster("D:/00_datasets/LandCover/V008_Agriculture/Agriculture_1km_mean.tif")
+
+# Aspect: no data for Ukraine
+temp_raster <- raster::raster("D:/00_datasets/Location/V015_Aspect/Aspect_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V015_Aspect/Aspect_1km_mean.tif", overwrite=T)
+
+# Dist_Urban: no (CORINE) data for Ukraine
+temp_raster <- raster::raster("D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif", overwrite=T)
+
+rm(temp_raster, temp_mask)
+
+#- - - - - - - - - - - - - - - - - - - - - 
 ## Calculate some missing 2km (!) grids ####
 
 # calculate Agriculture percentage for 2km grid
@@ -201,16 +219,19 @@ for(i in 1:length(stack_files)){
   Env <- raster::stack(Env, temp_raster)
 }
 
-# cut to grid
-Env <- raster::mask(Env, grid1k)
+## cut to grid (should not be necessary anymore...)
+#Env <- raster::mask(Env, grid1k)
+# 
+# # trim unnecessary margins
+# Env_trimmed <- trim(Env, values = NA)
+# Env_trimmed[is.na(Env_trimmed)] <- 0
+# 
+# Env <- raster::stack(Env)
 
-# trim unnecessary margins
-Env_trimmed <- trim(Env, values = NA)
-Env_trimmed[is.na(Env_trimmed)] <- 0
-
-Env <- raster::stack(Env)
-
+# save raster stack plots
+#pdf(file=paste0(here::here(), "/figures/Predictors_Europe_1km.pdf"))
 raster::plot(Env)
+dev.off()
 
 # save raster
 raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"), overwrite=T)
