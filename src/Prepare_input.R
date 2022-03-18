@@ -7,8 +7,8 @@
 
 ## needed for biomod again
 # environmental (explanatory) variables as raster file
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-myExpl <- stack(myExpl)
+myExpl <- raster::stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
+#myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## define function to split data ####
