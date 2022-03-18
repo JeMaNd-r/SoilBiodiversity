@@ -8,7 +8,6 @@
 ## needed for biomod again
 # environmental (explanatory) variables as raster file
 myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-myExpl <- crop(myExpl, extent_Europe) # crop to Europe
 myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - - -
