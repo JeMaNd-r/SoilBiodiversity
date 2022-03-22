@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
+myExpl <- raster::stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable inflation factor (VIF) ####
@@ -13,24 +13,30 @@ myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd
 # The lower VIF, the better we can tell what predictor contributed (most) to the model
 
 ## VIF basen on raw data (explanatory raster stack)
-env.vif <- usdm::vif(myExpl)
+env_vif <- usdm::vif(myExpl)
 
 # which predictors should be excluded?
-vifcor(myExpl, th=0.8)  #th = threshold vif for exclusion
+vif_cor <- usdm::vifcor(myExpl, th=0.8)  #th = threshold vif for exclusion
+# how: first find a pair of variables which has the maximum linear correlation 
+# (greater than th), and exclude one of them which has greater VIF. The 
+# procedure is repeated untill no variable with a high corrrelation coefficient 
+# (grater than threshold) with other variables remains.
+
+# merge both data.frames
+env_vif <- env_vif %>% rename("VIF_raw" = VIF) %>% full_join(vif_cor@results) %>%
+  full_join(as.data.frame(vif_cor@corMatrix) %>% mutate("Variables"=rownames(vif_cor@corMatrix)))
+
+write.csv(env_vif, file=paste0(here::here(), "/results/", Taxon_name, "/VIF_predictors_", Taxon_name, ".csv"), row.names = F)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate correlations between predictors ####
 # https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
-myExpl <- readRDS(file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd")) %>% as.data.frame
+myExpl_df <- raster::rasterToPoints(myExpl)
 
-corMatSpearman <- cor(myExpl, method="spearman") %>% round(2)
-corMatPearson <- cor(myExpl, method="pearson") %>% round(2)
+corMatSpearman <- cor(myExpl_df, use="complete.obs", method="spearman") %>% round(2)
+corMatPearson <- cor(myExpl_df, use="complete.obs", method="pearson") %>% round(2)
 
-#write.csv(corMatSpearman,"./OUT/corMatSpearman.csv")
-#write.csv(corMatPearson,"./OUT/corMatPearson.csv")
+write.csv(corMatSpearman, paste0("./results/", Taxon_name, "/corMatSpearman_predictors.csv"), row.names = F)
+write.csv(corMatPearson, paste0("./results/", Taxon_name, "/corMatPearson_predictors.csv"), row.names = F)
 
-caret::findCorrelation(corMatPearson, cutoff = 0.8, names=TRUE)
-caret::findCorrelation(corMatPearson, cutoff = 0.7, names=TRUE)
-
-
-
+rm(env_vif, vif_cor, corMatPearson, corMatSpearman, myExpl_df)
