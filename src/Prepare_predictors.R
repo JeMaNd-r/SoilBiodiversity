@@ -143,6 +143,11 @@ makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_f
 makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
            file_name="SoilT_5-15cm_1km_mean.tif")
 
+# Latitude
+temp_raster <- as.data.frame(raster::rasterToPoints(grid1k))
+temp_raster$Latitude <- temp_raster$y
+temp_raster_mean <- rasterFromXYZ(temp_raster %>% dplyr::select(-grid_1k_0p008))
+raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_1km_mean.tif", overwrite=T)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 1km grids ####
@@ -159,6 +164,11 @@ raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V015_Aspect/Aspec
 temp_raster <- raster::raster("D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
 raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif", overwrite=T)
+
+# Dist_river
+temp_raster <- raster::raster("D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif", overwrite=T)
 
 rm(temp_raster, temp_mask)
 
@@ -219,6 +229,9 @@ for(i in 1:length(stack_files)){
   Env <- raster::stack(Env, temp_raster)
 }
 
+# save raster
+raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"), overwrite=T)
+
 ## cut to grid (should not be necessary anymore...)
 #Env <- raster::mask(Env, grid1k)
 # 
@@ -229,12 +242,41 @@ for(i in 1:length(stack_files)){
 # Env <- raster::stack(Env)
 
 # save raster stack plots
-#pdf(file=paste0(here::here(), "/figures/Predictors_Europe_1km.pdf"))
-raster::plot(Env)
-dev.off()
+par(mfrow=c(5,6))
+#pdf(file=paste0(here::here(), "/figures/Predictors_Europe_1km.pdf"), height=15, width = 18)
+raster::plot(Env$Aridity)
+raster::plot(Env$MAP)
+raster::plot(Env$MAP_Seas)
+raster::plot(Env$MAT)
+raster::plot(Env$MAT_Seas)
+raster::plot(Env$Snow)
+raster::plot(Env$Agriculture)
+raster::plot(Env$Dist_Urb)
+raster::plot(Env$Forest_Coni_2012)
+raster::plot(Env$Forest_Deci_2012)
 
-# save raster
-raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"), overwrite=T)
+raster::plot(Env$Pastures)
+raster::plot(Env$Pop_Dens)
+raster::plot(Env$Shrubland)
+raster::plot(Env$NDVI)
+raster::plot(Env$Aspect)
+raster::plot(Env$Dist_Coast)
+raster::plot(Env$Dist_River)
+raster::plot(Env$Elev)
+raster::plot(Env$Lat)
+raster::plot(Env$Slope)
+
+raster::plot(Env$CEC)
+raster::plot(Env$Clay)
+raster::plot(Env$Cu)
+raster::plot(Env$Hg)
+raster::plot(Env$N)
+raster::plot(Env$P)
+raster::plot(Env$pH)
+raster::plot(Env$Silt)
+raster::plot(Env$SOC)
+raster::plot(Env$Moisture)
+dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Merge all raster files, 2km ####
