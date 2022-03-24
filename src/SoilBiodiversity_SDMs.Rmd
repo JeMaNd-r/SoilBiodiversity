@@ -436,7 +436,7 @@ occ_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-s
 occ_clean <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
 
 # load matrix containing information on number of occurrence records in grid
-occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"))
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
 
 # calculate number of records per datasource
 full_join(occ_raw %>% group_by(datasource) %>% count(name="raw"), 
@@ -455,15 +455,15 @@ count_data$RawOcc <- rowSums(count_data[,2:4], na.rm=T)
 count_data$CleanOcc <- rowSums(count_data[,5:7], na.rm=T)
 
 # add number of records after
-count_data <- count_data %>% full_join(speciesNames[,c("Species", "NumCells")], by=c("species" = "Species")) %>%
-  filter(!is.na(species))
+count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "SpeciesID", "NumCells_1km", "NumCells_2km")], by=c("species" = "Species")) %>%
+  filter(!is.na(SpeciesID))
 
 # replace NA with 0
-count_data[is.na(count_data)] <- 0
+#count_data[is.na(count_data)] <- 0
 
 # add info if species was analysed or not
 count_data$Included <- FALSE
-count_data[count_data$NumCells>=5, "Included"] <- TRUE 
+count_data[count_data$NumCells_1km >=5, "Included"] <- TRUE 
 
 # sort by included or not, and have a look
 count_data <- count_data %>% arrange(desc(Included), species)
