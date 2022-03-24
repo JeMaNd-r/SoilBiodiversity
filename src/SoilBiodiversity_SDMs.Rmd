@@ -139,11 +139,18 @@ checkSave_cleanData <- TRUE
 checkSave_precitor <- FALSE
 
 # define the species you wanted names
-#speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
-speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv")) #number of records added
+speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
 
 # define first species
 spID <- speciesNames[73, "SpeciesID"]
+```
+
+
+Let's check, how many unique species we have in the raw datasets (i.e., including non-European species from Phillips et al. 2019).
+
+```{r}
+data.frame("No_species" = length(unique(speciesNames$Species)),
+           "No_speciesID" = length(unique(speciesNames$SpeciesID)))
 ```
 
 
@@ -159,13 +166,6 @@ We first run the script to download and clean the data. We use the package Coord
 
 Note: If we download all available data (or the maximum limit of 100,000), it will take a while. If GBIF has more than 100,000 occurrence records, we need to download the data in several steps.
 
-```{r cleanOcc}
-source(file=paste0(here::here(),"Clean_occurrences.R"))
-```
-
-
-For the order Crassiclitellata, we have many occurrences in the Netherlands (countryCode="NL"), but most of them have a too high coordinateUncertainty (more than 1km), and/or are not at the species level, but at the family level only. They were therefore excluded and appear as a "red cloud" on the map above.
-
 ### Download from GBIF
 
 We additionally download data from GBIF based on a pre-defined species list that contains only soil-living taxa (whenever it was possible to separate them from aquatic taxa). From the taxa in the species list, we first identify the GBIF taxonomic key, before we download all data based on these keys.
@@ -175,32 +175,43 @@ source(file=paste0(here::here(),"/src/Download_occurrences.R"))
 ```
 
 
+```{r cleanOcc}
+source(file=paste0(here::here(),"Clean_GBIF_occurrences.R"))
+```
+
+For the order Crassiclitellata, we have many occurrences in the Netherlands (countryCode="NL"), but most of them have a too high coordinateUncertainty (more than 1km), and/or are not at the species level, but at the family level only. They were therefore excluded and appear as a "red cloud" on the map above.
+
+### Merge datasets 
+
+We will merge the three datasets and use CoordinateCleaner to remove problematic records.
+
+```{r harmonization}
+source(file=paste0(here::here(),"src/Prepare_biodiversity_data.R"))
+```
+
 ## Harmonization
 
 To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
 
-```{r harmonization}
-source(file=paste0(here::here(),"src/Harmonize_occurrences.R"))
-```
-
-## Merging
-
-We merge occurrences of taxa belonging to the same group of organism into one table and merge with the gridcell identifiers (GridID). That way it will be easier to build the ensemble models later on.
-
-First, we create again a dataframe with the pre-defined structure for the data. Then, we add each species as a column to that dataframe.
 
 ```{r mergeSpecies}
 source(file=paste0(here::here(),"src/Occurrences_to_grid.R"))
 ```
 
+```{r updateSpeciesList}
+# load species list containing information on number of occurrence records
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
+```
+
 ## Quick visualization
 
 ```{r numberOcc}
-# load species list containing information on number of occurrence records
-species.list <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
+data.frame("No_species" = length(unique(speciesNames[speciesNames$Records>0,"Species"])),
+           "No_speciesID" = length(unique(speciesNames[speciesNames$Records>0,"SpeciesID"])))
 
 # plot some of the species' occurrences
-hist(species.list$NumCells)
+hist(speciesNames$NumCells_1km)
+hist(speciesNames$NumCells_2km)
 ```
 
 The histogram shows us that most species occur in less than 500 grid cells.
