@@ -12,10 +12,6 @@ raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 grid1k <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 raster::crs(grid1k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
-# load 2km grid
-grid2k <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
-raster::crs(grid2k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-
 # load the predictor table containing the individual file names
 pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
 
@@ -149,6 +145,21 @@ temp_raster$Latitude <- temp_raster$y
 temp_raster_mean <- rasterFromXYZ(temp_raster %>% dplyr::select(-grid_1k_0p008))
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_1km_mean.tif", overwrite=T)
 
+# Albedo
+makeToGrid(temp_path="D:/00_datasets/Climate/Albedo", raster_grid = grid1k, temp_file = "Albedo_BB_2010-2020_noGrid_mean.tif",
+           file_name="Albedo_1km_mean.tif")
+
+# Aritidy index from FigShare
+makeToGrid(temp_path="D:/00_datasets/Climate/Aridity", raster_grid = grid1k, temp_file = "ai_et0.tif",
+           file_name="Aridity_1km_mean.tif")
+
+# Drought indicators
+makeToGrid(temp_path="D:/00_datasets/Climate/Drought", raster_grid = grid1k, temp_file = "Drought_CDI_2012-2020_noGrid_mean.tif",
+           file_name="Drought_CDI_2012-2020_1km_mean.tif")
+
+makeToGrid(temp_path="D:/00_datasets/Climate/Drought/DroughtHazardFrequency", raster_grid = grid1k, temp_file = "gddrg.asc",
+           file_name="Drought_DHF_1km_mean.tif")
+
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 1km grids ####
 
@@ -165,46 +176,17 @@ temp_raster <- raster::raster("D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1
 temp_raster <- raster::mask(temp_raster, temp_mask)
 raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif", overwrite=T)
 
-# Dist_river
+# Dist_River
 temp_raster <- raster::raster("D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
 raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif", overwrite=T)
 
+# Dist_Coast
+temp_raster <- raster::raster("D:/00_datasets/Location/V016_Dist_Coast/Dist_Coast_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V016_Dist_Coast/Dist_Coast_1km_mean.tif", overwrite=T)
+
 rm(temp_raster, temp_mask)
-
-#- - - - - - - - - - - - - - - - - - - - - 
-## Calculate some missing 2km (!) grids ####
-
-# calculate Agriculture percentage for 2km grid
-makeToGrid(temp_path = folders[8], raster_grid = grid2k, temp_file = "Agriculture_2012_noGrid_WGS84.tif", 
-           file_name="Agriculture_2012_2km_mean.tif")
-
-# calculate decidious Forest percentage for 2km grid
-makeToGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_Deci_2012_noGrid_WGS84.tif", 
-           file_name="Forest_Deci_2012_2km_mean.tif")
-
-# calculate coniferous Agriculture percentage for 2km grid
-makeToGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_Coni_2012_noGrid_WGS84.tif", 
-           file_name="Forest_Coni_2012_2km_mean.tif")
-
-# calculate Forest percentage for 2km grid
-makeToGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_2012_noGrid_WGS84.tif", 
-           file_name="Forest_2012_2km_mean.tif")
-
-# calculate Pasture percentage for 2km grid
-makeToGrid(temp_path = folders[12], raster_grid = grid2k, temp_file = "Pasture_2012_noGrid_WGS84.tif", 
-           file_name="Pasture_2012_2km_mean.tif")
-
-# calculate Shrubland percentage for 2km grid
-makeToGrid(temp_path = folders[14], raster_grid = grid2k, temp_file = "Shrubland_2012_noGrid_WGS84.tif", 
-           file_name="Shrubland_2012_2km_mean.tif")
-
-# SoilTemp
-makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_0_5cm.tif", 
-           file_name="SoilT_2km_mean.tif")
-
-makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
-           file_name="SoilT_5-15cm_2km_mean.tif")
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Merge all raster files, 1km ####
@@ -277,39 +259,6 @@ raster::plot(Env$Silt)
 raster::plot(Env$SOC)
 raster::plot(Env$Moisture)
 dev.off()
-
-#- - - - - - - - - - - - - - - - - - - - - 
-## Merge all raster files, 2km ####
-# get names of the 2km files
-files <- list.files(folders, include.dirs = F, recursive=F, full.names = T)
-stack_files <- files[stringr::str_detect(files, "_2km_mean.tif$")]
-
-# remove Forest (but keep Forest_Deci and Forest_Coni)
-stack_files <- stack_files[!stringr::str_detect(stack_files, "Forest_2012_")]
-
-# create empty stacj
-Env <- raster::stack()
-
-# load and merge them
-for(i in 1:length(stack_files)){
-  temp_raster <- raster::raster(stack_files[i])
-  
-  names(temp_raster) <- gsub("_2.*", "", names(temp_raster))
-  
-  temp_raster <- raster::mask(temp_raster, grid2k)
-  
-  Env <- raster::stack(Env, temp_raster)
-}
-
-# cut to grid
-Env <- raster::mask(Env, grid2k)
-
-# trim unnecessary margins
-Env_trimmed <- trim(Env, values = NA)
-Env_trimmed[is.na(Env_trimmed)] <- 0
-
-raster::plot(Env)
-
 
 # #- - - - - - - - - - - - - - - - - - - - - 
 # ## OLD CODE for fake analyses ####
