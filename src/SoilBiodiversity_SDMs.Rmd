@@ -195,7 +195,8 @@ To get all biodiversity data into the same format, we reduce available occurrenc
 
 
 ```{r mergeSpecies}
-source(file=paste0(here::here(),"src/Occurrences_to_grid.R"))
+source(file=paste0(here::here(),"src/Occurrences_to_1km_grid.R"))
+source(file=paste0(here::here(),"src/Occurrences_to_2km_grid.R"))
 ```
 
 ```{r updateSpeciesList}
