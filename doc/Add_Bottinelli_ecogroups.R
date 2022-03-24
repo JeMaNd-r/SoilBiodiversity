@@ -31,10 +31,8 @@ Edapho <- read.csv(file="../data/Edaphobase_download_24-Feb-2021_Lumbricidae_Eur
 #- - - - - - - - - - - - - - - - - - - - -
 ## Empty earthworm list ####
 
-ew_list <- tibble::tibble("Group_name" = "Earthworms", "Kingdom" = NA, "Phylum" = NA, 
-                      "Class" = NA, "Order" = NA, "Family" = "family", "Genus" = "genus",
-                      "Species" = "species", "SpeciesID" = NA, "Fct_group" = NA, "Comment" = NA,
-                      "Species_synonym" = NA)[0,]
+ew_list <- tibble::tibble("Group_name" = "Earthworms", 
+                      "Species" = "species", "SpeciesID" = NA, "Fct_group" = NA, "Comment" = NA)[0,]
 ew_list
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -49,20 +47,16 @@ Phillips <- Phillips %>%
 
 Phillips[Phillips$Ecogroup_Phillips=="Unknown", "Ecogroup_Phillips"] <- NA
 
-ew_list <- ew_list %>% full_join(Phillips)
+ew_list <- ew_list %>% full_join(Phillips[,c("Species", "Ecogroup_Phillips")] %>% unique())
 ew_list
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Add species from GBIF ####
 
-GBIF <- GBIF %>%
-  full_join(GBIF %>% dplyr::select(species, #acceptedScientificName, taxonomicStatus,
-                                   kingdom, phylum, order, family, genus) %>% unique(),
-            by=c("Species" = "species", "Kingdom" = "kingdom", "Phylum" = "phylum",
-                 "Order" = "order", "Family" = "family", "Genus" = "genus"))
-
-ew_list <- ew_list %>% full_join(GBIF %>% dplyr::select(species) %>% unique(), 
-                                 by = c("Species" = "species"))
+ew_list <- ew_list %>%
+  full_join(GBIF %>% dplyr::select(species, #acceptedScientificName, taxonomicStatus
+                                   ) %>% unique(),
+            by=c("Species" = "species"))
 ew_list
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -76,15 +70,11 @@ Edapho$Species <- gsub(",", "", Edapho$Species)
 Edapho <- Edapho %>% dplyr::select(Species) %>% unique() %>%
   filter(!str_detect(Species, " [:upper:]"))
 
-Edapho$Genus <- word(Edapho$Species, 1, 1)
+#Edapho$Genus <- word(Edapho$Species, 1, 1)
 
-ew_list <- dplyr::full_join(ew_list, Edapho %>% filter(!Species %in% ew_list$Species), by=c("Species")) %>% unique()
+ew_list <- dplyr::full_join(ew_list, Edapho %>% filter(!Species %in% ew_list$Species), 
+                            by=c("Species") %>% unique())
 ew_list
-
-# - - - - - - - - - - - - - - - - - -
-## Add missing species ID ####
-ew_list$SpeciesID <- paste0(substr(word(ew_list$Species, 1), 1, 4), "_", 
-                               substr(word(ew_list$Species, 2), 1, 4))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Define SpeciesID while accounting for synonyms ####
@@ -94,58 +84,47 @@ ew_list <- ew_list %>% filter(!str_detect(Species, " [:upper:]"))
 
 #tax_key <- rgbif::name_suggest(q=Taxon_name, rank=Taxon_rank)
 
-# fix synonyms using ITIS (Integrated Taxonomic Information System) in taxize package
-temp <- taxize::synonyms(ew_list$Species, db="itis")
-synonym_ids <- grep(pattern = "acc_name", temp) #is this the optimal solution?
-#accepted_names <- unlist(cbind(lapply(temp[synonym_ids], '[', "acc_name"), lapply(temp[synonym_ids], '[', "syn_name")), use.names = FALSE)
-all_names <- lapply(temp[synonym_ids], cbind)
-#ew_list$Species[synonym_ids] <- accepted_names
-ew_list <- ew_list %>% full_join(all_names %>% dplyr::select(acc_name, syn_name),
-                                 by=c("Species" = "acc_name")) 
+# # fix synonyms using ITIS (Integrated Taxonomic Information System) in taxize package
+# temp <- taxize::synonyms(ew_list$Species, db="itis")
+# synonym_ids <- grep(pattern = "acc_name", temp) #is this the optimal solution?
+# all_names <- lapply(temp[synonym_ids], cbind)
+# all_names <- do.call(rbind, all_names)
+# 
+# all_names$Species <- rownames(all_names)
+# all_names$Acc_name <- word(all_names$acc_name, 1, 2)
+# all_names$Synonyms <- word(all_names$syn_name, 1, 2)
+# 
+# ew_list <- ew_list %>% full_join(all_names[all_names$Synonyms %in% ew_list$Species, c("Acc_name", "Synonyms", "Species")])
 
 # fix misspellings
-species2 <- unique(species)
-temp <- taxize::gnr_resolve(species2, best_match_only = TRUE, canonical = TRUE)
-temp
+speciesA <- unique(ew_list$Species)
+temp <- taxize::gnr_resolve(speciesA, best_match_only = TRUE, canonical = TRUE)
+ew_list <- ew_list %>% full_join(temp[,c("user_supplied_name", "matched_name2")], by = c("Species" = "user_supplied_name")) %>%
+  rename("Acc_name" = matched_name2)
+ 
+# # alternative approach to only keep accepted names
+# temp <- taxize::itis_acceptname(taxize::get_tsn(speciesA))
+#  
+# #this provides nicer output and can be used to drop unknown species, AND keep synonims.
+# taxas <- taxize::tax_name(query = speciesA, get = "species", verbose = TRUE)
+# 
+# ew_list <- ew_list %>% full_join(taxas %>% mutate("tax_name" = species) %>% dplyr::select(query, tax_name), 
+#                                  by = c("Species" = "query"))
 
-species2 <- temp$matched_name2
-# here We will need to recover repeated species in an eficient way, as the are dropped.
-
-# keep accepted names only
-taxize::itis_acceptname(get_tsn(species2))
-vapply(x, itis_acceptname, "")
-
-out <- list()
-for(i in 1:length(species2)){
-  out[[i]] <- itis_acceptname(get_tsn(species2[i]))
+# - - - - - - - - - - - - - - - - - -
+## Add missing species ID ####
+ew_list$SpeciesID <- paste0(substr(word(ew_list$Acc_name, 1), 1, 5), "_", 
+                            substr(word(ew_list$Acc_name, 2), 1, 4))
+# replace "..._NA" with speciesID created by original species name
+for(i in 1:nrow(ew_list)){
+  if(stringr::str_detect(ew_list[i,]$SpeciesID, "_[:upper:]")) ew_list[i,]$SpeciesID <- paste0(substr(word(ew_list[i,]$Species, 1), 1, 5), "_", 
+                                                                         substr(word(ew_list[i,]$Species, 2), 1, 4))
 }
-#All accepted, wich is not what I want.
 
-#this provides nicer output and can be used to drop unknown species, AND keep synonims.
-taxas <- tax_name(query = species2, get = "species", verbose = TRUE)
-#fails because not all has species. in a for loop will work.
-out <- list()
-for(i in 1:length(species2)){
-  out[[i]] <- tax_name(species2[i], get = "species")
-}
-out2 <- plyr::ldply(out, data.frame)
-species2[-which(is.na(out2$species))]
-
-#note, using genus do not work, because all has genus now.
-taxas <- tax_name(query = species2, get = "genus", verbose = TRUE)
-
+length(unique(ew_list$SpeciesID))
 
 # - - - - - - - - - - - - - - - - - -
 ## Add Bottinelli to species list ####
-
-## Prepare data for merge
-# add SpeciesID column to Bottinelli
-Bottinelli$SpeciesID <- paste0(substr(Bottinelli$Genus, 1,4), "_", 
-                               substr(Bottinelli$Species, 1,4))
-
-# check how different the SpeciesID's are
-setdiff(Bottinelli$SpeciesID, ew_list$SpeciesID)
-
 ## merge Buoche species and genus name
 Bottinelli$Species_Bouche <- NA
 for(i in 1:nrow(Bottinelli)){
@@ -171,17 +150,34 @@ for(i in 1:nrow(Bottinelli)){
 }
 
 
-# try with [genus] [species] names
-Bottinelli$Species <- paste0(Bottinelli$Genus, " ", Bottinelli$Species)
+# fix misspellings in Bottinelli
+speciesB <- unique(Bottinelli$Species_Bouche)
+temp <- taxize::gnr_resolve(speciesB, best_match_only = TRUE, canonical = TRUE)
+Bottinelli <- Bottinelli %>% full_join(temp[,c("user_supplied_name", "matched_name2")], by = c("Species_Bouche" = "user_supplied_name")) %>%
+  rename("Acc_name" = matched_name2)
 
-setdiff(Bottinelli$Species, ew_list$Species)
-setdiff(Bottinelli$Species_Bouche, ew_list$Species)
+# add SpeciesID column to Bottinelli
+Bottinelli$SpeciesID <- paste0(substr(word(Bottinelli$Acc_name, 1), 1, 5), "_", 
+                               substr(word(Bottinelli$Acc_name, 2), 1, 4))
+
+# replace "..._NA" with speciesID created by original species name
+for(i in 1:nrow(Bottinelli)){
+  if(stringr::str_detect(Bottinelli[i,]$SpeciesID, "_[:upper:]")) Bottinelli[i,]$SpeciesID <- paste0(substr(word(Bottinelli[i,]$Species_Bouche, 1), 1, 4), "_", 
+                                                                                                     substr(word(Bottinelli[i,]$Species_Bouche, 2), 1, 4))
+}
+
+# check how different the SpeciesID's are
+setdiff(Bottinelli$SpeciesID, ew_list$SpeciesID)
+setdiff(ew_list$SpeciesID, Bottinelli$SpeciesID)
+
+# try with [genus] [species] names
+Bottinelli$Species_Bottinelli <- paste0(Bottinelli$Genus, " ", Bottinelli$Species)
 
 # keep only unique rows based on some criteria
-ew_data <- Bottinelli[0,c("Species", "Percent_Epigeic", "Percent_Anecic",
+ew_data <- Bottinelli[0,c("SpeciesID", "Percent_Epigeic", "Percent_Anecic",
                         "Percent_Endogeic")]
-for(i in unique(Bottinelli$Species)){
-  data <- Bottinelli[Bottinelli$Species==i,]
+for(i in unique(Bottinelli$SpeciesID)){
+  data <- Bottinelli[Bottinelli$SpeciesID==i,]
   temp.species <- i
   temp.subspecies <- NA
   
@@ -190,8 +186,8 @@ for(i in unique(Bottinelli$Species)){
     temp.species <- !stringr::str_detect(data$Subspecies_Bouche, data$Species)
   }  
   # average percentages
-  temp.data <- data %>% dplyr::select(Species, Percent_Epigeic, Percent_Anecic, Percent_Endogeic) %>% 
-    group_by(Species) %>% summarise_all(mean)
+  temp.data <- data %>% dplyr::select(SpeciesID, Percent_Epigeic, Percent_Anecic, Percent_Endogeic) %>% 
+    group_by(SpeciesID) %>% summarise_all(mean)
 
   # take most frequently used Botinelli group for this species
   temp.data$Ecogroup_Bottinelli <- names(table(data$Ecogroup_Bottinelli)[
@@ -224,16 +220,40 @@ for(i in 1:nrow(ew_list)){
 #- - - - - - - - - - - - - - - - - - - - -
 ## Add family if missing ####
 
-Phylogeny <- ew_list %>% 
-  dplyr::select(Group_name, Kingdom, Phylum, Class, Order, Family, Genus) %>%
-  unique() %>%
-  filter(!is.na(Family), !is.na(Kingdom))
+phylogeny <- taxize::classification(ew_list$Acc_name, db="itis", rows=NA) #rows=NA means all rows
+phylogeny_list <- lapply(1:length(phylogeny), function(x) {
+  if(!is.na(phylogeny[[x]])) pivot_wider(phylogeny[[x]] %>% dplyr::select(-id),names_from = rank, values_from=name)})
+phylogeny_df <- bind_rows(phylogeny_list)
 
-ew_list <- dplyr::inner_join(ew_list, Phylogeny)
+ew_list <- ew_list %>% full_join(phylogeny_df, by=c("Acc_name" = "species"))
+
+ew_list[is.na(ew_list$genus),"genus"] <- word(ew_list[is.na(ew_list$genus),]$Acc_name, 1, 1)
+
+ew_list %>% inner_join(ew_list %>% dplyr::select(kingdom, phylum, order, family, genus) %>% unique(), by=c("kingdom", "phylum", "order", "family", "genus"))
+
+
+ew_list$Group_name <- "Earthworms"
+
+# #... TODO: use taxize to get information :)
+# Phylogeny <- ew_list %>% 
+#   dplyr::select(Group_name, Kingdom, Phylum, Class, Order, Family, Genus) %>%
+#   unique() %>%
+#   filter(!is.na(Family), !is.na(Kingdom))
+# 
+# ew_list <- dplyr::full_join(ew_list, Phylogeny)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Save expanded ew_list ####
-ew_list <- ew_list %>% arrange("Order", "Family", "Genus", "Species")
+ew_list <- ew_list[order(ew_list$Acc_name),]
+ew_list
 
 write.csv(ew_list, file="../data/Species_list_Crassiclitellata.csv", row.names = F)
+
+# BY HAND:
+# add remaining (missing) classification based on already present genus, or with internet.
+# remove duplicates
+# add wrong speciesID (Leptogaster in Lennogaster)
+# make Firzingeria depressa classification to Firzingeria (not otehr genus)
+# result: 351 unique species names ...
+
 
