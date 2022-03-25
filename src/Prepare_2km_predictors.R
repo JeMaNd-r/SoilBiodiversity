@@ -15,13 +15,17 @@ raster::crs(grid2k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs8
 # load the predictor table containing the individual file names
 pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
 
+# combine ID and Predictor name (to get folder names later on)
+pred_tab$Predictor_long <- pred_tab$Predictor
+pred_tab[!is.na(pred_tab$ID),]$Predictor_long <- paste0(pred_tab[!is.na(pred_tab$ID),]$ID, "_", pred_tab[!is.na(pred_tab$ID),]$Predictor)
+
 # list the names of the variable's folders that will be included in the analysis
 folders <- c(list.dirs("D:/00_datasets/Climate", recursive=F))
 folders <- c(folders, list.dirs("D:/00_datasets/LandCover", recursive=F)) 
 folders <- c(folders, list.dirs("D:/00_datasets/Location", recursive=F))
 folders <- c(folders, list.dirs("D:/00_datasets/Soil", recursive=F))
 
-folders <- folders[stringr::str_detect(folders,"V[:digit:]{3}_")]
+#folders <- folders[stringr::str_detect(folders,"V[:digit:]{3}_")]
 folders
 
 #- - - - - - - - - - - - - - - - - - - - - 
@@ -48,16 +52,20 @@ makeTo2kmGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL
   # file_name:    Name of the output file.
   
   # define variable name (= folder name)
-  temp_pred <- stringr::str_extract(temp_path, "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
+  temp_pred <- stringr::str_split_fixed(temp_path,"/",4)[4]
+  #temp_pred <- stringr::str_extract(temp_path, "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
   
   # extract file name
-  if( is.null(temp_file)) {
-    temp_file <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
-                            !is.na(pred_tab$ID), "File_name_processed"])
+  if(is.null(temp_file)) {
+    temp_file <- as.character(pred_tab[pred_tab$Predictor_long==temp_pred, "File_name_processed"])
+    
+    # in case that 1km and 2km have differencly processed files:
+    if(stringr::str_detect(temp_file, "1km")) {
+      temp_file <- stringr::str_replace(temp_file, "1km", "2km")}
   }
   
   print(paste0("Load raster called ", temp_file, "."))
-    
+  
   # read tif files with raw predictor variables across Europe
   temp_raster <- raster::raster(paste0(temp_path, "/", temp_file))
   
@@ -74,21 +82,20 @@ makeTo2kmGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL
   # calculate average per grid cell
   temp_raster_mean <- raster::resample(temp_raster, raster_grid)
   #temp_raster_mean <- raster::rasterize(rasterToPolygons(raster_grid), temp_raster, fun=mean)
-
+  
   print("Mask raster.")
   
   # mask to same extent (extract out all the cells within the defined extent)
   temp_raster_mean <- raster::mask(temp_raster_mean, raster_grid)
   #raster::extent(temp_raster) <- raster::extent(raster_grid) 
-
+  
   # extract short predictor's name
-  temp_name <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
-             !is.na(pred_tab$ID), "Predictor"])
+  temp_name <- as.character(pred_tab[pred_tab$Predictor_long==temp_pred, "Predictor"])
   
   #temp_raster_mean2 <- crop(temp_raster_mean, raster_grid)
   
   if( is.null(file_name) ){
-    file_name <- paste0(temp_name, "_2km_mean", ".tif")
+    file_name <- paste0(temp_name, "_2km_mean.tif")
   }
   
   print("Save raster.")
@@ -96,11 +103,11 @@ makeTo2kmGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL
   # save raster
   raster::writeRaster(temp_raster_mean, file=paste0(temp_path, "/",file_name), overwrite=T)
   
-  print(paste0("Raster called ", temp_path, "/",file_name, " saved." ))
+  print(paste0("Raster called ", temp_path, "/", file_name, " saved." ))
   
   rm(temp_raster, temp_raster_mean)
   temp_file <- NULL
-
+  
 }
 
 #parallel::stopCluster(cluster)
@@ -119,63 +126,6 @@ temp_raster <- as.data.frame(raster::rasterToPoints(grid2k))
 temp_raster$Latitude <- temp_raster$y
 temp_raster_mean <- raster::rasterFromXYZ(temp_raster %>% dplyr::select(-grid_2k_0p016))
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_2km_mean.tif", overwrite=T)
-
-# calculate Agriculture percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[8], raster_grid = grid2k, temp_file = "Agriculture_2012_noGrid_WGS84.tif", 
-           file_name="Agriculture_2012_2km_mean.tif")
-
-# calculate decidious Forest percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_Deci_2012_noGrid_WGS84.tif", 
-           file_name="Forest_Deci_2012_2km_mean.tif")
-
-# calculate coniferous Agriculture percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_Coni_2012_noGrid_WGS84.tif", 
-           file_name="Forest_Coni_2012_2km_mean.tif")
-
-# calculate Forest percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[10], raster_grid = grid2k, temp_file = "Forest_2012_noGrid_WGS84.tif", 
-           file_name="Forest_2012_2km_mean.tif")
-
-# calculate Pasture percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[12], raster_grid = grid2k, temp_file = "Pasture_2012_noGrid_WGS84.tif", 
-           file_name="Pasture_2012_2km_mean.tif")
-
-# calculate Shrubland percentage for 2km grid
-makeTo2kmGrid(temp_path = folders[14], raster_grid = grid2k, temp_file = "Shrubland_2012_noGrid_WGS84.tif", 
-           file_name="Shrubland_2012_2km_mean.tif")
-
-# Dist_Coast
-makeTo2kmGrid(temp_path = "D:/00_datasets/Location/V016_Dist_Coast", raster_grid=grid2k, temp_file = "Dist_Coast_2012_distance_2km_WGS84.tif", 
-           file_name = "Dist_Coast_2km_mean.tif")
-
-# Dist_River
-makeTo2kmGrid(temp_path = "D:/00_datasets/Location/V017_Dist_River", raster_grid=grid2k, temp_file = "Dist_River_2012_distance_2km_WGS84.tif", 
-           file_name = "Dist_River_2km_mean.tif")
-
-# SoilTemp
-makeTo2kmGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_0_5cm.tif", 
-           file_name="SoilT_0-5cm_2km_mean.tif")
-
-makeTo2kmGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
-           file_name="SoilT_5-15cm_2km_mean.tif")
-
-# WorldClim data
-makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/MAP", raster_grid = grid2k, temp_file = "bio12_download_2022-01-10.grd", 
-           file_name="MAP_WorldClim_2km_mean.tif")
-
-makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/MAP_Seas", raster_grid = grid2k, temp_file = "bio15_download_2022-01-10.grd", 
-           file_name="MAP_Seas_WorldClim_2km_mean.tif")
-
-makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/MAT", raster_grid = grid2k, temp_file = "bio01_download_2022-01-10.grd", 
-           file_name="MAT_WorldClim_2km_mean.tif")
-
-makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/MAT_Seas", raster_grid = grid2k, temp_file = "bio04_download_2022-01-10.grd", 
-           file_name="MAT_Seas_WorldClim_2km_mean.tif")
-
-# Aritidy index from FigShare
-makeTo2kmGrid(temp_path="D:/00_datasets/Climate/Aridity", raster_grid = grid2k, temp_file = "ai_et0.tif",
-           file_name="Aridity_2km_mean.tif")
-
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 2km grids ####

@@ -15,13 +15,17 @@ raster::crs(grid1k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs8
 # load the predictor table containing the individual file names
 pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
 
+# combine ID and Predictor name (to get folder names later on)
+pred_tab$Predictor_long <- pred_tab$Predictor
+pred_tab[!is.na(pred_tab$ID),]$Predictor_long <- paste0(pred_tab[!is.na(pred_tab$ID),]$ID, "_", pred_tab[!is.na(pred_tab$ID),]$Predictor)
+
 # list the names of the variable's folders that will be included in the analysis
 folders <- c(list.dirs("D:/00_datasets/Climate", recursive=F))
 folders <- c(folders, list.dirs("D:/00_datasets/LandCover", recursive=F)) 
 folders <- c(folders, list.dirs("D:/00_datasets/Location", recursive=F))
 folders <- c(folders, list.dirs("D:/00_datasets/Soil", recursive=F))
 
-folders <- folders[stringr::str_detect(folders,"V[:digit:]{3}_")]
+#folders <- folders[stringr::str_detect(folders,"V[:digit:]{3}_")]
 folders
 
 #- - - - - - - - - - - - - - - - - - - - - 
@@ -48,14 +52,15 @@ makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
   # file_name:    Name of the output file.
   
   # define variable name (= folder name)
-  temp_pred <- stringr::str_extract(temp_path, "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
+  temp_pred <- stringr::str_split_fixed(temp_path,"/",4)[,4]
+  #temp_pred <- stringr::str_extract(temp_path, "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
   
   # extract file name
-  if( is.null(temp_file)) {
-    temp_file <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
-                            !is.na(pred_tab$ID), "File_name_processed"])
+  if(is.null(temp_file)) {
+    temp_file <- as.character(pred_tab[pred_tab$Predictor_long==temp_pred, "File_name_processed"])
   }
   
+  print("===========================================")
   print(paste0("Load raster called ", temp_file, "."))
     
   # read tif files with raw predictor variables across Europe
@@ -82,13 +87,12 @@ makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
   #raster::extent(temp_raster) <- raster::extent(raster_grid) 
 
   # extract short predictor's name
-  temp_name <- as.character(pred_tab[pred_tab$ID==stringr::str_extract(temp_pred, "V[:digit:]{3}") &
-             !is.na(pred_tab$ID), "Predictor"])
+  temp_name <- as.character(pred_tab[pred_tab$Predictor_long==temp_pred, "Predictor"])
   
   #temp_raster_mean2 <- crop(temp_raster_mean, raster_grid)
   
   if( is.null(file_name) ){
-    file_name <- paste0(temp_name, "_1km_mean", ".tif")
+    file_name <- paste0(temp_name, "_1km_mean.tif")
   }
   
   print("Save raster.")
@@ -96,7 +100,7 @@ makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
   # save raster
   raster::writeRaster(temp_raster_mean, file=paste0(temp_path, "/",file_name), overwrite=T)
   
-  print(paste0("Raster called ", temp_path, "/",file_name, " saved." ))
+  print(paste0("Raster called ", temp_path, "/", file_name, " saved." ))
   
   rm(temp_raster, temp_raster_mean)
   temp_file <- NULL
@@ -145,20 +149,12 @@ temp_raster$Latitude <- temp_raster$y
 temp_raster_mean <- rasterFromXYZ(temp_raster %>% dplyr::select(-grid_1k_0p008))
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_1km_mean.tif", overwrite=T)
 
-# Albedo
-makeToGrid(temp_path="D:/00_datasets/Climate/Albedo", raster_grid = grid1k, temp_file = "Albedo_BB_2010-2020_noGrid_mean.tif",
-           file_name="Albedo_1km_mean.tif")
+# Snow (MODIS)
+makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_file = "Snow_2010-2019_noGrid_mean.tif",
+           file_name="Snow_2010-2019_1km_mean.tif")
 
-# Aritidy index from FigShare
-makeToGrid(temp_path="D:/00_datasets/Climate/Aridity", raster_grid = grid1k, temp_file = "ai_et0.tif",
-           file_name="Aridity_1km_mean.tif")
-
-# Drought indicators
-makeToGrid(temp_path="D:/00_datasets/Climate/Drought", raster_grid = grid1k, temp_file = "Drought_CDI_2012-2020_noGrid_mean.tif",
-           file_name="Drought_CDI_2012-2020_1km_mean.tif")
-
-makeToGrid(temp_path="D:/00_datasets/Climate/Drought/DroughtHazardFrequency", raster_grid = grid1k, temp_file = "gddrg.asc",
-           file_name="Drought_DHF_1km_mean.tif")
+makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_file = "Snow_2000-2009_noGrid_mean.tif",
+           file_name="Snow_2000-2009_1km_mean.tif")
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 1km grids ####
