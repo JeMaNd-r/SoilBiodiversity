@@ -11,7 +11,10 @@ load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) #SDMs
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance (VI) ####
 # create result data frame
-var_imp <- data.frame("Predictor"= predictorNames)
+var_imp <- data.frame("Predictor"= c("bio1", "bio2",  "bio3",  "bio4",  "bio5",  
+                                     "bio6",  "bio7",  "bio8",  "bio9",  "bio10", 
+                                     "bio11", "bio12", "bio13", "bio14", "bio15", 
+                                     "bio16", "bio17", "bio18", "bio19"))
 
 # for loop through all models
 for(i in 1:length(SDMs)){ try({
@@ -112,16 +115,6 @@ for(i in 1:length(SDMs)){ try({
     
     rm(temp.results)
   }    
-  
-  #- - - - - - - - - - - - - - - - - - - - - -
-  ## XGB ####
-  if(temp.model == "xgb_pred"){
-    
-    temp.vi <- SDMs[[temp.model]][[6]]
-    temp.vi <- as.data.frame(temp.vi)
-    colnames(temp.vi)[2] <- as.character(temp.model)
-    #print(temp.vi)
-  }
   
   #- - - - - - - - - - - - - - - - - - - - - -
   ## BRT ####
@@ -253,19 +246,27 @@ for(i in 1:length(SDMs)){ try({
   
   }
   
+  #- - - - - - - - - - - - - - - - - - - - - -
   ## Ensemble ##
   # see below
   if(temp.model == "ensm_pred"){ next }
-    
+   
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## ALL ## 
+  #- - - - - - - - - - - - - - - - - - - - - -
   # harmonizes predictor column structure
   temp.vi$Predictor <- as.character(temp.vi$Predictor)
   
-  # scale variable importance values between 0 and 10
-  temp.vi[,temp.model] <- scales::rescale(abs(temp.vi[,temp.model]), c(0,10))
+  # # scale variable importance values between 0 and 10
+  # temp.vi[,temp.model] <- scales::rescale(abs(temp.vi[,temp.model]), c(0,10))
+   
+  # scale to get relative importance: % of sum of importances
+  temp_sum <- sum(abs(temp.vi[,temp.model]), na.rm=T)
+  temp.vi[,temp.model] <- abs(temp.vi[,temp.model]) / temp_sum
   
   # round variable importance to 3 decimals
   temp.vi[,temp.model] <- round(temp.vi[,temp.model], 3)
-  
+   
   var_imp <- dplyr::full_join(var_imp, temp.vi)
   
   # replace NA with 0
@@ -278,7 +279,7 @@ for(i in 1:length(SDMs)){ try({
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Ensemble ####
 # average variable importances of individual models
-var_imp$ensemble <- rowMeans(var_imp[,c("gm_pred", "lasso_pred", "brt2_pred", "rf2_pred", "maxmod_pred")], na.rm=T) 
+var_imp$ensemble <- round(rowMeans(var_imp[,c("gm_pred", "lasso_pred", "brt2_pred", "rf2_pred", "maxmod_pred")], na.rm=T),3)
 
 var_imp
 
