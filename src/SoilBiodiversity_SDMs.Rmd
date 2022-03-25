@@ -142,7 +142,7 @@ checkSave_precitor <- FALSE
 speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
 
 # define first species
-spID <- speciesNames[73, "SpeciesID"]
+spID <- speciesNames[239, "SpeciesID"]
 ```
 
 
@@ -690,9 +690,10 @@ var_imp <- var_imp %>%
   pivot_longer(cols=colnames(var_imp[,-1]), names_to = "model", values_to = "varImp")
 
 # plot VIF
-plotVarImp <- ggplot(data=var_imp, aes(x=varImp, y=Predictor, fill=model))+
+plotVarImp <- ggplot(data=var_imp, aes(x=varImp, y=Predictor, fill=Predictor))+
   geom_bar(stat="identity")+
   xlab("Variable importance (Sum of scaled importances [0,10])")+
+  facet_wrap(vars(model))+
   theme_bw()
 plotVarImp
 
