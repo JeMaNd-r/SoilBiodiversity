@@ -10,13 +10,10 @@
 
 # environmental (explanatory) variables as raster file
 myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-# crop to Europe
-for(i in 1:nlayers(myExpl)) {
-  myExpl[[i]] <- raster::mask(myExpl[[i]], 
-                              as(extent(extent_Europe), 'SpatialPolygons'))}
 
 # response variable (i.e., species occurrences) in wide format
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_", Taxon_name, ".csv"))
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
+#mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 ## parallelize
 # Calculate the number of cores
@@ -26,8 +23,8 @@ no.cores <- detectCores()/2; no.cores
 registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
-## For loop through all Federal State folders ####
-foreach(myRespName = speciesNames[speciesNames$NumCells >=5,]$SpeciesID, .export = c("mySpeciesOcc"), 
+## For loop through all species ####
+foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
   # define response variable index
