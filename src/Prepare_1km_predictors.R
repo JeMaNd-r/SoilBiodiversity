@@ -118,28 +118,11 @@ for(i in 1:length(folders)){ try({
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Calculate some missing 1km grids ####
 
-# Forest: there are multiple files in the same folder
-makeToGrid(temp_path = folders[10], raster_grid=grid1k, temp_file = "Forest_2012_noGrid_WGS84.tif", 
-           file_name = "Forest_2012_1km_mean.tif")
-
-makeToGrid(temp_path = folders[10], raster_grid=grid1k, temp_file = "Forest_Coni_2012_noGrid_WGS84.tif", 
-           file_name = "Forest_Coni_2012_1km_mean.tif")
-
-makeToGrid(temp_path = folders[10], raster_grid=grid1k, temp_file = "Forest_Deci_2012_noGrid_WGS84.tif", 
-           file_name = "Forest_Deci_2012_1km_mean.tif")
-
 ## Check what has been calculated
 files <- list.files(folders, include.dirs = F, recursive=F)
 files[stringr::str_detect(files, "_1km_mean.tif$")]
 
-
-#- - - - - - - - - - - - - - - - - - - - - 
-## Calculate additional 1km grids ####
-
 # SoilTemp
-makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_file = "SBIO1_Annual_Mean_Temperature_0_5cm.tif", 
-           file_name="SoilT_1km_mean.tif")
-
 makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
            file_name="SoilT_5-15cm_1km_mean.tif")
 
@@ -149,12 +132,13 @@ temp_raster$Latitude <- temp_raster$y
 temp_raster_mean <- rasterFromXYZ(temp_raster %>% dplyr::select(-grid_1k_0p008))
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_1km_mean.tif", overwrite=T)
 
-# Snow (MODIS)
-makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_file = "Snow_2010-2019_noGrid_mean.tif",
-           file_name="Snow_2010-2019_1km_mean.tif")
-
+# Snow (MODIS) for 2000-2009
 makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_file = "Snow_2000-2009_noGrid_mean.tif",
            file_name="Snow_2000-2009_1km_mean.tif")
+
+# Dist_Roads (from shapefile)
+# with ArcGIS.... Conversion -> To Raster -> Output cell size = CLC raw file from 2012
+
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 1km grids ####
