@@ -421,6 +421,15 @@ source(file=paste0(here::here(), "/Prediction_to_raster.R"))
 ```
 
 
+# Uncertainty and sensitivity analysis
+
+Sensitivity analysis: We will check, if SDMs for species with many occurrence records (i.e., present in >200 grid cells) are similar to the SDMs for the same species made with only a subset of available records (i.e., with only 50, 10, and 5 records).
+
+```{r}
+source(file=paste0(here::here(), "/Sensitivity_analysis.R"))
+```
+
+
 # Results and Visualization
 
 ## Input data
