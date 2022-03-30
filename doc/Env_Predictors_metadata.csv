@@ -1,3 +1,4 @@
+Column name,,Description,,,unit
 Predictor,,Short name of the predictor variable,,,
 ID,,Unique identifier (V000) for each dataset,,,
 Long_name,,Long (full) name of the predictorvariable,,,
@@ -5,10 +6,12 @@ Category,,One of pre-defined categories that can be used later on to classify th
 Original_name,,Name of the variable in the original data set,,,
 File_name,,Name of the file downloaded,,,
 File_name_processed,,Name of the processed file as input for R script (to get to 1km grid),,,
+File_name_as_2km_grid,,Name of the processed file already saved as 2km grid,,,
 Unit,,Unit of the original data set,,,logical (presence/absence = 0/1)
 Range,,Range of the values overall,,,
 Range_EU,,Range of the values in Europe,,,
 Resolution,,Resolution of the original data set,,,"decimal degree, 0.00833 = 30arc seconds = 1km² = scale 1:1Mio"
+Resolution_temporal,,Temporal resolution of the original data set (e.g. weekly or monthly or yearly data),,,
 Projection,,Projection or geographic coordinate reference system of the original data set,,,
 Temporal_period,,Time period,,,
 Time,,Future (F) or current (C) time period,,,
@@ -16,4 +19,7 @@ Reference,,Author and year of the publication or data set,,,
 Reference_DOI,,DOI of the reference,,,
 Link,,Link to the data set to download,,,
 Transformation,,"If applicable, how was the original data transformed (combination of datasets, log-transformation etc.)",,,
+Reprojected_to_WGS84,,"Was the original file re-projected to WGS1984 before it has been converted into the grid? (Yes, No)",,,
+Comment,,,,,
+Comment_citation,,Comment regarding the proper citation of the dataset,,,
 DOI_data,,DOI number of the downloaded dataset,,,
