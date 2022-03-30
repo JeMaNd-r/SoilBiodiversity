@@ -10,6 +10,9 @@
 # same species made with only a subset of available records (i.e., with only 50, 
 # 10, and 5 records).
 
+# change temporary directory for files
+raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+
 # We will test this for RF, GAM and biomod only.
 # This script is based on the following scripts:
 # "Create_backgroundData.R"
@@ -27,6 +30,7 @@ mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasteriz
 #mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 # get species with more than equal to 200 records:
+if(is.null(speciesNames$NumCells_1km)) print("Please use the species list in the results folder!")
 temp_species <- speciesNames[speciesNames$NumCells_1km >= 200,]$SpeciesID
 
 # subset species' records
@@ -34,7 +38,7 @@ mySpeciesOcc <- mySpeciesOcc[,c("x", "y", temp_species)]
 
 ## parallelize
 # Calculate the number of cores
-no.cores <- detectCores()/2; no.cores
+no.cores <- length(temp_species)/2; no.cores
 
 # Initiate cluster used in foreach function
 registerDoParallel(no.cores)
@@ -44,15 +48,16 @@ registerDoParallel(no.cores)
 foreach(myRespName = temp_species, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
-          # define response variable index
-          myResp <- as.numeric(mySpeciesOcc[,myRespName])
           
-          # get NAs id
-          na.id <- which(is.na(myResp))
+      for(no_subset in c(5, 10, 50)){
           
-          # remove NAs to enforce PA sampling to be done on explanatory rasters
-          myResp <- myResp[-na.id]
-          myRespCoord <- mySpeciesOcc[-na.id,c('x','y')]
+          # subset occurrence records
+          mySpeciesOcc_temp <- mySpeciesOcc[!is.na(mySpeciesOcc[,myRespName]),] %>% 
+            dplyr::slice_sample(n = no_subset)
+        
+          # define response variable
+          myResp <- as.numeric(mySpeciesOcc_temp[,myRespName])
+          myRespCoord <- mySpeciesOcc_temp[,c('x','y')]
           
           # create summary table for model settings
           model.settings <- data.frame(SpeciesID=myRespName, model="X", strategy="test", 
@@ -187,12 +192,12 @@ foreach(myRespName = temp_species, .export = c("mySpeciesOcc"),
           # save background data
           bg.list <- list(bg.glm, bg.rf, bg.biomod)
           names(bg.list) <- c("bg.glm", "bg.rf", "bg.biomod")
-          save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_", Taxon_name, "_", myRespName, ".RData"))
+          save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_", Taxon_name, "_", myRespName, "_", no_subset, ".RData"))
           # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_GLM_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
           # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_MARS_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
           # write.csv(bg.mda, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_MDA_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
           # write.csv(bg.rf, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_RF_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-        }
+        }}
 
 # at the end
 stopImplicitCluster()
