@@ -13,7 +13,7 @@ grid1k <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 raster::crs(grid1k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
 
 # combine ID and Predictor name (to get folder names later on)
 pred_tab$Predictor_long <- pred_tab$Predictor
@@ -46,6 +46,8 @@ makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
   
   # makeToGrid takes the temp_file to re-project it into the same extent and resolution as raster_grid.
   
+  print("===========================================")
+  
   # raster_grid:  RasterLayer of a grid.
   # temp_path:    Path to the input file and at the same time output directory.
   # temp_file:    Name of the input file that will be re-projected.
@@ -60,7 +62,6 @@ makeToGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL){
     temp_file <- as.character(pred_tab[pred_tab$Predictor_long==temp_pred, "File_name_processed"])
   }
   
-  print("===========================================")
   print(paste0("Load raster called ", temp_file, "."))
     
   # read tif files with raw predictor variables across Europe
@@ -138,13 +139,20 @@ makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_f
 
 # Dist_Roads (from shapefile)
 # with ArcGIS.... Conversion -> To Raster -> Output cell size = CLC raw file from 2012
+# Eucleadian distance...
 
+# Clay+Silt
+temp_clay <- raster::raster("D:/00_datasets/Soil/Clay/Clay_1km_mean.tif")
+temp_silt <- raster::raster("D:/00_datasets/Soil/Silt/Silt_1km_mean.tif")
+
+temp_raster <- temp_clay + temp_silt
+raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+Silt_1km_mean.tif", overwrite=T)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 1km grids ####
 
 # load mask file (one of CORINE land cover files)
-temp_mask <- raster::raster("D:/00_datasets/LandCover/V008_Agriculture/Agriculture_1km_mean.tif")
+temp_mask <- raster::raster("D:/00_datasets/LandCover/V021_Agriculture/Agriculture_1km_mean.tif")
 
 # Aspect: no data for Ukraine
 temp_raster <- raster::raster("D:/00_datasets/Location/V015_Aspect/Aspect_1km_mean.tif")
@@ -152,19 +160,29 @@ temp_raster <- raster::mask(temp_raster, temp_mask)
 raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V015_Aspect/Aspect_1km_mean.tif", overwrite=T)
 
 # Dist_Urban: no (CORINE) data for Ukraine
-temp_raster <- raster::raster("D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif")
+temp_raster <- raster::raster("D:/00_datasets/LandCover/V022_Dist_Urban/Dist_Urban_1km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
-raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V009_Dist_Urb/Dist_Urb_1km_mean.tif", overwrite=T)
+raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V022_Dist_Urban/Dist_Urban_1km_mean.tif", overwrite=T)
 
 # Dist_River
-temp_raster <- raster::raster("D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif")
+temp_raster <- raster::raster("D:/00_datasets/Location/V043_Dist_River/Dist_River_1km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
-raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V017_Dist_River/Dist_River_1km_mean.tif", overwrite=T)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V043_Dist_River/Dist_River_1km_mean.tif", overwrite=T)
 
 # Dist_Coast
-temp_raster <- raster::raster("D:/00_datasets/Location/V016_Dist_Coast/Dist_Coast_1km_mean.tif")
+temp_raster <- raster::raster("D:/00_datasets/Location/V042_Dist_Coast/Dist_Coast_1km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
-raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V016_Dist_Coast/Dist_Coast_1km_mean.tif", overwrite=T)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V042_Dist_Coast/Dist_Coast_1km_mean.tif", overwrite=T)
+
+# Dist_Roads
+temp_raster <- raster::raster("D:/00_datasets/LandCover/Dist_Roads/Dist_Roads_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/Dist_Roads/Dist_Roads_1km_mean.tif", overwrite=T)
+
+# Impervious
+temp_raster <- raster::raster("D:/00_datasets/LandCover/Impervious/Impervious_1km_mean.tif")
+temp_raster <- raster::mask(temp_raster, temp_mask)
+raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/Impervious/Impervious_1km_mean.tif", overwrite=T)
 
 rm(temp_raster, temp_mask)
 
@@ -174,8 +192,15 @@ rm(temp_raster, temp_mask)
 files <- list.files(folders, include.dirs = F, recursive=F, full.names = T)
 stack_files <- files[stringr::str_detect(files, "_1km_mean.tif$")]
 
+# keep only V0XX variables
+stack_files <- stack_files[stringr::str_detect(stack_files, "V[:digit:]{3}")]
+
 # remove Forest (but keep Forest_Deci and Forest_Coni)
 stack_files <- stack_files[!stringr::str_detect(stack_files, "Forest_2012_")]
+# remove SoilT at 5-15cm
+stack_files <- stack_files[!stringr::str_detect(stack_files, "SoilT_5-15cm_")]
+stack_files <- stack_files[!stringr::str_detect(stack_files, "Snow_2000-2009")]
+stack_files
 
 # create empty stacj
 Env <- raster::stack()
@@ -192,7 +217,7 @@ for(i in 1:length(stack_files)){
 }
 
 # save raster
-raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"), overwrite=T)
+raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km.grd", overwrite=T)
 
 ## cut to grid (should not be necessary anymore...)
 #Env <- raster::mask(Env, grid1k)
@@ -203,41 +228,37 @@ raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_", Tax
 # 
 # Env <- raster::stack(Env)
 
+#pdf(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/figures/Predictors_Europe_1km.pdf", height=15, width = 18)
+raster::plot(Env, maxnl=35)
+dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Save all ####
 # save raster stack plots
-par(mfrow=c(5,6))
-#pdf(file=paste0(here::here(), "/figures/Predictors_Europe_1km.pdf"), height=15, width = 18)
-raster::plot(Env$Aridity)
-raster::plot(Env$MAP)
-raster::plot(Env$MAP_Seas)
-raster::plot(Env$MAT)
-raster::plot(Env$MAT_Seas)
-raster::plot(Env$Snow)
-raster::plot(Env$Agriculture)
-raster::plot(Env$Dist_Urb)
-raster::plot(Env$Forest_Coni_2012)
-raster::plot(Env$Forest_Deci_2012)
+files <- list.files(folders, include.dirs = F, recursive=F, full.names = T)
+stack_files <- files[stringr::str_detect(files, "_1km_mean.tif$")]
 
-raster::plot(Env$Pastures)
-raster::plot(Env$Pop_Dens)
-raster::plot(Env$Shrubland)
-raster::plot(Env$NDVI)
-raster::plot(Env$Aspect)
-raster::plot(Env$Dist_Coast)
-raster::plot(Env$Dist_River)
-raster::plot(Env$Elev)
-raster::plot(Env$Lat)
-raster::plot(Env$Slope)
+stack_files
 
-raster::plot(Env$CEC)
-raster::plot(Env$Clay)
-raster::plot(Env$Cu)
-raster::plot(Env$Hg)
-raster::plot(Env$N)
-raster::plot(Env$P)
-raster::plot(Env$pH)
-raster::plot(Env$Silt)
-raster::plot(Env$SOC)
-raster::plot(Env$Moisture)
+# create empty stacj
+Env <- raster::stack()
+
+# load and merge them
+for(i in 1:length(stack_files)){
+  temp_raster <- raster::raster(stack_files[i])
+  
+  names(temp_raster) <- gsub("_1.*", "", names(temp_raster))
+  
+  temp_raster <- raster::mask(temp_raster, grid1k)
+  
+  Env <- raster::stack(Env, temp_raster)
+}
+
+# save raster
+raster::writeRaster(Env, file="D:/00_datasets/EnvPredictor_1km_all.grd", overwrite=T)
+
+#pdf(file="D:/00_datasets/Predictors_Europe_1km.pdf", height=15, width = 18)
+raster::plot(Env, maxnl=70)
 dev.off()
 
 # #- - - - - - - - - - - - - - - - - - - - - 
