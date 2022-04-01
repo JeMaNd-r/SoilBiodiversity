@@ -159,9 +159,9 @@ makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_f
 temp_mask <- raster::raster("D:/00_datasets/LandCover/V021_Agriculture/Agriculture_2km_mean.tif")
 
 # Aspect: no data for Ukraine
-temp_raster <- raster::raster("D:/00_datasets/Location/V015_Aspect/Aspect_2km_mean.tif")
+temp_raster <- raster::raster("D:/00_datasets/Location/V041_Aspect/Aspect_2km_mean.tif")
 temp_raster <- raster::mask(temp_raster, temp_mask)
-raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V015_Aspect/Aspect_2km_mean.tif", overwrite=T)
+raster::writeRaster(temp_raster, file="D:/00_datasets/Location/V041_Aspect/Aspect_2km_mean.tif", overwrite=T)
 
 # Dist_Urban: no (CORINE) data for Ukraine
 temp_raster <- raster::raster("D:/00_datasets/LandCover/V022_Dist_Urban/Dist_Urban_2km_mean.tif")
@@ -191,8 +191,8 @@ raster::writeRaster(temp_raster, file="D:/00_datasets/LandCover/Impervious/Imper
 rm(temp_raster, temp_mask)
 
 #- - - - - - - - - - - - - - - - - - - - - 
-## Merge all raster files, 2km ####
-# get names of the 2km files
+## Merge all raster files, 1km ####
+# get names of the 1km files
 files <- list.files(folders, include.dirs = F, recursive=F, full.names = T)
 stack_files <- files[stringr::str_detect(files, "_2km_mean.tif$")]
 
@@ -213,15 +213,24 @@ Env <- raster::stack()
 for(i in 1:length(stack_files)){
   temp_raster <- raster::raster(stack_files[i])
   
-  names(temp_raster) <- gsub("_2k.*", "", names(temp_raster))
+  names(temp_raster) <- gsub("_2.*", "", names(temp_raster))
   
-  #temp_raster <- raster::mask(temp_raster, grid2k)
-  print(extent(temp_raster)); print(names(temp_raster))
-  #Env <- raster::stack(Env, temp_raster)
+  temp_raster <- raster::mask(temp_raster, grid2k)
+  
+  Env <- raster::stack(Env, temp_raster)
 }
 
 # save raster
 raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km.grd", overwrite=T)
+
+## cut to grid (should not be necessary anymore...)
+#Env <- raster::mask(Env, grid1k)
+# 
+# # trim unnecessary margins
+# Env_trimmed <- trim(Env, values = NA)
+# Env_trimmed[is.na(Env_trimmed)] <- 0
+# 
+# Env <- raster::stack(Env)
 
 #pdf(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/figures/Predictors_Europe_2km.pdf", height=15, width = 18)
 raster::plot(Env, maxnl=35)
@@ -244,7 +253,7 @@ for(i in 1:length(stack_files)){
   
   names(temp_raster) <- gsub("_2.*", "", names(temp_raster))
   
-  temp_raster <- raster::mask(temp_raster, grid1k)
+  temp_raster <- raster::mask(temp_raster, grid2k)
   
   Env <- raster::stack(Env, temp_raster)
 }
