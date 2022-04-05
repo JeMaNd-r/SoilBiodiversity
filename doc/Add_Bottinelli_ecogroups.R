@@ -18,7 +18,7 @@ Bottinelli <- read.csv(file="Bottinelli_2020_Earthworm_classification.csv")
 #ew_list <- read.csv(file="../doc/Species_list_Crassiclitellata.csv")
 
 # read raw GBIF data
-load(file=paste0("../results/RawOccurrences_", Taxon_name, ".RData")) #dat
+load(file=paste0("../results/RawOccurrences_Crassiclitellata.RData")) #dat
 GBIF <- dat$data; rm(dat)
 
 # read earthworm file from Phillips et a. 2019
@@ -202,13 +202,30 @@ ew_data
 ew_list <- dplyr::left_join(ew_list, ew_data)
 
 #- - - - - - - - - - - - - - - - - - - - -
+## Add taxonomic proof from expert MB
+Briones <- read.csv("../doc/Species_list_Crassiclitellata_Europe_MariaBriones.csv")
+
+# replace empty cells with NA
+Briones[Briones$Correct.name == "", "Correct.name"] <- NA
+Briones[Briones$MJI.Briones == "", "MJI.Briones"] <- NA
+
+ew_list <- ew_list %>% full_join(Briones %>% 
+                        dplyr::select(Species, Correct.name, MJI.Briones) %>%
+                        rename("Ecogroup_Briones" = MJI.Briones, 
+                               "Species_Briones" = Correct.name))
+
+
+#- - - - - - - - - - - - - - - - - - - - -
 ## Create summarizing eco-group column ####
 ew_list$Ecogroup <- NA
 
 for(i in 1:nrow(ew_list)){
   temp_row <- ew_list[i,]
   
-  temp_group <- temp_row$Ecogroup_Bottinelli
+  temp_group <- temp_row$Ecogroup_Briones
+  
+  # if there is no Ecogroup_Briones, take Bottinelli
+  if(is.na(temp_group)) temp_group <- temp_row$Ecogroup_Bottinelli
   
   # if there is no Ecogroup_Bottinelli, take Phillips
   if(is.na(temp_group)) temp_group <- temp_row$Ecogroup_Phillips
@@ -216,6 +233,18 @@ for(i in 1:nrow(ew_list)){
   ew_list[i,"Ecogroup"] <- temp_group
 }
 
+#- - - - - - - - - - - - - - - - - - - - -
+## Correct species ID based on Briones ####
+
+ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & 
+          !is.na(ew_list$Species_Briones),
+        "SpeciesID"] <- paste0(substr(word(ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & !is.na(ew_list$Species_Briones),]$Species_Briones, 1), 1, 5), "_", 
+                            substr(word(ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & !is.na(ew_list$Species_Briones),]$Species_Briones, 2), 1, 4))
+# replace "..._NA" with speciesID created by original species name
+for(i in 1:nrow(ew_list)){
+  if(stringr::str_detect(ew_list[i,]$SpeciesID, "_[:upper:]")) ew_list[i,]$SpeciesID <- paste0(substr(word(ew_list[i,]$Species, 1), 1, 5), "_", 
+                                                                                               substr(word(ew_list[i,]$Species, 2), 1, 4))
+}
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Add family if missing ####
@@ -229,7 +258,7 @@ ew_list <- ew_list %>% full_join(phylogeny_df, by=c("Acc_name" = "species"))
 
 ew_list[is.na(ew_list$genus),"genus"] <- word(ew_list[is.na(ew_list$genus),]$Acc_name, 1, 1)
 
-ew_list %>% inner_join(ew_list %>% dplyr::select(kingdom, phylum, order, family, genus) %>% unique(), by=c("kingdom", "phylum", "order", "family", "genus"))
+#ew_list %>% inner_join(ew_list %>% dplyr::select(kingdom, phylum, order, family, genus) %>% unique(), by=c("kingdom", "phylum", "order", "family", "genus"))
 
 
 ew_list$Group_name <- "Earthworms"
