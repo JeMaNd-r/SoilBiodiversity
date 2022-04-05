@@ -7,7 +7,7 @@
 
 ## needed for biomod again
 # environmental (explanatory) variables as raster file
-myExpl <- raster::stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
+myExpl <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
 #myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - - -

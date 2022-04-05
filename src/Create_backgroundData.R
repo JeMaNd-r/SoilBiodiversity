@@ -9,11 +9,11 @@
 # (e.g. 10,000) of pseudo-absences
 
 # environmental (explanatory) variables as raster file
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
+myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
 
 # response variable (i.e., species occurrences) in wide format
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
-#mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+#mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 ## parallelize
 # Calculate the number of cores
@@ -108,45 +108,45 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   
   rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
   
-  ## MDA ####	
-  # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
-  #   better with a large number of presences; 
-  #   randomly performs consistently well with spatially biased presences 	
-  # minimum of 10 runs with 100 PA with an equal weight for presences and absences
-  if(length(myResp) < 500){
-    temp.runs <- 10
-    temp.number <- 500
-    temp.strategy <- "disk"
-    temp.min.dist <- 222222
-  
-    }else{
-      temp.runs <- 10
-      temp.number <- 500
-      temp.strategy <- "sre"
-      temp.min.dist <- NULL
-  }
-  
-  tmp <- Sys.time()
-  bg.mda <- BIOMOD_FormatingData(resp.var = myResp,
-                                  expl.var = myExpl,
-                                  resp.xy = myRespCoord,
-                                  resp.name = myRespName,
-                                  PA.nb.rep = temp.runs,
-                                  PA.nb.absences = temp.number,
-                                  PA.strategy = temp.strategy, 
-                                 PA.dist.min = temp.min.dist)
-  temp.time <- Sys.time() - tmp
-  
-  bg.mda <- cbind(bg.mda@PA, bg.mda@coord, bg.mda@data.env.var)
-  bg.mda$SpeciesID <- myRespName
-  
-  # add model settings into summary table
-  temp.dat <- data.frame(SpeciesID=myRespName, model="MDA", strategy=temp.strategy, 
-                         No.runs=temp.runs, No.points=temp.number, 
-                         min.distance=NA, run.time=temp.time)
-  model.settings <- rbind(model.settings, temp.dat)
-  
-  rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
+  # ## MDA ####	
+  # # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
+  # #   better with a large number of presences; 
+  # #   randomly performs consistently well with spatially biased presences 	
+  # # minimum of 10 runs with 100 PA with an equal weight for presences and absences
+  # if(length(myResp) < 500){
+  #   temp.runs <- 10
+  #   temp.number <- 500
+  #   temp.strategy <- "disk"
+  #   temp.min.dist <- 222222
+  # 
+  #   }else{
+  #     temp.runs <- 10
+  #     temp.number <- 500
+  #     temp.strategy <- "sre"
+  #     temp.min.dist <- NULL
+  # }
+  # 
+  # tmp <- Sys.time()
+  # bg.mda <- BIOMOD_FormatingData(resp.var = myResp,
+  #                                 expl.var = myExpl,
+  #                                 resp.xy = myRespCoord,
+  #                                 resp.name = myRespName,
+  #                                 PA.nb.rep = temp.runs,
+  #                                 PA.nb.absences = temp.number,
+  #                                 PA.strategy = temp.strategy, 
+  #                                PA.dist.min = temp.min.dist)
+  # temp.time <- Sys.time() - tmp
+  # 
+  # bg.mda <- cbind(bg.mda@PA, bg.mda@coord, bg.mda@data.env.var)
+  # bg.mda$SpeciesID <- myRespName
+  # 
+  # # add model settings into summary table
+  # temp.dat <- data.frame(SpeciesID=myRespName, model="MDA", strategy=temp.strategy, 
+  #                        No.runs=temp.runs, No.points=temp.number, 
+  #                        min.distance=NA, run.time=temp.time)
+  # model.settings <- rbind(model.settings, temp.dat)
+  # 
+  # rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
   
   ## CTA, BRT, RF ####	
   # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
@@ -235,11 +235,11 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   
   
   # save model setting summary for later
-  save(model.settings, file=paste0(here::here(), "/results/BackgroundData_modelSettings_", Taxon_name, "_", myRespName, ".RData"))
+  save(model.settings, file=paste0(here::here(), "/results/", Taxon_name, "/BackgroundData_modelSettings_", Taxon_name, "_", myRespName, ".RData"))
   
   # save background data
-  bg.list <- list(bg.glm, bg.mars, bg.mda, bg.rf, bg.biomod)
-  names(bg.list) <- c("bg.glm", "bg.mars", "bg.mda", "bg.rf", "bg.biomod")
+  bg.list <- list(bg.glm, bg.mars, bg.rf, bg.biomod) #bg.mda,
+  names(bg.list) <- c("bg.glm", "bg.mars", "bg.rf", "bg.biomod") #"bg.mda",
   save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", myRespName, ".RData"))
   # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_GLM_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
   # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_MARS_", Taxon_name, "_", myRespName, ".csv"), row.names = F)

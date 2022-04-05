@@ -11,9 +11,8 @@
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 # load environmental variables (for projections)
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-myExpl <- crop(myExpl, extent_Europe) # crop to Europe
-myExpl <- stack(myExpl)
+myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
+#myExpl <- stack(myExpl)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
