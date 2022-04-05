@@ -145,7 +145,8 @@ makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_f
 temp_clay <- raster::raster("D:/00_datasets/Soil/Clay/Clay_1km_mean.tif")
 temp_silt <- raster::raster("D:/00_datasets/Soil/Silt/Silt_1km_mean.tif")
 
-temp_raster <- temp_clay + temp_silt
+temp_stack <- raster::stack(temp_clay, temp_silt)
+temp_raster <- sum(temp_stack)
 raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+Silt_1km_mean.tif", overwrite=T)
 
 #- - - - - - - - - - - - - - - - - - - - - 
@@ -214,6 +215,8 @@ for(i in 1:length(stack_files)){
   temp_raster <- raster::mask(temp_raster, grid1k)
   
   Env <- raster::stack(Env, temp_raster)
+  
+  print(paste0("Stacked file ", names(temp_raster)))
 }
 
 # save raster
@@ -252,6 +255,8 @@ for(i in 1:length(stack_files)){
   temp_raster <- raster::mask(temp_raster, grid1k)
   
   Env <- raster::stack(Env, temp_raster)
+  
+  print(paste0("Stacked file ", names(temp_raster)))
 }
 
 # save raster

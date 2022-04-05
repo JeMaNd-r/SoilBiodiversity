@@ -137,7 +137,8 @@ raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat
 temp_clay <- raster::raster("D:/00_datasets/Soil/Clay/Clay_2km_mean.tif")
 temp_silt <- raster::raster("D:/00_datasets/Soil/Silt/Silt_2km_mean.tif")
 
-temp_raster <- temp_clay + temp_silt
+temp_stack <- raster::stack(temp_clay, temp_silt)
+temp_raster <- sum(temp_stack)
 raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+Silt_2km_mean.tif", overwrite=T)
 
 # Snow (MODIS) for 2000-2009
@@ -218,6 +219,8 @@ for(i in 1:length(stack_files)){
   temp_raster <- raster::mask(temp_raster, grid2k)
   
   Env <- raster::stack(Env, temp_raster)
+  
+  print(paste0("Stacked file ", names(temp_raster)))
 }
 
 # save raster
@@ -256,6 +259,8 @@ for(i in 1:length(stack_files)){
   temp_raster <- raster::mask(temp_raster, grid2k)
   
   Env <- raster::stack(Env, temp_raster)
+  
+  print(paste0("Stacked file ", names(temp_raster)))
 }
 
 # save raster
@@ -264,3 +269,5 @@ raster::writeRaster(Env, file="D:/00_datasets/EnvPredictor_2km_all.grd", overwri
 #pdf(file="D:/00_datasets/Predictors_Europe_2km.pdf", height=15, width = 18)
 raster::plot(Env, maxnl=70)
 dev.off()
+
+rm(Env)
