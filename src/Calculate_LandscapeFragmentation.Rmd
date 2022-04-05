@@ -1,0 +1,185 @@
+---
+title: "Landscape Fragmentation Europe"
+author: "Romy Zeiss"
+date: "4/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# libraries
+library(landscapemetrics)
+library(raster)
+library(rgeos)
+
+# change temporary directory for files
+raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+```
+
+# Calculating landscape metrics for buffer areas of various radii around LUCAS points
+
+Based on a script of Linnea Smith, iDiv, February 2021.
+
+## Load data
+
+First, we will load the data.
+
+```{r loadData}
+# load 2km grid
+grid2k <- raster::raster("D:/00_datasets/LandCover/V025_Land_Frag/Grid2k_LAEA.tif")
+
+# load 1km grid
+#grid1k <- raster::raster("D:/00_datasets/LandCover/V025_Land_Frag/Grid1k_LAEA.tif")
+
+# load CLC land cover data
+clc12 <- raster::raster("D:/00_datasets/LandCover/V025_Land_Frag/u2018_clc2012_v2020_20u1_raster100m/DATA/U2018_CLC2012_V2020_20u1.tif")
+crs(clc12) <- CRS("+init=epsg:3035")
+
+```
+
+Make grids to polygons.
+
+```{r}
+# 2km
+poly2k <- as(grid2k, 'SpatialPolygons')
+
+# 1km
+#poly1k <- as(grid1k, 'SpatialPolygons')
+
+rm(grid1k, grid2k)
+```
+
+
+We will start the workflow from one point, and loop through all grid cells (pixels).
+
+```{r splitInPixels}
+# Initialize dataframe to iteratively add metrics to
+landscape_summary <- data.frame()
+
+# split CLC file into grid cells (1 layer per cell)
+maps <- list()
+
+for(j in 1:length(poly2k)){
+  maps[[j]] <- NA
+  try(maps[[j]] <- raster::crop(clc12, extent(poly2k[j,])), silent=T)
+
+  names(maps)[[j]] <- paste0("map","_", j)
+}
+
+save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_polygonPerCell.RData")
+
+# maybe add something here to check the landscapes and fail if the aren't good?
+#raster::plot(maps[[sample(1:length(poly2k),1)]])
+```
+
+```{r calcMetrix}
+maps <- maps[!is.na(maps)]
+
+# check if input is correctly shaped
+check_landscape(maps)
+
+# Calculate metrics
+point_summary <- calculate_lsm(maps,
+                             what=c("lsm_l_sidi",
+                                    "lsm_l_mesh",
+                                    "lsm_l_contig_mn",
+                                    "lsm_c_pland"))
+
+
+
+
+
+# Add column identifying LUCAS datapoint it's taken from
+point_summary$LUCAS_ID <- dat$LUCAS_ID[j]
+
+## Add this dataframe to the final results dataframe
+landscape_summary <- data.table::rbindlist(list(landscape_summary,point_summary))
+
+# Progress tracker
+print(paste(j,"of",nrow(dat),"finished:",round(j/nrow(dat),digits = 3)*100,"% done"))
+
+
+# Convert from data.table to data.frame
+data.table::setDF(landscape_summary)
+
+# Add full name of landscape metrics (instead of just the abbreviation)
+landscape_summary <- merge(landscape_summary,
+                       lsm_abbreviations_names[,c("metric","name")],
+                       by="metric")
+
+# Remove duplicates (NOTE: take care of these later! Where do they come from? possible above step)
+landscape_summary <- unique(landscape_summary)
+
+## Change layer number to corresponding buffer radius
+landscape_summary$buffer_radius <- as.factor(landscape_summary$layer)
+levels(landscape_summary$buffer_radius) <- radii
+
+## Add column for unique ID identifying each buffer level by LUCAS ID and buffer radius
+landscape_summary$unique_id <- paste(landscape_summary$LUCAS_ID,"_",
+                                 landscape_summary$buffer_radius,"m",
+                                 sep="")
+
+## Calculate total percent forest and percent agriculture as landscape-level metrics
+# Add our broad LC categorizations
+landscape_summary <- merge(landscape_summary,clc_key[,c("class","broad_lc")],
+                       by="class",
+                       all.x=T, all.y=F)
+
+# Store original dataframe so we can modify landscape_summary without info loss
+landscape_summary_orig <- landscape_summary
+
+# vector of all the unique LUCAS ID-buffer combinations
+unique_ids <- unique(landscape_summary$unique_id)
+
+
+# Add percent agriculture and forest to landscape_summary
+landscape_summary <- rbind(landscape_summary,rows_to_add)
+
+
+### Assess intercorrelation and variance of calculated metrics
+landscape_summary <- unique(landscape_summary)
+
+# Make wide-format dataframe
+landscape_wide <- pivot_wider(landscape_summary[landscape_summary$level=="landscape",-which(colnames(landscape_summary)=="name")],
+                              names_from = metric,values_from = value)
+
+# Look at correlations between metrics
+GGally::ggpairs(landscape_wide[,unique(landscape_summary$metric)])
+
+# Standardize
+landscape_wide_scale <- scale(landscape_wide[,unique(landscape_summary$metric)])
+
+# Look at variation
+boxplot(landscape_wide_scale,las=2)
+
+## Merge with LUCAS data
+landscape_summary_lucas <- merge(landscape_summary,dat,by="LUCAS_ID")
+
+## Save this (save as .rds to save storage space for now)
+saveRDS(landscape_summary_orig,"03_Results/landscape_summary_classlevel_NOlucas.rds")
+saveRDS(landscape_summary,"03_Results/landscape_summary_NOlucas.rds")
+saveRDS(landscape_summary_lucas,"03_Results/landscape_summary_WITHlucas.rds")
+
+## Transform to wide format by metric (one column per landscape metric)
+library(tidyr)
+
+# Read in dataframes
+landscape_summary_lucas <- readRDS("03_Results/landscape_summary_WITHlucas.rds")
+landscape_summary <- readRDS("03_Results/landscape_summary_NOlucas.rds")
+
+# Remove duplicates (NOTE: take care of these later! Where do they come from?)
+landscape_summary <- unique(landscape_summary)
+landscape_summary_lucas <- unique(landscape_summary_lucas)
+
+# Make a wide-format dataframe of only LANDSCAPE-LEVEL metrics (one row per point per buffer radius)
+landscape_lucas_wide <- pivot_wider(
+  landscape_summary_lucas[landscape_summary_lucas$level=="landscape",
+                      -c(which(colnames(landscape_summary_lucas) %in% c("name","unique_id")))],
+  names_from = metric,values_from = value)
+landscape_lucas_wide <- unique(landscape_lucas_wide)
+saveRDS(landscape_lucas_wide,"03_Results/landscape_lucas_wide.rds")
+
+# If we want to use patch-level metrics, will need to make corresponding wide-format df here!
+```
+
