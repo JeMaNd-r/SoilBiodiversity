@@ -946,7 +946,8 @@ for(no.runs in 1:no.loop.runs){
 # average all RF predictions
 rf_pred <- as.data.frame(sapply(rf_pred_list, "[[", 2))
 rf_pred <- rowMeans(rf_pred, na.rm=T)
-temp_time <- c(mean(as.numeric(sapply(rf_pred_list, "[[", 4)[1,]), na.rm=T), rf_pred_list[[1]][[4]][2])temp_time <- mean(sapply(rf_pred_list, "[[", 4)[1,], na.rm=T)
+temp_time <- c(mean(as.numeric(sapply(rf_pred_list, "[[", 4)[1,]), na.rm=T), rf_pred_list[[1]][[4]][2])
+#temp_time <- mean(sapply(rf_pred_list, "[[", 4)[1,], na.rm=T)
 
 temp.models <- sapply(rf_pred_list, "[[", 1)
 
