@@ -11,10 +11,13 @@ load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) #SDMs
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance (VI) ####
 # create result data frame
-var_imp <- data.frame("Predictor"= c("bio1", "bio2",  "bio3",  "bio4",  "bio5",  
-                                     "bio6",  "bio7",  "bio8",  "bio9",  "bio10", 
-                                     "bio11", "bio12", "bio13", "bio14", "bio15", 
-                                     "bio16", "bio17", "bio18", "bio19"))
+var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT", 
+                                     "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
+                                     "Forest_Coni", "Forest_Deci", "NDVI", 
+                                     "Pastures", "Pop_Dens", "Shrubland", "Aspect",
+                                     "Dist_Coast", "Dist_River", "Elev", "Lat",
+                                     "Slope", "CEC", "Clay.Silt", "Cu", "Hg",
+                                     "Moisture", "N", "P", "pH", "SOC", "SoilT"))
 
 # for loop through all models
 for(i in 1:length(SDMs)){ try({
@@ -50,7 +53,7 @@ for(i in 1:length(SDMs)){ try({
     temp.vi <- data.frame("Predictor" = coefs@Dimnames[[1]][coefs@i + 1], temp.model = coefs@x)[-1,] 
     colnames(temp.vi)[2] <- temp.model
     
-    temp.vi$Predictor <- stringr::str_split_fixed(temp.vi$Predictor, "_", 2)[,1]
+    temp.vi$Predictor <- stringr::str_split_fixed(temp.vi$Predictor, "_[:digit:]", 2)[,1]
     
     temp.vi <- temp.vi %>% group_by(Predictor) %>% summarize_all(mean, na.rm=T) %>% as.data.frame()
     
@@ -80,7 +83,7 @@ for(i in 1:length(SDMs)){ try({
     
     
     # extract predictor names
-    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[:punct:]", 2)[,1]
+    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[.]", 2)[,1]
     colnames(temp.vi) <- c(temp.model, "Predictor")
     
     # plot variable importance
@@ -105,7 +108,7 @@ for(i in 1:length(SDMs)){ try({
     # instead: extract beta coefficients
     temp.vi <- temp.results$betas
     temp.vi <- as.data.frame(temp.vi[str_detect(names(temp.vi),"hinge")]) 
-    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[:punct:]", 3)[,2]
+    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[()]", 3)[,2]
     
     temp.vi <- temp.vi %>% group_by(Predictor) %>% summarize_all(mean, na.rm=T) %>% as.data.frame()
     colnames(temp.vi) <- c("Predictor", temp.model)
