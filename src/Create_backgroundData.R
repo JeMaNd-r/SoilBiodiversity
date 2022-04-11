@@ -24,7 +24,7 @@ registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all species ####
-foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .export = c("mySpeciesOcc"), 
+foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
   # define response variable index
@@ -47,7 +47,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   # 10,000 PA or a minimum of 10 runs with 1,000 PA with an equal weight for 
   #   presences and absences
   temp.runs <- 1
-  temp.number <- 50000
+  temp.number <- 10000
   temp.strategy <- "random"
   
   tmp <- Sys.time()
@@ -68,7 +68,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   bg.glm$SpeciesID <- myRespName
   
   str(bg.glm)
-  print("Note: TRUE in PA means presence.")
+  #print("Note: TRUE in PA means presence.")
   
   # add model settings into summary table
   temp.dat <- data.frame(SpeciesID=myRespName, model="GLM.GAM", strategy=temp.strategy,
@@ -83,7 +83,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   #    biased for which ‘2°far’ is the best method 
   # minimum of 10 runs with 100 PA
   temp.runs <- 10
-  temp.number <- 500
+  temp.number <- 100
   temp.strategy <- "random"
   
   tmp <- Sys.time()
@@ -155,9 +155,9 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   # weight for presences and absences
   if(length(myResp) < 500){
     temp.runs <- 10
-    temp.number <- 500
+    temp.number <- 100
     temp.strategy <- "disk"
-    temp.min.dist <- 222222
+    temp.min.dist <- 2000 #in meters
       
     }else{
       if(length(myResp) < 1000){
@@ -203,8 +203,8 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   #- - - - - - - - - - - - - - - - - - - 
   ## BIOMOD ####
   temp.runs <- 1
-  temp.number <- 50000 * 0.8 # take only 80% of the data as the other ones will
-  # be splitted in "Prepare_input.r" in 80% trainign and 20% testing...
+  temp.number <- 10000 * 0.8 # take only 80% of the data as the other ones will
+  # be splitted in "Prepare_input.r" in 80% training and 20% testing...
   temp.strategy <- "random"
   
   tmp <- Sys.time()
@@ -243,7 +243,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 200,]$SpeciesID, .exp
   save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", myRespName, ".RData"))
   # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_GLM_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
   # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_MARS_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-  # write.csv(bg.mda, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_MDA_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
+  # #write.csv(bg.mda, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_MDA_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
   # write.csv(bg.rf, file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_RF_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
 }
           
