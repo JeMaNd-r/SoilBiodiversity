@@ -276,7 +276,7 @@ ridge_prediction <- data.frame("site" = names(ridge_prediction), "prediction" = 
 ridge_prediction <- raster::rasterFromXYZ(ridge_prediction[,c("x", "y", "prediction")])
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
-rm(ridge_cv, temp_time, training_sparse, tratining_quad, testing_sparse)
+rm(ridge_cv, temp_time, training_sparse, training_quad, testing_sparse)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -1199,7 +1199,7 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                committee.averaging = FALSE, #estimate committee averaging across predictions
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
-                                               VarImport = 3)    #number of permutations to estimate variable importance
+                                               VarImport = 1)    #number of permutations to estimate variable importance
 temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
@@ -1269,7 +1269,8 @@ maxt <- scales::rescale(maxmod_pred[[2]], to = c(0,1))
 ensm_pred <- rowMeans(cbind(gm, lasso, maxt, brt, rf), na.rm=T) #, brt, rf  !brt and rf have different background data
 
 # sum up computational time
-temp_time <- sum(gm_pred[[4]], lasso_pred[[4]], maxmod_pred[[4]], brt2_pred[[4]], rf2_pred[[4]]) 
+temp_time <- paste0(gm_pred[[4]], " + ", lasso_pred[[4]], " + ", maxmod_pred[[4]], " + ", 
+                    brt2_pred[[4]], " + ", rf2_pred[[4]]) 
 
 # model output
 ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp_time)
