@@ -11,11 +11,24 @@
 load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 
 # load environmental space
-Env <- stack(paste0(here::here(), "/results/EnvPredictor_", Taxon_name, ".grd"))
-Env <- crop(Env, extent_Europe) # crop to Europe
+Env <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
 
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
+
+# define function to normalize environmental predictors based on parameters saved before
+fct.normal <- function(rasterStack, modelName){
+  load(paste0(here::here(), "/results/", Taxon_name, "/Normalization_", modelName, runningNumber, "_", Taxon_name,"_", spID, ".RData")) #df_norm
+  Env_norm <- rasterStack
+  
+  for(l in names(Env_norm)){
+    meanv <- df_norm[df_norm$Covariate == l, "Mean"]
+    sdv <- df_norm[df_norm$Covariate == l, "SD"]
+    Env_norm[[l]] <- (Env_norm[[l]] - meanv) / sdv
+    print(paste0(l, " normalized."))
+  }
+  print("All predictors are normalized and saved in Env_norm.")
+}
 
 # define function to rescale raster (for predicted occurrence) between 0 and 1
 fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
@@ -34,10 +47,15 @@ fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
 gm <- SDMs[["gm_pred"]][[1]]
-gm_pred <- raster::predict(Env, gm)
+
+# normalize Env predictors
+fct.normal(rasterStack = Env, modelName = "bg.glm")
+
+# predict to whole Europe
+gm_pred <- raster::predict(Env_norm, gm)
 
 # rescale between 0 and 1
-gm_pred <- fct.rescale(gm_pred, x.min = gm_pred@data@min, x.max = gm_pred@data@max)
+#gm_pred <- fct.rescale(gm_pred, x.min = gm_pred@data@min, x.max = gm_pred@data@max)
 
 #plot(gm_pred, main = "GAM")
 # gm <- ggplot(data=data.frame(rasterToPoints(gm_pred)), aes(x=x, y=y, fill=layer))+
@@ -302,7 +320,7 @@ names(biomod_pred) <- "layer"
 #- - - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
 # create Raster stack of the models to be merged
-ensm_pred <- raster::stack(gm_pred, maxmod_pred) #lasso_pred, brt2_pred, rf2_pred
+ensm_pred <- raster::stack(gm_pred, maxent_pred, brt2_pred, rf2_pred) #lasso_pred,
 
 # average the predictions
 ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
@@ -335,29 +353,30 @@ names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred",
                        "maxent_pred", "maxnet_pred", "xgb_pred", 
                        "rf_pred", "rf_downsample_pred", "svm_pred", "biomod_pred","ensm_pred")
 
-plots <- lapply(1:length(modelNames), function(x) {
-  temp.pred <- model_list[[paste0(modelNames[x], "_pred")]]
+plots <- lapply(c(1:3, 5:length(modelNames)), function(m) {try({
+  temp.pred <- model_list[[paste0(modelNames[m], "_pred")]]
+  print(m)
   
   # exception for maxent/maxnet: plot only above threshold
-  if(modelNames[x] == "maxent"){
+  if(modelNames[m] == "maxent"){
     # get threshold from model evaluation table
     temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
     
     ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
-      geom_raster()+
-      ggtitle(modelNames[x], subtitle=paste0("Threshold = ", temp_thresh))+
+      geom_tile()+
+      ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
       scale_fill_viridis_c(limits = c(0,1))+
       theme_bw()+
       theme(axis.title = element_blank(), legend.title = element_blank(),
             legend.position = c(0.1,0.4))
   } else {
-    if( modelNames[x] == "maxnet"){
+    if( modelNames[m] == "maxnet"){
       # get threshold from model evaluation table
       temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
       
       ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
-        geom_raster()+
-        ggtitle(modelNames[x], subtitle=paste0("Threshold = ", temp_thresh))+
+        geom_tile()+
+        ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
         scale_fill_viridis_c(limits = c(0,1))+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
@@ -365,13 +384,13 @@ plots <- lapply(1:length(modelNames), function(x) {
   } else {
   
   ggplot(data=data.frame(rasterToPoints(temp.pred)), aes(x=x, y=y, fill=layer))+
-    geom_raster()+
-    ggtitle(modelNames[x])+
+    geom_tile()+
+    ggtitle(modelNames[m])+
     scale_fill_viridis_c(limits = c(0,1))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
-}}})
+}}})})
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
@@ -382,16 +401,16 @@ dev.off()
 ## Save maps ####
 #- - - - - - - - - - - - - - - - - - - - - -
 # stack all predictions
-stack_pred <- raster::stack(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
-                            mars_pred, maxmod_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
-                            rf_pred, rf2_pred, rf_downsample_pred, 
-                            #biomod_pred, 
+stack_pred <- raster::stack(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred,
+                            mars_pred, maxent_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
+                            rf_pred, rf2_pred, rf_downsample_pred,
+                            #biomod_pred,
                             ensm_pred)
 
-names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
+names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred",
                  "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
-                 "rf_pred", "rf2_pred", "rf_downsample_pred", 
-                 #"biomod_pred", 
+                 "rf_pred", "rf2_pred", "rf_downsample_pred",
+                 #"biomod_pred",
                  "ensm_pred")
 
 
