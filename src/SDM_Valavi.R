@@ -11,8 +11,11 @@
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 # load environmental variables (for projections)
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
-#myExpl <- stack(myExpl)
+Env <- stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
+#Env <- stack(Env)
+
+# as dataframe
+load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df.RData") #Env_df
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
@@ -60,7 +63,7 @@ temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predict (only for model performance)
-gm_pred <- predict(gm, validation_env)
+gm_pred <- predict(gm, validation_env, type="response")
 #head(gm_pred)
 
 gm_pred <- as.numeric(gm_pred)
@@ -171,14 +174,11 @@ lapply(temp.files, load, .GlobalEnv)
 # function to creat quadratic terms for lasso and ridge
 quad_obj <- make_quadratic(training, cols = covarsNames)
 
-# for the next step, we need the myExpl as data frame
-myExpl.df <- raster::rasterToPoints(myExpl)
-
 # now we can predict this quadratic object on the training, testing, and prediction data
 # this make two columns for each covariates used in the transformation
 training_quad <- predict(quad_obj, newdata = training)
 testing_quad <- predict(quad_obj, newdata = validation_env)
-predicting_quad <- predict(quad_obj, newdata = as.data.frame(myExpl.df))
+predicting_quad <- predict(quad_obj, newdata = Env_df)
 
 # Define vector with appropriate covarsNames for sparse matrix.
 # More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
@@ -236,7 +236,7 @@ names(lasso_pred) <- rownames(validation_env) #add site names
 lasso_prediction <- raster::predict(lasso_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_prediction)
 lasso_prediction <- data.frame("site" = names(lasso_prediction), "prediction" = as.numeric(lasso_prediction)) %>%
-  full_join(as.data.frame(myExpl.df) %>% mutate("site" = rownames(as.data.frame(myExpl.df))), by = "site")
+  full_join(Env_df %>% mutate("site" = rownames(Env_df)), by = "site")
 lasso_prediction <- raster::rasterFromXYZ(lasso_prediction[,c("x", "y", "prediction")])
 
 temp_runs <- 1
@@ -272,7 +272,7 @@ temp_runs <- 1
 ridge_prediction <- raster::predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_prediction)
 ridge_prediction <- data.frame("site" = names(ridge_prediction), "prediction" = as.numeric(ridge_prediction)) %>%
-  full_join(as.data.frame(myExpl.df) %>% mutate("site" = rownames(as.data.frame(myExpl.df))), by = "site")
+  full_join(Env_df %>% mutate("site" = rownames(Env_df)), by = "site")
 ridge_prediction <- raster::rasterFromXYZ(ridge_prediction[,c("x", "y", "prediction")])
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
@@ -348,7 +348,7 @@ for(no.runs in 1:no.loop.runs){
   mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp$importance))
   
   # create raster layer of predictions for whole environmental space
-  mars_raster <- raster::predict(myExpl, mars_fit)
+  mars_raster <- raster::predict(Env, mars_fit)
   
   mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp_time, mars_varImp, mars_raster)
 }
@@ -474,7 +474,7 @@ names(maxmod_pred) <- rownames(validation_env) #add site names
 #head(maxmod_pred)
 
 # create raster layer of predictions for whole environmental space
-maxmod_raster <- raster::predict(myExpl, maxmod)
+maxmod_raster <- raster::predict(Env, maxmod)
 
 temp_runs <- 1
 
@@ -503,7 +503,7 @@ head(maxnet_pred)
 names(maxnet_pred) <- rownames(validation_env) #add site names
 
 # create raster layer of predictions for whole environmental space
-maxnet_raster <- raster::predict(myExpl, maxnet)
+maxnet_raster <- raster::predict(Env, maxnet)
 
 temp_runs <- 1
 
@@ -603,7 +603,7 @@ for(no.runs in 1:no.loop.runs){
   #head(brt_pred)
   
   # create raster layer of predictions for whole environmental space
-  brt_raster <- raster::predict(myExpl, brt)
+  brt_raster <- raster::predict(Env, brt)
   
   brt_pred <- as.numeric(brt_pred)
   names(brt_pred) <- rownames(validation_env) #add site names
@@ -720,7 +720,7 @@ if(is.null(brt2)){
 temp.find.int <- gbm.interactions(brt2)
 
 # predict to raster (for later)
-brt2_raster <- raster::predict(myExpl, brt2, n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
+brt2_raster <- raster::predict(Env, brt2, n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
 
 # predicting with the best trees
 brt2_pred <- predict(brt2, validation_env, n.trees = brt2$gbm.call$best.trees, type = "response")
@@ -818,7 +818,7 @@ for(no.runs in 1:no.loop.runs){
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
   # predict to raster (for later)
-  xgb_raster <- raster::predict(myExpl, xgb_fit, type="prob")
+  xgb_raster <- raster::predict(Env, xgb_fit, type="prob")
    
   # NULL for xgb_fit (to save memory)
   xgb_pred_list[[no.runs]] <- list(NULL, xgb_pred, modelName, temp_time, xgb_varImp, xgb_raster)
@@ -903,7 +903,7 @@ for(no.runs in 1:no.loop.runs){
   names(rf_pred) <- rownames(validation_env) #add site names
   
   # predict to raster (for later)
-  rf_raster <- raster::predict(myExpl, rf, type="prob")
+  rf_raster <- raster::predict(Env, rf, type="prob")
   
   rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp_time, rf_raster)
   
@@ -938,7 +938,7 @@ for(no.runs in 1:no.loop.runs){
   names(rf_downsample_pred) <- rownames(validation_env) #add site names
   
   # predict to raster (for later)
-  rf_downsample_raster <- raster::predict(myExpl, rf_downsample, type="prob")
+  rf_downsample_raster <- raster::predict(Env, rf_downsample, type="prob")
   
   rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp_time, rf_downsample_raster)
 }
@@ -1007,7 +1007,7 @@ rf2_pred <- as.numeric(rf2_pred)
 names(rf2_pred) <- rownames(validation_env) #add site names
 
 # predict to raster (for later)
-temp_raster <- raster::predict(myExpl, rf2, type="prob")
+temp_raster <- raster::predict(Env, rf2, type="prob")
 
 temp_runs <- 1
 
@@ -1071,14 +1071,14 @@ for(no.runs in 1:no.loop.runs){
   
   ## predict for whole environmental space (for later)
   # prepare raster
-  Env_df <- raster::rasterToPoints(myExpl, spatial=T)
+  Env_df_spatial <- raster::rasterToPoints(Env, spatial=T)
   
   # predict
-  svm_raster <- e1071:::predict.svm(svm_e, Env_df@data[,covarsNames], probability=TRUE)
-  Env_df$pred <- attr(svm_raster, "probabilities")[,"1"] 
+  svm_raster <- e1071:::predict.svm(svm_e, Env_df_spatial@data[,covarsNames], probability=TRUE)
+  Env_df_spatial$pred <- attr(svm_raster, "probabilities")[,"1"] 
   
   # make to raster
-  svm_raster <- raster::rasterize(Env_df, Env, field="pred")
+  svm_raster <- raster::rasterize(Env_df_spatial, Env, field="pred")
 
   svm_pred_list[[no.runs]] <- list(svm_e, svm_pred, modelName, temp_time, svm_raster)
 }
@@ -1098,7 +1098,7 @@ temp.prediction <- raster::calc(temp.prediction, fun = mean)
 temp_runs <- length(svm_pred_list)
 
 svm_pred <- list(temp.models, svm_pred, modelName, temp_time, temp_runs, temp.prediction)
-rm(svm_e, temp_time, svm_prob, svm_pred_list)
+rm(svm_e, temp_time, svm_prob, svm_pred_list, Env_df_spatial)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## biomod ####
@@ -1206,7 +1206,7 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                           new.env = myExpl,        #column/variable names have to perfectly match with training
+                                           new.env = Env,        #column/variable names have to perfectly match with training
                                            proj.name = "modeling",  #name of the new folder being created
                                            selected.models = "all", #use all models
                                            binary.meth = "ROC",     #binary transformation according to criteria
