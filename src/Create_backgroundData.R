@@ -9,7 +9,7 @@
 # (e.g. 10,000) of pseudo-absences
 
 # environmental (explanatory) variables as raster file
-myExpl <- stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 
 # response variable (i.e., species occurrences) in wide format
 #mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
@@ -52,7 +52,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .expor
   
   tmp <- Sys.time()
   bg.glm <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
-                                 expl.var = myExpl,
+                                 expl.var = Env_norm,
                                  resp.xy = myRespCoord,
                                  resp.name = myRespName,
                                  PA.nb.rep = temp.runs,
@@ -88,7 +88,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .expor
   
   tmp <- Sys.time()
   bg.mars <- BIOMOD_FormatingData(resp.var = myResp,
-                                  expl.var = myExpl,
+                                  expl.var = Env_norm,
                                   resp.xy = myRespCoord,
                                   resp.name = myRespName,
                                   PA.nb.rep = temp.runs,
@@ -128,7 +128,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .expor
   # 
   # tmp <- Sys.time()
   # bg.mda <- BIOMOD_FormatingData(resp.var = myResp,
-  #                                 expl.var = myExpl,
+  #                                 expl.var = Env_norm,
   #                                 resp.xy = myRespCoord,
   #                                 resp.name = myRespName,
   #                                 PA.nb.rep = temp.runs,
@@ -175,7 +175,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .expor
   
   tmp <- Sys.time()
   bg.rf <- BIOMOD_FormatingData(resp.var = myResp,
-                                  expl.var = myExpl,
+                                  expl.var = Env_norm,
                                   resp.xy = myRespCoord,
                                   resp.name = myRespName,
                                   PA.nb.rep = temp.runs,
@@ -209,7 +209,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .expor
   
   tmp <- Sys.time()
   bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
-                                             expl.var = myExpl,
+                                             expl.var = Env_norm,
                                              resp.xy = myRespCoord,
                                              resp.name = myRespName,
                                              PA.nb.rep = temp.runs,

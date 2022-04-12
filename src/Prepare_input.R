@@ -7,12 +7,12 @@
 
 ## needed for biomod again
 # environmental (explanatory) variables as raster file
-myExpl <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
-#myExpl <- stack(myExpl)
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
+#Env_norm <- stack(Env_norm)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## define function to split data ####
-split.data <- function(x, normalizing = TRUE){
+split.data <- function(x){
   training <- x
   
   # split data into training (80%, including testing data), and validation data (20%)
@@ -33,30 +33,7 @@ split.data <- function(x, normalizing = TRUE){
   # # convert the categoricals to factor
   # training$vegsys <- as.factor(training$vegsys)
   # validation_env$vegsys <- as.factor(validation_env$vegsys)
-  
-  # normalize the covariates (exept categorical)
-  # *notice: not all the models are fitted on normalized data in
-  # the main analysis! Please check Valavi et al. 2021.
-  if(isTRUE(normalizing)){
-    df_norm <- c()
-    for(v in covarsNames[covarsNames %in% colnames(x)]){
-      meanv <- mean(training[,v], na.rm=T)
-      sdv <- sd(training[,v], na.rm=T)
-      training[,v] <- (training[,v] - meanv) / sdv
-      validation_env[,v] <- (validation_env[,v] - meanv) / sdv
-      
-      df_norm <- rbind(df_norm, c(v, meanv, sdv))
-    }
-    
-    # save normalization parameters for predictions later on
-    colnames(df_norm) <- c("Covariate", "Mean", "SD")
-    df_norm <- as.data.frame(df_norm)
-    df_norm$Mean <- as.numeric(df_norm$Mean)
-    df_norm$SD <- as.numeric(df_norm$SD)
-    save(df_norm, file=paste0(here::here(), "/results/", Taxon_name, "/Normalization_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"), row.names = F)
-  }
-  
-  
+
   # # print the first few rows and columns
   # print(paste0("Head of the prepared dataset for ", modelName, "."))
   # print(training[1:5, 1:5])
@@ -133,12 +110,12 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
       
       # GLM/ GAM
       if(modelName == "bg.glm"){ 
-        split.data(bg.list[[k]], normalizing = TRUE)
+        split.data(bg.list[[k]])
       }
       
       # MaxEnt or Lasso/ Ridge     
       if(modelName == "bg.maxent" | modelName == "bg.lasso"){
-        split.data(bg.list[[k]], normalizing = FALSE)
+        split.data(bg.list[[k]])
       }
       
       # MARS/ RF/ BRT/ SVM
@@ -146,12 +123,12 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
           # if we have only a dataframe in the current list element, its easy
           if(class(bg.list[[k]])!="list"){
             runningNumber <- 1
-            split.data(bg.list[[k]], normalizing = TRUE)
+            split.data(bg.list[[k]])
         
           # if we have a list of dataframes, we have to specify the right list layer
           }else{ for(l in 1:length(bg.list[[k]])){
               runningNumber <- l
-              split.data(bg.list[[k]][[l]], normalizing = TRUE)
+              split.data(bg.list[[k]][[l]])
           }}
       }
       
