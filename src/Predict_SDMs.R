@@ -19,36 +19,6 @@ Env_df <- as.data.frame(raster::rasterToPoints(Env))
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
 
-# define function to normalize environmental predictors based on parameters saved before
-fct.normal <- function(rasterStack, modelName){
-  load(paste0(here::here(), "/results/", Taxon_name, "/Normalization_", modelName, runningNumber, "_", Taxon_name,"_", spID, ".RData")) #df_norm
-  Env_norm <- rasterStack
-  
-  for(l in names(Env_norm)){
-    meanv <- df_norm[df_norm$Covariate == l, "Mean"]
-    sdv <- df_norm[df_norm$Covariate == l, "SD"]
-    Env_norm[[l]] <- (Env_norm[[l]] - meanv) / sdv
-    
-    print(paste0(l, " normalized."))
-  }
-  print("All predictors are normalized and saved in Env_norm.")
-}
-
-# same but for dataframe
-fct.normal.df <- function(rasterDF, modelName){
-  load(paste0(here::here(), "/results/", Taxon_name, "/Normalization_", modelName, runningNumber, "_", Taxon_name,"_", spID, ".RData")) #df_norm
-  Env_df_norm <- rasterDF
-  
-  for(l in colnames(Env_df_norm)[3:length(colnames(Env_df_norm))]){
-    meanv <- df_norm[df_norm$Covariate == l, "Mean"]
-    sdv <- df_norm[df_norm$Covariate == l, "SD"]
-    Env_df_norm[,l] <- (Env_df_norm[,l] - meanv) / sdv
-    
-    print(paste0(l, " normalized."))
-  }
-  print("All predictors are normalized and saved in Env_df_norm.")
-}
-
 # define function to rescale raster (for predicted occurrence) between 0 and 1
 fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
   if(is.null(x.min)) {x.min = min(x)}
