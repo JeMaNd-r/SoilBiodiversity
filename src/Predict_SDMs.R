@@ -13,6 +13,9 @@ load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 # load environmental space
 Env <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
 
+# as dataframe
+Env_df <- as.data.frame(raster::rasterToPoints(Env))
+
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
 
@@ -25,9 +28,25 @@ fct.normal <- function(rasterStack, modelName){
     meanv <- df_norm[df_norm$Covariate == l, "Mean"]
     sdv <- df_norm[df_norm$Covariate == l, "SD"]
     Env_norm[[l]] <- (Env_norm[[l]] - meanv) / sdv
+    
     print(paste0(l, " normalized."))
   }
   print("All predictors are normalized and saved in Env_norm.")
+}
+
+# same but for dataframe
+fct.normal.df <- function(rasterDF, modelName){
+  load(paste0(here::here(), "/results/", Taxon_name, "/Normalization_", modelName, runningNumber, "_", Taxon_name,"_", spID, ".RData")) #df_norm
+  Env_df_norm <- rasterDF
+  
+  for(l in colnames(Env_df_norm)[3:length(colnames(Env_df_norm))]){
+    meanv <- df_norm[df_norm$Covariate == l, "Mean"]
+    sdv <- df_norm[df_norm$Covariate == l, "SD"]
+    Env_df_norm[,l] <- (Env_df_norm[,l] - meanv) / sdv
+    
+    print(paste0(l, " normalized."))
+  }
+  print("All predictors are normalized and saved in Env_df_norm.")
 }
 
 # define function to rescale raster (for predicted occurrence) between 0 and 1
@@ -49,16 +68,25 @@ fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
 gm <- SDMs[["gm_pred"]][[1]]
 
 # normalize Env predictors
-fct.normal(rasterStack = Env, modelName = "bg.glm")
+#fct.normal(rasterStack = Env, modelName = "bg.glm") #Env_norm
+fct.normal.df(rasterDF = Env_df, modelName = "bg.glm") #Env_df_norm
 
 # predict to whole Europe
-gm_pred <- raster::predict(Env_norm, gm)
+gm_pred <- mgcv::predict.gam(gm, Env_df_norm[,2:length(colnames(Env_df_norm))], type="response")
+gm_pred <- as.numeric(gm_pred)
+names(gm_pred) <- rownames(Env_df_norm) #add site names
+gm_pred <- as.data.frame(gm_pred)
+
+gm_pred$x <- Env_df_norm$x
+gm_pred$y <- Env_df_norm$y
+
+colnames(gm_pred)[1] <- "layer"
 
 # rescale between 0 and 1
 #gm_pred <- fct.rescale(gm_pred, x.min = gm_pred@data@min, x.max = gm_pred@data@max)
 
 #plot(gm_pred, main = "GAM")
-# gm <- ggplot(data=data.frame(rasterToPoints(gm_pred)), aes(x=x, y=y, fill=layer))+
+# gm <- ggplot(data=gm_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("GAM")+
 #   scale_fill_viridis_c(limits = c(0,1))+
