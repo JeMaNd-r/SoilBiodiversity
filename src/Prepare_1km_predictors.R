@@ -241,35 +241,12 @@ dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Scale predictors ####
-# define function to normalize environmental predictors based on parameters saved before
-fct.normal <- function(rasterStack){
-  Env_norm <- rasterStack
-  df_norm <- c()
-  
-  for(l in names(Env_norm)){
-    meanv <-  mean(raster::getValues(Env_norm[[l]]), na.rm=T)
-    sdv <- sd(raster::getValues(Env_norm[[l]]), na.rm=T)
-    Env_norm[[l]] <- (Env_norm[[l]] - meanv) / sdv
-    
-    df_norm <- rbind(df_norm, c(l, meanv, sdv))
-    
-    print(paste0(l, " normalized."))
-  }
-  # save normalization parameters for predictions later on
-  colnames(df_norm) <- c("Covariate", "Mean", "SD")
-  df_norm <- as.data.frame(df_norm)
-  df_norm$Mean <- as.numeric(df_norm$Mean)
-  df_norm$SD <- as.numeric(df_norm$SD)
-  write.csv(df_norm, file=paste0(here::here(), "/results/", Taxon_name, "/EnvPredictor_1km_normalizationParameters.RData"), row.names = F)
-  
-  # save Env_norm
-  raster::writeRaster(Env_norm, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_normalized.grd", overwrite=T)
-  
-  print("All predictors are normalized and saved as Env_norm.")
-}
-
 # scale rasterStack
-fct.normal(rasterStack = Env) #Env_norm
+Env_norm <- raster::scale(Env)
+Env_norm <- raster::stack(Env_norm)
+
+# save Env_norm
+raster::writeRaster(Env_norm, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_normalized.grd", overwrite=T)
 
 # same for dataframe
 Env_norm_df <- as.data.frame(raster::rasterToPoints(Env_norm))
