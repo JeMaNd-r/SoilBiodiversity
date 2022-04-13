@@ -11,10 +11,10 @@
 load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 
 # load environmental space
-Env <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 
 # as dataframe
-Env_df <- as.data.frame(raster::rasterToPoints(Env))
+load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_df_norm
 
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
@@ -37,18 +37,14 @@ fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
 ## GAM ####
 gm <- SDMs[["gm_pred"]][[1]]
 
-# normalize Env predictors
-#fct.normal(rasterStack = Env, modelName = "bg.glm") #Env_norm
-fct.normal.df(rasterDF = Env_df, modelName = "bg.glm") #Env_df_norm
-
 # predict to whole Europe
-gm_pred <- mgcv::predict.gam(gm, Env_df_norm[,2:length(colnames(Env_df_norm))], type="response")
+gm_pred <- mgcv::predict.gam(gm, Env_norm_df[,2:length(colnames(Env_norm_df))], type="response")
 gm_pred <- as.numeric(gm_pred)
-names(gm_pred) <- rownames(Env_df_norm) #add site names
+names(gm_pred) <- rownames(Env_norm_df) #add site names
 gm_pred <- as.data.frame(gm_pred)
 
-gm_pred$x <- Env_df_norm$x
-gm_pred$y <- Env_df_norm$y
+gm_pred$x <- Env_norm_df$x
+gm_pred$y <- Env_norm_df$y
 
 colnames(gm_pred)[1] <- "layer"
 
@@ -67,12 +63,19 @@ colnames(gm_pred)[1] <- "layer"
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
 lm1 <- SDMs[["lm1_pred"]][[1]]
-lm1_pred <- raster::predict(Env, lm1)
-# rescale between 0 and 1
-lm1_pred <- fct.rescale(lm1_pred, x.min = lm1_pred@data@min, x.max = lm1_pred@data@max)
+lm1_pred <- stats::predict.glm(lm1, Env_norm_df, type="response")
+
+lm1_pred <- as.numeric(lm1_pred)
+names(lm1_pred) <- rownames(Env_norm_df) #add site names
+lm1_pred <- as.data.frame(lm1_pred)
+
+lm1_pred$x <- Env_norm_df$x
+lm1_pred$y <- Env_norm_df$y
+
+colnames(lm1_pred)[1] <- "layer"
 
 #plot(lm1_pred, main = "GLM")
-# lm1 <- ggplot(data=data.frame(rasterToPoints(lm1_pred)), aes(x=x, y=y, fill=layer))+
+# lm1 <- ggplot(data=lm1_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("GLM")+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -82,11 +85,19 @@ lm1_pred <- fct.rescale(lm1_pred, x.min = lm1_pred@data@min, x.max = lm1_pred@da
 
 # second GLM
 lm_subset <- SDMs[["lm_subset_pred"]][[1]]
-lm_subset_pred <- raster::predict(Env, lm_subset)
-lm_subset_pred <- fct.rescale(lm_subset_pred, x.min = lm_subset_pred@data@min, x.max = lm_subset_pred@data@max)
+lm_subset_pred <- stats::predict.glm(lm_subset, Env_norm_df, type="response")
+
+lm_subset_pred <- as.numeric(lm_subset_pred)
+names(lm_subset_pred) <- rownames(Env_norm_df) #add site names
+lm_subset_pred <- as.data.frame(lm_subset_pred)
+
+lm_subset_pred$x <- Env_norm_df$x
+lm_subset_pred$y <- Env_norm_df$y
+
+colnames(lm_subset_pred)[1] <- "layer"
 
 #plot(lm_subset_pred, main = "GLM subset")
-# lm_subset <- ggplot(data=data.frame(rasterToPoints(lm_subset_pred)), aes(x=x, y=y, fill=layer))+
+# lm_subset <- ggplot(data=lm_subset_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("GLM subset")+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -99,7 +110,7 @@ lm_subset_pred <- fct.rescale(lm_subset_pred, x.min = lm_subset_pred@data@min, x
 lasso_pred <- SDMs[["lasso_pred"]][[6]]
 
 #plot(lasso_pred, main = "Lasso regression")
-# lasso <- ggplot(data=data.frame(rasterToPoints(lasso_pred)), aes(x=x, y=y, fill=prediction))+
+# lasso <- ggplot(data=lasso_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("Lasso regression")+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -112,7 +123,7 @@ lasso_pred <- SDMs[["lasso_pred"]][[6]]
 ridge_pred <- SDMs[["ridge_pred"]][[6]]
 
 #plot(ridge_pred, main = "Ridge regression")
-# ridge <- ggplot(data=data.frame(rasterToPoints(ridge_pred)), aes(x=x, y=y, fill=prediction))+
+# ridge <- ggplot(data=ridge_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("Ridge regression")+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -126,11 +137,11 @@ ridge_pred <- SDMs[["ridge_pred"]][[6]]
 mars_pred <- SDMs[["mars_pred"]][[7]]
 #mars_pred
 
-# define background dataset (for testing data)
-modelName <- SDMs[["mars_pred"]][[3]]
+# # define background dataset (for testing data)
+# modelName <- SDMs[["mars_pred"]][[3]]
 
 #plot(mars_pred, main = "MARS") #, sub ="threshold = 0.00001 (pre-defined)")
-# mars <- ggplot(data=data.frame(rasterToPoints(mars_pred)), aes(x=x, y=y, fill=layer))+
+# mars <- ggplot(data=mars_pred, aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("MARS")+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -213,7 +224,7 @@ brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pre
 ## XGBoost ####
 xgb_pred <- SDMs[["xgb_pred"]][[7]]
 
-names(xgb_pred) <- rownames(Env) #add site names
+names(xgb_pred) <- rownames(Env_norm) #add site names
 
 ## scaling not necessary if predict(..., type="prob"), see SDM script
 # # rescale between 0 and 1
@@ -336,17 +347,17 @@ ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 ## Plot all maps ####
 #- - - - - - - - - - - - - - - - - - - - - -
 modelNames <- c("lm1", "lm_subset", "gm", 
-                # "lasso", "ridge",
+                 "lasso", "ridge",
                 "mars","maxent","maxnet", "xgb", 
                 "rf", "rf_downsample", "svm", "biomod", "ensm")
 
 model_list <- list(lm1_pred, lm_subset_pred, gm_pred, 
-                   # "lasso", "ridge",
+                    "lasso", "ridge",
                    mars_pred, maxent_pred, 
                    maxnet_pred,  xgb_pred, rf_pred, rf_downsample_pred, 
                    svm_pred, biomod_pred, ensm_pred)
 names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred", 
-                       # "lasso", "ridge",
+                        "lasso", "ridge",
                        "mars_pred", 
                        "maxent_pred", "maxnet_pred", "xgb_pred", 
                        "rf_pred", "rf_downsample_pred", "svm_pred", "biomod_pred","ensm_pred")

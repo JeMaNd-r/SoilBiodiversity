@@ -102,7 +102,7 @@ summary(lm1)
 temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
-lm1_pred <- predict(lm1, validation_env)
+lm1_pred <- stats::predict.glm(lm1, validation_env, type="response")
 #head(lm1_pred)
 
 lm1_pred <- as.numeric(lm1_pred)
@@ -148,7 +148,7 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 summary(lm_subset)
 
-lm_subset_pred <- predict(lm_subset, validation_env)
+lm_subset_pred <- stats::predict.glm(lm_subset, validation_env, type="response")
 #head(lm_subset_pred)
 
 lm_subset_pred <- as.numeric(lm_subset_pred)
@@ -178,7 +178,7 @@ quad_obj <- make_quadratic(training, cols = covarsNames)
 # this make two columns for each covariates used in the transformation
 training_quad <- predict(quad_obj, newdata = training)
 testing_quad <- predict(quad_obj, newdata = validation_env)
-predicting_quad <- predict(quad_obj, newdata = Env_df_nrom)
+predicting_quad <- predict(quad_obj, newdata = Env_norm_df)
 
 # Define vector with appropriate covarsNames for sparse matrix.
 # More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
@@ -235,14 +235,14 @@ names(lasso_pred) <- rownames(validation_env) #add site names
 #lasso_prediction <- glmnet:::predict.glmnet(object = lasso_cv, newx = predicting_sparse, type = "response", s = "lambda.min")[,1]
 lasso_prediction <- raster::predict(lasso_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_prediction)
-lasso_prediction <- data.frame("site" = names(lasso_prediction), "prediction" = as.numeric(lasso_prediction)) %>%
-  full_join(Env_df_nrom %>% mutate("site" = rownames(Env_df_nrom)), by = "site")
-lasso_prediction <- raster::rasterFromXYZ(lasso_prediction[,c("x", "y", "prediction")])
+lasso_prediction <- data.frame("site" = names(lasso_prediction), "layer" = as.numeric(lasso_prediction)) %>%
+  full_join(Env_norm_df %>% mutate("site" = rownames(Env_norm_df)) %>% dplyr::select(x,y,site), by = "site") %>%
+  dplyr::select(-site)
 
 temp_runs <- 1
 
 lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp_time, temp_runs, lasso_prediction)
-rm(lasso_cv, temp_time)
+rm(lasso_cv, temp_time, lasso_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## fitting ridge resgression (alpha=0) while identify the right lambda
@@ -271,12 +271,12 @@ temp_runs <- 1
 # predict for whole environment
 ridge_prediction <- raster::predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_prediction)
-ridge_prediction <- data.frame("site" = names(ridge_prediction), "prediction" = as.numeric(ridge_prediction)) %>%
-  full_join(Env_df_nrom %>% mutate("site" = rownames(Env_df_nrom)), by = "site")
-ridge_prediction <- raster::rasterFromXYZ(ridge_prediction[,c("x", "y", "prediction")])
+ridge_prediction <- data.frame("site" = names(ridge_prediction), "layer" = as.numeric(ridge_prediction)) %>%
+  full_join(Env_norm_df %>% mutate("site" = rownames(Env_norm_df)) %>% dplyr::select(x,y,site), by = "site") %>%
+  dplyr::select(-site)
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
-rm(ridge_cv, temp_time, training_sparse, training_quad, testing_sparse)
+rm(ridge_cv, temp_time, training_sparse, training_quad, testing_sparse, testing_quad, ridge_prediction, predicting_sparse, predicting_quad)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -334,11 +334,7 @@ for(no.runs in 1:no.loop.runs){
   temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   #plot(mars_fit)
   
-  mars_pred <- predict(mars_fit, validation_env)
-  # transform occurrence back into numeric
-  mars_pred <- as.character(mars_pred)
-  mars_pred[mars_pred=="C0"] <- 0
-  mars_pred[mars_pred=="C1"] <- 1
+  mars_pred <- caret::predict.train(mars_fit, validation_env, type="prob")[,"C1"]
   mars_pred <- as.numeric(mars_pred)
   names(mars_pred) <- rownames(validation_env) #add site names
   #head(mars_pred)
@@ -348,9 +344,20 @@ for(no.runs in 1:no.loop.runs){
   mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp$importance))
   
   # create raster layer of predictions for whole environmental space
-  mars_raster <- raster::predict(Env_norm, mars_fit)
+  mars_prediction <- caret::predict.train(mars_fit, Env_norm_df %>% dplyr::select(-x, -y), type="prob")[,"C1"]
+  mars_prediction <- as.numeric(mars_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(mars_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  mars_prediction <- as.data.frame(mars_prediction)
+  mars_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+  mars_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  mars_prediction <- mars_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = mars_prediction)
   
-  mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp_time, mars_varImp, mars_raster)
+  mars_pred_list[[no.runs]] <- list(mars_fit, mars_pred, modelName, temp_time, mars_varImp, mars_prediction)
+  
+  print(paste0("Run no. ", no.runs, " of ", no.loop.runs ," is ready now."))
+  rm(mars_prediction, mars_varImp, mars_fit, mars_pred, temp_time)
 }
 
 # average all MARS predictions
@@ -468,17 +475,26 @@ maxmod <- dismo::maxent(x = training[, covarsNames],
 temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
-maxmod_pred <- dismo::predict(maxmod, validation_env)
+maxmod_pred <- dismo::predict(maxmod, validation_env, type="response")
 maxmod_pred <- as.numeric(maxmod_pred)
 names(maxmod_pred) <- rownames(validation_env) #add site names
 #head(maxmod_pred)
 
 # create raster layer of predictions for whole environmental space
-maxmod_raster <- raster::predict(Env_norm, maxmod)
+maxmod_prediction <- raster::predict(Env_norm, maxmod)
+maxmod_prediction <- data.frame(raster::rasterToPoints(maxmod_prediction))
+# gc()
+# maxmod_prediction <- dismo::predict(maxmod, Env_norm_df) # Java out of memory
+# maxmod_prediction <- as.numeric(maxmod_prediction)
+# names(maxmod_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
+# maxmod_prediction <- as.data.frame(maxmod_prediction)
+# maxmod_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+# maxmod_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+# colnames(maxmod_prediction)[1] <- "layer"
 
 temp_runs <- 1
 
-maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp_time, temp_runs, maxmod_raster)
+maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp_time, temp_runs, maxmod_prediction)
 rm(maxmod, temp_time)
 
 ## MaxNet
