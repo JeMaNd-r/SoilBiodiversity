@@ -158,7 +158,7 @@ maxent_pred <- SDMs[["maxmod_pred"]][[6]]
 maxent_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
 
 #plot(maxent_pred, main = "MaxEnt")
-# maxent <- ggplot(data=data.frame(rasterToPoints(maxent_pred>=maxent_thresh)), aes(x=x, y=y, fill=layer))+
+# maxent <- ggplot(data=maxent_pred[maxent_pred$layer>=maxent_thresh], aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("MaxEnt", subtitle=paste0("Threshold = ", maxent_thresh))+
 #   scale_fill_viridis_c(limits = c(0,1))+
@@ -177,7 +177,7 @@ maxnet_pred <- SDMs[["maxnet_pred"]][[6]]
 maxnet_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
 
 #plot(maxnet_pred, main = "MaxNet")
-# maxnet <- ggplot(data=data.frame(rasterToPoints(maxnet_pred>=maxnet_thresh)), aes(x=x, y=y, fill=layer))+
+# maxnet <- ggplot(data=maxnet_pred[maxnet_pred$layer>=maxnet_thresh], aes(x=x, y=y, fill=layer))+
 #   geom_tile()+
 #   ggtitle("MaxNet", subtitle=paste0("Threshold = ", maxnet_thresh))+
 #   scale_fill_viridis_c(limits = c(0,1))+

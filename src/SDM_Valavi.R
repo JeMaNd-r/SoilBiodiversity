@@ -7,15 +7,15 @@
 
 # note: we will load the datasets before each individual model
 
-# define formula for GLM (and biomod)
-form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
-
 # load environmental variables (for projections)
 Env_norm <- stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
 load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_df_norm
+
+# define formula for GLM (and biomod)
+form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
@@ -63,16 +63,13 @@ temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predict (only for model performance)
-gm_pred <- predict(gm, validation_env, type="response")
+gm_pred <- predict(gm, validation[,colnames(validation) %in% covarsNames], type="response")
 #head(gm_pred)
-
-gm_pred <- as.numeric(gm_pred)
-names(gm_pred) <- rownames(validation_env) #add site names
 
 temp_runs <- 1
 
 gm_pred <- list(gm, gm_pred, modelName, temp_time, temp_runs)
-rm(gm, temp_time)
+rm(gm, temp_time, temp_runs)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
@@ -102,16 +99,13 @@ summary(lm1)
 temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
-lm1_pred <- stats::predict.glm(lm1, validation_env, type="response")
+lm1_pred <- stats::predict.glm(lm1, validation[,colnames(validation) %in% covarsNames], type="response")
 #head(lm1_pred)
-
-lm1_pred <- as.numeric(lm1_pred)
-names(lm1_pred) <- rownames(validation_env) #add site names
 
 temp_runs <- 1
 
 lm1_pred <- list(lm1, lm1_pred, modelName, temp_time, temp_runs)
-rm(temp_time)
+rm(temp_time, temp_runs)
 
 # load library again to make sure that function works correctly
 library(gam)
@@ -148,16 +142,13 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 summary(lm_subset)
 
-lm_subset_pred <- stats::predict.glm(lm_subset, validation_env, type="response")
+lm_subset_pred <- stats::predict.glm(lm_subset, validation[,colnames(validation) %in% covarsNames], type="response")
 #head(lm_subset_pred)
-
-lm_subset_pred <- as.numeric(lm_subset_pred)
-names(lm_subset_pred) <- rownames(validation_env) #add site names
 
 temp_runs <- 1
 
 lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp_time, temp_runs)
-rm(lm_subset, lm1, temp_time, mod_scope)
+rm(lm_subset, lm1, temp_time, mod_scope, temp_runs)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: LASSO and RIDGE regression ####
@@ -177,8 +168,8 @@ quad_obj <- make_quadratic(training, cols = covarsNames)
 # now we can predict this quadratic object on the training, testing, and prediction data
 # this make two columns for each covariates used in the transformation
 training_quad <- predict(quad_obj, newdata = training)
-testing_quad <- predict(quad_obj, newdata = validation_env)
-predicting_quad <- predict(quad_obj, newdata = Env_norm_df)
+testing_quad <- predict(quad_obj, newdata = validation[,colnames(validation) %in% covarsNames])
+predicting_quad <- predict(quad_obj, newdata = Env_norm_df %>% dplyr::select(-x, -y))
 
 # Define vector with appropriate covarsNames for sparse matrix.
 # More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
@@ -228,12 +219,9 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 lasso_pred <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_pred)
 
-lasso_pred <- as.numeric(lasso_pred)
-names(lasso_pred) <- rownames(validation_env) #add site names
-
 # predict for whole environment
 #lasso_prediction <- glmnet:::predict.glmnet(object = lasso_cv, newx = predicting_sparse, type = "response", s = "lambda.min")[,1]
-lasso_prediction <- raster::predict(lasso_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
+lasso_prediction <- predict(lasso_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(lasso_prediction)
 lasso_prediction <- data.frame("site" = names(lasso_prediction), "layer" = as.numeric(lasso_prediction)) %>%
   full_join(Env_norm_df %>% mutate("site" = rownames(Env_norm_df)) %>% dplyr::select(x,y,site), by = "site") %>%
@@ -242,7 +230,7 @@ lasso_prediction <- data.frame("site" = names(lasso_prediction), "layer" = as.nu
 temp_runs <- 1
 
 lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp_time, temp_runs, lasso_prediction)
-rm(lasso_cv, temp_time, lasso_prediction)
+rm(lasso_cv, temp_time, temp_runs, lasso_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## fitting ridge resgression (alpha=0) while identify the right lambda
@@ -263,20 +251,17 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 ridge_pred <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_pred)
 
-ridge_pred <- as.numeric(ridge_pred)
-names(ridge_pred) <- rownames(validation_env) #add site names
-
 temp_runs <- 1
 
 # predict for whole environment
-ridge_prediction <- raster::predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
+ridge_prediction <- predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_prediction)
 ridge_prediction <- data.frame("site" = names(ridge_prediction), "layer" = as.numeric(ridge_prediction)) %>%
   full_join(Env_norm_df %>% mutate("site" = rownames(Env_norm_df)) %>% dplyr::select(x,y,site), by = "site") %>%
   dplyr::select(-site)
 
 ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
-rm(ridge_cv, temp_time, training_sparse, training_quad, testing_sparse, testing_quad, ridge_prediction, predicting_sparse, predicting_quad)
+rm(ridge_cv, temp_time,temp_runs, training_sparse, training_quad, testing_sparse, testing_quad, ridge_prediction, predicting_sparse, predicting_quad)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -284,13 +269,13 @@ rm(ridge_cv, temp_time, training_sparse, training_quad, testing_sparse, testing_
 
 modelName <- "bg.mars"
 
-# identify and load all relevant data files
-temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
+# # identify and load all relevant data files
+# temp.files <- list.files(path = paste0("./results/",Taxon_name), 
+#                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+# lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/3
+no.loop.runs <- length(temp.files)/2
 
 mars_pred_list <- list()
 
@@ -334,9 +319,7 @@ for(no.runs in 1:no.loop.runs){
   temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   #plot(mars_fit)
   
-  mars_pred <- caret::predict.train(mars_fit, validation_env, type="prob")[,"C1"]
-  mars_pred <- as.numeric(mars_pred)
-  names(mars_pred) <- rownames(validation_env) #add site names
+  mars_pred <- caret::predict.train(mars_fit, validation[,colnames(validation) %in% covarsNames], type="prob")[,"C1"]
   #head(mars_pred)
   
   # caluclate variable importance (for later)
@@ -363,6 +346,11 @@ for(no.runs in 1:no.loop.runs){
 # average all MARS predictions
 mars_pred <- as.data.frame(sapply(mars_pred_list, "[[", 2))
 mars_pred <- rowMeans(mars_pred, na.rm=T)
+
+# make predictions for validation numeric
+mars_pred <- as.numeric(mars_pred)
+names(mars_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
+
 temp_time <- c(mean(as.numeric(sapply(mars_pred_list, "[[", 4)[1,]), na.rm=T), mars_pred_list[[1]][[4]][2])
 temp.varImp <- do.call(rbind, lapply(mars_pred_list, "[[", 5)) %>% 
   group_by(Predictor) %>% summarise_all(mean, na.rm=T)
@@ -371,19 +359,13 @@ temp.models <- sapply(mars_pred_list, "[[", 1)
 temp_runs <- length(mars_pred_list)
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(mars_pred_list, "[[", 6), raster)
-# convert to 0 and 1 (from factors)
-values(temp.prediction)[values(temp.prediction)=="1"] <- 0
-values(temp.prediction)[values(temp.prediction)=="2"] <- 1
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp.prediction <- do.call(rbind, lapply(mars_pred_list, "[[", 6)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
+temp_uncertainty <- do.call(rbind, lapply(mars_pred_list, "[[", 6)) %>% 
+  group_by(x,y) %>% summarise_all(sd, na.rm=T)
 
-# make predictions for validation numeric
-mars_pred <- as.numeric(mars_pred)
-names(mars_pred) <- rownames(validation_env) #add site names
-
-mars_pred <- list(temp.models, mars_pred, modelName, temp_time, temp_runs, temp.varImp, temp.prediction)
-rm(mars_fit, temp_time, mars_varImp, mars_pred_list, temp.prediction)
+mars_pred <- list(NULL, mars_pred, modelName, temp_time, temp_runs, temp.varImp, temp.prediction, temp_uncertainty)
+rm(mars_fit, temp_time, mars_varImp, mars_pred_list, temp.prediction, temp_uncertainty)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -443,7 +425,7 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
       ), "try-error")){
         next
       }
-      modpred <- predict(maxmod, data[testSet, covarsNames]) #, args = "outputformat=cloglog"
+      modpred <- dismo::predict(maxmod, data[testSet, covarsNames], type = c("cloglog")) #, args = "outputformat=cloglog"
       pred_df <- data.frame(score = modpred, label = data$occ[testSet])
       full_pred <- rbind(full_pred, pred_df)
     }
@@ -475,27 +457,29 @@ maxmod <- dismo::maxent(x = training[, covarsNames],
 temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
-maxmod_pred <- dismo::predict(maxmod, validation_env, type="response")
+#maxmod_pred <- dismo::predict(maxmod, validation[,colnames(validation) %in% covarsNames], type="response")
+maxmod_pred <- dismo::predict(maxmod, validation[,colnames(validation) %in% covarsNames], type = c("cloglog"))
 maxmod_pred <- as.numeric(maxmod_pred)
-names(maxmod_pred) <- rownames(validation_env) #add site names
+names(maxmod_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 #head(maxmod_pred)
 
 # create raster layer of predictions for whole environmental space
-maxmod_prediction <- raster::predict(Env_norm, maxmod)
-maxmod_prediction <- data.frame(raster::rasterToPoints(maxmod_prediction))
-# gc()
-# maxmod_prediction <- dismo::predict(maxmod, Env_norm_df) # Java out of memory
-# maxmod_prediction <- as.numeric(maxmod_prediction)
-# names(maxmod_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
-# maxmod_prediction <- as.data.frame(maxmod_prediction)
-# maxmod_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-# maxmod_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
-# colnames(maxmod_prediction)[1] <- "layer"
+#maxmod_prediction <- raster::predict(Env_norm, maxmod)
+#maxmod_prediction <- data.frame(raster::rasterToPoints(maxmod_prediction))
+gc()
+#maxmod_prediction <- dismo::predict(maxmod, Env_norm_df %>% dplyr::select(-x, -y)) # Java out of memory
+maxmod_prediction <- dismo::predict(maxmod, Env_norm_df %>% dplyr::select(-x, -y), type = c("cloglog"))
+maxmod_prediction <- as.numeric(maxmod_prediction)
+names(maxmod_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
+maxmod_prediction <- as.data.frame(maxmod_prediction)
+maxmod_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+maxmod_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+colnames(maxmod_prediction)[1] <- "layer"
 
 temp_runs <- 1
 
 maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp_time, temp_runs, maxmod_prediction)
-rm(maxmod, temp_time)
+rm(maxmod, temp_time, maxmod_prediction)
 
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
@@ -512,19 +496,25 @@ temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predicting with MaxNet
-maxnet_pred <- predict(maxnet, validation_env, type = c("cloglog"))[, 1]
-maxnet_pred <- as.numeric(maxnet_pred)
-head(maxnet_pred)
-
-names(maxnet_pred) <- rownames(validation_env) #add site names
+maxnet_pred <- predict(maxnet, validation[,colnames(validation) %in% covarsNames], type = c("cloglog"))[, 1]
+#head(maxnet_pred)
 
 # create raster layer of predictions for whole environmental space
-maxnet_raster <- raster::predict(Env_norm, maxnet)
+gc()
+#maxnet_prediction <- raster::predict(Env_norm, maxnet)
+#maxnet_prediction <- data.frame(rasterToPoints(maxnet_prediction))
+maxnet_prediction <- predict(maxnet, Env_norm_df %>% dplyr::select(-x, -y), type = "cloglog")[, 1]
+maxnet_prediction <- as.numeric(maxnet_prediction)
+names(maxnet_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
+maxnet_prediction <- as.data.frame(maxnet_prediction)
+maxnet_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+maxnet_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+colnames(maxnet_prediction)[1] <- "layer"
 
 temp_runs <- 1
 
-maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp_time, temp_runs, maxnet_raster)
-rm(maxnet, temp_time)
+maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp_time, temp_runs, maxnet_prediction)
+rm(maxnet, temp_time, maxnet_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -538,7 +528,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/3
+no.loop.runs <- length(temp.files)/2
 
 brt_pred_list <- list()
 
@@ -615,18 +605,18 @@ for(no.runs in 1:no.loop.runs){
   temp.find.int <- dismo::gbm.interactions(brt)
   
   # predicting with the best trees
-  brt_pred <- predict(brt, validation_env, n.trees = brt$gbm.call$best.trees, type = "response")
+  brt_pred <- dismo::predict(brt, validation[,colnames(validation) %in% covarsNames], n.trees = brt$gbm.call$best.trees, type = "response")
   #head(brt_pred)
   
-  # create raster layer of predictions for whole environmental space
-  brt_raster <- raster::predict(Env_norm, brt)
-  
   brt_pred <- as.numeric(brt_pred)
-  names(brt_pred) <- rownames(validation_env) #add site names
+  names(brt_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
+  
+  # create raster layer of predictions for whole environmental space
+  brt_prediction <- dismo::predict(brt, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt$gbm.call$best.trees, type = "response")
   
   brt_pred_list[[no.runs]] <- list(brt, brt_pred, modelName, temp_time, 
                                    data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
-                                   temp.find.int$interactions, brt_raster)
+                                   temp.find.int$interactions, brt_prediction)
 }
 
 # average all BRT predictions
@@ -736,16 +726,18 @@ if(is.null(brt2)){
 temp.find.int <- gbm.interactions(brt2)
 
 # predict to raster (for later)
-brt2_raster <- raster::predict(Env_norm, brt2, n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
+brt2_prediction <- dismo::predict(brt2, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
+brt2_prediction$x
+brt2_prediction$y
 
 # predicting with the best trees
-brt2_pred <- predict(brt2, validation_env, n.trees = brt2$gbm.call$best.trees, type = "response")
+brt2_pred <- dismo::predict(brt2, validation[,colnames(validation) %in% covarsNames], n.trees = brt2$gbm.call$best.trees, type = "response")
 #head(brt_pred)
 
 temp.settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
 
 brt2_pred <- as.numeric(brt2_pred)
-names(brt2_pred) <- rownames(validation_env) #add site names
+names(brt2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
 temp_runs <- 1
 
@@ -819,7 +811,7 @@ for(no.runs in 1:no.loop.runs){
   
   #print(xgb_fit$bestTune)
   
-  xgb_pred <- predict(xgb_fit, validation_env)
+  xgb_pred <- predict(xgb_fit, validation[,colnames(validation) %in% covarsNames])
   #head(xgb_pred)
   
   # transform occurrence back into numeric
@@ -827,7 +819,7 @@ for(no.runs in 1:no.loop.runs){
   xgb_pred[xgb_pred=="C0"] <- 0
   xgb_pred[xgb_pred=="C1"] <- 1
   xgb_pred <- as.numeric(xgb_pred)
-  names(xgb_pred) <- rownames(validation_env) #add site names
+  names(xgb_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # calculate variable importance (for later)
   xgb_varImp <- caret::varImp(xgb_fit, scale=T) #scaled between 0 and 100% 
@@ -912,11 +904,11 @@ for(no.runs in 1:no.loop.runs){
   temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   
   # predict with RF
-  rf_pred <- predict(rf, validation_env, type = "prob")[, "1"] # prob = continuous prediction
+  rf_pred <- predict(rf, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_pred)
   
   rf_pred <- as.numeric(rf_pred)
-  names(rf_pred) <- rownames(validation_env) #add site names
+  names(rf_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # predict to raster (for later)
   rf_raster <- raster::predict(Env_norm, rf, type="prob")
@@ -947,11 +939,11 @@ for(no.runs in 1:no.loop.runs){
   #plot(rf_downsample, main = "RF down-sampled")
   
   # predict with RF down-sampled
-  rf_downsample_pred <- predict(rf_downsample, validation_env, type = "prob")[, "1"] # prob = continuous prediction
+  rf_downsample_pred <- predict(rf_downsample, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_downsample_pred)
   
   rf_downsample_pred <- as.numeric(rf_downsample_pred)
-  names(rf_downsample_pred) <- rownames(validation_env) #add site names
+  names(rf_downsample_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # predict to raster (for later)
   rf_downsample_raster <- raster::predict(Env_norm, rf_downsample, type="prob")
@@ -1016,11 +1008,11 @@ temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predict with RF
-rf2_pred <- predict(rf2, validation_env, type = "prob")[, "1"] # prob = continuous prediction
+rf2_pred <- predict(rf2, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
 #head(rf_pred)
 
 rf2_pred <- as.numeric(rf2_pred)
-names(rf2_pred) <- rownames(validation_env) #add site names
+names(rf2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
 # predict to raster (for later)
 temp_raster <- raster::predict(Env_norm, rf2, type="prob")
@@ -1075,7 +1067,7 @@ for(no.runs in 1:no.loop.runs){
   temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   
   # predicting on test data
-  svm_pred <- e1071:::predict.svm(svm_e, validation_env, probability=TRUE)
+  svm_pred <- e1071:::predict.svm(svm_e, validation[,colnames(validation) %in% covarsNames], probability=TRUE)
   svm_pred <- attr(svm_pred, "probabilities")[,"1"] 
   
   # see the first few predictions
@@ -1246,7 +1238,7 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted proba
 #head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
-names(biomod_pred) <- rownames(validation_env) #add site names
+names(biomod_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
 # Get model evaluation values for later
 myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM),

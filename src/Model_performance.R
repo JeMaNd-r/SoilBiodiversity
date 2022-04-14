@@ -53,15 +53,15 @@ for(i in 1:length(SDMs)){
     
     try({
       precrec_obj <- precrec::auc(precrec::evalmod(scores = SDMs[["biomod_pred"]][[2]], 
-                                                     labels = validation_pa$occ))
-      temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation_pa$occ, 
+                                                     labels = validation[,c("x","y","SpeciesID", "occ")]$occ))
+      temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation[,c("x","y","SpeciesID", "occ")]$occ, 
                                                                pos_scores = SDMs[["biomod_pred"]][[2]]))
       
-      prg_curve <- create_prg_curve(labels = validation_pa[,"occ"], pos_scores = prediction)
+      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction)
         
       
       ## TSS and Kappa
-      roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation_pa)], validation_pa[rownames(validation_pa) %in% names(prediction),"occ"])
+      roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation)], validation[rownames(validation) %in% names(prediction),"occ"])
       roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
       
       # calculate Sensitivity and Specificity
@@ -71,7 +71,7 @@ for(i in 1:length(SDMs)){
       temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
       
       # calculate Kappa
-      mod.object <- sdm::evaluates(x = validation_pa[,"occ"], p = prediction)
+      mod.object <- sdm::evaluates(x = validation[,"occ"], p = prediction)
       temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
       temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
     })
@@ -82,7 +82,7 @@ for(i in 1:length(SDMs)){
     #try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
     try(mod_eval[i,]$prg <- temp.prg)
     #try(mod_eval[i,]$prg <- NA)
-    try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation_pa$occ))
+    try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation$occ))
     #try(mod_eval[i,]$cor <- NA)
     #try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
     try(mod_eval[i,]$tss <- temp.tss)
@@ -113,11 +113,16 @@ for(i in 1:length(SDMs)){
     # load prediction
     prediction <- SDMs[[temp.model]][[2]]
     
+    # define validation
+    validation <- validation[,c("x","y","SpeciesID", "occ")] %>% mutate("site" = rownames(validation)) %>%
+      filter(site %in% names(prediction)) 
+    validation[match(names(prediction), validation$site),] %>% dplyr::select(occ)
+    
     # try loop (not stopping if error)
     try({
       ## ROC and PR
       # calculate area under the ROC and PR curves
-      precrec_obj <- evalmod(scores = prediction, labels = validation_pa[,"occ"])
+      precrec_obj <- evalmod(scores = prediction, labels = validation[,"occ"])
       #print(precrec_obj)
       
       # # plot the ROC and PR curves
@@ -126,7 +131,7 @@ for(i in 1:length(SDMs)){
       # 
       ## PRG
       # calculate the PRG curve
-      prg_curve <- create_prg_curve(labels = validation_pa[,"occ"], pos_scores = prediction)
+      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction)
       
       # # calculate area under the PRG cure (AUC PRG)
       # au_prg <- calc_auprg(prg_curve)
@@ -144,7 +149,7 @@ for(i in 1:length(SDMs)){
       prediction <- scales::rescale(prediction, to = c(0,1))
       
       ## TSS and Kappa
-      roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation_pa)], validation_pa[rownames(validation_pa) %in% names(prediction),"occ"])
+      roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation)], validation[rownames(validation) %in% names(prediction),"occ"])
       roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
       
       # calculate Sensitivity and Specificity
@@ -154,7 +159,7 @@ for(i in 1:length(SDMs)){
       temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
       
       # calculate Kappa
-      mod.object <- sdm::evaluates(x = validation_pa[,"occ"], p = prediction)
+      mod.object <- sdm::evaluates(x = validation[,"occ"], p = prediction)
       temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
       temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
     
@@ -164,7 +169,7 @@ for(i in 1:length(SDMs)){
     mod_eval[i,]$species <- spID
     try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4])
     try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve))
-    try(mod_eval[i,]$cor <- cor(prediction,  validation_pa[,"occ"]))
+    try(mod_eval[i,]$cor <- cor(prediction,  validation[,"occ"]))
     try(mod_eval[i,]$tss <- temp.tss)
     try(mod_eval[i,]$kappa <- temp.kappa)
     try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)

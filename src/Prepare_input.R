@@ -19,16 +19,13 @@ split.data <- function(x){
   set.seed(1)
   random.rows <- sample(1:nrow(training), nrow(training))
   
-  validation_env <- training[random.rows[1:round(0.2*nrow(training))], 
-                             covarsNames[covarsNames %in% colnames(x)]]
-  validation_pa <- training[random.rows[1:round(0.2*nrow(training))], 
-                            c("x","y", "SpeciesID", "occ")]
+  validation <- training[random.rows[1:round(0.2*nrow(training))], 
+                             c("x","y", "SpeciesID", "occ", covarsNames[covarsNames %in% colnames(x)])]
   
   training <- training[random.rows[round(0.2*nrow(training)):nrow(training)],]
   
   # subset uncorrelated covariates
   training <- training[, c("occ", covarsNames[covarsNames %in% colnames(x)])]
-  validation_env <- validation_env[, covarsNames[covarsNames %in% colnames(x)]]
   
   # # convert the categoricals to factor
   # training$vegsys <- as.factor(training$vegsys)
@@ -39,10 +36,9 @@ split.data <- function(x){
   # print(training[1:5, 1:5])
   
   # save all datasets
-  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-  save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-  save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-}
+  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp_species, ".RData"))
+  save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", modelName, runningNumber, "_", Taxon_name,"_", temp_species, ".RData"))
+  }
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## parallelize ####
@@ -58,14 +54,14 @@ if(length(speciesNames$NumCells) == 0){
 }
 
 # for loop
-foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, 
+foreach(temp_species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID, 
         .export = c("Taxon_name", "covarsNames"), 
         .packages = c("tidyverse")) %dopar% {
   
   try({
     
     # load background data (pseudo-absences) for each modeling approach
-    load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", temp.species, ".RData"))
+    load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", temp_species, ".RData"))
     
     for(i in 1:(length(bg.list)-1)){ #exclude biomod data
       
@@ -139,8 +135,7 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
       
       ## re-create background data with bg.glm background data as evaluation data
       # load testing background data
-      load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_bg.glm1_", Taxon_name,"_", temp.species, ".RData"))  #validation_pa
-      load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_bg.glm1_", Taxon_name,"_", temp.species, ".RData")) #validation_env
+      load(file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_bg.glm1_", Taxon_name,"_", temp_species, ".RData"))  #validation
       
       # tmp <- Sys.time()
       # bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = bg.list[["bg.biomod"]][["myResp"]],
@@ -163,14 +158,13 @@ foreach(temp.species=speciesNames[speciesNames$NumCells >=5,]$SpeciesID,
       # NOTE: validation only needed if no evaluation data provided above (eval.expl etc. ...)!
       
       # save datasets for BIOMOD
-      save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-      save(validation_pa, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_pa_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-      save(validation_env, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_env_", modelName,runningNumber, "_", Taxon_name,"_", temp.species, ".RData"))
-    }   
+      save(training, file=paste0(here::here(), "/results/", Taxon_name, "/TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", temp_species, ".RData"))
+      save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", modelName,runningNumber, "_", Taxon_name,"_", temp_species, ".RData"))
+     }   
     }
   }) # end of try loop
   
-  print(paste0("The model input data is now saved for ", Taxon_name, ": ", temp.species, "."))
+  print(paste0("The model input data is now saved for ", Taxon_name, ": ", temp_species, "."))
   
 }
 
