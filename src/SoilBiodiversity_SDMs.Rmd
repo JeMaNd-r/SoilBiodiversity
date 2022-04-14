@@ -10,7 +10,7 @@ output:
 ```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx8192m"))
+options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx8g")) # expand Java memory
 gc()
 library(tidyverse)
 library(here)
