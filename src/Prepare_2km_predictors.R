@@ -207,7 +207,7 @@ stack_files <- stack_files[!stringr::str_detect(stack_files, "SoilT_5-15cm_")]
 stack_files <- stack_files[!stringr::str_detect(stack_files, "Snow_2000-2009")]
 stack_files
 
-# create empty stacj
+# create empty stack
 Env <- raster::stack()
 
 # load and merge them
