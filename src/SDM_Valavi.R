@@ -365,7 +365,7 @@ temp_uncertainty <- do.call(rbind, lapply(mars_pred_list, "[[", 6)) %>%
   group_by(x,y) %>% summarise_all(sd, na.rm=T)
 
 mars_pred <- list(NULL, mars_pred, modelName, temp_time, temp_runs, temp.varImp, temp.prediction, temp_uncertainty)
-rm(mars_fit, temp_time, mars_varImp, mars_pred_list, temp.prediction, temp_uncertainty)
+rm(mars_fit, temp_time, mars_pred_list, temp.prediction, temp_uncertainty)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -613,6 +613,14 @@ for(no.runs in 1:no.loop.runs){
   
   # create raster layer of predictions for whole environmental space
   brt_prediction <- dismo::predict(brt, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt$gbm.call$best.trees, type = "response")
+  brt_prediction <- as.numeric(brt_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(brt_prediction) <- rownames(Env_norm_df)
+  brt_prediction <- as.data.frame(brt_prediction)
+  brt_prediction$x <- Env_norm_df$x
+  brt_prediction$y <- Env_norm_df$y
+  brt_prediction <- brt_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = brt_prediction)
   
   brt_pred_list[[no.runs]] <- list(brt, brt_pred, modelName, temp_time, 
                                    data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
@@ -637,9 +645,10 @@ if(ncol(sapply(brt_pred_list, "[[", 6))!=1) {
 }
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(brt_pred_list, "[[", 7), raster)
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp_prediction <- do.call(rbind, lapply(brt_pred_list, "[[", 7)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
+temp_uncertainty <- do.call(rbind, lapply(brt_pred_list, "[[", 7)) %>%
+  group_by(x,y) %>% summarise_all(function(x) sd(x, na.rm=T))
 
 temp.interactions <- as.data.frame(matrix(temp.interactions, ncol=length(covarsNames)))
 rownames(temp.interactions) <- covarsNames
@@ -647,8 +656,8 @@ colnames(temp.interactions) <- covarsNames
 
 temp.models <- sapply(brt_pred_list, "[[", 1)
 
-brt_pred <- list(temp.models, brt_pred, modelName, temp_time, temp_runs, temp.settings, temp.interactions, temp.prediction)
-rm(brt, temp_time, brt_pred_list, temp.prediction)
+brt_pred <- list(temp.models, brt_pred, modelName, temp_time, temp_runs, temp.settings, temp.interactions, temp_prediction, temp_uncertainty)
+rm(brt, temp_time, brt_pred_list, temp_prediction, temp_uncertainty)
 
 #- - - - - - - - - - - - - - - - 
 ## Model BRT2 for ensemble modelling with consistent background data (bg.glm)
@@ -727,22 +736,26 @@ temp.find.int <- gbm.interactions(brt2)
 
 # predict to raster (for later)
 brt2_prediction <- dismo::predict(brt2, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
-brt2_prediction$x
-brt2_prediction$y
+brt2_prediction <- as.numeric(brt2_prediction)
+# add names of grid cell (only for those that have no NA in any layer)
+names(brt2_prediction) <- rownames(Env_norm_df)
+brt2_prediction <- as.data.frame(brt2_prediction)
+brt2_prediction$x <- Env_norm_df$x
+brt2_prediction$y <- Env_norm_df$y
+brt2_prediction <- brt2_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+  rename("layer" = brt2_prediction)
 
 # predicting with the best trees
 brt2_pred <- dismo::predict(brt2, validation[,colnames(validation) %in% covarsNames], n.trees = brt2$gbm.call$best.trees, type = "response")
 #head(brt_pred)
-
-temp.settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
-
 brt2_pred <- as.numeric(brt2_pred)
 names(brt2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
+temp.settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
 temp_runs <- 1
 
-brt2_pred <- list(brt2, brt2_pred, modelName, temp_time, temp_runs, temp.settings, temp.find.int$interactions, brt2_raster)
-rm(brt2, temp_time)
+brt2_pred <- list(brt2, brt2_pred, modelName, temp_time, temp_runs, temp.settings, temp.find.int$interactions, brt2_prediction)
+rm(brt2, temp_time, brt2_prediction, temp.find.int, temp_runs, temp.settings)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -756,7 +769,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/3
+no.loop.runs <- length(temp.files)/2
 
 xgb_pred_list <- list()
 
@@ -811,13 +824,10 @@ for(no.runs in 1:no.loop.runs){
   
   #print(xgb_fit$bestTune)
   
-  xgb_pred <- predict(xgb_fit, validation[,colnames(validation) %in% covarsNames])
+  xgb_pred <- dismo::predict(xgb_fit, validation[,colnames(validation) %in% covarsNames],  type = "prob")[,"C1"]
   #head(xgb_pred)
   
   # transform occurrence back into numeric
-  xgb_pred <- as.character(xgb_pred)
-  xgb_pred[xgb_pred=="C0"] <- 0
-  xgb_pred[xgb_pred=="C1"] <- 1
   xgb_pred <- as.numeric(xgb_pred)
   names(xgb_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
@@ -826,10 +836,18 @@ for(no.runs in 1:no.loop.runs){
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
   # predict to raster (for later)
-  xgb_raster <- raster::predict(Env_norm, xgb_fit, type="prob")
-   
+  xgb_prediction <- dismo::predict(xgb_fit, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[,"C1"]
+  xgb_prediction <- as.numeric(xgb_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(xgb_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  xgb_prediction <- as.data.frame(xgb_prediction)
+  xgb_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+  xgb_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  xgb_prediction <- xgb_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = xgb_prediction)
+  
   # NULL for xgb_fit (to save memory)
-  xgb_pred_list[[no.runs]] <- list(NULL, xgb_pred, modelName, temp_time, xgb_varImp, xgb_raster)
+  xgb_pred_list[[no.runs]] <- list(NULL, xgb_pred, modelName, temp_time, xgb_varImp, xgb_prediction)
 }
 
 # average all XGBoost predictions
@@ -843,12 +861,11 @@ temp.varImp <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>%
 temp_runs <- length(xgb_pred_list)
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(xgb_pred_list, "[[", 6), raster)
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp_prediction <- do.call(rbind, lapply(xgb_pred_list, "[[", 6)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
 
-xgb_pred <- list(temp.models, xgb_pred, modelName, temp_time, temp_runs, temp.varImp, temp.prediction)
-rm(xgb_fit, temp_time, xgb_pred_list, temp.varImp, xgb_varImp, xgb_raster)
+xgb_pred <- list(temp.models, xgb_pred, modelName, temp_time, temp_runs, temp.varImp, temp_prediction)
+rm(xgb_fit, temp_time, xgb_pred_list, temp.varImp, xgb_varImp, temp_prediction)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -879,7 +896,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/3
+no.loop.runs <- length(temp.files)/2
 
 rf_pred_list <- list()
 rf_downsample_pred_list <- list()
@@ -904,16 +921,21 @@ for(no.runs in 1:no.loop.runs){
   temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   
   # predict with RF
-  rf_pred <- predict(rf, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
+  rf_pred <- dismo::predict(rf, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_pred)
   
-  rf_pred <- as.numeric(rf_pred)
-  names(rf_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
-  
   # predict to raster (for later)
-  rf_raster <- raster::predict(Env_norm, rf, type="prob")
+  rf_prediction <- dismo::predict(rf, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[, "1"]
+  rf_prediction <- as.numeric(rf_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(rf_prediction) <- rownames(Env_norm_df)
+  rf_prediction <- as.data.frame(rf_prediction)
+  rf_prediction$x <- Env_norm_df$x
+  rf_prediction$y <- Env_norm_df$y
+  rf_prediction <- rf_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = rf_prediction)
   
-  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp_time, rf_raster)
+  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp_time, rf_prediction)
   
   #plot(rf, main = "RF")
   
@@ -946,9 +968,18 @@ for(no.runs in 1:no.loop.runs){
   names(rf_downsample_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # predict to raster (for later)
-  rf_downsample_raster <- raster::predict(Env_norm, rf_downsample, type="prob")
+  rf_downsample_prediction <- dismo::predict(rf_downsample, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[,"1"]
+  rf_downsample_prediction <- as.numeric(rf_downsample_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(rf_downsample_prediction) <- rownames(Env_norm_df)
+  rf_downsample_prediction <- as.data.frame(rf_downsample_prediction)
+  rf_downsample_prediction$x <- Env_norm_df$x
+  rf_downsample_prediction$y <- Env_norm_df$y
+  rf_downsample_prediction <- rf_downsample_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = rf_downsample_prediction)
   
-  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp_time, rf_downsample_raster)
+  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp_time, rf_downsample_prediction)
+  rm(rf, rf_downsample, rf_prediction, rf_downsample_prediction, temp_time)
 }
 
 # average all RF predictions
@@ -960,13 +991,12 @@ temp_time <- c(mean(as.numeric(sapply(rf_pred_list, "[[", 4)[1,]), na.rm=T), rf_
 temp.models <- sapply(rf_pred_list, "[[", 1)
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(rf_pred_list, "[[", 5), raster)
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp_prediction <- do.call(rbind, lapply(rf_pred_list, "[[", 5)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
 
 temp_runs <- length(rf_pred_list)
 
-rf_pred <- list(temp.models, rf_pred, modelName, temp_time, temp_runs, temp.prediction)
+rf_pred <- list(temp.models, rf_pred, modelName, temp_time, temp_runs, temp_prediction)
 rm(rf, temp_time, rf_pred_list)
 
 # average all RF_downsampled predictions
@@ -977,13 +1007,12 @@ temp_time <- c(mean(as.numeric(sapply(rf_downsample_pred_list, "[[", 4)[1,]), na
 temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(rf_downsample_pred_list, "[[", 5), raster)
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp_prediction <- do.call(rbind, lapply(rf_downsample_pred_list, "[[", 5)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
 
 temp_runs <- length(rf_downsample_pred_list)
 
-rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp_time, temp_runs, temp.prediction)
+rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp_time, temp_runs, temp_prediction)
 rm(rf_downsample, temp_time, rf_downsample_pred_list)
 
 #- - - - - - - - - - - - - - - - - - - - - 
@@ -1008,19 +1037,26 @@ temp_time <- Sys.time() - tmp
 temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predict with RF
-rf2_pred <- predict(rf2, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
+rf2_pred <- dismo::predict(rf2, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
 #head(rf_pred)
-
 rf2_pred <- as.numeric(rf2_pred)
 names(rf2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
 # predict to raster (for later)
-temp_raster <- raster::predict(Env_norm, rf2, type="prob")
+rf2_prediction <- dismo::predict(rf2, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[, "1"]
+rf2_prediction <- as.numeric(rf2_prediction)
+# add names of grid cell (only for those that have no NA in any layer)
+names(rf2_prediction) <- rownames(Env_norm_df)
+rf2_prediction <- as.data.frame(rf2_prediction)
+rf2_prediction$x <- Env_norm_df$x
+rf2_prediction$y <- Env_norm_df$y
+rf2_prediction <- rf2_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+  rename("layer" = rf2_prediction)
 
 temp_runs <- 1
 
-rf2_pred <- list(rf2, rf2_pred, modelName, temp_time, temp_runs, temp_raster)
-rm(rf2, temp_time, temp_raster)
+rf2_pred <- list(rf2, rf2_pred, modelName, temp_time, temp_runs, rf2_prediction)
+rm(rf2, temp_time, rf2_prediction)
 
 # transform occurrence column back to numeric
 training$occ <- as.numeric(training$occ)
@@ -1037,7 +1073,7 @@ temp.files <- list.files(path = paste0("./results/",Taxon_name),
 lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
-no.loop.runs <- length(temp.files)/3
+no.loop.runs <- length(temp.files)/2
 
 svm_pred_list <- list()
 
@@ -1077,18 +1113,19 @@ for(no.runs in 1:no.loop.runs){
   svm_pred <- as.numeric(svm_pred)
   names(svm_pred) <- temp.names #add site names
   
-  ## predict for whole environmental space (for later)
-  # prepare raster
-  Env_df_spatial <- raster::rasterToPoints(Env_norm, spatial=T)
-  
   # predict
-  svm_raster <- e1071:::predict.svm(svm_e, Env_df_spatial@data[,covarsNames], probability=TRUE)
-  Env_df_spatial$pred <- attr(svm_raster, "probabilities")[,"1"] 
-  
-  # make to raster
-  svm_raster <- raster::rasterize(Env_df_spatial, Env_norm, field="pred")
+  svm_prediction <- e1071:::predict.svm(svm_e, Env_norm_df %>% dplyr::select(-x, -y), probability=TRUE)
+  svm_prediction <- attr(svm_prediction, "probabilities")[,"1"]
+  svm_prediction <- as.numeric(svm_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(svm_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  svm_prediction <- as.data.frame(svm_prediction)
+  svm_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
+  svm_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  svm_prediction <- svm_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = svm_prediction)
 
-  svm_pred_list[[no.runs]] <- list(svm_e, svm_pred, modelName, temp_time, svm_raster)
+  svm_pred_list[[no.runs]] <- list(svm_e, svm_pred, modelName, temp_time, svm_prediction)
 }
 
 # average all SVM predictions
@@ -1099,14 +1136,13 @@ temp_time <- c(mean(as.numeric(sapply(svm_pred_list, "[[", 4)[1,]), na.rm=T), sv
 temp.models <- sapply(svm_pred_list, "[[", 1)
 
 ## extract predicted probabilities (for later)
-temp.prediction <- raster::stack(lapply(svm_pred_list, "[[", 5), raster)
-# take mean across layers (i.e., across runs)
-temp.prediction <- raster::calc(temp.prediction, fun = mean)
+temp_prediction <- do.call(rbind, lapply(svm_pred_list, "[[", 5)) %>% 
+  group_by(x,y) %>% summarise_all(mean, na.rm=T)
 
 temp_runs <- length(svm_pred_list)
 
-svm_pred <- list(temp.models, svm_pred, modelName, temp_time, temp_runs, temp.prediction)
-rm(svm_e, temp_time, svm_prob, svm_pred_list, Env_df_spatial)
+svm_pred <- list(temp.models, svm_pred, modelName, temp_time, temp_runs, temp_prediction)
+rm(svm_e, temp_time, svm_pred_list, temp_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## biomod ####
@@ -1214,7 +1250,7 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                           new.env = Env_norm,        #column/variable names have to perfectly match with training
+                                           new.env = Env_norm_df,        #column/variable names have to perfectly match with training
                                            proj.name = "modeling",  #name of the new folder being created
                                            selected.models = "all", #use all models
                                            binary.meth = "ROC",     #binary transformation according to criteria
