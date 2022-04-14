@@ -39,7 +39,7 @@ for(sp in unique(speciesNames$SpeciesID)){
   names(occ_grid) <- sp
 
   # crop to raster extent
-  occ_grid2 <- raster::mask(occ_grid, r)
+  occ_grid <- raster::mask(occ_grid, r)
   
   # # add to raster stack
   # occ_stack <- raster::stack(occ_stack, occ_grid)
