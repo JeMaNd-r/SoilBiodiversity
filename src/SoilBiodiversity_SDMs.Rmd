@@ -605,12 +605,12 @@ plotOcc
 # plotOcc
 ```
 
-Now, we make one plot with raw occurrences per species.
+Now, we make one plot with gridded occurrences per species.
 
 ```{r plotOccSpecies}
 # calculate individual species' occurrences
-occ.points.species <- occ.points %>% 
-         pivot_longer(cols=speciesNames$SpeciesID[speciesNames$SpeciesID %in% colnames(occ.points)], 
+occ_points_species <- occ_points %>% 
+         pivot_longer(cols=speciesNames$SpeciesID[speciesNames$SpeciesID %in% colnames(occ_points)], 
                       names_to = "SpeciesID") %>% 
         mutate("Latitude"=round(x,0), "Longitude"=round(y,0)) %>%
         group_by(Latitude, Longitude, SpeciesID) %>%
@@ -619,15 +619,15 @@ occ.points.species <- occ.points %>%
         filter("Number of Records" > 0) 
 
 # only keep species that will be analyzed (i.e., present in at least 5 grid cells)
-occ.points.species <- occ.points.species[occ.points.species$SpeciesID %in%
-                                           speciesNames[speciesNames$NumCells >=5, "SpeciesID"],]
-occ.points.species
+occ_points_species <- occ_points_species[occ_points_species$SpeciesID %in%
+                                           speciesNames[speciesNames$NumCells_2km >=5, "SpeciesID"],]
+occ_points_species
 
 # plot some of the individual species' occurrences
-plotOccSpecies <- ggplot(occ.points.species, 
+plotOccSpecies <- ggplot(occ_points_species, 
        aes(x=Latitude, y=Longitude, color=`Number of Records`, group=SpeciesID))+
   #geom_polygon(data=bg.map)
-  geom_point(cex=0.02)+
+  geom_point(cex=0.015, pch=15)+
   facet_wrap(vars(SpeciesID))+
   scale_color_gradientn(    # provide any number of colors
     colors = c("black", "blue", "orange"),
@@ -635,8 +635,8 @@ plotOccSpecies <- ggplot(occ.points.species,
     breaks = c(5, 20, 50, 100, 200))+
   
   # add number of grid cells in which the species is present
-  geom_text(data=occ.points.species %>% group_by(SpeciesID) %>% summarize("n"=sum(`Number of Records`)), 
-             aes(x=50, y=33, label=paste0("n=", n)), color="black", 
+  geom_text(data=occ_points_species %>% group_by(SpeciesID) %>% summarize("n"=sum(`Number of Records`)), 
+             aes(x=30, y=33, label=paste0("n=", n)), color="black", 
             inherit.aes=FALSE, parse=FALSE, cex=0.7)+
   theme_bw()+
   theme(axis.text.x = element_blank(), axis.text.y = element_blank(), 
@@ -647,7 +647,7 @@ plotOccSpecies
 
 # pdf(paste0(here::here(), "/figures/GriddedOccurrences_", Taxon_name, "_perSpecies.pdf")); plotOccSpecies; dev.off()
 
-rm(plotOccSpecies, occ.points.species)
+rm(plotOccSpecies, occ_points_species)
 ```
 
 
