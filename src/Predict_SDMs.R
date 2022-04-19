@@ -21,8 +21,8 @@ mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxo
 
 # define function to rescale raster (for predicted occurrence) between 0 and 1
 fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
-  if(is.null(x.min)) {x.min = min(x)}
-  if(is.null(x.max)) {x.max = max(x)}
+  if(is.null(x.min)) {x.min = min(x, na.rm=T)}
+  if(is.null(x.max)) {x.max = max(x, na.rm=T)}
   new.min + (x - x.min) * ((new.max - new.min) / (x.max - x.min))
 }
 
@@ -191,8 +191,8 @@ maxnet_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred"
 brt_pred <- SDMs[["brt_pred"]][[8]]
 #brt_pred
 
-# rescale between 0 and 1
-brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@data@max)
+# # rescale between 0 and 1
+# brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@data@max)
 
 #plot(brt_pred, main = "BRT (GBM)")
 # brt <- ggplot(data=data.frame(rasterToPoints(brt_pred)), aes(x=x, y=y, fill=layer))+
@@ -208,8 +208,8 @@ brt_pred <- fct.rescale(brt_pred, x.min = brt_pred@data@min, x.max = brt_pred@da
 brt2_pred <- SDMs[["brt2_pred"]][[8]]
 #brt_pred
 
-# rescale between 0 and 1
-brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pred@data@max)
+# # rescale between 0 and 1
+# brt2_pred <- fct.rescale(brt2_pred, x.min = brt2_pred@data@min, x.max = brt2_pred@data@max)
 
 #plot(brt2_pred, main = "BRT (GBM)")
 # brt2 <- ggplot(data=data.frame(rasterToPoints(brt2_pred)), aes(x=x, y=y, fill=layer))+
@@ -314,8 +314,9 @@ svm_pred <- SDMs[["svm_pred"]][[6]]
 biomod_pred <- SDMs[["biomod_pred"]][[7]]
 
 # rescale between 0 and 1
-biomod_pred <- fct.rescale(biomod_pred, x.min = biomod_pred@data@min, x.max = biomod_pred@data@max)
-names(biomod_pred) <- "layer"
+biomod_pred$layer <- fct.rescale(biomod_pred$layer, x.min=min(biomod_pred$layer, na.rm=T), x.max=max(biomod_pred$layer, na.rm=T))
+# biomod_pred <- fct.rescale(biomod_pred, x.min = biomod_pred@data@min, x.max = biomod_pred@data@max)
+# names(biomod_pred) <- "layer"
 
 #plot(biomod_pred, main = "Biomod")
 # biomod <- ggplot(data=data.frame(rasterToPoints(biomod_pred)), aes(x=x, y=y, fill=layer))+
@@ -329,10 +330,17 @@ names(biomod_pred) <- "layer"
 #- - - - - - - - - - - - - - - - - - - - - -
 ## simple Ensemble model ####
 # create Raster stack of the models to be merged
-ensm_pred <- raster::stack(gm_pred, maxent_pred, brt2_pred, rf2_pred) #lasso_pred,
+ensm_pred <- gm_pred %>% rename("gm"=layer) %>% full_join(maxent_pred %>% rename("maxent"=layer), by=c("x", "y")) %>%
+  full_join(lasso_pred %>% rename("lasso"=layer), by=c("x", "y")) %>%
+  full_join(brt2_pred %>% rename("brt2"=layer), by=c("x", "y")) %>%
+  full_join(rf2_pred %>% rename("rf2"=layer), by=c("x", "y"))
+ensm_pred <- ensm_pred %>% mutate("layer"=rowMeans(ensm_pred %>% dplyr::select(-x, -y), na.rm=T)) %>%
+  dplyr::select(x, y, layer)
 
-# average the predictions
-ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
+## OLD version with raster stack
+#ensm_pred <- raster::stack(gm_pred, maxent_pred, lasso_pred, brt2_pred, rf2_pred)
+# # average the predictions
+# ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 
 #plot(ensm_pred, main = "Biomod")
 # ensm <- ggplot(data=data.frame(rasterToPoints(ensm_pred)), aes(x=x, y=y, fill=layer))+
@@ -348,61 +356,76 @@ ensm_pred <- calc(ensm_pred, fun = mean, na.rm = T)
 #- - - - - - - - - - - - - - - - - - - - - -
 modelNames <- c("lm1", "lm_subset", "gm", 
                  "lasso", "ridge",
-                "mars","maxent","maxnet", "xgb", 
-                "rf", "rf_downsample", "svm", "biomod", "ensm")
+                "mars","maxent","maxnet", "xgb", "brt", "brt2",
+                "rf", "rf2", "rf_downsample", "svm", "biomod", "ensm")
 
 model_list <- list(lm1_pred, lm_subset_pred, gm_pred, 
-                    "lasso", "ridge",
+                    lasso_pred, ridge_pred,
                    mars_pred, maxent_pred, 
-                   maxnet_pred,  xgb_pred, rf_pred, rf_downsample_pred, 
+                   maxnet_pred,  xgb_pred, brt_pred, brt2_pred,
+                   rf_pred, rf2_pred, rf_downsample_pred, 
                    svm_pred, biomod_pred, ensm_pred)
 names(model_list) <- c("lm1_pred", "lm_subset_pred", "gm_pred", 
-                        "lasso", "ridge",
+                        "lasso_pred", "ridge_pred",
                        "mars_pred", 
-                       "maxent_pred", "maxnet_pred", "xgb_pred", 
-                       "rf_pred", "rf_downsample_pred", "svm_pred", "biomod_pred","ensm_pred")
+                       "maxent_pred", "maxnet_pred", "xgb_pred", "brt_pred", "brt2_pred",
+                       "rf_pred", "rf2_pred", "rf_downsample_pred", "svm_pred", "biomod_pred","ensm_pred")
 
-plots <- lapply(c(1:3, 5:length(modelNames)), function(m) {try({
-  temp.pred <- model_list[[paste0(modelNames[m], "_pred")]]
+plots <- lapply(c(1:length(modelNames)), function(m) {try({
+  temp_pred <- model_list[[paste0(modelNames[m], "_pred")]]
   print(m)
-  
-  # exception for maxent/maxnet: plot only above threshold
-  if(modelNames[m] == "maxent"){
-    # get threshold from model evaluation table
-    temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
-    
-    ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
+  ggplot(data=temp_pred, aes(x=x, y=y, fill=layer))+
       geom_tile()+
-      ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
+      ggtitle(modelNames[m])+
       scale_fill_viridis_c(limits = c(0,1))+
       theme_bw()+
       theme(axis.title = element_blank(), legend.title = element_blank(),
-            legend.position = c(0.1,0.4))
-  } else {
-    if( modelNames[m] == "maxnet"){
-      # get threshold from model evaluation table
-      temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
-      
-      ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
-        geom_tile()+
-        ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
-        scale_fill_viridis_c(limits = c(0,1))+
-        theme_bw()+
-        theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4))
-  } else {
-  
-  ggplot(data=data.frame(rasterToPoints(temp.pred)), aes(x=x, y=y, fill=layer))+
-    geom_tile()+
-    ggtitle(modelNames[m])+
-    scale_fill_viridis_c(limits = c(0,1))+
-    theme_bw()+
-    theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4))
-}}})})
+           legend.position = c(0.1,0.4))
+})})
+
+## OLD version with rasters
+# plots <- lapply(c(1:3, 5:length(modelNames)), function(m) {try({
+#   temp.pred <- model_list[[paste0(modelNames[m], "_pred")]]
+#   print(m)
+#   
+#   # exception for maxent/maxnet: plot only above threshold
+#   if(modelNames[m] == "maxent"){
+#     # get threshold from model evaluation table
+#     temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxmod_pred", "thres.maxTSS"]
+#     
+#     ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
+#       geom_tile()+
+#       ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
+#       scale_fill_viridis_c(limits = c(0,1))+
+#       theme_bw()+
+#       theme(axis.title = element_blank(), legend.title = element_blank(),
+#             legend.position = c(0.1,0.4))
+#   } else {
+#     if( modelNames[m] == "maxnet"){
+#       # get threshold from model evaluation table
+#       temp_thresh <- mod_eval[mod_eval$species==spID & mod_eval$model=="maxnet_pred", "thres.maxTSS"]
+#       
+#       ggplot(data=data.frame(rasterToPoints(temp.pred >= temp_thresh)), aes(x=x, y=y, fill=layer))+
+#         geom_tile()+
+#         ggtitle(modelNames[m], subtitle=paste0("Threshold = ", temp_thresh))+
+#         scale_fill_viridis_c(limits = c(0,1))+
+#         theme_bw()+
+#         theme(axis.title = element_blank(), legend.title = element_blank(),
+#               legend.position = c(0.1,0.4))
+#   } else {
+#   
+#   ggplot(data=data.frame(rasterToPoints(temp.pred)), aes(x=x, y=y, fill=layer))+
+#     geom_tile()+
+#     ggtitle(modelNames[m])+
+#     scale_fill_viridis_c(limits = c(0,1))+
+#     theme_bw()+
+#     theme(axis.title = element_blank(), legend.title = element_blank(),
+#           legend.position = c(0.1,0.4))
+# }}})})
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
+#png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".png"),width=3000, height=3000)
 do.call(grid.arrange, plots)
 dev.off()
 
@@ -410,32 +433,40 @@ dev.off()
 ## Save maps ####
 #- - - - - - - - - - - - - - - - - - - - - -
 # stack all predictions
-stack_pred <- raster::stack(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred,
-                            mars_pred, maxent_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
-                            rf_pred, rf2_pred, rf_downsample_pred,
-                            #biomod_pred,
-                            ensm_pred)
+save(model_list, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Taxon_name, "_", spID, ".RData"))
 
-names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred",
-                 "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
-                 "rf_pred", "rf2_pred", "rf_downsample_pred",
-                 #"biomod_pred",
-                 "ensm_pred")
-
-
-# save all predictions
-#save(stack_pred, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Taxon_name, "_", spID, ".RData"))
+## OLD version with rasters
+# stack_pred <- raster::stack(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred,
+#                             mars_pred, maxent_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
+#                             rf_pred, rf2_pred, rf_downsample_pred,
+#                             biomod_pred,
+#                             ensm_pred)
+# 
+# names(stack_pred) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred",
+#                  "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
+#                  "rf_pred", "rf2_pred", "rf_downsample_pred",
+#                  "biomod_pred",
+#                  "ensm_pred")
+# # save all predictions
+# #save(stack_pred, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Taxon_name, "_", spID, ".RData"))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save best performing model prediction only
 # select best model based on TSS
 best_model <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$model), "model"]
-best_pred <- stack_pred[[best_model]]
+best_pred <- model_list[[best_model]]
+#best_pred <- stack_pred[[best_model]] # OLD: select from stack
 
 # save best model prediction
 save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", Taxon_name, "_", spID, ".RData"))
 
-plot(best_pred, main = names(best_pred))
+ggplot(data=best_pred, aes(x=x, y=y, fill=layer))+
+  geom_tile()+
+  ggtitle(names(best_pred))+
+  scale_fill_viridis_c(limits = c(0,1))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 
 # ## -------------------------------------------------------------------------------------- ##
 # ## Obtain spatiotemporal projections ----
