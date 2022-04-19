@@ -1250,7 +1250,7 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                           new.env = Env_norm_df,        #column/variable names have to perfectly match with training
+                                           new.env = Env_norm_df %>% dplyr::select(-x, -y),        #column/variable names have to perfectly match with training
                                            proj.name = "modeling",  #name of the new folder being created
                                            selected.models = "all", #use all models
                                            binary.meth = "ROC",     #binary transformation according to criteria
@@ -1274,7 +1274,10 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted proba
 #head(myEnProjDF)
 
 biomod_pred <- myEnProjDF[,1]
-names(biomod_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
+biomod_pred <- as.data.frame(biomod_pred)
+biomod_pred$x <- training$bg.biomod@coord$x
+biomod_pred$y <- training$bg.biomod@coord$y
+biomod_pred <- biomod_pred %>% rename("layer"=biomod_pred)
 
 # Get model evaluation values for later
 myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM),
@@ -1282,15 +1285,23 @@ myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM),
 
 # Calculate variable importance across all PA sets, eval runs and algorithms
 # and extract only the one for weighed mean predictions (for later)
-temp.varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 2]
+temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 2]
 
 # save predictions as raster file
-temp_raster <- myBiomodEnProj@proj@val[[2]]
+temp_prediction <- myBiomodEnProj@proj@val[,2]
+temp_prediction <- as.numeric(temp_prediction)
+# add names of grid cell (only for those that have no NA in any layer)
+names(temp_prediction) <- rownames(Env_norm_df)
+temp_prediction <- as.data.frame(temp_prediction)
+temp_prediction$x <- Env_norm_df$x
+temp_prediction$y <- Env_norm_df$y
+temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+  rename("layer" = temp_prediction)
 
 temp_runs <- 1
 
-biomod_pred <- list(myBiomodModelEval, biomod_pred, modelName, temp_time, temp_runs, temp.varImp, temp_raster)
-#rm(temp.varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
+biomod_pred <- list(myBiomodModelEval, biomod_pred, modelName, temp_time, temp_runs, temp_varImp, temp_prediction )
+rm(temp_varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF, temp_prediction)
 
 setwd(here::here())  
 
@@ -1310,14 +1321,15 @@ rf <- scales::rescale(rf2_pred[[2]], to = c(0,1))
 maxt <- scales::rescale(maxmod_pred[[2]], to = c(0,1))
 
 # average the predictions
-ensm_pred <- rowMeans(cbind(gm, lasso, maxt, brt, rf), na.rm=T) #, brt, rf  !brt and rf have different background data
+ensm_pred <- rowMeans(cbind(gm, lasso, maxt, brt, rf), na.rm=T) 
 
 # sum up computational time
 temp_time <- paste0(gm_pred[[4]], " + ", lasso_pred[[4]], " + ", maxmod_pred[[4]], " + ", 
                     brt2_pred[[4]], " + ", rf2_pred[[4]]) 
 
-# model output
-ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp_time)
+temp_runs <- 1
+
+ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp_time, temp_runs)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Saving ####
