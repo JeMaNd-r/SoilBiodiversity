@@ -51,6 +51,8 @@ for(i in 1:length(SDMs)){
                              pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
+    # doesn't work because there is no inout validation data... 
+    # you may have to run biomod2 twice, one time with full env. space and one time with validation dataset...
     try({
       precrec_obj <- precrec::auc(precrec::evalmod(scores = SDMs[["biomod_pred"]][[2]], 
                                                      labels = validation[,c("x","y","SpeciesID", "occ")]$occ))
@@ -97,6 +99,10 @@ for(i in 1:length(SDMs)){
     try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- 1
+    
+    if(is.na(mod_eval[i,]$tss)==T) mod_eval[i,]$tss <- myBiomodModelEval[2,1]
+    if(is.na(mod_eval[i,]$roc)==T) mod_eval[i,]$roc <- myBiomodModelEval[3,1]
+    if(is.na(mod_eval[i,]$kappa)==T) mod_eval[i,]$kappa <- myBiomodModelEval[1,1]
     
     rm(prg, temp.model, modelName, precrec_obj)
     
@@ -149,7 +155,7 @@ for(i in 1:length(SDMs)){
       prediction <- scales::rescale(prediction, to = c(0,1))
       
       ## TSS and Kappa
-      roc.pred <- prediction(prediction[names(prediction) %in% rownames(validation)], validation[rownames(validation) %in% names(prediction),"occ"])
+      roc.pred <- ROCR::prediction(as.numeric(prediction[names(prediction) %in% rownames(validation)]), validation[rownames(validation) %in% names(prediction),"occ"])
       roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
       
       # calculate Sensitivity and Specificity
