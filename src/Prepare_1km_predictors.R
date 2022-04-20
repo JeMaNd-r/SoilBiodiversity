@@ -202,6 +202,8 @@ stack_files <- stack_files[!stringr::str_detect(stack_files, "Forest_2012_")]
 stack_files <- stack_files[!stringr::str_detect(stack_files, "SoilT_5-15cm_")]
 stack_files <- stack_files[!stringr::str_detect(stack_files, "Snow_2000-2009")]
 stack_files
+# remove Latitude
+stack_files <- stack_files[!stringr::str_detect(stack_files, "Lat_")]
 
 # create empty stacj
 Env <- raster::stack()

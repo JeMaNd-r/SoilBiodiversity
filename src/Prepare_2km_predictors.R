@@ -153,6 +153,11 @@ makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_f
 makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
            file_name="SoilT_5-15cm_2km_mean.tif")
 
+# # SOC_OCTOP #not fixed yet...
+# temp_raster <- raster::raster("D:/00_datasets/Soil/SOC_OCTOP/octop_V121.asc")
+# temp_raster_mean <- raster::resample(temp_raster, grid2k)
+# temp_raster_mean
+
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 2km grids ####
 
@@ -206,6 +211,8 @@ stack_files <- stack_files[!stringr::str_detect(stack_files, "Forest_2012_")]
 stack_files <- stack_files[!stringr::str_detect(stack_files, "SoilT_5-15cm_")]
 stack_files <- stack_files[!stringr::str_detect(stack_files, "Snow_2000-2009")]
 stack_files
+# remove Latitude
+stack_files <- stack_files[!stringr::str_detect(stack_files, "Lat_")]
 
 # create empty stack
 Env <- raster::stack()
@@ -223,12 +230,14 @@ for(i in 1:length(stack_files)){
   print(paste0("Stacked file ", names(temp_raster)))
 }
 
+Env
+
 # save raster
 raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km.grd", overwrite=T)
 
 # as dataframe
 Env_df <- as.data.frame(raster::rasterToPoints(Env))
-save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_df.RData")
+save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df.RData")
 
 ## cut to grid (should not be necessary anymore...)
 #Env <- raster::mask(Env, grid1k)
