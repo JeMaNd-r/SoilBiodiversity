@@ -80,6 +80,9 @@ library(gridExtra)
 here::here()
 
 write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+
+# change temporary directory for files
+raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 ```
 
 Note: The command `here::here()` should give us the folder called *SoilBiodiversity*.
@@ -392,6 +395,15 @@ Please be aware that the validation data sets are randomly simulated (10 times) 
 source(file=paste0(here::here(), "/src/Predict_SDMs.R"))
 ```
 
+And finally
+
+## transform prediction to binary
+
+```{r}
+source(file=paste0(here::here(), "/src/Estimate_richness.R"))
+```
+
+
 
 # Repeat for all other taxa
 
@@ -413,16 +425,6 @@ source(file=paste0(here::here(), "/src/Predict_SDMs.R"))
 ## Bacteria
 
 ## Microarthropods (excluding Collembola)
-
-
-# Make raster files
-
-We want to get raster files in the end to map the distributions. Therefore, we have to transform each prediction dataframe into a raster file.
-
-```{r}
-source(file=paste0(here::here(), "/Prediction_to_raster.R"))
-```
-
 
 # Uncertainty and sensitivity analysis
 
