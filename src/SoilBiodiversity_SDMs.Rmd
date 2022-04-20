@@ -147,8 +147,8 @@ checkSave_precitor <- FALSE
 speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
 
 # define first species
-#spID <- "Lumbr_terr"
-spID <- "Aporr_cali"
+spID <- "Lumbr_terr"
+#spID <- "Aporr_cali"
 ```
 
 

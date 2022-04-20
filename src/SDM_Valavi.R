@@ -8,11 +8,11 @@
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_df_norm
+load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
