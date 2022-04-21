@@ -149,6 +149,12 @@ speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_
 # define first species
 spID <- "Lumbr_terr"
 #spID <- "Aporr_cali"
+
+# define covariates
+covarsNames <- c("Aridity", "MAP", "MAP_Seas", "MAT", "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
+                 "Forest_Coni", "Forest_Deci", "NDVI", "Pastures", "Pop_Dens", "Shrubland", "Aspect",
+                  "Dist_Coast", "Dist_River", "Elev","Slope", "CEC", "Clay.Silt", "Cu", "Hg",
+                   "Moisture", "N", "P", "pH", "SOC", "SoilT")
 ```
 
 
@@ -699,16 +705,26 @@ Let's have a look at the variable importance across all models.
 var_imp <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/Variable_importance_", spID, ".csv"))
 var_imp
 
-# transform to long format
+# load predictor table to get classification of variables
+# load the predictor table containing the individual file names
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+
+# transform to long format and add variable categories
 var_imp <- var_imp %>%
-  pivot_longer(cols=colnames(var_imp[,-1]), names_to = "model", values_to = "varImp")
+  pivot_longer(cols=colnames(var_imp[,-1]), names_to = "model", 
+               values_to = "varImp") %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 
 # plot VIF
-plotVarImp <- ggplot(data=var_imp, aes(x=varImp, y=Predictor, fill=Predictor))+
+plotVarImp <- ggplot(data=var_imp, aes(x=varImp, y=Predictor, fill=Category))+
   geom_bar(stat="identity")+
-  xlab("Variable importance (Scaled importances [0,10])")+
+  xlab("Variable importance (Relative importances [0,1])")+
   facet_wrap(vars(model))+
-  theme_bw()
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 3))
 plotVarImp
 
 # pdf(paste0(here::here(), "/figures/VariableImportance_", Taxon_name, "_", spID, ".pdf")); plotVarImp; dev.off()
