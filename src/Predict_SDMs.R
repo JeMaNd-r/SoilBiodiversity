@@ -462,7 +462,7 @@ save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", 
 
 ggplot(data=best_pred, aes(x=x, y=y, fill=layer))+
   geom_tile()+
-  ggtitle(names(best_pred))+
+  ggtitle(best_model)+
   scale_fill_viridis_c(limits = c(0,1))+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
