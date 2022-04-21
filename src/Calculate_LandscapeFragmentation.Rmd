@@ -42,7 +42,7 @@ Make grids to polygons.
 
 ```{r}
 # 2km
-poly2k <- as(grid2k, 'SpatialPolygons')
+poly2k <- as(grid2k, 'SpatialPolygons') # 6.2 GB
 
 # 1km
 #poly1k <- as(grid1k, 'SpatialPolygons')
@@ -60,14 +60,42 @@ landscape_summary <- data.frame()
 # split CLC file into grid cells (1 layer per cell)
 maps <- list()
 
-for(j in 1:length(poly2k)){
-  maps[[j]] <- NA
-  try(maps[[j]] <- raster::crop(clc12, extent(poly2k[j,])), silent=T)
+maps <- lapply(1:length(poly2k), function(x) { try({
+  temp_map <- raster::crop(clc12, extent(poly2k[x,]))
+  
+  # Calculate metrics
+  point_summary <- calculate_lsm(temp_map,
+                             what=c("lsm_l_shdi", #Shannon diversity
+                                    "lsm_l_mesh", #effective mesh size
+                                    "lsm_l_contig_mn", #contiguity index
+                                    #"lsm_c_pland", #	percentage of landscape
+                                    "lsm_l_np" #number of patches
+                                    )) 
+  point_summary$polygon <- x
+  
+  point_summary
+  })})
 
-  names(maps)[[j]] <- paste0("map","_", j)
-}
+# for(j in 1:length(poly2k)){
+#   temp_map <- NA
+#   try(temp_map <- raster::crop(clc12, extent(poly2k[j,])), silent=T)
+# 
+#   names(temp_map) <- paste0("map","_", j)
+#   print(paste0("Looks like ", round(j/length(poly2k) * 100,3), " % are ready :)"))
+#   
+#   # Calculate metrics
+#   point_summary <- calculate_lsm(temp_map,
+#                              what=c("lsm_l_shdi", #Shannon diversity
+#                                     "lsm_l_mesh", #effective mesh size
+#                                     "lsm_l_contig_mn", #contiguity index
+#                                     #"lsm_c_pland", #	percentage of landscape
+#                                     "lsm_l_np" #number of patches
+#                                     )) 
+#   #... save point_summary in overall data frame
+# }
 
-save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_polygonPerCell.RData")
+save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_2km_polygonPerCell.RData")
+#save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_1km_polygonPerCell.RData")
 
 # maybe add something here to check the landscapes and fail if the aren't good?
 #raster::plot(maps[[sample(1:length(poly2k),1)]])
@@ -81,10 +109,12 @@ check_landscape(maps)
 
 # Calculate metrics
 point_summary <- calculate_lsm(maps,
-                             what=c("lsm_l_sidi",
-                                    "lsm_l_mesh",
-                                    "lsm_l_contig_mn",
-                                    "lsm_c_pland"))
+                             what=c("lsm_l_shdi", #Shannon diversity
+                                    "lsm_l_mesh", #effective mesh size
+                                    "lsm_l_contig_mn", #contiguity index
+                                    #"lsm_c_pland", #	percentage of landscape
+                                    "lsm_l_np" #number of patches
+                                    )) 
 
 
 
