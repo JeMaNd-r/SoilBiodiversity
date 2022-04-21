@@ -1280,12 +1280,11 @@ biomod_pred$y <- training$bg.biomod@coord$y
 biomod_pred <- biomod_pred %>% rename("layer"=biomod_pred)
 
 # Get model evaluation values for later
-myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM),
-                                   col.names = colnames(myBiomodEM))
+myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM)[3])
 
 # Calculate variable importance across all PA sets, eval runs and algorithms
 # and extract only the one for weighed mean predictions (for later)
-temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 2]
+temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 3]
 
 # save predictions as raster file
 temp_prediction <- myBiomodEnProj@proj@val[,2]
