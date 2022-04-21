@@ -29,7 +29,7 @@ env_vif <- env_vif %>% rename("VIF_raw" = VIF) %>% full_join(vif_cor@results) %>
 
 env_vif
 
-write.csv(env_vif, file=paste0(here::here(), "/results/", Taxon_name, "/VIF_predictors_", Taxon_name, ".csv"), row.names = F)
+write.csv(env_vif, file=paste0(here::here(), "/results/VIF_predictors.csv"), row.names = F)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate correlations between predictors ####
@@ -40,8 +40,8 @@ load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_
 corMatSpearman <- cor(Env_norm_df, use="complete.obs", method="spearman") %>% round(2)
 corMatPearson <- cor(Env_norm_df, use="complete.obs", method="pearson") %>% round(2)
 
-write.csv(corMatSpearman, paste0("./results/", Taxon_name, "/corMatSpearman_predictors.csv"), row.names = F)
-write.csv(corMatPearson, paste0("./results/", Taxon_name, "/corMatPearson_predictors.csv"), row.names = F)
+write.csv(corMatSpearman, paste0("./results/corMatSpearman_predictors.csv"), row.names = F)
+write.csv(corMatPearson, paste0("./results/corMatPearson_predictors.csv"), row.names = F)
 
 rm(env_vif, vif_cor, corMatPearson, corMatSpearman, Env_norm_df)
 

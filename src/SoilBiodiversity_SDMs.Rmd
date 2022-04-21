@@ -149,12 +149,6 @@ speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_
 # define first species
 spID <- "Lumbr_terr"
 #spID <- "Aporr_cali"
-
-# define covariates
-covarsNames <- c("Aridity", "MAP", "MAP_Seas", "MAT", "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
-                 "Forest_Coni", "Forest_Deci", "NDVI", "Pastures", "Pop_Dens", "Shrubland", "Aspect",
-                  "Dist_Coast", "Dist_River", "Elev","Slope", "CEC", "Clay.Silt", "Cu", "Hg",
-                   "Moisture", "N", "P", "pH", "SOC", "SoilT")
 ```
 
 
@@ -302,8 +296,7 @@ The selected environmental variables will be called **predictors** hereafter. We
 
 ```{r covarsNames}
 #corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/", 
-                                                Taxon_name, "/corMatPearson_predictors.csv")))
+corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
 # based on Valavi et al. 2021: Pearson 0.8
@@ -313,7 +306,7 @@ covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% 
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 
 # exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/VIF_predictors_", Taxon_name, ".csv"))
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors.csv"))
 env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
 
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
