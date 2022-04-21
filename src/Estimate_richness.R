@@ -11,13 +11,13 @@ raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create empty data frame for all species ####
 # load environmental space as data frame
-load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # create empty data frame
 species_stack <- Env_norm_df %>% dplyr::select(x, y)
 
 # for loop through all species
-for(sp in unique(speciesNames$SpeciesID)){
+for(sp in unique(speciesNames$SpeciesID)){ try({
 
   # read model performance evaluation table (for threshold of best model)
   mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
@@ -41,11 +41,11 @@ for(sp in unique(speciesNames$SpeciesID)){
   best_pred[best_pred$layer>=temp_thresh & !is.na(best_pred$layer), "layer"] <- 1
   best_pred[best_pred$layer<temp_thresh & !is.na(best_pred$layer), "layer"] <- 0
   
-  best_pred[,temp_model] <- best_pred$layer
-  best_pred <- best_pred[,c("x","y",temp_model)]
+  best_pred[,sp] <- best_pred$layer
+  best_pred <- best_pred[,c("x","y",sp)]
   
   # save binary
-  save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_binary_", Taxon_name, "_", spID, ".RData"))
+  save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_binary_", Taxon_name, "_", sp, ".RData"))
   
   print(paste0("Saved binary prediction of ", sp))
   
@@ -57,9 +57,9 @@ for(sp in unique(speciesNames$SpeciesID)){
   
   print(paste0("Added binary prediction of ", sp, " to the species stack"))
   
-}  
+}, silent=T)}  
 
-species_stack
+head(species_stack)
 
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -91,7 +91,7 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
   ggplot(data=species_stack, aes(x=x, y=y, fill=as.factor(species_stack[,s])))+
     geom_tile()+
     ggtitle(colnames(species_stack)[s])+
-    scale_fill_viridis_d()+
+    scale_fill_manual(values=c("1"="#fde725","0"="#440154","NA"="lightgrey"))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
