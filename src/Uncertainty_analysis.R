@@ -15,7 +15,7 @@ head(species_stack)
 
 # view uncertainty in map 
 #png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"), width=1000, height=1000)
-ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
+ggplot(data=species_stack, aes(x=x, y=y, fill=SD))+
   geom_tile()+
   ggtitle("SD between model predictions")+
   scale_fill_viridis_c()+
