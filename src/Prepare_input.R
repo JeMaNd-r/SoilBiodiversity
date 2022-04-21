@@ -61,7 +61,7 @@ foreach(temp_species=speciesNames[speciesNames$NumCells_2km >=5,]$SpeciesID,
   try({
     
     # load background data (pseudo-absences) for each modeling approach
-    load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", temp_species, ".RData"))
+    load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", temp_species, ".RData")) #bg.list
     
     for(i in 1:(length(bg.list)-1)){ #exclude biomod data
       

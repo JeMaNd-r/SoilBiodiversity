@@ -17,14 +17,15 @@ mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasteriz
 
 ## parallelize
 # Calculate the number of cores
-no.cores <- detectCores()/2; no.cores
+#no.cores <- detectCores()/2; no.cores
+no.cores <- 2 #more is not possible with the memory limit
 
 # Initiate cluster used in foreach function
 registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all species ####
-foreach(myRespName = speciesNames[speciesNames$NumCells >= 5,]$SpeciesID, .export = c("mySpeciesOcc"), 
+foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
   # define response variable index

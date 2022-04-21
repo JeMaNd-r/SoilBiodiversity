@@ -15,7 +15,7 @@ var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT",
                                      "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
                                      "Forest_Coni", "Forest_Deci", "NDVI", 
                                      "Pastures", "Pop_Dens", "Shrubland", "Aspect",
-                                     "Dist_Coast", "Dist_River", "Elev", "Lat",
+                                     "Dist_Coast", "Dist_River", "Elev", 
                                      "Slope", "CEC", "Clay.Silt", "Cu", "Hg",
                                      "Moisture", "N", "P", "pH", "SOC", "SoilT"))
 
@@ -83,7 +83,7 @@ for(i in 1:length(SDMs)){ try({
     
     
     # extract predictor names
-    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[.]", 2)[,1]
+    temp.vi$Predictor <- stringr::str_split_fixed(rownames(temp.vi), "[.]perm", 2)[,1]
     colnames(temp.vi) <- c(temp.model, "Predictor")
     
     # plot variable importance
@@ -278,6 +278,8 @@ for(i in 1:length(SDMs)){ try({
   rm(temp.vi)
   
 }, silent=F)}
+
+print("Error in ensm_pred is not an issue")
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Ensemble ####
