@@ -41,8 +41,8 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
   best_pred[best_pred$layer>=temp_thresh & !is.na(best_pred$layer), "layer"] <- 1
   best_pred[best_pred$layer<temp_thresh & !is.na(best_pred$layer), "layer"] <- 0
   
-  best_pred[,sp] <- best_pred$layer
-  best_pred <- best_pred[,c("x","y",sp)]
+  best_pred[,paste0(sp,"_", temp_model)] <- best_pred$layer
+  best_pred <- best_pred[,c("x","y",paste0(sp,"_", temp_model))]
   
   # save binary
   save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_binary_", Taxon_name, "_", sp, ".RData"))
