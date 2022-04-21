@@ -12,7 +12,7 @@ Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normal
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -997,7 +997,7 @@ temp_prediction <- do.call(rbind, lapply(rf_pred_list, "[[", 5)) %>%
 temp_runs <- length(rf_pred_list)
 
 rf_pred <- list(temp.models, rf_pred, modelName, temp_time, temp_runs, temp_prediction)
-rm(rf, temp_time, rf_pred_list)
+rm(temp_time, rf_pred_list)
 
 # average all RF_downsampled predictions
 rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 2))
@@ -1013,7 +1013,7 @@ temp_prediction <- do.call(rbind, lapply(rf_downsample_pred_list, "[[", 5)) %>%
 temp_runs <- length(rf_downsample_pred_list)
 
 rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp_time, temp_runs, temp_prediction)
-rm(rf_downsample, temp_time, rf_downsample_pred_list)
+rm(temp_time, rf_downsample_pred_list)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Model RF2 for ensemble modelling using consistent background data (bg.glm)
@@ -1207,7 +1207,7 @@ myRespName <- "occ"
 # Note: try this out to see if GAM works
 myBiomodOption <- BIOMOD_ModelingOptions(
   GAM = list (k = -1), #avoid error messages
-  MAXENT.Phillips = list( path_to_maxent.jar =paste0(here::here(), "/results" )), # change it to maxent directory
+  #MAXENT.Phillips = list( path_to_maxent.jar =paste0(here::here(), "/results" )), # change it to maxent directory
   )
 
 # models to predict with

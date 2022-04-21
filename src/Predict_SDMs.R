@@ -14,7 +14,7 @@ load(file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData"))
 Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 
 # as dataframe
-load("I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData") #Env_df_norm
+load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
