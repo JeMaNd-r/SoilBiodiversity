@@ -13,7 +13,7 @@ grid1k <- raster::raster("D:/00_datasets/Grids/grid_1k_0p008.tif")
 raster::crs(grid1k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
+pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
 
 # combine ID and Predictor name (to get folder names later on)
 pred_tab$Predictor_long <- pred_tab$Predictor
@@ -222,11 +222,11 @@ for(i in 1:length(stack_files)){
 }
 
 # save raster
-raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km.grd", overwrite=T)
+raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/results/EnvPredictor_1km.grd", overwrite=T)
 
 # as dataframe
 Env_df <- as.data.frame(raster::rasterToPoints(Env))
-save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_df.RData")
+save(Env_df, file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/results/EnvPredictor_1km_df.RData")
 
 ## cut to grid (should not be necessary anymore...)
 #Env <- raster::mask(Env, grid1k)
@@ -237,7 +237,7 @@ save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPred
 # 
 # Env <- raster::stack(Env)
 
-#pdf(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/figures/Predictors_Europe_1km.pdf", height=15, width = 18)
+#pdf(file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/figures/Predictors_Europe_1km.pdf", height=15, width = 18)
 raster::plot(Env, maxnl=35)
 dev.off()
 
@@ -248,11 +248,11 @@ Env_norm <- raster::scale(Env)
 Env_norm <- raster::stack(Env_norm)
 
 # save Env_norm
-raster::writeRaster(Env_norm, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_normalized.grd", overwrite=T)
+raster::writeRaster(Env_norm, file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/results/EnvPredictor_1km_normalized.grd", overwrite=T)
 
 # same for dataframe
 Env_norm_df <- as.data.frame(raster::rasterToPoints(Env_norm))
-save(Env_norm_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_1km_df_normalized.RData")
+save(Env_norm_df, file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/results/EnvPredictor_1km_df_normalized.RData")
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Save all ####
