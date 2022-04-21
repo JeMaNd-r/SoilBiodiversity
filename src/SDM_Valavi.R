@@ -169,7 +169,7 @@ quad_obj <- make_quadratic(training, cols = covarsNames)
 # this make two columns for each covariates used in the transformation
 training_quad <- predict(quad_obj, newdata = training)
 testing_quad <- predict(quad_obj, newdata = validation[,colnames(validation) %in% covarsNames])
-predicting_quad <- predict(quad_obj, newdata = Env_norm_df %>% dplyr::select(-x, -y))
+predicting_quad <- predict(quad_obj, newdata = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames])
 
 # Define vector with appropriate covarsNames for sparse matrix.
 # More specifically: create names like this: bio1_1, bio1_2, bio2_1, bio2_2...
@@ -327,7 +327,7 @@ for(no.runs in 1:no.loop.runs){
   mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp$importance))
   
   # create raster layer of predictions for whole environmental space
-  mars_prediction <- caret::predict.train(mars_fit, Env_norm_df %>% dplyr::select(-x, -y), type="prob")[,"C1"]
+  mars_prediction <- caret::predict.train(mars_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="prob")[,"C1"]
   mars_prediction <- as.numeric(mars_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
   names(mars_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
@@ -468,7 +468,7 @@ names(maxmod_pred) <- rownames(validation[,colnames(validation) %in% covarsNames
 #maxmod_prediction <- data.frame(raster::rasterToPoints(maxmod_prediction))
 gc()
 #maxmod_prediction <- dismo::predict(maxmod, Env_norm_df %>% dplyr::select(-x, -y)) # Java out of memory
-maxmod_prediction <- dismo::predict(maxmod, Env_norm_df %>% dplyr::select(-x, -y), type = c("cloglog"))
+maxmod_prediction <- dismo::predict(maxmod, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type = c("cloglog"))
 maxmod_prediction <- as.numeric(maxmod_prediction)
 names(maxmod_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
 maxmod_prediction <- as.data.frame(maxmod_prediction)
@@ -503,7 +503,7 @@ maxnet_pred <- predict(maxnet, validation[,colnames(validation) %in% covarsNames
 gc()
 #maxnet_prediction <- raster::predict(Env_norm, maxnet)
 #maxnet_prediction <- data.frame(rasterToPoints(maxnet_prediction))
-maxnet_prediction <- predict(maxnet, Env_norm_df %>% dplyr::select(-x, -y), type = "cloglog")[, 1]
+maxnet_prediction <- predict(maxnet, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type = "cloglog")[, 1]
 maxnet_prediction <- as.numeric(maxnet_prediction)
 names(maxnet_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
 maxnet_prediction <- as.data.frame(maxnet_prediction)
@@ -612,7 +612,7 @@ for(no.runs in 1:no.loop.runs){
   names(brt_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # create raster layer of predictions for whole environmental space
-  brt_prediction <- dismo::predict(brt, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt$gbm.call$best.trees, type = "response")
+  brt_prediction <- dismo::predict(brt, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], n.trees = brt$gbm.call$best.trees, type = "response")
   brt_prediction <- as.numeric(brt_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
   names(brt_prediction) <- rownames(Env_norm_df)
@@ -735,7 +735,7 @@ if(is.null(brt2)){
 temp.find.int <- gbm.interactions(brt2)
 
 # predict to raster (for later)
-brt2_prediction <- dismo::predict(brt2, Env_norm_df %>% dplyr::select(-x, -y), n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
+brt2_prediction <- dismo::predict(brt2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
 brt2_prediction <- as.numeric(brt2_prediction)
 # add names of grid cell (only for those that have no NA in any layer)
 names(brt2_prediction) <- rownames(Env_norm_df)
@@ -836,7 +836,7 @@ for(no.runs in 1:no.loop.runs){
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
   # predict to raster (for later)
-  xgb_prediction <- dismo::predict(xgb_fit, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[,"C1"]
+  xgb_prediction <- dismo::predict(xgb_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"C1"]
   xgb_prediction <- as.numeric(xgb_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
   names(xgb_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
@@ -925,7 +925,7 @@ for(no.runs in 1:no.loop.runs){
   #head(rf_pred)
   
   # predict to raster (for later)
-  rf_prediction <- dismo::predict(rf, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[, "1"]
+  rf_prediction <- dismo::predict(rf, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
   rf_prediction <- as.numeric(rf_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
   names(rf_prediction) <- rownames(Env_norm_df)
@@ -968,7 +968,7 @@ for(no.runs in 1:no.loop.runs){
   names(rf_downsample_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
   # predict to raster (for later)
-  rf_downsample_prediction <- dismo::predict(rf_downsample, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[,"1"]
+  rf_downsample_prediction <- dismo::predict(rf_downsample, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"1"]
   rf_downsample_prediction <- as.numeric(rf_downsample_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
   names(rf_downsample_prediction) <- rownames(Env_norm_df)
@@ -1043,7 +1043,7 @@ rf2_pred <- as.numeric(rf2_pred)
 names(rf2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
 # predict to raster (for later)
-rf2_prediction <- dismo::predict(rf2, Env_norm_df %>% dplyr::select(-x, -y),  type = "prob")[, "1"]
+rf2_prediction <- dismo::predict(rf2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
 rf2_prediction <- as.numeric(rf2_prediction)
 # add names of grid cell (only for those that have no NA in any layer)
 names(rf2_prediction) <- rownames(Env_norm_df)
@@ -1114,7 +1114,7 @@ for(no.runs in 1:no.loop.runs){
   names(svm_pred) <- temp.names #add site names
   
   # predict
-  svm_prediction <- e1071:::predict.svm(svm_e, Env_norm_df %>% dplyr::select(-x, -y), probability=TRUE)
+  svm_prediction <- e1071:::predict.svm(svm_e, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], probability=TRUE)
   svm_prediction <- attr(svm_prediction, "probabilities")[,"1"]
   svm_prediction <- as.numeric(svm_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
@@ -1250,7 +1250,7 @@ temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                           new.env = Env_norm_df %>% dplyr::select(-x, -y),        #column/variable names have to perfectly match with training
+                                           new.env = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],        #column/variable names have to perfectly match with training
                                            proj.name = "modeling",  #name of the new folder being created
                                            selected.models = "all", #use all models
                                            binary.meth = "ROC",     #binary transformation according to criteria
@@ -1280,11 +1280,11 @@ biomod_pred$y <- training$bg.biomod@coord$y
 biomod_pred <- biomod_pred %>% rename("layer"=biomod_pred)
 
 # Get model evaluation values for later
-myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM)[3])
+myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM)[2])
 
 # Calculate variable importance across all PA sets, eval runs and algorithms
 # and extract only the one for weighed mean predictions (for later)
-temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 3]
+temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 2]
 
 # save predictions as raster file
 temp_prediction <- myBiomodEnProj@proj@val[,2]

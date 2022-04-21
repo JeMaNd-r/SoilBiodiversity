@@ -66,7 +66,7 @@ foreach(temp_species=speciesNames[speciesNames$NumCells_2km >=5,]$SpeciesID,
     for(i in 1:(length(bg.list)-1)){ #exclude biomod data
       
       # for models with multiple background data runs
-      if(ncol(bg.list[[i]])>(length(covarsNames)+4)){
+      if(ncol(bg.list[[i]])>(length(names(Env_norm))+4)){
         # define presence and absence as new colum
         bg.list[[i]]$occ <- 1
         

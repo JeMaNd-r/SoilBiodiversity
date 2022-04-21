@@ -38,7 +38,7 @@ fct.rescale <- function(x, x.min, x.max, new.min = 0, new.max = 1) {
 gm <- SDMs[["gm_pred"]][[1]]
 
 # predict to whole Europe
-gm_pred <- mgcv::predict.gam(gm, Env_norm_df[,2:length(colnames(Env_norm_df))], type="response")
+gm_pred <- mgcv::predict.gam(gm, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
 gm_pred <- as.numeric(gm_pred)
 names(gm_pred) <- rownames(Env_norm_df) #add site names
 gm_pred <- as.data.frame(gm_pred)
@@ -63,7 +63,7 @@ colnames(gm_pred)[1] <- "layer"
 #- - - - - - - - - - - - - - - - - - - - - -
 ## GLM ####
 lm1 <- SDMs[["lm1_pred"]][[1]]
-lm1_pred <- stats::predict.glm(lm1, Env_norm_df, type="response")
+lm1_pred <- stats::predict.glm(lm1, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
 
 lm1_pred <- as.numeric(lm1_pred)
 names(lm1_pred) <- rownames(Env_norm_df) #add site names
@@ -85,7 +85,7 @@ colnames(lm1_pred)[1] <- "layer"
 
 # second GLM
 lm_subset <- SDMs[["lm_subset_pred"]][[1]]
-lm_subset_pred <- stats::predict.glm(lm_subset, Env_norm_df, type="response")
+lm_subset_pred <- stats::predict.glm(lm_subset, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
 
 lm_subset_pred <- as.numeric(lm_subset_pred)
 names(lm_subset_pred) <- rownames(Env_norm_df) #add site names
