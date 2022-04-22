@@ -1159,6 +1159,9 @@ lapply(temp.files, load, .GlobalEnv)
 # create biomod data format
 myBiomodData <- training$bg.biomod
 
+# subset covarsNames
+myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
+
 myRespName <- "occ"
 
 # # create own function for GAM and MAXENT.Phillips
