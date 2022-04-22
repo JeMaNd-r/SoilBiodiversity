@@ -47,7 +47,16 @@ edapho$datasource <- "Edaphobase"
 
 # have a look at the data
 edapho[,c("species", "Latitude", "Longitude", "datasource")]
+
+# - - - - - - - - - - - - - - - - - - -
+## Data from SoilReCon project (Portugal) ####
   
+recon <- readr::read_csv(file=paste0(here::here(), "/data/SoilReCon_earthworms_clean.csv"))
+
+# filter relevant columns
+recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
+  mutate("datasource"="SoilReCon")
+
 # - - - - - - - - - - - - - - - - - - -
 ## Merge all together ####
 
@@ -57,25 +66,31 @@ data <- dplyr::full_join(sworm, gbif,
                               "Longitude_decimal_degrees"="decimalLongitude", 
                               "datasource"))
 
-data <- dplyr::full_join(data, edapho, 
+data <- data %>% dplyr::full_join(edapho, 
                  by=c("SpeciesBinomial"="species", 
                       "Latitude_decimal_degrees"="Latitude", 
                       "Longitude_decimal_degrees"="Longitude",
                       "datasource"))
+
+data <- data %>% dplyr::full_join(recon, 
+                         by=c("SpeciesBinomial"="Species", 
+                              "Latitude_decimal_degrees"="POINT_Y", 
+                              "Longitude_decimal_degrees"="POINT_X",
+                              "datasource"))
 
 data <- tibble::tibble(species=data$SpeciesBinomial, 
                        latitude=data$Latitude_decimal_degrees, 
                        longitude=data$Longitude_decimal_degrees, 
                        datasource=data$datasource)
 
-data #nrow = 89675
-data <- data[complete.cases(data$longitude, data$latitude),] #nrow=88897
+data #nrow = 89675+
+data <- data[complete.cases(data$longitude, data$latitude),] #nrow=88897+
 
 data$OBJECTID <- 1:nrow(data) 
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
-write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"),
+write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon.csv"),
           row.names = F)
 
 # - - - - - - - - - - - - - - - - - - -
