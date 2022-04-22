@@ -330,10 +330,10 @@ for(no.runs in 1:no.loop.runs){
   mars_prediction <- caret::predict.train(mars_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="prob")[,"C1"]
   mars_prediction <- as.numeric(mars_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(mars_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  names(mars_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
   mars_prediction <- as.data.frame(mars_prediction)
-  mars_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-  mars_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  mars_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+  mars_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
   mars_prediction <- mars_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
     rename("layer" = mars_prediction)
   
@@ -470,10 +470,10 @@ gc()
 #maxmod_prediction <- dismo::predict(maxmod, Env_norm_df %>% dplyr::select(-x, -y)) # Java out of memory
 maxmod_prediction <- dismo::predict(maxmod, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type = c("cloglog"))
 maxmod_prediction <- as.numeric(maxmod_prediction)
-names(maxmod_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
+names(maxmod_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]) #add site names
 maxmod_prediction <- as.data.frame(maxmod_prediction)
-maxmod_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-maxmod_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+maxmod_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+maxmod_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
 colnames(maxmod_prediction)[1] <- "layer"
 
 temp_runs <- 1
@@ -505,10 +505,10 @@ gc()
 #maxnet_prediction <- data.frame(rasterToPoints(maxnet_prediction))
 maxnet_prediction <- predict(maxnet, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type = "cloglog")[, 1]
 maxnet_prediction <- as.numeric(maxnet_prediction)
-names(maxnet_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),]) #add site names
+names(maxnet_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]) #add site names
 maxnet_prediction <- as.data.frame(maxnet_prediction)
-maxnet_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-maxnet_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+maxnet_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+maxnet_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
 colnames(maxnet_prediction)[1] <- "layer"
 
 temp_runs <- 1
@@ -839,10 +839,10 @@ for(no.runs in 1:no.loop.runs){
   xgb_prediction <- dismo::predict(xgb_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"C1"]
   xgb_prediction <- as.numeric(xgb_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(xgb_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  names(xgb_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
   xgb_prediction <- as.data.frame(xgb_prediction)
-  xgb_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-  xgb_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  xgb_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+  xgb_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
   xgb_prediction <- xgb_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
     rename("layer" = xgb_prediction)
   
@@ -1118,10 +1118,10 @@ for(no.runs in 1:no.loop.runs){
   svm_prediction <- attr(svm_prediction, "probabilities")[,"1"]
   svm_prediction <- as.numeric(svm_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(svm_prediction) <- rownames(Env_norm_df[!is.na(rowMeans(Env_norm_df)),])
+  names(svm_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
   svm_prediction <- as.data.frame(svm_prediction)
-  svm_prediction$x <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$x
-  svm_prediction$y <- Env_norm_df[!is.na(rowMeans(Env_norm_df)),]$y
+  svm_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+  svm_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
   svm_prediction <- svm_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
     rename("layer" = svm_prediction)
 
@@ -1253,7 +1253,7 @@ myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
                                            new.env = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],        #column/variable names have to perfectly match with training
                                            proj.name = "modeling",  #name of the new folder being created
                                            selected.models = "all", #use all models
-                                           binary.meth = "ROC",     #binary transformation according to criteria
+                                           binary.meth = c("ROC"),     #binary transformation according to criteria
                                            compress = TRUE,         #compression format of objects stored on hard drive
                                            build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
                                            do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
