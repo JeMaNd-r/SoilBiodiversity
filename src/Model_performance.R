@@ -76,27 +76,27 @@ for(i in 1:length(SDMs)){
       mod.object <- sdm::evaluates(x = validation[,"occ"], p = prediction)
       temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
       temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
-    })
+    }, silent=T)
     
     # save in output data frame
     mod_eval[i,]$species <- spID
-    try(mod_eval[i,]$roc <- precrec_obj[precrec_obj$curvetypes=="ROC", "aucs"])
+    try(mod_eval[i,]$roc <- precrec_obj[precrec_obj$curvetypes=="ROC", "aucs"], silent=T)
     #try(mod_eval[i,]$roc <- myBiomodModelEval["ROC", "Testing.data"])
-    try(mod_eval[i,]$prg <- temp.prg)
+    try(mod_eval[i,]$prg <- temp.prg, silent=T)
     #try(mod_eval[i,]$prg <- NA)
-    try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation$occ))
+    try(mod_eval[i,]$cor <- cor(SDMs[["biomod_pred"]][[2]], validation$occ), silent=T)
     #try(mod_eval[i,]$cor <- NA)
     #try(mod_eval[i,]$tss <-  myBiomodModelEval["TSS", "Testing.data"])
-    try(mod_eval[i,]$tss <- temp.tss)
+    try(mod_eval[i,]$tss <- temp.tss, silent=T)
     #try(mod_eval[i,]$kappa <-  myBiomodModelEval["KAPPA", "Testing.data"])
-    try(mod_eval[i,]$kappa <- temp.kappa)
+    try(mod_eval[i,]$kappa <- temp.kappa, silent=T)
     
     # threshold at max TSS (Note: biomod predicion not scaled, their range is 0-1000
-    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval["TSS", "Cutoff"] / 1000) 
-    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
+    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval[2,2] / 1000, silent=T) 
+    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh, silent=T) # threshold at max(se+sp)
      
     mod_eval[i,]$model <- temp.model
-    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
+    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]), silent=T)
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- 1
     
@@ -169,18 +169,18 @@ for(i in 1:length(SDMs)){
       temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
       temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
     
-    })
+    }, silent=T)
     
     # save in output data frame
     mod_eval[i,]$species <- spID
-    try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4])
-    try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve))
-    try(mod_eval[i,]$cor <- cor(prediction,  validation[,"occ"]))
-    try(mod_eval[i,]$tss <- temp.tss)
-    try(mod_eval[i,]$kappa <- temp.kappa)
-    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh) # threshold at max(se+sp)
+    try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4], silent=T)
+    try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve), silent=T)
+    try(mod_eval[i,]$cor <- cor(prediction,  validation[,"occ"]), silent=T)
+    try(mod_eval[i,]$tss <- temp.tss, silent=T)
+    try(mod_eval[i,]$kappa <- temp.kappa, silent=T)
+    try(mod_eval[i,]$thres.maxTSS <-  temp.tresh, silent=T) # threshold at max(se+sp)
     mod_eval[i,]$model <- temp.model
-    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]))
+    try(mod_eval[i,]$time <- paste0(SDMs[[i]][[4]][1], " ", SDMs[[i]][[4]][2]), silent=T)
     mod_eval[i,]$bg <- modelName
     mod_eval[i,]$no.runs <- SDMs[[i]][[5]]
   }
