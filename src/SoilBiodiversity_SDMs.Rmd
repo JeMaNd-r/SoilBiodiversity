@@ -653,6 +653,61 @@ rm(plotOccSpecies, occ_points_species)
 ```
 
 
+### Validation vs. training data
+
+```{r plotDataValidation}
+# load background map
+world.inp <- map_data("world")
+
+for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,]$SpeciesID)){ try({
+    
+    # read model performance evaluation table (for threshold MaxEnt & saving best model)
+    mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
+  
+    best_bg <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+    
+    # identify and load all relevant data files
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name),
+                         pattern = paste0(best_bg, "[[:graph:]]*", sp), full.name = T)
+    lapply(temp.files, load, .GlobalEnv)
+    
+    # how often do we have to run the loop? depending on number of background data simulated
+    no.loop.runs <- length(temp.files)/2
+    
+    # empty plot list
+    plot_list <- list()
+
+    # plot data
+    for(no.runs in 1:no.loop.runs){
+  
+      temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                      pattern = paste0(best_bg, no.runs, "_[[:graph:]]*", sp), full.name = T)
+      lapply(temp.files.subset, load, .GlobalEnv)
+    
+      plot_v <- ggplot()+
+          geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+          xlim(min(extent_Europe[1], na.rm = T), 40) +
+          ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+          geom_point(data=validation, aes(x=x, y=y, color=as.factor(occ)), cex=0.5)+
+          ggtitle(paste0("Validation data for ", sp, ": ", best_bg))+
+          scale_color_manual(values=c("1"="#fde725","0"="#440154","NA"="lightgrey"))+
+          theme_bw()+
+          theme(axis.title = element_blank(), legend.title = element_blank(),
+                legend.position = c(0.1,0.4))
+      
+      plot_list <- list(plot_list, plot_v)
+    }
+    
+    # save plots
+    #pdf(file=paste0(here::here(), "/figures/InputData_distribution_", Taxon_name, "_", sp, ".pdf"))
+    do.call(grid.arrange, plot_list[-1])
+    dev.off()
+    
+}, silent=T)}
+
+```
+
+
 ### Summary models
 
 We have to extract the following information per species:
@@ -752,7 +807,97 @@ corrplot::corrplot(corMatPearson, type = "upper", tl.cex = 0.5)
 ## Individual SDMs
 
 ```{r resultSDM, include=F}
-source(file=paste0(here::here(),"Result_SDMs.R"))
+# load background map
+world.inp <- map_data("world")
+
+# load matrix containing information on number of occurrence records in grid
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
+
+  
+for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"])){try({
+  
+  # read model performance evaluation table (for threshold MaxEnt & saving best model)
+  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
+
+  best_bg <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+  
+  temp_points <- occ_points %>% dplyr::select(x,y, sp) %>% 
+    mutate("occ"=occ_points[,sp]) %>% filter(!is.na(occ))
+  temp_points[temp_points$occ>=1 & !is.na(temp_points$occ),"occ"] <- 1 
+  
+  # plot raw occurrences
+  plot_occ <- ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(min(extent_Europe[1], na.rm = T), 40) +
+    ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+          
+    geom_point(data=temp_points, aes(x=x, y=y, color=as.factor(occ)), cex=2)+
+    ggtitle(paste0("Occurrence records of ", sp))+
+    scale_color_manual(values=c("dodgerblue1"))+
+    #scale_color_manual(values=c("1"="#fde725","0"="#440154"))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4))
+  
+  # plot input data (training + validation)
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", sp, ".RData")) #bg.list
+    
+  temp_training <- bg.list[[best_bg]] %>% 
+                 mutate("occ"=bg.list[[best_bg]][,1]) %>% 
+                 dplyr::select(occ,x,y) #%>% filter(!is.na(occ))
+  temp_training[is.na(temp_training$occ),"occ"] <- 0
+  
+  plot_tra <- ggplot()+
+      geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+      xlim(min(extent_Europe[1], na.rm = T), 40) +
+      ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+    
+    geom_point(data=temp_training, 
+               aes(x=x, y=y, color=as.factor(occ)), cex=2)+
+      ggtitle(paste0("Presence-absence data for ", sp, ": ", best_bg))+
+      scale_color_manual(values=c("1"="dodgerblue1","0"="#440154"))+
+      theme_bw()+
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position = c(0.1,0.4))
+  
+  
+  # plot validation data (again)
+  # identify and load all relevant data files
+  load(paste0(here::here(), "/results/", Taxon_name, "/ValidationData_", best_bg, 1, "_", Taxon_name, "_", sp, ".RData")) #validation
+
+  plot_val <- ggplot()+
+      geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+      xlim(min(extent_Europe[1], na.rm = T), 40) +
+      ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+      
+    geom_point(data=validation, aes(x=x, y=y, color=as.factor(occ)), cex=2)+
+      ggtitle(paste0("Validation data for ", sp, ": ", best_bg))+
+      scale_color_manual(values=c("1"="dodgerblue1","0"="#440154","NA"="lightgrey"))+
+      theme_bw()+
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position = c(0.1,0.4))
+  
+  # load SDM
+  load(paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", Taxon_name, "_", sp, ".RData")) #best_pred
+
+  plot_sdm <- ggplot(data=best_pred, aes(x=x, y=y, fill=layer))+
+      geom_tile()+
+      ggtitle(best_model)+
+      scale_fill_viridis_c(limits = c(0,1))+
+      theme_bw()+
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position = c(0.1,0.4))
+
+  
+  plot_list <- list(plot_occ, plot_tra, plot_val, plot_sdm)
+  
+  # arrange all three plots
+  png(file=paste0(here::here(), "/figures/InputOutput_SDM_", Taxon_name, "_", sp, ".png"), width=2000, height=2000)
+  grid.arrange(grobs = plot_list, ncol=2)
+  dev.off()
+  
+}, silent=T)}
+
 ```
 
 
