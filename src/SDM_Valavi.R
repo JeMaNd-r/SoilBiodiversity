@@ -269,10 +269,10 @@ rm(ridge_cv, temp_time,temp_runs, training_sparse, training_quad, testing_sparse
 
 modelName <- "bg.mars"
 
-# # identify and load all relevant data files
-# temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-#                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-# lapply(temp.files, load, .GlobalEnv)
+# identify and load all relevant data files
+temp.files <- list.files(path = paste0("./results/",Taxon_name),
+                         pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
+lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/2
