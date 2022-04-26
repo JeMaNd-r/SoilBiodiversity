@@ -195,6 +195,3 @@ mod_eval
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
 
-
-
-
