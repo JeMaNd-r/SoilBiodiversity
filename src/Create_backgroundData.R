@@ -204,7 +204,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
   #- - - - - - - - - - - - - - - - - - - 
   ## BIOMOD ####
   temp.runs <- 1
-  temp.number <- 10000 * 0.8 # take only 80% of the data as the other ones will
+  temp.number <- 10000 # NO: model evaluation within biomod...  *0.8 = take only 80% of the data as the other ones will
   # be splitted in "Prepare_input.r" in 80% training and 20% testing...
   temp.strategy <- "random"
   
