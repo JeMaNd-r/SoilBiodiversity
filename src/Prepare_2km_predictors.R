@@ -13,7 +13,7 @@ grid2k <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
 raster::crs(grid2k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
+pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
 
 # combine ID and Predictor name (to get folder names later on)
 pred_tab$Predictor_long <- pred_tab$Predictor
@@ -142,7 +142,7 @@ temp_raster <- sum(temp_stack)
 raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+Silt_2km_mean.tif", overwrite=T)
 
 # Snow (MODIS) for 2000-2009
-makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_file = "Snow_2000-2009_noGrid_mean.tif",
+makeTo2kmGrid(temp_path="D:/00_datasets/Climate/Snow_MODIS", raster_grid = grid2k, temp_file = "Snow_2000-2009_noGrid_mean.tif",
            file_name="Snow_2000-2009_2km_mean.tif")
 
 # Dist_Roads (from shapefile)
@@ -150,13 +150,23 @@ makeToGrid(temp_path="D:/00_datasets/Climate/Snow", raster_grid = grid1k, temp_f
 # Eucleadian distance...
 
 # SoilTemp
-makeToGrid(temp_path = "D:/00_datasets/Soil/SoilT", raster_grid = grid1k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
+makeTo2kmGrid(temp_path = "D:/00_datasets/Soil/V070_SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
            file_name="SoilT_5-15cm_2km_mean.tif")
 
 # # SOC_OCTOP #not fixed yet...
 # temp_raster <- raster::raster("D:/00_datasets/Soil/SOC_OCTOP/octop_V121.asc")
 # temp_raster_mean <- raster::resample(temp_raster, grid2k)
 # temp_raster_mean
+
+# future climate
+makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V002_MAP/Future", raster_grid = grid2k, temp_file = "CHELSA_bio12_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
+              file_name="MAP_Future_2km_mean.tif")
+makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V003_MAP_Seas/Future", raster_grid = grid2k, temp_file = "CHELSA_bio15_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
+              file_name="MAP_Seas_Future_2km_mean.tif")
+makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V004_MAT/Future", raster_grid = grid2k, temp_file = "CHELSA_bio1_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
+              file_name="MAT_Future_2km_mean.tif")
+makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V005_MAT_Seas/Future", raster_grid = grid2k, temp_file = "CHELSA_bio4_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
+              file_name="MAT_Seas_Future_2km_mean.tif")
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Mask selected 2km grids ####
