@@ -102,6 +102,36 @@ foreach(myRespName = temp_species, .export = c("mySpeciesOcc"),
           
           rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
           
+          ## MARS ####	
+          # random performs consistently well, except when presences are climatically 
+          #    biased for which ‘2°far’ is the best method 
+          # minimum of 10 runs with 100 PA
+          temp.runs <- 10
+          temp.number <- 100
+          temp.strategy <- "random"
+          
+          tmp <- Sys.time()
+          bg.mars <- BIOMOD_FormatingData(resp.var = myResp,
+                                          expl.var = Env_norm,
+                                          resp.xy = myRespCoord,
+                                          resp.name = myRespName,
+                                          PA.nb.rep = temp.runs,
+                                          PA.nb.absences = temp.number,
+                                          PA.strategy = temp.strategy)
+          temp.time <- Sys.time() - tmp
+          
+          bg.mars <- cbind(bg.mars@PA, bg.mars@coord, bg.mars@data.env.var)
+          bg.mars$SpeciesID <- myRespName
+          
+          
+          # add model settings into summary table
+          temp.dat <- data.frame(SpeciesID=myRespName, model="MARS",strategy=temp.strategy, 
+                                 No.runs=temp.runs, No.points=temp.number, 
+                                 min.distance=NA, run.time=temp.time)
+          model.settings <- rbind(model.settings, temp.dat)
+          
+          rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
+          
           ## CTA, BRT, RF ####	
           # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
           #   better with a large number of presences 	
@@ -191,8 +221,8 @@ foreach(myRespName = temp_species, .export = c("mySpeciesOcc"),
           save(model.settings, file=paste0(here::here(), "/results/",  Taxon_name, "/_Sensitivity/SensAna_BackgroundData_modelSettings_", Taxon_name, "_", myRespName, "_", no_subset, ".RData"))
           
           # save background data
-          bg.list <- list(bg.glm, bg.rf, bg.biomod)
-          names(bg.list) <- c("bg.glm", "bg.rf", "bg.biomod")
+          bg.list <- list(bg.glm, bg.mars, bg.rf, bg.biomod)
+          names(bg.list) <- c("bg.glm", "bg.rf", "bg.mars", "bg.biomod")
           save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_", Taxon_name, "_", myRespName, "_", no_subset, ".RData"))
           # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_GLM_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
           # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_MARS_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
@@ -381,7 +411,10 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 for(spID in temp_species){
   
-  for(no_subset in c(5,10,50)){ try({
+  for(no_subset in c(5, 10, 50)){ try({
+    
+    print("===================================================")
+    print(paste0("Run ", spID, " with ", no_subset, " records."))
     
     #- - - - - - - - - - - - - - - - - - - - -
     ## GAM ####
@@ -390,7 +423,7 @@ for(spID in temp_species){
     modelName <- "bg.glm"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -437,71 +470,90 @@ for(spID in temp_species){
     gm_pred <- list(gm, gm_pred, modelName, temp_time, temp_runs)
     rm(gm, temp_time, temp_runs)
     
+    print("GAM ready.")
     
     #- - - - - - - - - - - - - - - - - - - - -
     ## GLM ####
     #- - - - - - - - - - - - - - - - - - - - -
-    
-    modelName <- "bg.glm"
-    
-    # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
-                             pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
-    lapply(temp.files, load, .GlobalEnv)
-    
-    # calculate Infinitely Weighted Logistic Regression (IWLR) for GLM and GAM 
-    # models suggested by Fithian and Hastie (2013)
-    iwp <- (10^6)^(1-training$occ)
-    
-    # calculating the case weights (equal weights)
+     
+    # calculating the weights
     # the order of weights should be the same as presences and backgrounds in the 
     # training data
     prNum <- as.numeric(table(training$occ)["1"]) # number of presences
     bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
     wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
     
-    # general settings
     tmp <- Sys.time()
-    set.seed(32639)
     
-    # setting of family: according to Valavi et al. 2020, but see also following:
-    # ResearchGate dicussion from 2019: Jincheng Zhou
-    # "Gaussian family : for continuous decimal data with normal distribution, like weight, length, et al.
-    # Poisson or quasipoisson family: for positive integer or small natural number like count, individual number, frequency.
-    # Binomial or quasibinomial family: binary data like 0 and 1, or proportion like survival number vs death number, positive frequency vs negative frequency, winning times vs the number of failtures, et al...
-    # Gamma family : usually describe time data like the time or duration of the occurrence of the event.
-    # If your model is overdispered, you should make a correction by choosing quasi-binomial or quasi-poisson"
+    # the base glm model with linear terms
+    lm1 <- glm(occ ~., data = training, weights = wt, 
+               family = binomial(link = "logit"))
+    summary(lm1)
     
-    # run model
-    gm <- mgcv::gam(formula = as.formula(form),
-                    data = training,
-                    family = binomial(link = "logit"),
-                    weights = wt,
-                    method = "REML")
-    
-    # get running time
     temp_time <- Sys.time() - tmp
     temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
     
-    # predict (only for model performance)
-    gm_pred <- predict(gm, validation[,colnames(validation) %in% covarsNames], type="response")
-    #head(gm_pred)
+    lm1_pred <- stats::predict.glm(lm1, validation[,colnames(validation) %in% covarsNames], type="response")
+    #head(lm1_pred)
     
     temp_runs <- 1
     
-    gm_pred <- list(gm, gm_pred, modelName, temp_time, temp_runs)
-    rm(gm, temp_time, temp_runs)
+    lm1_pred <- list(lm1, lm1_pred, modelName, temp_time, temp_runs)
+    rm(temp_time, temp_runs)
     
+    # load library again to make sure that function works correctly
+    library(gam)
+    
+    # model scope for subset selection
+    mod_scope <- gam::gam.scope(frame = training, form=FALSE, #form=T: formular, else character vector
+                                response = 1) #column with response variable
+    
+    # Note: alternatively, you can define one by your own
+    # mod_scope <- list("cti" = ~1 + cti + poly(cti, 2),
+    #                   "disturb" = ~1 + disturb + poly(disturb, 2),
+    #                   "mi" = ~1 + mi + poly(mi, 2),
+    #                   "rainann" = ~1 + rainann + poly(rainann, 2),
+    #                   "raindq" = ~1 + raindq + poly(raindq, 2),
+    #                   "rugged" = ~1 + rugged + poly(rugged, 2),
+    #                   "soildepth" = ~1 + soildepth + poly(soildepth, 2),
+    #                   "soilfert" = ~1 + soilfert + poly(soilfert, 2),
+    #                   "solrad" = ~1 + solrad + poly(solrad, 2),
+    #                   "tempann" = ~1 + tempann + poly(tempann, 2),
+    #                   "topo" = ~1 + topo + poly(topo, 2),
+    #                   "vegsys" = ~1 + vegsys)
+    
+    tmp <- Sys.time()
+    set.seed(32639)
+    
+    lm_subset <- gam::step.Gam(object = lm1,
+                               scope = mod_scope,
+                               direction = "both", # up and down-moving of terms
+                               data = training, # this is optional
+                               parallel = FALSE,   # optional
+                               trace = FALSE) #if information is printed or not
+    temp_time <- Sys.time() - tmp
+    temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
+    
+    summary(lm_subset)
+    
+    lm_subset_pred <- stats::predict.glm(lm_subset, validation[,colnames(validation) %in% covarsNames], type="response")
+    #head(lm_subset_pred)
+    
+    temp_runs <- 1
+    
+    lm_subset_pred <- list(lm_subset, lm_subset_pred, modelName, temp_time, temp_runs)
+    rm(lm_subset, lm1, temp_time, mod_scope, temp_runs)
+    
+    print("GLM ready.")
     
     #- - - - - - - - - - - - - - - - - - - - -
     ## Regularized regressions: LASSO and RIDGE regression ####
     ##- - - - - - - - - - - - - - - - - - - - -
     
-    
     modelName <- "bg.lasso"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -576,6 +628,8 @@ for(spID in temp_species){
     lasso_pred <- list(lasso_cv, lasso_pred, modelName, temp_time, temp_runs, lasso_prediction)
     rm(lasso_cv, temp_time, temp_runs, lasso_prediction)
     
+    print("Lasso ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## fitting ridge resgression (alpha=0) while identify the right lambda
     tmp <- Sys.time()
@@ -607,6 +661,8 @@ for(spID in temp_species){
     ridge_pred <- list(ridge_cv, ridge_pred, modelName, temp_time, temp_runs, ridge_prediction)
     rm(ridge_cv, temp_time,temp_runs, training_sparse, training_quad, testing_sparse, testing_quad, ridge_prediction, predicting_sparse, predicting_quad)
     
+    print("Ridge ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## MARS ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -614,7 +670,7 @@ for(spID in temp_species){
     modelName <- "bg.mars"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"),
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"),
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -625,7 +681,7 @@ for(spID in temp_species){
     
     for(no.runs in 1:no.loop.runs){
       
-      temp.files.subset <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+      temp.files.subset <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                                       pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
       
       lapply(temp.files.subset, load, .GlobalEnv)
@@ -714,6 +770,8 @@ for(spID in temp_species){
     # transform occurrence column back to numeric
     training$occ <- as.numeric(training$occ)
     
+    print("MARS ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## MaxEnt and MaxNet ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -721,7 +779,7 @@ for(spID in temp_species){
     modelName <- "bg.maxent"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -825,6 +883,8 @@ for(spID in temp_species){
     maxmod_pred <- list(maxmod, maxmod_pred, modelName, temp_time, temp_runs, maxmod_prediction)
     rm(maxmod, temp_time, maxmod_prediction)
     
+    print("MaxEnt ready.")
+    
     ## MaxNet
     presences <- training$occ # presence (1s) and background (0s) points
     covariates <- training[, covarsNames] # predictor covariates
@@ -860,6 +920,8 @@ for(spID in temp_species){
     maxnet_pred <- list(maxnet, maxnet_pred, modelName, temp_time, temp_runs, maxnet_prediction)
     rm(maxnet, temp_time, maxnet_prediction)
     
+    print("MaxNet ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## BRT (GBM) ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -867,7 +929,7 @@ for(spID in temp_species){
     modelName <- "bg.rf"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -878,7 +940,7 @@ for(spID in temp_species){
     
     for(no.runs in 1:no.loop.runs){
       
-      temp.files.subset <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+      temp.files.subset <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                                       pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
       
       lapply(temp.files.subset, load, .GlobalEnv)
@@ -1003,12 +1065,14 @@ for(spID in temp_species){
     brt_pred <- list(temp.models, brt_pred, modelName, temp_time, temp_runs, temp.settings, temp.interactions, temp_prediction, temp_uncertainty)
     rm(brt, temp_time, brt_pred_list, temp_prediction, temp_uncertainty)
     
+    print("BRT ready.")
+    
     #- - - - - - - - - - - - - - - - 
     ## Model BRT2 for ensemble modelling with consistent background data (bg.glm)
     modelName <- "bg.glm"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -1101,6 +1165,8 @@ for(spID in temp_species){
     brt2_pred <- list(brt2, brt2_pred, modelName, temp_time, temp_runs, temp.settings, temp.find.int$interactions, brt2_prediction)
     rm(brt2, temp_time, brt2_prediction, temp.find.int, temp_runs, temp.settings)
     
+    print("BRT2 ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## XGBoost ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1108,7 +1174,7 @@ for(spID in temp_species){
     modelName <- "bg.rf"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -1214,6 +1280,8 @@ for(spID in temp_species){
     # transform occurrence column back to numeric
     training$occ <- as.numeric(training$occ)
     
+    print("XGBoost ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## cforest ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1235,7 +1303,7 @@ for(spID in temp_species){
     modelName <- "bg.rf"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -1248,7 +1316,7 @@ for(spID in temp_species){
     for(no.runs in 1:no.loop.runs){
       
       # load training (and testing) data
-      temp.files.subset <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+      temp.files.subset <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                                       pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
       lapply(temp.files.subset, load, .GlobalEnv)
       
@@ -1359,13 +1427,15 @@ for(spID in temp_species){
     rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp_time, temp_runs, temp_prediction)
     rm(temp_time, rf_downsample_pred_list)
     
+    print("RF ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - - 
     ## Model RF2 for ensemble modelling using consistent background data (bg.glm)
     
     modelName <- "bg.glm"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     
     lapply(temp.files, load, .GlobalEnv)
@@ -1405,6 +1475,8 @@ for(spID in temp_species){
     # transform occurrence column back to numeric
     training$occ <- as.numeric(training$occ)
     
+    print("RF2 ready")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## SVM ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1412,7 +1484,7 @@ for(spID in temp_species){
     modelName <- "bg.rf"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     lapply(temp.files, load, .GlobalEnv)
     
@@ -1423,7 +1495,7 @@ for(spID in temp_species){
     
     for(no.runs in 1:no.loop.runs){
       
-      temp.files.subset <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+      temp.files.subset <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                                       pattern = paste0(modelName, no.runs, "_[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
       lapply(temp.files.subset, load, .GlobalEnv)
       
@@ -1488,6 +1560,8 @@ for(spID in temp_species){
     svm_pred <- list(temp.models, svm_pred, modelName, temp_time, temp_runs, temp_prediction)
     rm(svm_e, temp_time, svm_pred_list, temp_prediction)
     
+    print("SVM ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## biomod ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1495,7 +1569,7 @@ for(spID in temp_species){
     modelName <- "bg.biomod"
     
     # identify and load all relevant data files
-    temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_Sensitivity"), 
+    temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name, "/_Sensitivity"), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID, "_", no_subset, ".RData"), full.name = T)
     
     lapply(temp.files, load, .GlobalEnv)
@@ -1651,6 +1725,8 @@ for(spID in temp_species){
     
     setwd(here::here())  
     
+    print("BIOMOD ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## simple Ensemble model ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1677,6 +1753,8 @@ for(spID in temp_species){
     
     ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp_time, temp_runs)
     
+    print("Ensemble ready.")
+    
     #- - - - - - - - - - - - - - - - - - - - -
     ## Saving ####
     #- - - - - - - - - - - - - - - - - - - - -
@@ -1690,9 +1768,15 @@ for(spID in temp_species){
                      "rf_pred", "rf2_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
     #head(SDMs)
     
+    save(SDMs, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_SDM_Models_", spID, "_", no_subset, ".RData")) 
     
-    save(SDMs, file=paste0(here::here(), "/_Sensitivity/SensAna_SDM_Models_", spID, "_", no_subset, ".RData")) 
-
+    rm(SDMs, gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
+       mars_pred, maxmod_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
+       rf_pred, rf2_pred, rf_downsample_pred, biomod_pred, ensm_pred)
+    gc()
+    
+    print("==========================================")
+    print(paste0("Species ", spID, " with ", no_subset, " records READY."))
   })
 }}
 
