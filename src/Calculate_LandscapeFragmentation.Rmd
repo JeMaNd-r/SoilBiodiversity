@@ -54,24 +54,26 @@ rm(grid1k, grid2k)
 We will start the workflow from one point, and loop through all grid cells (pixels).
 
 ```{r splitInPixels}
-# Initialize dataframe to iteratively add metrics to
-landscape_summary <- data.frame()
+# # Initialize dataframe to iteratively add metrics to
+# landscape_summary <- data.frame()
+# 
+# # split CLC file into grid cells (1 layer per cell)
+# maps <- list()
 
-# split CLC file into grid cells (1 layer per cell)
-maps <- list()
-
-maps <- lapply(1:length(poly2k), function(x) { try({
+landscape_summary <- lapply(1:length(poly2k), function(x) { try({
   temp_map <- raster::crop(clc12, extent(poly2k[x,]))
   
   # Calculate metrics
-  point_summary <- calculate_lsm(temp_map,
+  point_summary <- as.data.frame(calculate_lsm(temp_map,
                              what=c("lsm_l_shdi", #Shannon diversity
                                     "lsm_l_mesh", #effective mesh size
                                     "lsm_l_contig_mn", #contiguity index
                                     #"lsm_c_pland", #	percentage of landscape
                                     "lsm_l_np" #number of patches
-                                    )) 
+                                    ))) 
   point_summary$polygon <- x
+
+  point_summary <- as.data.frame(tidyr::pivot_wider(point_summary, names_from=metric, values_from=value))
   
   point_summary
   })})
@@ -94,8 +96,10 @@ maps <- lapply(1:length(poly2k), function(x) { try({
 #   #... save point_summary in overall data frame
 # }
 
-save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_2km_polygonPerCell.RData")
-#save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_1km_polygonPerCell.RData")
+# save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_2km_polygonPerCell.RData")
+# #save(maps, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_1km_polygonPerCell.RData")
+
+save(landscape_summary, file="D:/00_datasets/LandCover/V025_Land_Frag/Land_Frag_CLC_2km_lsmPerPolygon.RData")
 
 # maybe add something here to check the landscapes and fail if the aren't good?
 #raster::plot(maps[[sample(1:length(poly2k),1)]])
