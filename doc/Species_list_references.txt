@@ -1,4 +1,4 @@
-How do we get species (backbone) lists of soil taxa?
+﻿How do we get species (backbone) lists of soil taxa?
 
 -> direct request at Landesämter!(?)
 
@@ -11,7 +11,8 @@ Earthworms (Lumbricidae)
 - Ailoscolex lacteospumosus (Lumbriculida) = freshwater species
 - Criodrilus lacuum (Crassiclitellata: Criodrilidae) = freshwater family
 --- leeches not soil species (mostly in vegetation)
-
+- GBIF: Europe 103,072 records -> 54,339 clean records -> 23,463 grid cell records
+lansc
 Collembola
 - A. Potapov:
 -- table based on www.collembola.org (Frans Janssens), as part of last version of Cataloque of Life
@@ -20,6 +21,9 @@ Collembola
 --- Anurdia maritima, Anuridella calcarata (D'Haese 2002, 2003)
 --- Podura aquatica, Sminthurides aquaticus/sp. (D'Haese 2002, 2003)
 --- Pseudanurida sawayana, Isotogastrura sp., Spinactaletes bellingeri (D'Haese 2003)
+- GBIF
+-- Europe: 50,993 records
+-- taxonomy: mostly Poduromorpha: Isotomidae (15,271 records)
 
 Nematoda
 - soil taxa: Straalen 2021, Pedobiologia: terrestrialization for soil
