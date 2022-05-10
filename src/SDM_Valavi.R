@@ -1,4 +1,4 @@
-#- - - - - - - - - - - - - - - - - - - - - -#
+﻿#- - - - - - - - - - - - - - - - - - - - - -#
 #                                           #
 #      Species Distribution Models          #
 #          author: Romy Zeiss               #
@@ -87,7 +87,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 gm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(gm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm.RData"))
+save(gm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm_", sp, ".RData"))
 
 rm(gm, gm_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -144,7 +144,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 lm1_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(lm1_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm1.RData"))
+save(lm1_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm1_", sp, ".RData"))
 
 rm(lm1_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -208,7 +208,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 lm_subset_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(lm_subset_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm_subset.RData"))
+save(lm_subset_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm_subset_", sp, ".RData"))
 
 rm(lm1, lm_subset, lm_subset_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -299,7 +299,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 lasso_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(lasso_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso.RData"))
+save(lasso_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso_", sp, ".RData"))
 
 rm(lasso_cv, lasso_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -338,7 +338,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 ridge_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(ridge_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ridge.RData"))
+save(ridge_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ridge_", sp, ".RData"))
 
 rm(ridge_cv, ridge_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 rm(testing_sparse, training_sparse, new_vars, predicting_sparse, sparse_covarsNames, testing_quad, training_quad, predicting_quad, quad_obj)
@@ -454,7 +454,7 @@ temp_uncertainty <- do.call(rbind, lapply(mars_pred_list, "[[", 6)) %>%
   group_by(x,y) %>% summarise_all(sd, na.rm=T)
 
 mars_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, uncertainty=temp_uncertainty)
-save(mars_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_mars.RData"))
+save(mars_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_mars_", sp, ".RData"))
 
 rm(mars, mars_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp_varImp)
 gc()
@@ -573,7 +573,7 @@ temp_predict_time <- Sys.time() - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 maxent_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(maxent_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent.RData"))
+save(maxent_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent_", sp, ".RData"))
 
 rm(maxent, maxent_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 gc()
@@ -616,7 +616,7 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 temp_runs <- 1
 
 maxnet_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(maxnet_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxnet.RData"))
+save(maxnet_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxnet_", sp, ".RData"))
 
 rm(maxnet, maxnet_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, presences, covariates)
 gc()
@@ -769,7 +769,7 @@ colnames(temp_interactions) <- covarsNames
 temp_runs <- 1
 
 brt_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, uncertainty=temp_uncertainty, settings=temp_settings, interactions=temp_interactions)
-save(brt_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt.RData"))
+save(brt_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt_", sp, ".RData"))
 
 rm(brt_pred_list, brt_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp_interactions, temp_settings)
 
@@ -876,7 +876,7 @@ temp_settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), 
 temp_runs <- 1
 
 brt2_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, settings=temp_settings, interactions=temp.find.int$interactions)
-save(brt2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2.RData"))
+save(brt2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2_", sp, ".RData"))
 
 rm(brt2, brt2_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp.find.int, temp_settings)
 
@@ -997,7 +997,7 @@ temp_prediction <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>%
   group_by(x,y) %>% summarise_all(mean, na.rm=T)
 
 xgb_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp)
-save(xgb_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_xgb.RData"))
+save(xgb_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_xgb_", sp, ".RData"))
 
 rm(xgb, xgb_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp)
 
@@ -1144,7 +1144,7 @@ temp_prediction <- do.call(rbind, lapply(rf_pred_list, "[[", 5)) %>%
 temp_runs <- length(rf_pred_list)
 
 rf_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(rf_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf.RData"))
+save(rf_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf_", sp, ".RData"))
 
 rm(rf_pred_list, rf_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -1163,7 +1163,7 @@ temp_prediction <- do.call(rbind, lapply(rf_downsample_pred_list, "[[", 5)) %>%
 temp_runs <- length(rf_downsample_pred_list)
 
 rf_downsample_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(rf_downsample_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf_downsample.RData"))
+save(rf_downsample_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf_downsample_", spID, ".RData"))
 
 rm(rf_downsample_pred_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -1214,7 +1214,7 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 temp_runs <- 1
 
 rf2_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(rf2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2.RData"))
+save(rf2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2_", spID, ".RData"))
 
 rm(rf2, rf2_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -1307,7 +1307,7 @@ temp_prediction <- do.call(rbind, lapply(svm_pred_list, "[[", 5)) %>%
 temp_runs <- length(svm_pred_list)
 
 svm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(svm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_svm.RData"))
+save(svm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_svm_", spID, ".RData"))
 
 rm(svm_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
@@ -1475,7 +1475,7 @@ temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x
 temp_runs <- 1
 
 biomod_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
-save(biomod_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_biomod.RData"))
+save(biomod_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_biomod_", spID, ".RData"))
 
 rm(biomod, biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
 
@@ -1490,15 +1490,15 @@ setwd(here::here())
 modelName <- "bg.glm"
 
 # scale the predictions between 0 and 1
-gm_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm.RData")))
+gm_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm_", spID, ".RData")))
 gm <- scales::rescale(gm_list[["validation"]], to = c(0,1))
-lasso_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso.RData")))
+lasso_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso_", spID, ".RData")))
 lasso <- scales::rescale(lasso_list[["validation"]], to = c(0,1))
-brt2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2.RData")))
+brt2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2_", spID, ".RData")))
 brt2 <- scales::rescale(brt2_list[["validation"]], to = c(0,1))
-rf2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2.RData")))
+rf2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2_", spID, ".RData")))
 rf2 <- scales::rescale(rf2_list[["validation"]], to = c(0,1))
-maxent_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent.RData")))
+maxent_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent_", spID, ".RData")))
 maxent <- scales::rescale(maxent_list[["validation"]], to = c(0,1))
 
 # average the predictions
@@ -1522,7 +1522,7 @@ temp_prediction <- temp_prediction %>% mutate("layer"=rowMeans(temp_prediction %
   dplyr::select(x, y, layer)
 
 ensm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
-save(ensm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ensm.RData"))
+save(ensm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ensm_", spID, ".RData"))
 
 rm(gm_list, lasso_list, maxent_list, brt2_list, rf2_list, ensm_list)
 
