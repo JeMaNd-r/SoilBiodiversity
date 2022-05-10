@@ -8,6 +8,18 @@
 # load environmental space
 Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 
+# remove SoilTemp and Aridity to remove vif of MAT
+Env_norm <- raster::subset(Env_norm, c(
+                           #"Aridity", 
+                           "MAP", "MAP_Seas", "MAT", 
+                           "MAT_Seas", #"Snow", 
+                            "Agriculture", "Dist_Urban", 
+                           "Forest_Coni", "Forest_Deci", "NDVI", "Pastures", 
+                            "Pop_Dens", "Shrubland", "Aspect", "Dist_Coast", 
+                            "Dist_River", "Elev", "Slope", "CEC", "Clay.Silt", 
+                            "Cu", "Hg", "Moisture", "N", "P", "pH", "SOC" #,"SoilT"
+))
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable inflation factor (VIF) ####
 # VIF is the extent of correlation between one predictor and all others.
@@ -36,6 +48,9 @@ write.csv(env_vif, file=paste0(here::here(), "/results/VIF_predictors.csv"), row
 # https://github.com/joaofgoncalves/GoncalvesAna_et_al_2021/tree/master/RCODE/PostModelAnalyses
 # load predictors as dataframe
 load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+
+# remove excluded variables
+Env_norm_df <- Env_norm_df[,c("x", "y", names(Env_norm))] 
 
 corMatSpearman <- cor(Env_norm_df, use="complete.obs", method="spearman") %>% round(2)
 corMatPearson <- cor(Env_norm_df, use="complete.obs", method="pearson") %>% round(2)
