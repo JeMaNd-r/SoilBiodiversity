@@ -146,7 +146,7 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 lm1_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(lm1_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm1.RData"))
 
-rm(lm1, lm1_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(lm1_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 # load library again to make sure that function works correctly
 library(gam)
@@ -210,7 +210,7 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 lm_subset_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(lm_subset_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lm_subset.RData"))
 
-rm(lm_subset, lm_subset_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(lm1, lm_subset, lm_subset_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Regularized regressions: LASSO and RIDGE regression ####
@@ -240,9 +240,9 @@ sparse_covarsNames <- paste0(rep(covarsNames, each=2), "_", 1:2)
 # convert the data.frames to sparse matrices
 # select all quadratic (and non-quadratic) columns, except the y (occ)
 new_vars <- names(training_quad)[names(training_quad) != "occ"]
-training_sparse <- sparse.model.matrix(~. -1, training_quad[, new_vars])
-testing_sparse <- sparse.model.matrix( ~. -1, testing_quad[, new_vars])
-predicting_sparse <- sparse.model.matrix( ~. -1, predicting_quad[, sparse_covarsNames])
+training_sparse <- Matrix::sparse.model.matrix(~. -1, training_quad[, new_vars])
+testing_sparse <- Matrix::sparse.model.matrix( ~. -1, testing_quad[, new_vars])
+predicting_sparse <- Matrix::sparse.model.matrix( ~. -1, predicting_quad[, sparse_covarsNames])
 
 # calculating the case weights
 prNum <- as.numeric(table(training_quad$occ)["1"]) # number of presences
@@ -314,7 +314,7 @@ ridge_cv <- glmnet::cv.glmnet(x = training_sparse,
                               weights = wt,
                               nfolds = 10) # number of folds for cross-validation
 # predict ridge
-temp_validation <- glmnet:::predict.glmnet(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
+temp_validation <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(temp_validation)
 
 temp_model_time <- Sys.time() - tmp
@@ -327,9 +327,9 @@ temp_runs <- 1
 tmp <- Sys.time()
 
 # predict for whole environment
-ridge_prediction <- glmnet:::predict.glmnet(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
+temp_prediction <- predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
 #head(ridge_prediction)
-ridge_prediction <- data.frame("site" = names(ridge_prediction), "layer" = as.numeric(ridge_prediction)) %>%
+temp_prediction <- data.frame("site" = names(temp_prediction), "layer" = as.numeric(temp_prediction)) %>%
   full_join(Env_norm_df %>% mutate("site" = rownames(Env_norm_df)) %>% dplyr::select(x,y,site), by = "site") %>%
   dplyr::select(-site)
 
@@ -342,6 +342,7 @@ save(ridge_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/
 
 rm(ridge_cv, ridge_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 rm(testing_sparse, training_sparse, new_vars, predicting_sparse, sparse_covarsNames, testing_quad, training_quad, predicting_quad, quad_obj)
+gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MARS ####
@@ -352,7 +353,7 @@ modelName <- "bg.mars"
 # identify and load all relevant data files
 temp.files <- list.files(path = paste0("./results/",Taxon_name),
                          pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-lapply(temp.files, load, .GlobalEnv)
+#lapply(temp.files, load, .GlobalEnv)
 
 # how often do we have to run the loop? depending on number of background data simulated
 no.loop.runs <- length(temp.files)/2
@@ -398,8 +399,8 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- caret::predict.train(mars_fit, validation[,colnames(validation) %in% covarsNames], type="prob")[,"C1"]
   #head(temp_validation)
   
-  temp_time <- Sys.time() - tmp
-  temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
+  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   #plot(mars_fit)
   
   # caluclate variable importance (for later)
@@ -412,7 +413,7 @@ for(no.runs in 1:no.loop.runs){
   temp_prediction <- caret::predict.train(mars_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="prob")[,"C1"]
   temp_prediction <- as.numeric(temp_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(mars_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
+  names(temp_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
   temp_prediction <- as.data.frame(temp_prediction)
   temp_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
   temp_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
@@ -426,7 +427,7 @@ for(no.runs in 1:no.loop.runs){
   mars_pred_list[[no.runs]] <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=mars_varImp)
 
   print(paste0("Run no. ", no.runs, " of ", no.loop.runs ," is ready now."))
-  rm(mars_prediction, mars_varImp, mars_fit, mars_pred, temp_time)
+  rm(temp_prediction, mars_varImp, mars_fit, temp_validation, temp_model_time, temp_predict_time)
 }
 
 # average all MARS predictions
@@ -437,8 +438,8 @@ temp_validation <- rowMeans(temp_validation, na.rm=T)
 temp_validation <- as.numeric(temp_validation)
 names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
-temp_model_time <- c(mean(as.numeric(sapply(mars_pred_list, "[[", 2)[1,]), na.rm=T), mars_pred_list[[1]][[2]][2])
-temp_predict_time <- c(mean(as.numeric(sapply(mars_pred_list, "[[", 3)[1,]), na.rm=T), mars_pred_list[[1]][[3]][2])
+temp_model_time <- c(sum(as.numeric(sapply(mars_pred_list, "[[", 2)[1,]), na.rm=T), mars_pred_list[[1]][[2]][2])
+temp_predict_time <- c(sum(as.numeric(sapply(mars_pred_list, "[[", 3)[1,]), na.rm=T), mars_pred_list[[1]][[3]][2])
 
 temp_varImp <- do.call(rbind, lapply(mars_pred_list, "[[", 7)) %>% 
   group_by(Predictor) %>% summarise_all(mean, na.rm=T)
@@ -456,6 +457,7 @@ mars_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=te
 save(mars_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_mars.RData"))
 
 rm(mars, mars_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp_varImp)
+gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt and MaxNet ####
@@ -573,7 +575,8 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 maxent_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(maxent_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent.RData"))
 
-rm(maxent, maxent_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(maxent, maxent_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+gc()
 
 ## MaxNet
 presences <- training$occ # presence (1s) and background (0s) points
@@ -615,7 +618,8 @@ temp_runs <- 1
 maxnet_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(maxnet_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxnet.RData"))
 
-rm(maxnet, maxnet_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(maxnet, maxnet_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, presences, covariates)
+gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## BRT (GBM) ####
@@ -728,15 +732,15 @@ for(no.runs in 1:no.loop.runs){
   temp_predict_time <- Sys.time() - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
-  brt_pred_list[[no.runs]] <- list(time_model=temp_model_time, time_predict=temp_predict_time, validation=temp_validation, prediction=temp_prediction, settings=settings=data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
-                                   temp.find.int$interactions)
+  brt_pred_list[[no.runs]] <- list(time_model=temp_model_time, time_predict=temp_predict_time, validation=temp_validation, prediction=temp_prediction, settings=data.frame("n.trees"=ntrees, "l.rate"=lrate, "t.complexity"=tcomplexity), 
+                                   interactions=temp.find.int$interactions)
 }
 
 # average all BRT predictions
 temp_validation <- as.data.frame(sapply(brt_pred_list, "[[", 3))
 temp_validation <- rowMeans(temp_validation, na.rm=T)
-temp_model_time <- c(mean(as.numeric(sapply(brt_pred_list, "[[", 1)[1,]), na.rm=T), brt_pred_list[[1]][[1]][2])
-temp_predict_time <- c(mean(as.numeric(sapply(brt_pred_list, "[[", 2)[1,]), na.rm=T), brt_pred_list[[1]][[2]][2])
+temp_model_time <- c(sum(as.numeric(sapply(brt_pred_list, "[[", 1)[1,]), na.rm=T), brt_pred_list[[1]][[1]][2])
+temp_predict_time <- c(sum(as.numeric(sapply(brt_pred_list, "[[", 2)[1,]), na.rm=T), brt_pred_list[[1]][[2]][2])
 
 temp_settings <- rowMeans(as.data.frame(unlist(sapply(brt_pred_list, "[[", 5))), na.rm=T)
 temp_settings <- data.frame("parameter"=names(brt_pred_list[[1]][[5]]), "setting"=temp_settings)
@@ -871,10 +875,10 @@ temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predi
 temp_settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
 temp_runs <- 1
 
-brt2_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, uncertainty=temp_uncertainty, settings=temp_settings, interactions=temp.find.int$interactions)
+brt2_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, settings=temp_settings, interactions=temp.find.int$interactions)
 save(brt2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2.RData"))
 
-rm(brt2, brt2_pred_list, brt2_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp.find.int, temp_settings)
+rm(brt2, brt2_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp.find.int, temp_settings)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
@@ -979,8 +983,8 @@ for(no.runs in 1:no.loop.runs){
 # average all XGBoost predictions
 temp_validation <- as.data.frame(sapply(xgb_pred_list, "[[", 1))
 temp_validation <- rowMeans(temp_validation, na.rm=T)
-temp_model_time <- c(mean(as.numeric(sapply(xgb_pred_list, "[[", 3)[1,]), na.rm=T), xgb_pred_list[[1]][[3]][2])
-temp_predict_time <- c(mean(as.numeric(sapply(xgb_pred_list, "[[", 6)[1,]), na.rm=T), xgb_pred_list[[1]][[6]][2])
+temp_model_time <- c(sum(as.numeric(sapply(xgb_pred_list, "[[", 3)[1,]), na.rm=T), xgb_pred_list[[1]][[3]][2])
+temp_predict_time <- c(sum(as.numeric(sapply(xgb_pred_list, "[[", 6)[1,]), na.rm=T), xgb_pred_list[[1]][[6]][2])
 
 #temp_models <- sapply(xgb_pred_list, "[[", 1)
 temp_varImp <- do.call(rbind, lapply(xgb_pred_list, "[[", 4)) %>% 
@@ -991,10 +995,6 @@ temp_runs <- length(xgb_pred_list)
 ## extract predicted probabilities (for later)
 temp_prediction <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>% 
   group_by(x,y) %>% summarise_all(mean, na.rm=T)
-
-# get running time
-temp_predict_time <- Sys.time() - tmp
-temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 xgb_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp)
 save(xgb_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_xgb.RData"))
@@ -1049,25 +1049,32 @@ for(no.runs in 1:no.loop.runs){
                                    data = training,
                                    importance = T, # assess importance of predictors
                                    ntree = 500) # the default number of trees = 500
-  temp_time <- Sys.time() - tmp
-  temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   
   # predict with RF
-  rf_pred <- dismo::predict(rf, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
-  #head(rf_pred)
+  temp_validation <- dismo::predict(rf, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
+  #head(temp_validation)
   
+  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
+  
+  tmp <- Sys.time()
+
   # predict to raster (for later)
-  rf_prediction <- dismo::predict(rf, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
-  rf_prediction <- as.numeric(rf_prediction)
+  temp_prediction <- dismo::predict(rf, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
+  temp_prediction <- as.numeric(temp_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(rf_prediction) <- rownames(Env_norm_df)
-  rf_prediction <- as.data.frame(rf_prediction)
-  rf_prediction$x <- Env_norm_df$x
-  rf_prediction$y <- Env_norm_df$y
-  rf_prediction <- rf_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
-    rename("layer" = rf_prediction)
+  names(temp_prediction) <- rownames(Env_norm_df)
+  temp_prediction <- as.data.frame(temp_prediction)
+  temp_prediction$x <- Env_norm_df$x
+  temp_prediction$y <- Env_norm_df$y
+  temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = temp_prediction)
   
-  rf_pred_list[[no.runs]] <- list(rf, rf_pred, modelName, temp_time, rf_prediction)
+  # get running time
+  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
+  
+  rf_pred_list[[no.runs]] <- list(rf, temp_validation, modelName, temp_model_time, temp_prediction, temp_predict_time)
   
   #plot(rf, main = "RF")
   
@@ -1087,40 +1094,48 @@ for(no.runs in 1:no.loop.runs){
                                               sampsize = smpsize,
                                               importance = T,
                                               replace = TRUE)
-  temp_time <- Sys.time() - tmp
-  temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
-  
   #plot(rf_downsample, main = "RF down-sampled")
   
   # predict with RF down-sampled
   rf_downsample_pred <- predict(rf_downsample, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
   #head(rf_downsample_pred)
+
+  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   
-  rf_downsample_pred <- as.numeric(rf_downsample_pred)
-  names(rf_downsample_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
+  temp_validation <- as.numeric(temp_validation)
+  names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
   
+  tmp <- Sys.time()
+
   # predict to raster (for later)
-  rf_downsample_prediction <- dismo::predict(rf_downsample, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"1"]
-  rf_downsample_prediction <- as.numeric(rf_downsample_prediction)
+  temp_prediction <- dismo::predict(rf_downsample, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"1"]
+  temp_prediction <- as.numeric(temp_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(rf_downsample_prediction) <- rownames(Env_norm_df)
-  rf_downsample_prediction <- as.data.frame(rf_downsample_prediction)
-  rf_downsample_prediction$x <- Env_norm_df$x
-  rf_downsample_prediction$y <- Env_norm_df$y
-  rf_downsample_prediction <- rf_downsample_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
-    rename("layer" = rf_downsample_prediction)
-  
-  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, rf_downsample_pred, modelName, temp_time, rf_downsample_prediction)
-  rm(rf, rf_downsample, rf_prediction, rf_downsample_prediction, temp_time)
+  names(temp_prediction) <- rownames(Env_norm_df)
+  temp_prediction <- as.data.frame(temp_prediction)
+  temp_prediction$x <- Env_norm_df$x
+  temp_prediction$y <- Env_norm_df$y
+  temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = temp_prediction)
+   
+  # get running time
+  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
+
+  rf_downsample_pred_list[[no.runs]] <- list(rf_downsample, temp_validation, modelName, temp_model_time, temp_prediction, temp_predict_time)
+  rm(rf, rf_downsample, temp_validation, temp_prediction, temp_model_time, temp_predict_time)
 }
 
 # average all RF predictions
-rf_pred <- as.data.frame(sapply(rf_pred_list, "[[", 2))
-rf_pred <- rowMeans(rf_pred, na.rm=T)
-temp_time <- c(mean(as.numeric(sapply(rf_pred_list, "[[", 4)[1,]), na.rm=T), rf_pred_list[[1]][[4]][2])
-#temp_time <- mean(sapply(rf_pred_list, "[[", 4)[1,], na.rm=T)
+temp_validation <- as.data.frame(sapply(rf_pred_list, "[[", 2))
+temp_validation <- rowMeans(temp_validation, na.rm=T)
+temp_model_time <- c(sum(as.numeric(sapply(rf_pred_list, "[[", 4)[1,]), na.rm=T), rf_pred_list[[1]][[4]][2])
+#temp_model_time <- sum(sapply(rf_pred_list, "[[", 4)[1,], na.rm=T)
+temp_predict_time <- c(sum(as.numeric(sapply(rf_pred_list, "[[", 6)[1,]), na.rm=T), rf_pred_list[[1]][[6]][2])
+#temp_predict_time <- sum(sapply(rf_pred_list, "[[", 6)[1,], na.rm=T)
 
-temp.models <- sapply(rf_pred_list, "[[", 1)
+#temp_models <- sapply(rf_pred_list, "[[", 1)
 
 ## extract predicted probabilities (for later)
 temp_prediction <- do.call(rbind, lapply(rf_pred_list, "[[", 5)) %>% 
@@ -1128,13 +1143,16 @@ temp_prediction <- do.call(rbind, lapply(rf_pred_list, "[[", 5)) %>%
 
 temp_runs <- length(rf_pred_list)
 
-rf_pred <- list(temp.models, rf_pred, modelName, temp_time, temp_runs, temp_prediction)
-rm(temp_time, rf_pred_list)
+rf_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
+save(rf_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf.RData"))
+
+rm(rf_pred_list, rf_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 # average all RF_downsampled predictions
-rf_downsample_pred <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 2))
-rf_downsample_pred <- rowMeans(rf_downsample_pred, na.rm=T)
-temp_time <- c(mean(as.numeric(sapply(rf_downsample_pred_list, "[[", 4)[1,]), na.rm=T), rf_downsample_pred_list[[1]][[4]][2])
+temp_validation <- as.data.frame(sapply(rf_downsample_pred_list, "[[", 2))
+temp_validation <- rowMeans(temp_validation, na.rm=T)
+temp_model_time <- c(sum(as.numeric(sapply(rf_downsample_pred_list, "[[", 4)[1,]), na.rm=T), rf_downsample_pred_list[[1]][[4]][2])
+temp_predict_time <- c(sum(as.numeric(sapply(rf_downsample_pred_list, "[[", 6)[1,]), na.rm=T), rf_downsample_pred_list[[1]][[6]][2])
 
 temp.models <- sapply(rf_downsample_pred_list, "[[", 1)
 
@@ -1144,8 +1162,10 @@ temp_prediction <- do.call(rbind, lapply(rf_downsample_pred_list, "[[", 5)) %>%
 
 temp_runs <- length(rf_downsample_pred_list)
 
-rf_downsample_pred <- list(temp.models, rf_downsample_pred, modelName, temp_time, temp_runs, temp_prediction)
-rm(temp_time, rf_downsample_pred_list)
+rf_downsample_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
+save(rf_downsample_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf_downsample.RData"))
+
+rm(rf_downsample_pred_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Model RF2 for ensemble modelling using consistent background data (bg.glm)
@@ -1165,33 +1185,38 @@ set.seed(32639)
 rf2 <- randomForest(formula = occ ~.,
                     data = training,
                     ntree = 500) # the default number of trees
-temp_time <- Sys.time() - tmp
-temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
 
 # predict with RF
-rf2_pred <- dismo::predict(rf2, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
-#head(rf_pred)
-rf2_pred <- as.numeric(rf2_pred)
-names(rf2_pred) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
+temp_validation <- dismo::predict(rf2, validation[,colnames(validation) %in% covarsNames], type = "prob")[, "1"] # prob = continuous prediction
+#head(temp_validation)
+temp_validation <- as.numeric(temp_validation)
+names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
+temp_model_time <- Sys.time() - tmp
+temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
+
+tmp <- Sys.time() 
 # predict to raster (for later)
-rf2_prediction <- dismo::predict(rf2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
-rf2_prediction <- as.numeric(rf2_prediction)
+temp_prediction <- dismo::predict(rf2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
+temp_prediction <- as.numeric(temp_prediction)
 # add names of grid cell (only for those that have no NA in any layer)
-names(rf2_prediction) <- rownames(Env_norm_df)
-rf2_prediction <- as.data.frame(rf2_prediction)
-rf2_prediction$x <- Env_norm_df$x
-rf2_prediction$y <- Env_norm_df$y
-rf2_prediction <- rf2_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
-  rename("layer" = rf2_prediction)
+names(temp_prediction) <- rownames(Env_norm_df)
+temp_prediction <- as.data.frame(temp_prediction)
+temp_prediction$x <- Env_norm_df$x
+temp_prediction$y <- Env_norm_df$y
+temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+  rename("layer" = temp_prediction)
+
+# get running time
+temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 temp_runs <- 1
 
-rf2_pred <- list(rf2, rf2_pred, modelName, temp_time, temp_runs, rf2_prediction)
-rm(rf2, temp_time, rf2_prediction)
+rf2_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
+save(rf2_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2.RData"))
 
-# transform occurrence column back to numeric
-training$occ <- as.numeric(training$occ)
+rm(rf2, rf2_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## SVM ####
@@ -1231,41 +1256,49 @@ for(no.runs in 1:no.loop.runs){
                       kernel = "radial", 
                       class.weights = cwt,
                       probability = TRUE) # allow for probability predictions
-  temp_time <- Sys.time() - tmp
-  temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
   
   # predicting on test data
-  svm_pred <- e1071:::predict.svm(svm_e, validation[,colnames(validation) %in% covarsNames], probability=TRUE)
-  svm_pred <- attr(svm_pred, "probabilities")[,"1"] 
+  temp_validation <- e1071:::predict.svm(svm_e, validation[,colnames(validation) %in% covarsNames], probability=TRUE)
+  temp_validation <- attr(temp_validation, "probabilities")[,"1"] 
   
   # see the first few predictions
-  #head(svm_pred)
+  #head(temp_validation)
   
-  temp.names <- names(svm_pred)
-  svm_pred <- as.numeric(svm_pred)
-  names(svm_pred) <- temp.names #add site names
+  temp_names <- names(temp_validation)
+  temp_validation <- as.numeric(temp_validation)
+  names(temp_validation) <- temp_names #add site names
   
+  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
+  
+  tmp <- Sys.time()
   # predict
-  svm_prediction <- e1071:::predict.svm(svm_e, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], probability=TRUE)
-  svm_prediction <- attr(svm_prediction, "probabilities")[,"1"]
-  svm_prediction <- as.numeric(svm_prediction)
+  temp_prediction <- e1071:::predict.svm(svm_e, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], probability=TRUE)
+  temp_prediction <- attr(temp_prediction, "probabilities")[,"1"]
+  temp_prediction <- as.numeric(temp_prediction)
   # add names of grid cell (only for those that have no NA in any layer)
-  names(svm_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
-  svm_prediction <- as.data.frame(svm_prediction)
-  svm_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
-  svm_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
-  svm_prediction <- svm_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
-    rename("layer" = svm_prediction)
+  names(temp_prediction) <- rownames(Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),])
+  temp_prediction <- as.data.frame(temp_prediction)
+  temp_prediction$x <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$x
+  temp_prediction$y <- Env_norm_df[complete.cases(Env_norm_df[,colnames(Env_norm_df) %in% covarsNames]),]$y
+  temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    rename("layer" = temp_prediction)
 
-  svm_pred_list[[no.runs]] <- list(svm_e, svm_pred, modelName, temp_time, svm_prediction)
+  # get running time
+  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
+
+  svm_pred_list[[no.runs]] <- list(svm_e, temp_validation, modelName, temp_model_time, temp_prediction, temp_predict_time)
+  rm(svm_e, temp_validation, temp_model_time, temp_prediction, temp_predict_time)
 }
 
 # average all SVM predictions
-svm_pred <- as.data.frame(sapply(svm_pred_list, "[[", 2))
-svm_pred <- rowMeans(svm_pred, na.rm=T)
-temp_time <- c(mean(as.numeric(sapply(svm_pred_list, "[[", 4)[1,]), na.rm=T), svm_pred_list[[1]][[4]][2])
+temp_validation <- as.data.frame(sapply(svm_pred_list, "[[", 2))
+temp_validation <- rowMeans(temp_validation, na.rm=T)
+temp_model_time <- c(sum(as.numeric(sapply(svm_pred_list, "[[", 4)[1,]), na.rm=T), svm_pred_list[[1]][[4]][2])
+temp_predict_time <- c(sum(as.numeric(sapply(svm_pred_list, "[[", 6)[1,]), na.rm=T), svm_pred_list[[1]][[6]][2])
 
-temp.models <- sapply(svm_pred_list, "[[", 1)
+#temp_models <- sapply(svm_pred_list, "[[", 1)
 
 ## extract predicted probabilities (for later)
 temp_prediction <- do.call(rbind, lapply(svm_pred_list, "[[", 5)) %>% 
@@ -1273,8 +1306,11 @@ temp_prediction <- do.call(rbind, lapply(svm_pred_list, "[[", 5)) %>%
 
 temp_runs <- length(svm_pred_list)
 
-svm_pred <- list(temp.models, svm_pred, modelName, temp_time, temp_runs, temp_prediction)
-rm(svm_e, temp_time, svm_pred_list, temp_prediction)
+svm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
+save(svm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_svm.RData"))
+
+rm(svm_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## biomod ####
@@ -1379,9 +1415,10 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
                                                VarImport = 1)    #number of permutations to estimate variable importance
-temp_time <- Sys.time() - tmp
-temp_time <- c(round(as.numeric(temp_time), 3), units(temp_time))
+temp_model_time <- Sys.time() - tmp
+temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
+tmp <- Sys.time()
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
@@ -1401,6 +1438,9 @@ myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiom
                                                       #... same arguments as above could be added but are not necessary when loading myBiomodProj
                                                       selected.models = "all")
 
+temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
+
 # extracting the values for ensemble prediction
 myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted probability mean
 
@@ -1408,11 +1448,11 @@ myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted proba
 # note: the prediction scale of biomod is between 0 and 1000
 #head(myEnProjDF)
 
-biomod_pred <- myEnProjDF[,1]
-biomod_pred <- as.data.frame(biomod_pred)
-biomod_pred$x <- training$bg.biomod@coord$x
-biomod_pred$y <- training$bg.biomod@coord$y
-biomod_pred <- biomod_pred %>% rename("layer"=biomod_pred)
+temp_validation <- myEnProjDF[,1]
+temp_validation <- as.data.frame(temp_validation)
+temp_validation$x <- training$bg.biomod@coord$x
+temp_validation$y <- training$bg.biomod@coord$y
+temp_validation <- temp_validation %>% rename("layer"=temp_validation)
 
 # Get model evaluation values for later
 myBiomodModelEval <- as.data.frame(biomod2::get_evaluations(myBiomodEM)[2])
@@ -1434,8 +1474,10 @@ temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x
 
 temp_runs <- 1
 
-biomod_pred <- list(myBiomodModelEval, biomod_pred, modelName, temp_time, temp_runs, temp_varImp, temp_prediction )
-rm(temp_varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF, temp_prediction)
+biomod_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
+save(biomod_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_biomod.RData"))
+
+rm(biomod, biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
 
 setwd(here::here())  
 
@@ -1448,38 +1490,56 @@ setwd(here::here())
 modelName <- "bg.glm"
 
 # scale the predictions between 0 and 1
-gm <- scales::rescale(gm_pred[[2]], to = c(0,1))
-lasso <- scales::rescale(lasso_pred[[2]], to = c(0,1))
-brt <- scales::rescale(brt2_pred[[2]], to = c(0,1))
-rf <- scales::rescale(rf2_pred[[2]], to = c(0,1))
-maxt <- scales::rescale(maxmod_pred[[2]], to = c(0,1))
+gm_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm.RData")))
+gm <- scales::rescale(gm_list[["validation"]], to = c(0,1))
+lasso_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso.RData")))
+lasso <- scales::rescale(lasso_list[["validation"]], to = c(0,1))
+brt2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2.RData")))
+brt2 <- scales::rescale(brt2_list[["validation"]], to = c(0,1))
+rf2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2.RData")))
+rf2 <- scales::rescale(rf2_list[["validation"]], to = c(0,1))
+maxent_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent.RData")))
+maxent <- scales::rescale(maxent_list[["validation"]], to = c(0,1))
 
 # average the predictions
-ensm_pred <- rowMeans(cbind(gm, lasso, maxt, brt, rf), na.rm=T) 
+temp_validation <- rowMeans(cbind(gm, lasso, maxent, brt2, rf2), na.rm=T) 
 
 # sum up computational time
-temp_time <- paste0(gm_pred[[4]], " + ", lasso_pred[[4]], " + ", maxmod_pred[[4]], " + ", 
-                    brt2_pred[[4]], " + ", rf2_pred[[4]]) 
+temp_model_time <- paste0(gm_list[["time_model"]], " + ", lasso_list[["time_model"]], " + ", maxent_list[["time_model"]], " + ", 
+                    brt2_list[["time_model"]], " + ", rf2_list[["time_model"]]) 
+temp_predict_time <- paste0(gm_list[["time_predict"]], " + ", lasso_list[["time_predict"]], " + ", maxent_list[["time_predict"]], " + ", 
+                    brt2_list[["time_predict"]], " + ", rf2_list[["time_predict"]]) 
 
 temp_runs <- 1
 
-ensm_pred <- list("No model output available. Predictions have to be averaged again if necessary.", ensm_pred, modelName, temp_time, temp_runs)
+# average predictions
+temp_prediction <- gm_list[["prediction"]] %>% rename("gm"=layer) %>% 
+  full_join(maxent_list[["prediction"]] %>% rename("maxent"=layer), by=c("x", "y")) %>%
+  full_join(lasso_list[["prediction"]] %>% rename("lasso"=layer), by=c("x", "y")) %>%
+  full_join(brt2_list[["prediction"]] %>% rename("brt2"=layer), by=c("x", "y")) %>%
+  full_join(rf2_list[["prediction"]] %>% rename("rf2"=layer), by=c("x", "y"))
+temp_prediction <- temp_prediction %>% mutate("layer"=rowMeans(temp_prediction %>% dplyr::select(-x, -y), na.rm=T)) %>%
+  dplyr::select(x, y, layer)
 
-#- - - - - - - - - - - - - - - - - - - - -
-## Saving ####
-#- - - - - - - - - - - - - - - - - - - - -
+ensm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
+save(ensm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ensm.RData"))
 
-# save all models to calculate model performance later
-SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
-             mars_pred, maxmod_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
-             rf_pred, rf2_pred, rf_downsample_pred, biomod_pred, ensm_pred)
-names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
-                 "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
-                 "rf_pred", "rf2_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
-#head(SDMs)
+rm(gm_list, lasso_list, maxent_list, brt2_list, rf2_list, ensm_list)
 
-
-save(SDMs, file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) 
+# #- - - - - - - - - - - - - - - - - - - - -
+# ## Saving ####
+# #- - - - - - - - - - - - - - - - - - - - -
+# 
+# # save all models to calculate model performance later
+# SDMs <- list(gm_pred, lm1_pred, lm_subset_pred, lasso_pred, ridge_pred, 
+#              mars_pred, maxmod_pred, maxnet_pred, brt_pred, brt2_pred, xgb_pred, svm_pred,
+#              rf_pred, rf2_pred, rf_downsample_pred, biomod_pred, ensm_pred)
+# names(SDMs) <- c("gm_pred", "lm1_pred", "lm_subset_pred", "lasso_pred", "ridge_pred", 
+#                  "mars_pred", "maxmod_pred", "maxnet_pred", "brt_pred", "brt2_pred", "xgb_pred", "svm_pred",
+#                  "rf_pred", "rf2_pred", "rf_downsample_pred", "biomod_pred", "ensm_pred")
+# #head(SDMs)
+# 
+# save(SDMs, file=paste0(here::here(), "/sdm/SDM_Models_", spID, ".RData")) 
 
 
 
