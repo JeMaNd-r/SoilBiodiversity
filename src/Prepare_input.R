@@ -54,7 +54,7 @@ if(length(speciesNames$NumCells_2km) == 0){
 }
 
 # for loop
-foreach(temp_species=speciesNames[speciesNames$NumCells_2km >=5,]$SpeciesID, 
+foreach(temp_species=unique(speciesNames[speciesNames$NumCells_2km >=5,]$SpeciesID), 
         .export = c("Taxon_name", "covarsNames"), 
         .packages = c("tidyverse")) %dopar% {
   
