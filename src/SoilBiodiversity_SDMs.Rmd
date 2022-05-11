@@ -213,8 +213,10 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 ## Quick visualization
 
 ```{r numberOcc}
-data.frame("No_species" = length(unique(speciesNames[speciesNames$Records>0,"Species"])),
-           "No_speciesID" = length(unique(speciesNames[speciesNames$Records>0,"SpeciesID"])))
+data.frame("No_species" = length(unique(speciesNames[speciesNames$NumCells_2km>0,"Species"])),
+           "No_speciesID" = length(unique(speciesNames[speciesNames$NumCells_2km>0,"SpeciesID"])))
+# >0: 155 (139 IDs), >=5: 81 (74 IDs), >=200: 18 (16 IDs); >=300: 15 (13 IDs)
+
 
 # plot some of the species' occurrences
 hist(speciesNames$NumCells_1km)
