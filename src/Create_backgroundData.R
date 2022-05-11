@@ -25,7 +25,7 @@ registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all species ####
-foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .export = c("mySpeciesOcc"), 
+foreach(myRespName = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
   # define response variable index
@@ -68,7 +68,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
   }
   bg.glm$SpeciesID <- myRespName
   
-  str(bg.glm)
+  #str(bg.glm)
   #print("Note: TRUE in PA means presence.")
   
   # add model settings into summary table
@@ -77,7 +77,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
                          min.distance=NA, run.time=temp.time)
   model.settings <- rbind(model.settings, temp.dat)
   
-  rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
+  rm(temp.strategy, temp.runs, temp.number, temp.time)
   
   ## MARS ####	
   # random performs consistently well, except when presences are climatically 
@@ -107,7 +107,7 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
                          min.distance=NA, run.time=temp.time)
   model.settings <- rbind(model.settings, temp.dat)
   
-  rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
+  rm(temp.strategy, temp.runs, temp.number, temp.time)
   
   # ## MDA ####	
   # # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
@@ -173,9 +173,9 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
         temp.min.dist <- NULL
     }
   }
-  
-  tmp <- Sys.time()
-  bg.rf <- BIOMOD_FormatingData(resp.var = myResp,
+  try({
+    tmp <- Sys.time()
+    bg.rf <- BIOMOD_FormatingData(resp.var = myResp,
                                   expl.var = Env_norm,
                                   resp.xy = myRespCoord,
                                   resp.name = myRespName,
@@ -183,18 +183,29 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
                                   PA.nb.absences = temp.number,
                                   PA.strategy = temp.strategy, 
                                 PA.dist.min = temp.min.dist)
-  temp.time <- Sys.time() - tmp
+    temp.time <- Sys.time() - tmp
+  }, silent=TRUE)
   
-  if(temp.runs==1){
-    bg.rf <- cbind(bg.rf@data.species, bg.rf@coord, bg.rf@data.env.var)
-    bg.rf$SpeciesID <- myRespName
+  if(!exists("bg.rf")){ #if bg.rf fails, take bg.glm
+    print(paste0("No pseudoabsence creation for ", temp.strategy, " n=", temp.number, " ", spID, "."))
+    temp.runs <- 1
+    bg.rf <- bg.glm
+    temp.strategy <- model.settings[model.settings$model=="GLM.GAM", "strategy"]
+    temp.number <- model.settings[model.settings$model=="GLM.GAM", "No.points"]
+    temp.time <- model.settings[model.settings$model=="GLM.GAM", "run.time"]
+
   }else{
-    bg.rf <- cbind(bg.rf@PA, bg.rf@coord, bg.rf@data.env.var)
-    bg.rf$SpeciesID <- myRespName
+    if(temp.runs==1){
+      bg.rf <- cbind(bg.rf@data.species, bg.rf@coord, bg.rf@data.env.var)
+      bg.rf$SpeciesID <- myRespName
+    }else{
+      bg.rf <- cbind(bg.rf@PA, bg.rf@coord, bg.rf@data.env.var)
+      bg.rf$SpeciesID <- myRespName
+    }
   }
   
   # add model settings into summary table
-  temp.dat <- data.frame(SpeciesID=myRespName, model="RF.BRT.CTA",strategy=temp.strategy, 
+  temp.dat <- data.frame(SpeciesID=myRespName, model="RF.BRT.CTA", strategy=temp.strategy, 
                          No.runs=temp.runs, No.points=temp.number, 
                          min.distance=NA, run.time=temp.time)
   model.settings <- rbind(model.settings, temp.dat)
@@ -250,5 +261,18 @@ foreach(myRespName = speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID, .e
           
 # at the end
 stopImplicitCluster()
+
+
+# check if data for all species are present
+check_files <- list.files(paste0(here::here(),"/results/", Taxon_name))
+check_files <- check_files [stringr::str_detect(check_files, "PA_Env_")]
+
+check_spID <- paste0("PA_Env_Crassiclitellata_", speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"], ".RData")
+setdiff(check_spID, check_files)
+setdiff(check_files, check_spID)
+
+check_files
+
+
           
           
