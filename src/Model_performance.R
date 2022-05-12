@@ -50,7 +50,7 @@ for(i in 1:length(sdm_names)){
   
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
-  if(temp.model=="biomod_pred") {
+  if(temp.model=="biomod") {
 
     myBiomodModelEval <- temp_sdm[["evaluation"]]
     
@@ -67,12 +67,12 @@ for(i in 1:length(sdm_names)){
     # doesn't work because there is no inout validation data... 
     # you may have to run biomod2 twice, one time with full env. space and one time with validation dataset...
     try({
-      precrec_obj <- precrec::auc(precrec::evalmod(scores = SDMs[["biomod_pred"]][[2]], 
+      precrec_obj <- precrec::auc(precrec::evalmod(scores = prediction$layer, 
                                                      labels = validation[,c("x","y","SpeciesID", "occ")]$occ))
       temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation[,c("x","y","SpeciesID", "occ")]$occ, 
-                                                               pos_scores = SDMs[["biomod_pred"]][[2]]))
+                                                               pos_scores = prediction$layer))
       
-      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction)
+      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction$layer)
         
       
       ## TSS and Kappa
@@ -130,63 +130,74 @@ for(i in 1:length(sdm_names)){
     # identify and load all relevant data files
     temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name), 
                              pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-    lapply(temp.files, load, .GlobalEnv)
     
-    # load prediction
-    prediction <- temp_sdm[["validation"]]
-    
-    # define validation
-    validation <- validation[,c("x","y","SpeciesID", "occ")] %>% mutate("site" = rownames(validation)) %>%
-      filter(site %in% names(prediction)) 
-    validation <- validation[match(names(prediction), validation$site),] %>% dplyr::select(occ)
-    
-    if(sum(validation$occ)==0) print(paste0("For model ", temp.model, ": There is no presence records in the validation data. Too few occurrence records."))
+    if(length(temp.files)>2){
+      validation_mean <- data.frame("x"=NA, "y"=NA, "occ"=NA)[0,]
+      for(l in 1:(length(temp.files)/2)){
+         temp.files.subset <- list.files(path = paste0("./results/",Taxon_name), 
+                                         pattern = paste0(modelName, l, "_[[:graph:]]*", spID), full.name = T)
+  
+         lapply(temp.files.subset, load, .GlobalEnv)
+         
+         validation$sites <- rownames(validation)
+         validation_mean <- rbind(validation_mean, validation[,c("x", "y", "occ", "sites", "SpeciesID")])
+      }
+       validation <- validation_mean %>% group_by(sites, SpeciesID) %>% 
+                        summarise(across(everything(), mean)) %>% as.data.frame()
+       rownames(validation) <- validation$sites
+       
+       
+       # load prediction
+       prediction_raw <- temp_sdm[["validation"]]
+       prediction <- as.numeric(prediction_raw$occ)
+       names(prediction) <- prediction_raw$sites
+ 
+     }else{
+       lapply(temp.files, load, .GlobalEnv)
 
-    # try loop (not stopping if error)
-    try({
-      ## ROC and PR
-      # calculate area under the ROC and PR curves
-      precrec_obj <- evalmod(scores = prediction, labels = validation[,"occ"])
-      #print(precrec_obj)
-      
-      # # plot the ROC and PR curves
-      # roc <- autoplot(precrec_obj, curvetype = "ROC")
-      # pr <- autoplot(precrec_obj, curvetype = "PR")
-      # 
-      ## PRG
-      # calculate the PRG curve
-      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction)
-      
-      # # calculate area under the PRG cure (AUC PRG)
-      # au_prg <- calc_auprg(prg_curve)
-      # #print(au_prg)
-      # 
-      # # plot the PRG curve
-      # prg <- plot_prg(prg_curve)
-      
-      # # plot all plots into one
-      # ggpubr::ggarrange(roc, pr, prg,
-      #                   labels=c("", "", "PRG", ""), nrow = 2, ncol=2) # second row
+       # load prediction
+       prediction <- temp_sdm[["validation"]]
+     }
     
-      #- - - - - - - - - - - - - - - - - - - 
-      # scale predictions between 0 and 1 
-      prediction <- scales::rescale(prediction, to = c(0,1))
-      
-      ## TSS and Kappa
-      roc.pred <- ROCR::prediction(as.numeric(prediction[names(prediction) %in% rownames(validation)]), validation[rownames(validation) %in% names(prediction),"occ"])
-      roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
-      
-      # calculate Sensitivity and Specificity
-      sen_spe <- opt.cut(roc.perf, roc.pred)
-      
-      # calculate TSS
-      temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
-      
-      # calculate Kappa
-      mod.object <- sdm::evaluates(x = validation[,"occ"], p = prediction)
-      temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
-      temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
     
+      # define validation
+      validation <- validation[,c("x","y","SpeciesID", "occ")] %>% mutate("site" = rownames(validation)) %>%
+        filter(site %in% names(prediction)) 
+      validation <- validation[match(names(prediction), validation$site),] %>% dplyr::select(occ)
+    
+      if(sum(validation$occ)==0) print(paste0("For model ", temp.model, ": There is no presence records in the validation data. Too few occurrence records."))
+
+      # try loop (not stopping if error)
+      try({
+        ## ROC and PR
+        # calculate area under the ROC and PR curves
+        precrec_obj <- evalmod(scores = prediction, labels = validation[,"occ"])      
+
+        ## PRG
+        # calculate the PRG curve
+        prg_curve <- prg::create_prg_curve(labels = validation[,"occ"], pos_scores = prediction)
+      
+        #- - - - - - - - - - - - - - - - - - - 
+        # scale predictions between 0 and 1 
+        prediction <- scales::rescale(prediction, to = c(0,1))
+      
+        ## TSS and Kappa
+        roc.pred <- ROCR::prediction(as.numeric(prediction[names(prediction) %in% rownames(validation)]), validation[rownames(validation) %in% names(prediction),"occ"])
+        roc.perf <- ROCR::performance(roc.pred, measure = "tpr", x.measure = "fpr")
+      
+        # calculate Sensitivity and Specificity
+        sen_spe <- opt.cut(roc.perf, roc.pred)
+      
+        # calculate TSS
+        temp.tss <- as.numeric(sen_spe [1,1] +  sen_spe[2,1] - 1 )
+      
+        # calculate Kappa
+        mod.object <- sdm::evaluates(x = validation[,"occ"], p = prediction)
+        temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
+        temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
+
+
+
     }, silent=T)
     
     # save in output data frame
@@ -214,5 +225,5 @@ mod_eval
 #- - - - - - - - - - - - - - - - - - - 
 ## Save ####
 
-write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
+write.csv(mod_eval, file=paste0(here::here(), "/results/", Taxon_name,"/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
 
