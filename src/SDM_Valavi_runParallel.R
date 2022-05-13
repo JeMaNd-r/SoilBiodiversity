@@ -1150,7 +1150,7 @@ temp_prediction <- do.call(rbind, lapply(xgb_pred_list, "[[", 5)) %>%
 xgb_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp)
 save(xgb_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_xgb_", spID, ".RData"))
 
-rm(xgb_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp)
+rm(xgb_list, xgb_pred_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp)
 
 })}
 stopImplicitCluster()
