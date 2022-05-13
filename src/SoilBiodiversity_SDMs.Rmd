@@ -213,9 +213,9 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 ## Quick visualization
 
 ```{r numberOcc}
-data.frame("No_species" = length(unique(speciesNames[speciesNames$NumCells_2km>0,"Species"])),
-           "No_speciesID" = length(unique(speciesNames[speciesNames$NumCells_2km>0,"SpeciesID"])))
-# >0: 155 (139 IDs), >=5: 81 (74 IDs), >=200: 18 (16 IDs); >=300: 15 (13 IDs)
+data.frame("No_species" = length(unique(speciesNames[speciesNames$NumCells_2km>=50,"Species"])),
+           "No_speciesID" = length(unique(speciesNames[speciesNames$NumCells_2km>=50,"SpeciesID"])))
+# >0: 155 (139 IDs), >=5: 81 (74 IDs), >=50: 21 (27 IDs), >=100: 27 (24 IDs), >=200: 18 (16 IDs); >=300: 15 (13 IDs)
 
 
 # plot some of the species' occurrences
@@ -926,8 +926,16 @@ Plot model evalutation
 
 ```{r plotModelPerformance}
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
-#best_model <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
-mod_eval %>% group_by(species) %>% top_n(1, tss+roc)
+
+pdf(paste0(here::here(), "/figures/Model_performance_tss-roc_perSpecies.pdf"))
+ggplot(mod_eval %>% filter(!is.na(species)), aes(x=tss, y=roc, color=model))+
+  geom_point()+
+  facet_wrap(vars(species))+
+  theme_bw()
+dev.off()
+ 
+best_mods <- mod_eval %>% group_by(species) %>% top_n(1, tss+roc)
+
 
 ```
 
