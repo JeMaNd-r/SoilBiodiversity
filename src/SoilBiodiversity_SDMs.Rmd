@@ -666,7 +666,7 @@ for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,]$SpeciesID)){ try({
     # read model performance evaluation table (for threshold MaxEnt & saving best model)
     mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
   
-    best_bg <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+    best_bg <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
     
     # identify and load all relevant data files
     temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name),
@@ -727,11 +727,11 @@ data.frame
 for(temp.sp in speciesNames$SpeciesID){ try({
   # name of the best model
   mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
-  temp.model <- mod_eval[mod_eval$tss==max(mod_eval$tss), "model"]
+  temp.model <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T), "model"]
   temp.model
   
   # information about modelling (running time, background data)
-  temp.details <- mod_eval[mod_eval$tss==max(mod_eval$tss), c("model", "tss", "time", "bg")]
+  temp.details <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T), c("model", "tss", "time", "bg")]
   temp.details
   
   # varImp of the best model
@@ -821,7 +821,7 @@ for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"])){try({
   # read model performance evaluation table (for threshold MaxEnt & saving best model)
   mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
 
-  best_bg <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+  best_bg <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
   
   temp_points <- occ_points %>% dplyr::select(x,y, sp) %>% 
     mutate("occ"=occ_points[,sp]) %>% filter(!is.na(occ))
@@ -920,5 +920,14 @@ source(file=paste0(here::here(),"Result_richness.R"))
 
 ```{r resultModelPerformance}
 source(file=paste0(here::here(),"Model_performance.R"))
+```
+
+Plot model evalutation
+
+```{r plotModelPerformance}
+mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
+#best_model <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+mod_eval %>% group_by(species) %>% top_n(1, tss+roc)
+
 ```
 

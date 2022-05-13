@@ -69,7 +69,7 @@ save(model_list, file=paste0(here::here(), "/results/_Maps/SDM_Predictions_", Ta
 if(is.na(max(mod_eval$tss))){
   best_model <- "ensm"
 }else{
-  best_model <- mod_eval[mod_eval$tss == max(mod_eval$tss, na.rm=T) & !is.na(mod_eval$model), "model"]}
+  best_model <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$model), "model"]}
 
 best_pred <- model_list[[best_model]]
 

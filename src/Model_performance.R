@@ -39,13 +39,11 @@ opt.cut <- function(perf, pred){
 sdm_names <- c("gm", "lm1", "lm_subset", "lasso", "ridge", "mars", "maxent", "maxnet", "brt", 
                "brt2", "xgb", "svm", "rf", "rf2", "rf_downsample", "biomod", "ensm")
 
-no.cores <- 10
-registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10],
-         .export = c(),
-         .packages = c("tidyverse", "precrec", "biomod2", "prg", "ggpubr", "ROCR", "sdm")) %dopar% { try({
 
-for(i in 1:length(sdm_names)){ 
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
+print(paste0("Speciees: ", spID))
+
+for(i in 1:length(sdm_names)){ try({ 
   temp.model <- sdm_names[i]
   number.models <- 1
  
@@ -53,7 +51,8 @@ for(i in 1:length(sdm_names)){
   print(temp.model)
 
   try(temp_sdm <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/temp_files/SDM_",temp.model,"_", spID, ".RData"))), silent=T)
-  
+  if(!exists("temp_sdm")) next   
+
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
   if(temp.model=="biomod") {
@@ -224,9 +223,9 @@ for(i in 1:length(sdm_names)){
   }
   
   rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh, temp_sdm)
-}
+})}
 
-mod_eval
+#mod_eval
 
 #- - - - - - - - - - - - - - - - - - - 
 ## Save ####
@@ -234,5 +233,36 @@ mod_eval
 write.csv(mod_eval, file=paste0(here::here(), "/results/", Taxon_name,"/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
 
 })}
-stopImplicitCluster()
+
+#- - - - - - - - - - - - - - - - - - - 
+## Combine all evaluation tables ####
+
+mod_eval <- data.frame(species = NA, # name of the species (more important for later)
+                       roc = NA, # AUC roc
+                       prg = NA, # AUC prg
+                       cor = NA, # correlation between predicted & true values
+                       tss = NA, # True Skills Statisti
+                       kappa = NA, # Cohen's kappa
+                       thres.maxTSS = NA, # Threshold (presence vs. absence) at max. TSS (max(se+sp))
+                       model = NA, # name of the SDM algorithm
+                       time_model = NA, # mean computational time for model training
+                       time_predict = NA, # mean computational time for prediction
+                       bg= NA, # background dataset used
+                       no.runs = NA, #how many background data runs to we have
+                       n_vali_presence = NA, # number of validation presence records
+                       n_vali_absence = NA) # number of validation absence records
+
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name))
+temp_files <- temp_files[stringr::str_detect(temp_files, "ModelEvaluation")]
+temp_files
+
+for(file in temp_files){
+  temp_eval <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/", file))
+  mod_eval <- rbind(mod_eval, temp_eval)
+}
+
+mod_eval
+
+write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name,".csv"), row.names = F)
+
 
