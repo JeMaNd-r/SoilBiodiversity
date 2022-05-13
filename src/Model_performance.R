@@ -39,6 +39,12 @@ opt.cut <- function(perf, pred){
 sdm_names <- c("gm", "lm1", "lm_subset", "lasso", "ridge", "mars", "maxent", "maxnet", "brt", 
                "brt2", "xgb", "svm", "rf", "rf2", "rf_downsample", "biomod", "ensm")
 
+no.cores <- 10
+registerDoParallel(no.cores)
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10],
+         .export = c(),
+         .packages = c("tidyverse", "precrec", "biomod2", "prg", "ggpubr", "ROCR", "sdm")) %dopar% { try({
+
 for(i in 1:length(sdm_names)){ 
   temp.model <- sdm_names[i]
   number.models <- 1
@@ -226,4 +232,7 @@ mod_eval
 ## Save ####
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/", Taxon_name,"/ModelEvaluation_", Taxon_name, "_", spID, ".csv"), row.names = F)
+
+})}
+stopImplicitCluster()
 

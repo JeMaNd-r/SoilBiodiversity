@@ -57,8 +57,8 @@ library(xgboost) # for XGBoost
 library(randomForest) # for RF
 library(e1071) # for SVM
 
-library(ROCR) # for Ensemble model
-library(scales) # for Ensemble model
+#library(ROCR) # for Ensemble model
+#library(scales) # for Ensemble model
 
 # for model performance:
 library(precrec)
@@ -66,7 +66,7 @@ library(ggplot2) # for plotting the curves
 # devtools::install_github("meeliskull/prg/R_package/prg")
 library(prg)
 library(ggpubr)
-library (ROCR)
+library(ROCR)
 library(sdm) # to calculate kappa
 
 ## different input data required and package quite newly released...:
