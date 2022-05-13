@@ -16,6 +16,9 @@
 # as dataframe
 #load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
+print(paste0("Species: ", spID))
+
 # read model performance evaluation table (for threshold MaxEnt & saving best model)
 mod_eval <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
 
@@ -48,7 +51,7 @@ plots <- lapply(c(1:length(modelNames)), function(m) {try({
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
-#png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".png"),width=3000, height=3000)
+png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".png"),width=3000, height=3000)
 do.call(grid.arrange, plots)
 dev.off()
 
@@ -75,6 +78,8 @@ best_pred <- model_list[[best_model]]
 
 # save best model prediction
 save(best_pred, file=paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", Taxon_name, "_", spID, ".RData"))
+
+})}
 
 ggplot(data=best_pred, aes(x=x, y=y, fill=layer))+
   geom_tile()+
