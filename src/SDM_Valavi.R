@@ -428,7 +428,7 @@ for(no.runs in 1:no.loop.runs){
   mars_pred_list[[no.runs]] <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, validation=temp_validation, prediction=temp_prediction, varImp=mars_varImp)
 
   print(paste0("Run no. ", no.runs, " of ", no.loop.runs ," is ready now."))
-  rm(temp_prediction, mars_varImp, mars_fit, temp_validation, temp_model_time, temp_predict_time)
+  rm(temp_prediction, mars_varImp, mars_fit, temp_validation, temp_model_time, temp_predict_time, mytrControl, mytuneGrid)
 }
 
 # merge all MARS predictions
@@ -453,7 +453,7 @@ temp_uncertainty <- do.call(rbind, lapply(mars_pred_list, "[[", 5)) %>%
 mars_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, uncertainty=temp_uncertainty)
 save(mars_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_mars_", spID, ".RData"))
 
-rm(mars_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp_varImp)
+rm(mars_list, mars_pred_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_uncertainty, temp_varImp)
 gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -613,7 +613,7 @@ temp_runs <- 1
 maxnet_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(maxnet_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxnet_", spID, ".RData"))
 
-rm(temp_env, maxnet, maxnet_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, presences, covariates)
+rm(temp_env, maxnet, maxent, maxent_param, maxnet_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, presences, covariates)
 gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -972,7 +972,7 @@ for(no.runs in 1:no.loop.runs){
   
   # NULL for xgb_fit (to save memory)
   xgb_pred_list[[no.runs]] <- list(temp_validation, modelName, temp_model_time, xgb_varImp, temp_prediction, temp_predict_time)
-  rm(temp_validation, temp_prediction, temp_model_time, temp_predict_time, xgb_varImp, xgb_fit)
+  rm(temp_validation, temp_prediction, temp_model_time, temp_predict_time, xgb_varImp, xgb_fit, mytuneGrid, mytrControl)
 }
 
 # merge all XGB predictions
@@ -1162,7 +1162,7 @@ temp_runs <- length(rf_downsample_pred_list)
 rf_downsample_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(rf_downsample_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf_downsample_", spID, ".RData"))
 
-rm(rf_downsample_pred_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(rf_downsample_pred_list, rf_downsample_list, modelName, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Model RF2 for ensemble modelling using consistent background data (bg.glm)
@@ -1302,7 +1302,7 @@ temp_runs <- length(svm_pred_list)
 svm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(svm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_svm_", spID, ".RData"))
 
-rm(svm_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
+rm(svm_list, svm_pred_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction)
 
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1472,7 +1472,8 @@ temp_runs <- 1
 biomod_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
 save(biomod_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_biomod_", spID, ".RData"))
 
-rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF)
+rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, 
+   myBiomodEM, myBiomodEnProj, myBiomodModelOut, myBiomodProj, myBiomodModelEval, myEnProjDF, myBiomodData, myBiomodOption, mymodels, myRespName)
 
 setwd(here::here())  
 
