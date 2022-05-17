@@ -927,15 +927,22 @@ Plot model evalutation
 ```{r plotModelPerformance}
 mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
 
-pdf(paste0(here::here(), "/figures/Model_performance_tss-roc_perSpecies.pdf"))
+# point plot with lables, tss over roc
+pdf(paste0(here::here(), "/figures/Model_performance_", Taxon_name, "_tss-roc_perSpecies.pdf"))
 ggplot(mod_eval %>% filter(!is.na(species)), aes(x=tss, y=roc, color=model))+
-  geom_point()+
+  geom_text(label=mod_eval[!is.na(mod_eval$species),"model"], nudge_x = 0, nudge_y = 0, check_overlap = F, cex=1)+
   facet_wrap(vars(species))+
+  xlim(0,1)+
   theme_bw()
 dev.off()
  
-best_mods <- mod_eval %>% group_by(species) %>% top_n(1, tss+roc)
-
+# boxplot, tss per algorithm
+pdf(paste0(here::here(), "/figures/Model_performance", Taxon_name, "_boxplot.pdf"))
+ggplot(mod_eval %>% filter(!is.na(species)), aes(x=tss, y=reorder(model, -tss, FUN=mean)))+
+  geom_boxplot()+
+  xlim(0,1)+
+  theme_bw()
+dev.off()
 
 ```
 

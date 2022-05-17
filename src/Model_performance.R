@@ -272,10 +272,12 @@ best_mods <- mod_eval %>% filter(!is.na(tss) & !is.na(roc)) %>% group_by(species
 best_mods$best <- 1
 best_mods
 
+# merge best_mods with mod_eval (add identified best model)
+#...
+
 print("Is there any species' best algorithm missing?")
 setdiff(unique(mod_eval$species), unique(best_mods$species))
 print("No? Then please continue. If yes, think about what to add to code to select exisiting prediction.")
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name,".csv"), row.names = F)
-
 
