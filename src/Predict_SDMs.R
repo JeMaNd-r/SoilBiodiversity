@@ -39,7 +39,8 @@ modelNames <- c("lm1", "lm_subset", "gm",
 
 plots <- lapply(c(1:length(modelNames)), function(m) {try({
   temp_pred <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/temp_files/SDM_", modelNames[m],"_", spID, ".RData")))[["prediction"]]
-  print(m)
+  #print(m)
+  if(exists("temp_pred")==T){
   ggplot(data=temp_pred, aes(x=x, y=y, fill=layer))+
       geom_tile()+
       ggtitle(modelNames[m])+
@@ -47,6 +48,8 @@ plots <- lapply(c(1:length(modelNames)), function(m) {try({
       theme_bw()+
       theme(axis.title = element_blank(), legend.title = element_blank(),
            legend.position = c(0.1,0.4))
+  }
+  rm(temp_pred)
 })})
 
 require(gridExtra)
