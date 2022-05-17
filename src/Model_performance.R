@@ -41,7 +41,7 @@ sdm_names <- c("gm", "lm1", "lm_subset", "lasso", "ridge", "mars", "maxent", "ma
 
 
 for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
-print(paste0("Speciees: ", spID))
+print(paste0("Species: ", spID))
 
 for(i in 1:length(sdm_names)){ try({ 
   temp.model <- sdm_names[i]
@@ -51,7 +51,7 @@ for(i in 1:length(sdm_names)){ try({
   print(temp.model)
 
   try(temp_sdm <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/temp_files/SDM_",temp.model,"_", spID, ".RData"))), silent=T)
-  if(!exists("temp_sdm")) next   
+  if(exists("temp_sdm")==T){  
 
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
@@ -77,7 +77,7 @@ for(i in 1:length(sdm_names)){ try({
       temp.prg <- prg::calc_auprg(prg::create_prg_curve(labels = validation[,c("x","y","SpeciesID", "occ")]$occ, 
                                                                pos_scores = prediction$layer))
       
-      prg_curve <- create_prg_curve(labels = validation[,"occ"], pos_scores = prediction$layer)
+      prg_curve <- prg::create_prg_curve(labels = validation[,"occ"], pos_scores = prediction$layer)
         
       
       ## TSS and Kappa
@@ -110,7 +110,7 @@ for(i in 1:length(sdm_names)){ try({
     try(mod_eval[i,]$kappa <- temp.kappa, silent=T)
     
     # threshold at max TSS (Note: biomod predicion not scaled, their range is 0-1000
-    try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval[2,2] / 1000, silent=T) 
+    #try(mod_eval[i,]$thres.maxTSS <-  myBiomodModelEval[2,2] / 1000, silent=T) 
     try(mod_eval[i,]$thres.maxTSS <-  temp.tresh, silent=T) # threshold at max(se+sp)
      
     mod_eval[i,]$model <- temp.model
@@ -124,8 +124,9 @@ for(i in 1:length(sdm_names)){ try({
     if(is.na(mod_eval[i,]$tss)==T) mod_eval[i,]$tss <- myBiomodModelEval[2,1]
     if(is.na(mod_eval[i,]$roc)==T) mod_eval[i,]$roc <- myBiomodModelEval[3,1]
     if(is.na(mod_eval[i,]$kappa)==T) mod_eval[i,]$kappa <- myBiomodModelEval[1,1]
-    
-    rm(prg, temp.model, modelName, precrec_obj)
+    if(is.na(mod_eval[i,]$thres.maxTSS)==T) mod_eval[i,]$thres.maxTSS <- myBiomodModelEval[2,2] / 1000    
+
+    rm(prg, temp.model, modelName, precrec_obj, temp_sdm, validation, temp.tss, temp.kappa, temp.tresh, myBiomodModelEval, prediction)
     
   }else{ # all except BIOMOD modeling
     
@@ -170,13 +171,13 @@ for(i in 1:length(sdm_names)){ try({
         filter(site %in% names(prediction)) 
       validation <- validation[match(names(prediction), validation$site),] %>% dplyr::select(occ)
     
-      if(sum(validation$occ)==0) print(paste0("For model ", temp.model, ": There is no presence records in the validation data. Too few occurrence records."))
+      if(sum(validation$occ, na.rm=T)==0) print(paste0("For model ", temp.model, ": There is no presence records in the validation data. Too few occurrence records."))
 
       # try loop (not stopping if error)
       try({
         ## ROC and PR
         # calculate area under the ROC and PR curves
-        precrec_obj <- evalmod(scores = prediction, labels = validation[,"occ"])      
+        precrec_obj <- precrec::evalmod(scores = prediction, labels = validation[,"occ"])      
 
         ## PRG
         # calculate the PRG curve
@@ -220,9 +221,11 @@ for(i in 1:length(sdm_names)){ try({
     mod_eval[i,]$no.runs <- temp_sdm[["runs"]]
     try(mod_eval[i,]$n_vali_presence <- sum(validation$occ), silent=T)
     try(mod_eval[i,]$n_vali_absence <- (length(validation$occ) - sum(validation$occ)), silent=T)
-  }
   
-  rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh, temp_sdm)
+    rm(temp.kappa, temp.tss, temp.tresh, sen_spe, temp.model, modelName, precrec_obj, temp_sdm, validation, temp.files, prediction)
+  }
+ } # end if exists loop
+
 })}
 
 #mod_eval
@@ -261,7 +264,15 @@ for(file in temp_files){
   mod_eval <- rbind(mod_eval, temp_eval)
 }
 
+mod_eval <- mod_eval[!is.na(mod_eval$species),] %>% unique()
 mod_eval
+
+# identify best performing model
+best_mods <- mod_eval %>% filter(!is.na(tss) & !is.na(roc)) %>% group_by(species) %>% slice_max(n=1, order_by=tss+roc)
+best_mods$best <- 1
+best_mods
+
+setdiff(unique(mod_eval$species), unique(best_mods$species))
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name,".csv"), row.names = F)
 
