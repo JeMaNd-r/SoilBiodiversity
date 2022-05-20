@@ -55,13 +55,16 @@ write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxo
 
 
 ## Plotting ####
+cover_df <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"))
 cover_df$IUCNcat <- factor(cover_df$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported"))
 
 # bar chart of percent area covered by PA per species
 pdf(paste0(here::here(), "/figures/ProtectionStatus_", Taxon_name, ".pdf"))
 ggplot(data=cover_df, aes(x=IUCNcat, y=coverage_km2, group=SpeciesID, fill=IUCNcat))+
 	geom_bar(stat="identity")+
-	facet_wrap(vars(SpeciesID))
+	facet_wrap(vars(SpeciesID))+ 
+	theme_bw()+
+	theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=0))
 dev.off()
 
 
