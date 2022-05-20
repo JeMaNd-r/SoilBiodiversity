@@ -58,6 +58,26 @@ recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
   mutate("datasource"="SoilReCon")
 
 # - - - - - - - - - - - - - - - - - - -
+## Data from Jérome Matthieu (Jema) ####
+
+jema <-  read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
+jema$Species <- jema$species_name
+
+# rename "A. caliginosa trapezoides"
+jema[jema$Species=="A. caliginosa trapezoides","Species"] <- "Aporrectodea caliginosa"
+
+# make upper letter
+jema$Species <- stringr::str_to_sentence(jema$Species)
+
+# keep only species, not subspecies
+jema$Species <- word(jema$Species, 1, 2)
+
+jema$lat <- as.double(stringr::str_replace(jema$lat, ",", "."))
+jema$lon <- as.double(stringr::str_replace(jema$lon, ",", "."))
+
+jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon, datasource)
+
+# - - - - - - - - - - - - - - - - - - -
 ## Merge all together ####
 
 data <- dplyr::full_join(sworm, gbif, 
@@ -78,19 +98,25 @@ data <- data %>% dplyr::full_join(recon,
                               "Longitude_decimal_degrees"="POINT_X",
                               "datasource"))
 
+data <- data %>% dplyr::full_join(jema, 
+                         by=c("SpeciesBinomial"="Species", 
+                              "Latitude_decimal_degrees"="lat", 
+                              "Longitude_decimal_degrees"="lon",
+                              "datasource"))
+
 data <- tibble::tibble(species=data$SpeciesBinomial, 
                        latitude=data$Latitude_decimal_degrees, 
                        longitude=data$Longitude_decimal_degrees, 
                        datasource=data$datasource)
 
-data #nrow = 89675+
-data <- data[complete.cases(data$longitude, data$latitude),] #nrow=88897+
+data #nrow = 117,965
+data <- data[complete.cases(data$longitude, data$latitude),] #nrow=117,187
 
 data$OBJECTID <- 1:nrow(data) 
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
-write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon.csv"),
+write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
           row.names = F)
 
 # - - - - - - - - - - - - - - - - - - -
@@ -101,7 +127,7 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
-sum(flags$.summary) #those not flagged! = 86181 out of 88897
+sum(flags$.summary) #those not flagged! = 113687 out of 117,187
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]
@@ -109,6 +135,7 @@ dat_cl <- dat_cl[flags$.summary, ]
 ## Plot flagged records
 world.inp <- map_data("world")
 
+pdf(paste0(here::here(), "/figures/CoordinateCleaner_flagged_records_Crassiclitellata.pdf"), width=20)
 ggplot() + 
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") + 
   xlim(min(data$longitude, na.rm = T), max(data$longitude, na.rm = T)) + 
@@ -119,6 +146,7 @@ ggplot() +
   scale_color_manual(name='CoordinateCleaner',
                      values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+ 
   theme_bw() + theme(axis.title = element_blank())
+dev.off()
 
 # - - - - - - - - - - - - - - - - - - -
 ## Some structuring ####
@@ -127,8 +155,7 @@ dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")],
                             by=c("species" = "Species"))
 
 # create x and y column
-dat_cl$x <- dat_cl$longitude
-dat_cl$y <- dat_cl$latitude
+dat_cl <- dat_cl %>% rename("x"=longitude, "y"=latitude)
 
 # remove NA in coordinates
 dat_cl <- dat_cl[complete.cases(dat_cl$x),]
