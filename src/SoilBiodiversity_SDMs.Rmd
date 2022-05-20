@@ -506,12 +506,15 @@ Second, raw occurrences after we downloaded and cleaned them.
 
 ```{r plotOccRaw}
 # load background map
-#...
+world.inp <- map_data("world")
 
 # plot total species' occurrences
 plotOccRaw <- ggplot(occ_clean, 
        aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(min(extent_Europe[1], na.rm = T), 40) +
+  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
   geom_point(cex=0.3)+
   scale_x_continuous(limits=c(-20, 60))+ 
   scale_y_continuous(limits=c(30,75))+
