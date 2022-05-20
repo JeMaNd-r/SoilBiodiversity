@@ -12,21 +12,26 @@ library(rgbif)
 
 ## Load data
 # read classification of Bottinelli
-Bottinelli <- read.csv(file="Bottinelli_2020_Earthworm_classification.csv")
+Bottinelli <- read.csv(file=paste0(here::here(), "/doc/Bottinelli_2020_Earthworm_classification.csv"))
 
 # read earthworm species list
-#ew_list <- read.csv(file="../doc/Species_list_Crassiclitellata.csv")
+#ew_list <- read.csv(file=paste0(here::here(), "/doc/Species_list_Crassiclitellata.csv"))
 
 # read raw GBIF data
-load(file=paste0("../results/RawOccurrences_Crassiclitellata.RData")) #dat
+load(file=paste0(here::here(),"/results/RawOccurrences_Crassiclitellata.RData")) #dat
 GBIF <- dat$data; rm(dat)
 
 # read earthworm file from Phillips et a. 2019
-Phillips <- read.csv(file="../data/SppOccData_sWorm_v2.csv")
+Phillips <- read.csv(file=paste0(here::here(),"/data/SppOccData_sWorm_v2.csv"))
 
 # read Edaphobase data
-Edapho <- read.csv(file="../data/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv")
+Edapho <- read.csv(file=paste0(here::here(),"/data/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv"))
 
+# read data from SoilReCon project (Portugal)
+recon <- read.csv(file=paste0(here::here(), "/data/SoilReCon_earthworms_clean.csv"))
+
+# read data from Jérome Matthieu
+jema <- read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Empty earthworm list ####
@@ -77,6 +82,37 @@ ew_list <- dplyr::full_join(ew_list, Edapho %>% filter(!Species %in% ew_list$Spe
 ew_list
 
 #- - - - - - - - - - - - - - - - - - - - -
+## Add species from SoilReCon ####
+recon <- recon[recon$Species!="Octolasion sp." & !is.na(recon$Species),]
+
+recon$Species <- stringr::str_to_sentence(recon$Species)
+recon$Species <- word(recon$Species, 1, 2)
+unique(recon$Species)
+
+ew_list <- dplyr::full_join(ew_list, recon %>% dplyr::select(Species), by="Species") %>% unique()
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Add species from JEMA data ####
+jema
+str(jema)
+
+jema$Species <- jema$species_name
+
+unique(jema$Species)
+
+# rename "A. caliginosa trapezoides"
+jema[jema$Species=="A. caliginosa trapezoides","Species"] <- "Aporrectodea caliginosa"
+
+# make upper letter
+jema$Species <- stringr::str_to_sentence(jema$Species)
+
+# keep only species, not subspecies
+jema$Species <- word(jema$Species, 1, 2)
+
+# remove species with sp or spp
+
+
+#- - - - - - - - - - - - - - - - - - - - -
 ## Define SpeciesID while accounting for synonyms ####
 
 # delete species with Identifier name as species name (e.g., Lumbricus Linneous)
@@ -111,17 +147,35 @@ ew_list <- ew_list %>% full_join(temp[,c("user_supplied_name", "matched_name2")]
 # ew_list <- ew_list %>% full_join(taxas %>% mutate("tax_name" = species) %>% dplyr::select(query, tax_name), 
 #                                  by = c("Species" = "query"))
 
-# - - - - - - - - - - - - - - - - - -
-## Add missing species ID ####
-ew_list$SpeciesID <- paste0(substr(word(ew_list$Acc_name, 1), 1, 5), "_", 
-                            substr(word(ew_list$Acc_name, 2), 1, 4))
-# replace "..._NA" with speciesID created by original species name
-for(i in 1:nrow(ew_list)){
-  if(stringr::str_detect(ew_list[i,]$SpeciesID, "_[:upper:]")) ew_list[i,]$SpeciesID <- paste0(substr(word(ew_list[i,]$Species, 1), 1, 5), "_", 
-                                                                         substr(word(ew_list[i,]$Species, 2), 1, 4))
-}
+#- - - - - - - - - - - - - - - - - - - - -
+## Add taxonomic proof from expert MB
+Briones <- read.csv(paste0(here::here(), "/doc/Species_list_Crassiclitellata_Europe_MariaBriones.csv"))
 
-length(unique(ew_list$SpeciesID))
+# replace empty cells with NA
+Briones[Briones$Correct.name == "", "Correct.name"] <- NA
+Briones[Briones$MJI.Briones == "", "MJI.Briones"] <- NA
+
+ew_list <- ew_list %>% full_join(Briones %>% 
+                                   dplyr::select(Species, Correct.name, MJI.Briones) %>%
+                                   rename("Ecogroup_Briones" = MJI.Briones, 
+                                          "Species_Briones" = Correct.name))
+
+# - - - - - - - - - - - - - - - - - -
+## Add species name: Briones > Acc_name > Species ####
+# create new column
+ew_list$Species_final <- ew_list$Species_Briones
+ew_list[is.na(ew_list$Species_final),"Species_final"] <- ew_list[is.na(ew_list$Species_final),"Acc_name"]
+ew_list[is.na(ew_list$Species_final),"Species_final"] <- ew_list[is.na(ew_list$Species_final),"Species"]
+
+unique(ew_list$Species_final)
+
+# create genus column
+ew_list$Genus <- stringr::word(ew_list$Species_final, 1, 1)
+
+# add SpeciesID based on final species names
+ew_list$SpeciesID <- paste0(substr(word(ew_list$Species_final, 1), 1, 5), "_", 
+                            substr(word(ew_list$Species_final, 2), 1, 4))
+
 
 # - - - - - - - - - - - - - - - - - -
 ## Add Bottinelli to species list ####
@@ -199,20 +253,7 @@ for(i in unique(Bottinelli$SpeciesID)){
 ew_data
 
 ## Add ecological groups to ew_list
-ew_list <- dplyr::left_join(ew_list, ew_data)
-
-#- - - - - - - - - - - - - - - - - - - - -
-## Add taxonomic proof from expert MB
-Briones <- read.csv("../doc/Species_list_Crassiclitellata_Europe_MariaBriones.csv")
-
-# replace empty cells with NA
-Briones[Briones$Correct.name == "", "Correct.name"] <- NA
-Briones[Briones$MJI.Briones == "", "MJI.Briones"] <- NA
-
-ew_list <- ew_list %>% full_join(Briones %>% 
-                        dplyr::select(Species, Correct.name, MJI.Briones) %>%
-                        rename("Ecogroup_Briones" = MJI.Briones, 
-                               "Species_Briones" = Correct.name))
+ew_list <- dplyr::left_join(ew_list, ew_data, by="SpeciesID")
 
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -234,22 +275,9 @@ for(i in 1:nrow(ew_list)){
 }
 
 #- - - - - - - - - - - - - - - - - - - - -
-## Correct species ID based on Briones ####
-
-ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & 
-          !is.na(ew_list$Species_Briones),
-        "SpeciesID"] <- paste0(substr(word(ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & !is.na(ew_list$Species_Briones),]$Species_Briones, 1), 1, 5), "_", 
-                            substr(word(ew_list[stringr::str_detect(ew_list$Species_Briones, "\\?")==F & !is.na(ew_list$Species_Briones),]$Species_Briones, 2), 1, 4))
-# replace "..._NA" with speciesID created by original species name
-for(i in 1:nrow(ew_list)){
-  if(stringr::str_detect(ew_list[i,]$SpeciesID, "_[:upper:]")) ew_list[i,]$SpeciesID <- paste0(substr(word(ew_list[i,]$Species, 1), 1, 5), "_", 
-                                                                                               substr(word(ew_list[i,]$Species, 2), 1, 4))
-}
-
-#- - - - - - - - - - - - - - - - - - - - -
 ## Add family if missing ####
 
-phylogeny <- taxize::classification(ew_list$Acc_name, db="itis", rows=NA) #rows=NA means all rows
+phylogeny <- taxize::classification(unique(ew_list$Genus), db="itis", rows=NA) #rows=NA means all rows
 phylogeny_list <- lapply(1:length(phylogeny), function(x) {
   if(!is.na(phylogeny[[x]])) pivot_wider(phylogeny[[x]] %>% dplyr::select(-id),names_from = rank, values_from=name)})
 phylogeny_df <- bind_rows(phylogeny_list)
@@ -276,13 +304,14 @@ ew_list$Group_name <- "Earthworms"
 ew_list <- ew_list[order(ew_list$Acc_name),]
 ew_list
 
-write.csv(ew_list, file="../data/Species_list_Crassiclitellata.csv", row.names = F)
+write.csv(ew_list, file=paste0(here::here(), "/data/Species_list_Crassiclitellata.csv"), row.names = F)
 
 # BY HAND:
 # add remaining (missing) classification based on already present genus, or with internet.
 # remove duplicates
 # add wrong speciesID (Leptogaster in Lennogaster)
 # make Firzingeria depressa classification to Firzingeria (not otehr genus)
+# replace SpeciesID and Species_Biones "Esienia" with "Eisenia"
 # result: 351 unique species names ...
 
 
