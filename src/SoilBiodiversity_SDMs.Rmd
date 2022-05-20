@@ -938,7 +938,7 @@ dev.off()
  
 # boxplot, tss per algorithm
 pdf(paste0(here::here(), "/figures/Model_performance", Taxon_name, "_boxplot.pdf"))
-ggplot(mod_eval %>% filter(!is.na(species)), aes(x=tss, y=reorder(model, -tss, FUN=mean)))+
+ggplot(mod_eval %>% filter(!is.na(species)), aes(x=tss, y=model))+
   geom_boxplot()+
   xlim(0,1)+
   theme_bw()

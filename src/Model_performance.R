@@ -162,11 +162,10 @@ for(i in 1:length(sdm_names)){ try({
         temp.kappa <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "Kappa"] #kappa at max(se+sp)
         temp.tresh <- mod.object@threshold_based[mod.object@threshold_based$criteria=="max(se+sp)", "threshold"] #threshold max(se+sp)
 
-
-
     }, silent=T)
     
     # save in output data frame
+    mod_eval[i,]$species <- spID
     try(mod_eval[i,]$roc <- precrec::auc(precrec_obj)[1,4], silent=T)
     try(mod_eval[i,]$prg <- prg::calc_auprg(prg_curve), silent=T)
     try(mod_eval[i,]$cor <- cor(prediction,  validation[,"occ"]), silent=T)
@@ -212,19 +211,41 @@ for(file in temp_files){
 }
 
 mod_eval <- mod_eval[!is.na(mod_eval$species),] %>% unique()
-mod_eval
+str(mod_eval)
 
 # identify best performing model
 best_mods <- mod_eval %>% filter(!is.na(tss) & !is.na(roc)) %>% group_by(species) %>% slice_max(n=1, order_by=tss+roc)
-best_mods$best <- 1
-best_mods
 
-# merge best_mods with mod_eval (add identified best model)
-#...
-
+# is there any species missing?
 print("Is there any species' best algorithm missing?")
 setdiff(unique(mod_eval$species), unique(best_mods$species))
 print("No? Then please continue. If yes, think about what to add to code to select exisiting prediction.")
+
+# add missing species: take ensm as best model
+for(spID in c(setdiff(unique(mod_eval$species), unique(best_mods$species)))){
+   best_mods <- rbind(best_mods, mod_eval[mod_eval$species==spID & mod_eval$model=="ensm" & !is.na(mod_eval$model),])
+}
+
+print("Which species is still missing?")
+setdiff(unique(mod_eval$species), unique(best_mods$species))
+
+# add missing species if ensm failed
+for(spID in c(setdiff(unique(mod_eval$species), unique(best_mods$species)))){
+   best_model <- sample(mod_eval[mod_eval$species==spID & 
+                        !is.na(mod_eval$roc) &
+                        mod_eval$roc==max(mod_eval[mod_eval$species==spID,"roc"], na.rm=T) & 
+                        !is.na(mod_eval$model),"model"],1)
+   best_mods <- rbind(best_mods, mod_eval[mod_eval$species==spID & mod_eval$model==best_model & !is.na(mod_eval$model),])
+}
+
+best_mods$best <- 1
+best_mods
+
+print("Now everything should be fine. Or?")
+setdiff(unique(mod_eval$species), unique(best_mods$species))
+
+# merge best_mods with mod_eval (add identified best model)
+mod_eval <- mod_eval %>% full_join(best_mods[,c("species","model", "best")], by=c("model", "species"))
 
 write.csv(mod_eval, file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name,".csv"), row.names = F)
 
