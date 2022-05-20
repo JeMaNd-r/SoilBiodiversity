@@ -87,3 +87,4 @@ data/Shapefiles/
 *.RData
 
 /results/ModelEvaluation_*
+results/EnvPredictor_2km_df_normalized.csv
