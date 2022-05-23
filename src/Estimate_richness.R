@@ -102,7 +102,7 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
-})})
+
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_", Taxon_name, ".pdf"))
