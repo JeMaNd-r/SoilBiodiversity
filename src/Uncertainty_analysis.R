@@ -77,3 +77,26 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ tr
 
 head(species_stack)
 
+#- - - - - - - - - - - - - - - - - - - - - -
+## Calculate mean uncertainty ####
+species_stack$SD_mean <- rowMeans(species_stack %>% dplyr::select(-x, -y), na.rm=T)
+
+# save
+save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_uncertainty_", Taxon_name, ".RData"))
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Plotting ####
+# mean uncertainty
+png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"),width=1000, height=1000)
+ggplot(data=species_stack, aes(x=x, y=y, fill=SD_mean))+
+  geom_tile()+
+  ggtitle("Mean standard deviation between species-spcific algorithms")+
+  scale_fill_viridis_c(option="magma")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+dev.off()
+
+while (!is.null(dev.list()))  dev.off()
+
+
