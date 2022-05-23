@@ -5,9 +5,6 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-setwd("D:/_students/Romy/SoilBiodiversity")
-
-
 options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx8g")) # expand Java memory
 gc()
 library(tidyverse)
@@ -66,6 +63,8 @@ library(prg)
 library(ggpubr)
 library (ROCR)
 library(sdm) # to calculate kappa
+library(parallel)
+library(doParallel)
 
 ## different input data required and package quite newly released...:
 #remotes::install_github("peterbat1/fitMaxnet")
@@ -75,23 +74,23 @@ library(sdm) # to calculate kappa
 library(GGally) #for correlations with ggpairs
 library(gridExtra)
 
-write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+#write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 
 # change temporary directory for files
-raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+#raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
-speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
+speciesNames <- read.csv(file=paste0("Species_list_", Taxon_name, ".csv"))
 
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors.csv")))
+corMatPearson <- as.matrix(read.csv(file=paste0("corMatPearson_predictors.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 # based on Valavi et al. 2021: Pearson 0.8
 env_exclude <- caret::findCorrelation(corMatPearson, cutoff = 0.8, names=TRUE)
 covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% env_exclude)]
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 # exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors.csv"))
+env_vif <- read.csv(file=paste0("VIF_predictors.csv"))
 env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
 # excluded:
@@ -106,24 +105,25 @@ covarsNames
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
+Env_norm <- raster::stack(paste0("EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+load(paste0("EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 
 # Calculate the number of cores
-no.cores <- 3 #more is not possible with the memory limit
+no.cores <-  parallel::detectCores()/2 
+#more than 3 is not possible with the memory limit
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
 #- - - - - - - - - - - - - - - - - - - - -
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse", "mgcv", "biomod2", "caret", "gam")) %dopar% { try({
 
@@ -202,7 +202,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse", "mgcv", "biomod2", "caret", "gam")) %dopar% { try({
 
@@ -331,7 +331,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse", "mgcv", "biomod2", "caret", "gam", "glmnet", "myspatial")) %dopar% { try({
 
@@ -378,8 +378,8 @@ wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 # alpha of 0 leads to ridge regression and 1 to lasso and anything in between 
 # is a combination of both called elastic-net.
 
-# The lambda parameter controls regularization – it is the penalty applied 
-# to the model’s coefficients. To select the best lambda, internal cross-
+# The lambda parameter controls regularization ? it is the penalty applied 
+# to the model?s coefficients. To select the best lambda, internal cross-
 # validation was used (in cv.glmnet function).
 tmp <- Sys.time()
 set.seed(32639)
@@ -472,7 +472,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2", "caret", "earth", "doParallel")) %dopar% { try({
 
@@ -592,7 +592,7 @@ gc()
 stopImplicitCluster()
 
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10]){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## MaxEnt and MaxNet ####
@@ -758,7 +758,7 @@ gc()
 rm(training, validation)
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse", "biomod2", "caret", "dismo")) %dopar% { try({
 
@@ -1028,11 +1028,10 @@ rm(brt2, brt2_list, modelName, temp_model_time, temp_predict_time, temp_runs, te
 stopImplicitCluster()
 
 
-registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
-         .export = c("Env_norm", "Env_norm_df", "form"),
-         .packages = c("tidyverse","biomod2", "caret", "xgboost", "doParallel")) %dopar% { try({
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)) { try({
 
+  print(paste0("Species ", spID, ", model building for XGBoost."))
+  
 #- - - - - - - - - - - - - - - - - - - - -
 ## XGBoost ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1080,7 +1079,7 @@ for(no.runs in 1:no.loop.runs){
   )
 
   
-  cluster <- makeCluster(2) # you can use all cores of your machine instead e.g. 8
+  cluster <- makeCluster(no.cores) # you can use all cores of your machine instead e.g. 8
   registerDoParallel(cluster)
   set.seed(32639)
   
@@ -1157,7 +1156,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2", "caret", "randomForest")) %dopar% { try({
 
@@ -1383,7 +1382,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2", "caret", "e1071")) %dopar% { try({
 
@@ -1481,7 +1480,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2", "caret", "earth")) %dopar% { try({
 
@@ -1661,7 +1660,7 @@ stopImplicitCluster()
 
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10], 
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2", "caret", "earth", "doParallel")) %dopar% { try({
 
@@ -1673,42 +1672,44 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1
 
 modelName <- "bg.glm"
 
-# scale the predictions between 0 and 1
-gm_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_gm_", spID, ".RData")))
-gm <- scales::rescale(gm_list[["validation"]], to = c(0,1))
-lasso_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_lasso_", spID, ".RData")))
-lasso <- scales::rescale(lasso_list[["validation"]], to = c(0,1))
-brt2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_brt2_", spID, ".RData")))
-brt2 <- scales::rescale(brt2_list[["validation"]], to = c(0,1))
-rf2_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_rf2_", spID, ".RData")))
-rf2 <- scales::rescale(rf2_list[["validation"]], to = c(0,1))
-maxent_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_maxent_", spID, ".RData")))
-maxent <- scales::rescale(maxent_list[["validation"]], to = c(0,1))
+temp_validation <- c()
+temp_prediction <- data.frame("layer"=NA, "x"=NA, "y"=NA)[0,]
+temp_model_time <- c()
+temp_predict_time <- c()
+temp_models <- c()
+
+for(m in c("gm", "lasso", "brt2", "rf2", "maxent")){ try({
+  # load and scale validation data
+  temp_list <- get(load(file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_",m, "_", spID, ".RData")))
+  temp_vali <- scales::rescale(temp_list[["validation"]], to = c(0,1))
+
+  temp_validation <- cbind(temp_validation, temp_vali)
+  
+  # sum up computational time
+  temp_model_time <- paste0(temp_model_time, temp_list[["time_model"]], " + ") 
+  temp_predict_time <- paste0(temp_predict_time, temp_list[["time_model"]], " + ") 
+
+  # average predictions
+  temp_pred <- temp_list[["prediction"]]
+  temp_pred[,m] <- temp_pred$layer
+  temp_prediction <- temp_prediction %>% full_join(temp_pred, by=c("x", "y"))
+    
+  temp_models <- c(temp_models, m)
+  
+}, silent=T)}
 
 # average the predictions
-temp_validation <- rowMeans(cbind(gm, lasso, maxent, brt2, rf2), na.rm=T) 
-
-# sum up computational time
-temp_model_time <- paste0(gm_list[["time_model"]], " + ", lasso_list[["time_model"]], " + ", maxent_list[["time_model"]], " + ", 
-                    brt2_list[["time_model"]], " + ", rf2_list[["time_model"]]) 
-temp_predict_time <- paste0(gm_list[["time_predict"]], " + ", lasso_list[["time_predict"]], " + ", maxent_list[["time_predict"]], " + ", 
-                    brt2_list[["time_predict"]], " + ", rf2_list[["time_predict"]]) 
+temp_validation <- rowMeans(temp_validation, na.rm=T) 
 
 temp_runs <- 1
 
-# average predictions
-temp_prediction <- gm_list[["prediction"]] %>% rename("gm"=layer) %>% 
-  full_join(maxent_list[["prediction"]] %>% rename("maxent"=layer), by=c("x", "y")) %>%
-  full_join(lasso_list[["prediction"]] %>% rename("lasso"=layer), by=c("x", "y")) %>%
-  full_join(brt2_list[["prediction"]] %>% rename("brt2"=layer), by=c("x", "y")) %>%
-  full_join(rf2_list[["prediction"]] %>% rename("rf2"=layer), by=c("x", "y"))
 temp_prediction <- temp_prediction %>% mutate("layer"=rowMeans(temp_prediction %>% dplyr::select(-x, -y), na.rm=T)) %>%
   dplyr::select(x, y, layer)
 
 ensm_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction)
 save(ensm_list, file=paste0(here::here(),"/results/", Taxon_name, "/temp_files/SDM_ensm_", spID, ".RData"))
 
-rm(gm_list, lasso_list, maxent_list, brt2_list, rf2_list, ensm_list, temp_prediction, temp_model_time, temp_predict_time, temp_runs, temp_validation)
+rm(temp_list, ensm_list, temp_prediction, temp_pred, temp_vali, temp_model_time, temp_predict_time, temp_runs, temp_validation)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Check if everything went well ####
@@ -1717,7 +1718,7 @@ rm(gm_list, lasso_list, maxent_list, brt2_list, rf2_list, ensm_list, temp_predic
 stopImplicitCluster()
 
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)[1:10]){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
 
 check_files <- list.files(paste0(here::here(),"/results/", Taxon_name, "/temp_files"))
 check_files <- check_files[stringr::str_detect(check_files, spID)]
