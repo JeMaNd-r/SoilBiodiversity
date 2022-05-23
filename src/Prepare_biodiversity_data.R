@@ -155,7 +155,7 @@ dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")],
                             by=c("species" = "Species"))
 
 # create x and y column
-dat_cl <- dat_cl %>% rename("x"=longitude, "y"=latitude)
+dat_cl <- dat_cl %>% mutate("x"=longitude, "y"=latitude)
 
 # remove NA in coordinates
 dat_cl <- dat_cl[complete.cases(dat_cl$x),]
