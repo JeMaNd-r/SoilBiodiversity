@@ -312,6 +312,7 @@ write.csv(ew_list, file=paste0(here::here(), "/data/Species_list_Crassiclitellat
 # add wrong speciesID (Leptogaster in Lennogaster)
 # make Firzingeria depressa classification to Firzingeria (not otehr genus)
 # replace SpeciesID and Species_Biones "Esienia" with "Eisenia"
+# remove rows with name = sp.
 # result: 351 unique species names ...
 
 
