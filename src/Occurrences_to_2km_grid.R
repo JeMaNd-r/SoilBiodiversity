@@ -26,7 +26,7 @@ for(sp in unique(speciesNames$SpeciesID)){
   try({
   
   # load occurrences for specific species
-  temp_occ <- occ[occ$SpeciesID==sp, c("x", "y", "occ", "SpeciesID")]
+  temp_occ <- occ[occ$SpeciesID==sp & !is.na(occ$SpeciesID), c("x", "y", "occ", "SpeciesID")]
   
   ## save number of records for later ####
   speciesNames[speciesNames$SpeciesID==sp,]$Records <- nrow(temp_occ)
@@ -78,7 +78,8 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
   temp_records <- nrow(occ_points) - as.numeric(summary(occ_points[,sp])["NA's"])
   speciesNames[speciesNames$SpeciesID==sp,"NumCells_2km"] <- temp_records
   temp_records <- 0
-})}
+}, silent=T)}
+print("Error messages are fine. They relate to species without records.")
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## Save ####
@@ -88,8 +89,13 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 # save point data frame
 write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"), row.names=F)
 
+occ_points %>% pivot_longer(cols=(colnames(occ_points %>% dplyr::select(-x, -y)))) %>% filter(!is.na(value))
+# 20,500 records in total
+
 # # save individual species as own files
 # raster::writeRaster(occ_stack, filename=names(occ_stack), bylayer=TRUE, format="GTiff")
 
 write.csv(speciesNames, file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"), row.names = F)
+
+
 
