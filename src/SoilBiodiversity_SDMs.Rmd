@@ -47,9 +47,9 @@ library(doParallel) # for MARS and XGBoost and to run spID in parallel
 library(dismo) # for MaxEnt and BRT
 # download maxent.jar 3.3.3k, and place the file in the
 # desired folder
-utils::download.file(url = "https://raw.githubusercontent.com/mrmaxent/Maxent/master/ArchivedReleases/3.3.3k/maxent.jar", 
-    destfile = paste0(system.file("java", package = "dismo"), 
-        "/maxent.jar"), mode = "wb")  ## wb for binary file, otherwise maxent.jar can not execute
+# utils::download.file(url = "https://raw.githubusercontent.com/mrmaxent/Maxent/master/ArchivedReleases/3.3.3k/maxent.jar", 
+#    destfile = paste0(system.file("java", package = "dismo"), 
+#         "/maxent.jar"), mode = "wb")  ## wb for binary file, otherwise maxent.jar can not execute
 
 library(maxnet) # for MaxNet
 
@@ -158,7 +158,7 @@ Let's check, how many unique species we have in the raw datasets (i.e., includin
 data.frame("No_species" = length(unique(speciesNames$Species)),
            "No_speciesID" = length(unique(speciesNames$SpeciesID)))
 ```
-Species=351, SpeciesID=335
+
 
 # Biodiversity data
 
@@ -213,10 +213,16 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 ## Quick visualization
 
 ```{r numberOcc}
-data.frame("No_species" = length(unique(speciesNames[speciesNames$NumCells_2km>=50,"Species"])),
-           "No_speciesID" = length(unique(speciesNames[speciesNames$NumCells_2km>=50,"SpeciesID"])))
-# >0: 155 (139 IDs), >=5: 81 (74 IDs), >=50: 21 (27 IDs), >=100: 27 (24 IDs), >=200: 18 (16 IDs); >=300: 15 (13 IDs)
+count_cuts <- c(0,1,5,10,15,20,50,100,200,300,500,1000)
+data <- data.frame("NumCells_2km" = count_cuts, "Num_species"=NA, "Num_speciesID"=NA)
+for(i in count_cuts){
+   data[data$NumCells_2km==i,"Num_species"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
+   data[data$NumCells_2km==i,"Num_speciesID"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
+}
+data
 
+ggplot(data, aes(x=as.factor(NumCells_2km), y=Num_speciesID))+
+	geom_bar(stat="identity")+ theme_bw()
 
 # plot some of the species' occurrences
 hist(speciesNames$NumCells_1km)
@@ -248,7 +254,7 @@ read.csv(file=paste0(here::here(), "/doc/Env_Predictors.csv")) %>%
 We may need to extract point-specific (climatic) values.
 
 ```{r extractPredictors, include=TRUE}
-source(file=paste0(here::here(),"Extract_predictor.R"))
+source(file=paste0(here::here(),"/src/Extract_predictor.R"))
 ```
 
 
@@ -273,7 +279,7 @@ We start with the creation of the preferred output dataframe.
 ```{r preparePredictors, echo=F}
 df.env <- tibble(GridID=1)[0,]
 
-source(file=paste0(here::here(),"Prepare_predictors.R"))
+source(file=paste0(here::here(),"/src/Prepare_predictors.R"))
 ```
 
 Now, we can add all variables we want to include in our models to this dataframe.
@@ -290,7 +296,7 @@ read.csv("Env_predictors_estimation.csv")
 
 
 ```{r colinearityPredictors}
-source(file=paste0(here::here(), "Colinearity_predictors.R"))
+source(file=paste0(here::here(), "/src/Colinearity_predictors.R"))
 ```
 
 
@@ -340,7 +346,7 @@ We create background data (pseudo-absences) for the different modeling approache
 * random selection of geographically and environmentally stratified pseudo-absences when using classification and machine-learning techniques
 
 ```{r backgroundData, echo=FALSE}
-source(file=paste0(here::here(),"Create_backgroundData.R"))
+source(file=paste0(here::here(),"/src/Create_backgroundData.R"))
 ```
 
 
@@ -362,7 +368,7 @@ If you get an error message here regarding the length (nrow) of the dataframes, 
 Split the dataset into training (60%), testing (20%) and validation (20%) data. In the same step, get the data into the right data format.
 
 ```{r prepareModelInput}
-source(file=paste0(here::here(),"Prepare_input.R"))
+source(file=paste0(here::here(),"/src/Prepare_input.R"))
 ```
 
 
@@ -472,7 +478,8 @@ count_data$RawOcc <- rowSums(count_data[,2:4], na.rm=T)
 count_data$CleanOcc <- rowSums(count_data[,5:7], na.rm=T)
 
 # add number of records after
-count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "SpeciesID", "NumCells_1km", "NumCells_2km")], by=c("species" = "Species")) %>%
+count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "Species_final", "SpeciesID", #"NumCells_1km", 
+									"NumCells_2km")], by=c("species" = "Species")) %>%
   filter(!is.na(SpeciesID))
 
 # replace NA with 0
@@ -480,7 +487,7 @@ count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "S
 
 # add info if species was analysed or not
 count_data$Included <- FALSE
-count_data[count_data$NumCells_1km >=5, "Included"] <- TRUE 
+count_data[count_data$NumCells_2km >=5, "Included"] <- TRUE 
 
 # sort by included or not, and have a look
 count_data <- count_data %>% arrange(desc(Included), species)
@@ -494,7 +501,7 @@ Add information of functional (ecological) groups, and visualize.
 
 ```{r numOccFG}
 count_data <- count_data %>% full_join(speciesNames %>%
-                                         dplyr::select(-NumCells, - Group_name), by=c("species" = "Species"))
+                                         dplyr::select(-NumCells_2km, -Group_name), by=c("species" = "Species", "Acc_name", "SpeciesID"))
 count_data
 
 ggplot(count_data %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup_Bottinelli))+
@@ -512,7 +519,7 @@ world.inp <- map_data("world")
 plotOccRaw <- ggplot(occ_clean, 
        aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)
-  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  #geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
   xlim(min(extent_Europe[1], na.rm = T), 40) +
   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
   geom_point(cex=0.3)+
@@ -522,9 +529,11 @@ plotOccRaw <- ggplot(occ_clean,
 
 plotOccRaw
 
-# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perDatasource.pdf")); plotOccRaw; dev.off()
+# pdf(paste0(here::here(), "/figures/CleanOccurrences_", Taxon_name, "_perDatasource.pdf")); plotOccRaw; dev.off()
 
 rm(plotOccRaw)
+
+occ_clean %>% group_by(datasource) %>% count() 
 ```
 
 Zoom to Germany
