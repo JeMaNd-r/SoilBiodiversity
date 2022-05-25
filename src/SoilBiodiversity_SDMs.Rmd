@@ -21,8 +21,8 @@ library(taxize)
 
 library(raster)
 library(sp)
-library(extremevalues)
-library(sdmpredictors)
+#library(extremevalues)
+#library(sdmpredictors)
 
 library(biomod2) # also to create pseudo-absences
 #library(snowfall) # for parallelization
@@ -42,7 +42,7 @@ library(myspatial)
 
 library(caret) # for MARS and BRT
 library(earth) # for MARS
-library(doParallel) # for MARS and XGBoost
+library(doParallel) # for MARS and XGBoost and to run spID in parallel
 
 library(dismo) # for MaxEnt and BRT
 # download maxent.jar 3.3.3k, and place the file in the
@@ -158,7 +158,7 @@ Let's check, how many unique species we have in the raw datasets (i.e., includin
 data.frame("No_species" = length(unique(speciesNames$Species)),
            "No_speciesID" = length(unique(speciesNames$SpeciesID)))
 ```
-
+Species=351, SpeciesID=335
 
 # Biodiversity data
 
@@ -201,8 +201,8 @@ To get all biodiversity data into the same format, we reduce available occurrenc
 
 
 ```{r mergeSpecies}
-source(file=paste0(here::here(),"src/Occurrences_to_1km_grid.R"))
-source(file=paste0(here::here(),"src/Occurrences_to_2km_grid.R"))
+source(file=paste0(here::here(),"/src/Occurrences_to_1km_grid.R"))
+source(file=paste0(here::here(),"/src/Occurrences_to_2km_grid.R"))
 ```
 
 ```{r updateSpeciesList}
@@ -516,8 +516,6 @@ plotOccRaw <- ggplot(occ_clean,
   xlim(min(extent_Europe[1], na.rm = T), 40) +
   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
   geom_point(cex=0.3)+
-  scale_x_continuous(limits=c(-20, 60))+ 
-  scale_y_continuous(limits=c(30,75))+
   theme_bw()+
   theme(legend.position = "bottom")+
   guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
