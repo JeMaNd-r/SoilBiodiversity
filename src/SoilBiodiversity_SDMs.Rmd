@@ -221,6 +221,17 @@ for(i in count_cuts){
 }
 data
 
+data2 <- data.frame("Records" = count_cuts, "Num_species"=NA, "Num_speciesID"=NA)
+for(i in count_cuts){
+   data2[data2$Records==i,"Num_species"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
+   data2[data2$Records==i,"Num_speciesID"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
+}
+data2
+
+
+
+write.csv(data, file=paste0(here::here(), "/results/NumSpecies_perOcc.csv"))
+
 ggplot(data, aes(x=as.factor(NumCells_2km), y=Num_speciesID))+
 	geom_bar(stat="identity")+ theme_bw()
 
