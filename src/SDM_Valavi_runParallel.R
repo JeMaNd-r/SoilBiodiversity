@@ -117,7 +117,6 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
-#more than 3 is not possible with the memory limit
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## GAM ####
@@ -146,7 +145,7 @@ bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
 wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 
 # general settings
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 
 # setting of family: according to Valavi et al. 2020, but see also following:
@@ -169,13 +168,13 @@ temp_validation <- mgcv::predict.gam(gm, validation[,colnames(validation) %in% c
 #head(temp_validation)
 
 # get running time
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
 temp_runs <- 1
 
 # start time for prediction
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # predict to whole Europe
 temp_prediction <- mgcv::predict.gam(gm, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
@@ -189,7 +188,7 @@ temp_prediction$y <- Env_norm_df$y
 colnames(temp_prediction)[1] <- "layer"
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # varImp
@@ -232,14 +231,14 @@ prNum <- as.numeric(table(training$occ)["1"]) # number of presences
 bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
 wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # the base glm model with linear terms
 lm1 <- glm(occ ~., data = training, weights = wt, 
            family = binomial(link = "logit"))
 #summary(lm1)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
 temp_validation <- stats::predict.glm(lm1, validation[,colnames(validation) %in% covarsNames], type="response")
@@ -248,7 +247,7 @@ temp_validation <- stats::predict.glm(lm1, validation[,colnames(validation) %in%
 temp_runs <- 1
 
 # set start time for prediction
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # predict to whole environment
 temp_prediction <- stats::predict.glm(lm1, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
@@ -263,7 +262,7 @@ temp_prediction$y <- Env_norm_df$y
 colnames(temp_prediction)[1] <- "layer"
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # varImp
@@ -302,7 +301,7 @@ mod_scope <- gam::gam.scope(frame = training, form=FALSE, #form=T: formular, els
 #                   "topo" = ~1 + topo + poly(topo, 2),
 #                   "vegsys" = ~1 + vegsys)
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 
 lm_subset <- gam::step.Gam(object = lm1,
@@ -315,7 +314,7 @@ lm_subset <- gam::step.Gam(object = lm1,
 temp_validation <- stats::predict.glm(lm_subset, validation[,colnames(validation) %in% covarsNames], type="response")
 #head(temp_validation)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
 #summary(lm_subset)
@@ -323,7 +322,7 @@ temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_tim
 temp_runs <- 1
 
 # start time for prediction
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 temp_prediction <- stats::predict.glm(lm_subset, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="response")
 
@@ -337,7 +336,7 @@ temp_prediction$y <- Env_norm_df$y
 colnames(temp_prediction)[1] <- "layer"
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # varImp
@@ -409,7 +408,7 @@ wt <- ifelse(training$occ == 1, 1, prNum / bgNum)
 # The lambda parameter controls regularization ? it is the penalty applied 
 # to the model?s coefficients. To select the best lambda, internal cross-
 # validation was used (in cv.glmnet function).
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 lasso_cv <- glmnet::cv.glmnet(x = training_sparse,
                               y = training_quad$occ,
@@ -422,7 +421,7 @@ lasso_cv <- glmnet::cv.glmnet(x = training_sparse,
 temp_validation <- predict(lasso_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(temp_validation)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
 # the cross-validation result
@@ -433,7 +432,7 @@ temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_tim
 
 #print("One of the two Lambda (dashed lines) needs to be selected for prediction.")
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # predict for whole environment
 #temp_prediction <- glmnet:::predict.glmnet(object = lasso_cv, newx = predicting_sparse, type = "response", s = "lambda.min")[,1]
@@ -446,7 +445,7 @@ temp_prediction <- data.frame("site" = names(temp_prediction), "layer" = as.nume
 temp_runs <- 1
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # varImp
@@ -467,7 +466,7 @@ rm(lasso_cv, lasso_list, temp_model_time, temp_predict_time, temp_runs, temp_val
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## fitting ridge resgression (alpha=0) while identify the right lambda
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 ridge_cv <- glmnet::cv.glmnet(x = training_sparse,
                               y = training_quad$occ,
@@ -479,14 +478,14 @@ ridge_cv <- glmnet::cv.glmnet(x = training_sparse,
 temp_validation <- predict(ridge_cv, testing_sparse, type = "response", s = "lambda.min")[,1]
 #head(temp_validation)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
 #plot(ridge_cv)
 
 temp_runs <- 1
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # predict for whole environment
 temp_prediction <- predict(ridge_cv, predicting_sparse, type = "response", s = "lambda.min")[,1]
@@ -496,7 +495,7 @@ temp_prediction <- data.frame("site" = names(temp_prediction), "layer" = as.nume
   dplyr::select(-site)
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 coefs <- coef(ridge_cv) #!!! simple way...
@@ -557,7 +556,7 @@ for(no.runs in 1:no.loop.runs){
                               classProbs = TRUE, #calculates class probabilities for held-out samples
                               summaryFunction = twoClassSummary, #calculate alternate performance summaries: sensitivity, specificity and area under the ROC curve
                               allowParallel = TRUE) # allow parallel
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   
   # parallelize
   cluster <- makeCluster(2) # you can use all cores of your machine instead e.g. 8
@@ -578,7 +577,7 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation[,"C1"])
   #head(temp_validation)
   
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   #plot(mars_fit)
   
@@ -586,7 +585,7 @@ for(no.runs in 1:no.loop.runs){
   mars_varImp <- caret::varImp(mars_fit, scale=T) #scaled between 0 and 100% 
   mars_varImp <- data.frame("importance" = mars_varImp$importance, "Predictor"=rownames(mars_varImp$importance))
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
 
   # create raster layer of predictions for whole environmental space
   temp_prediction <- caret::predict.train(mars_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], type="prob")[,"C1"]
@@ -600,7 +599,7 @@ for(no.runs in 1:no.loop.runs){
     rename("layer" = temp_prediction)
   
   # get running time
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
   mars_pred_list[[no.runs]] <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, validation=temp_validation, prediction=temp_prediction, varImp=mars_varImp)
@@ -714,7 +713,7 @@ maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
 # number of folds
 nfolds <- ifelse(sum(as.numeric(training$occ)) < 10, 2, 5)
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 
 # tune maxent parameters
@@ -735,10 +734,10 @@ temp_validation <- as.numeric(temp_validation)
 names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 #head(temp_validation)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 # create raster layer of predictions for whole environmental space
 #temp_prediction <- raster::predict(Env_norm, maxent)
 #temp_prediction <- data.frame(raster::rasterToPoints(temp_prediction))
@@ -754,7 +753,7 @@ colnames(temp_prediction)[1] <- "layer"
 
 temp_runs <- 1
 
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # varImp
@@ -781,7 +780,7 @@ gc()
 presences <- training$occ # presence (1s) and background (0s) points
 covariates <- training[, covarsNames] # predictor covariates
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 
 maxnet <- maxnet::maxnet(p = presences,
@@ -793,10 +792,10 @@ maxnet <- maxnet::maxnet(p = presences,
 temp_validation <- predict(maxnet, validation[,colnames(validation) %in% covarsNames], type = c("cloglog"))[, 1]
 #head(temp_validation)
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 # create raster layer of predictions for whole environmental space
 gc()
 #temp_prediction <- raster::predict(Env_norm, maxnet)
@@ -807,7 +806,7 @@ temp_env <- Env_norm_df %>% mutate("sites"=rownames(Env_norm_df))
 temp_prediction <- temp_prediction %>% dplyr::full_join(temp_env[,c("sites", "x", "y")], by=c("sites")) %>% dplyr::select(-sites) 
 colnames(temp_prediction)[1] <- "layer"
 
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 temp_runs <- 1
@@ -875,7 +874,7 @@ for(no.runs in 1:no.loop.runs){
   lrate <- 0.001
   m <- 0
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
 
   # start modeling
   while(is.null(brt)){
@@ -921,7 +920,7 @@ for(no.runs in 1:no.loop.runs){
   
   # Note: model tuning with ~50,000 background points may take ~1h.
   
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
   # the optimal number of trees (intersect of green and red line in plot)
@@ -935,7 +934,7 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation)
   #head(temp_validation)
 
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   # create raster layer of predictions for whole environmental space
   temp_prediction <- dismo::predict(brt, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], n.trees = brt$gbm.call$best.trees, type = "response")
   temp_prediction <- as.numeric(temp_prediction)
@@ -947,7 +946,7 @@ for(no.runs in 1:no.loop.runs){
   temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
     rename("layer" = temp_prediction)
   
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
   # varImp
@@ -1030,7 +1029,7 @@ tcomplexity <- ifelse(prNum < 50, 1, 5)
 lrate <- 0.001
 m <- 0
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 
 # start modeling! We use the "try" notation so if a species fails to fit, the loop will continue.
 while(is.null(brt2)){
@@ -1090,10 +1089,10 @@ temp_validation <- dismo::predict(brt2, validation[,colnames(validation) %in% co
 temp_validation <- as.numeric(temp_validation)
 names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 # predict to raster (for later)
 temp_prediction <- dismo::predict(brt2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], n.trees = brt2$gbm.call$best.trees, type = "response") #maybe remove latter part
 temp_prediction <- as.numeric(temp_prediction)
@@ -1105,7 +1104,7 @@ temp_prediction$y <- Env_norm_df$y
 temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
   rename("layer" = temp_prediction)
 
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 temp_settings <- data.frame("parameter"=c("n.trees", "l.rate", "t.complexity"), "setting"=c(ntrees,lrate,tcomplexity))
@@ -1126,8 +1125,11 @@ rm(brt2, brt2_list, modelName, temp_model_time, temp_predict_time, temp_runs, te
 stopImplicitCluster()
 
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)) { try({
-
+registerDoParallel(no.cores)
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID), 
+        .export = c("Env_norm", "Env_norm_df", "form"),
+        .packages = c("tidyverse", "caret", "dismo", "xgboost")) %dopar% { try({
+          
   print(paste0("Species ", spID, ", model building for XGBoost."))
   
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1153,15 +1155,20 @@ for(no.runs in 1:no.loop.runs){
   
   lapply(temp.files.subset, load, .GlobalEnv)
   
-  tmp <- Sys.time()
+  # start modeling! We use the "try" notation so if a species fails to fit, the loop will continue.
+  xgb_fit <- NULL
+  # specify num of folds for cross-validation
+  k <- ifelse(sum(training$occ, na.rm=T) < 10, 2, 5)
+  
+  tmp <- proc.time()[3]
 
   # change the response to factor variables with non-numeric levels
   training$occ <- as.factor(training$occ)
   levels(training$occ) <- c("C0", "C1") # caret does not accept 0 and 1 as factor levels
   
   # train control for cross-validation for model tuning
-  mytrControl <- trainControl(method = "cv",
-                              number = 5, # 5 fold cross-validation
+  mytrControl <- caret::trainControl(method = "cv",
+                              number = k, # 5 fold cross-validation
                               summaryFunction = twoClassSummary,
                               classProbs = TRUE,
                               allowParallel = TRUE)
@@ -1175,19 +1182,25 @@ for(no.runs in 1:no.loop.runs){
     colsample_bytree = 0.8, # Subsample Ratio of Columns when constructing each tree
     min_child_weight = 1    # Minimum Sum of Instance Weight (hessian) needed in a child, 1 = default; if partition step results in leaf node with sum of instance weight < min_child_weight then stop partitioning, the larger the more conservative
   )
-
   
   cluster <- makeCluster(no.cores) # you can use all cores of your machine instead e.g. 8
   registerDoParallel(cluster)
   set.seed(32639)
-  
-  xgb_fit <- caret::train(form = occ ~ .,
-                          data = training,
-                          method = "xgbTree",
-                          metric = "ROC",
-                          trControl = mytrControl,
-                          tuneGrid = mytuneGrid,
-                          verbose = TRUE)
+  if(inherits(try(
+    xgb_fit <- caret::train(form = occ ~ .,
+                            data = training,
+                            method = "xgbTree",
+                            trControl = mytrControl,
+                            metric ="ROC", 
+                            tuneGrid = mytuneGrid,
+                            verbose = TRUE#,
+                            #eval_metric="auc", #metric="ROC" does not work with early_stop_rounds
+                            #early_stopping_rounds = 10, #if performance not improving for 10 rounds, model iteration stops
+                            #maximize = TRUE
+    )
+  ), "try-error")){
+    next
+  }
   
   stopCluster(cluster)
   registerDoSEQ()
@@ -1196,7 +1209,7 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation[,"C1"])
   #head(temp_validation)
   
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   
   #plot(xgb_fit)
@@ -1207,7 +1220,7 @@ for(no.runs in 1:no.loop.runs){
   xgb_varImp <- caret::varImp(xgb_fit, scale=T) #scaled between 0 and 100% 
   xgb_varImp <- data.frame("importance" = xgb_varImp$importance, "Predictor"=rownames(xgb_varImp$importance))
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   # predict to raster (for later)
   temp_prediction <- dismo::predict(xgb_fit, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"C1"]
   temp_prediction <- as.numeric(temp_prediction)
@@ -1219,7 +1232,7 @@ for(no.runs in 1:no.loop.runs){
   temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
     rename("layer" = temp_prediction)
   
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
   
   # NULL for xgb_fit (to save memory)
@@ -1304,7 +1317,7 @@ for(no.runs in 1:no.loop.runs){
   
   # convert the response to factor for producing class relative likelihood
   training$occ <- as.factor(training$occ)
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   set.seed(32639)
   
   rf <- randomForest::randomForest(formula = occ ~.,
@@ -1317,10 +1330,10 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation[, "1"])
   #head(temp_validation)
   
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
 
   # predict to raster (for later)
   temp_prediction <- dismo::predict(rf, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
@@ -1334,7 +1347,7 @@ for(no.runs in 1:no.loop.runs){
     rename("layer" = temp_prediction)
   
   # get running time
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
   
   # varImp
@@ -1359,7 +1372,7 @@ for(no.runs in 1:no.loop.runs){
   
   # the sample size in each class; the same as presence number
   smpsize <- c("0" = prNum, "1" = prNum)
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   set.seed(32639)
   
   rf_downsample <- randomForest::randomForest(formula = occ ~.,
@@ -1375,10 +1388,10 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation[, "1"])
   #head(temp_validation)
 
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
 
   # predict to raster (for later)
   temp_prediction <- dismo::predict(rf_downsample, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[,"1"]
@@ -1392,7 +1405,7 @@ for(no.runs in 1:no.loop.runs){
     rename("layer" = temp_prediction)
    
   # get running time
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
   # varImp
@@ -1472,7 +1485,7 @@ lapply(temp.files, load, .GlobalEnv)
 
 # convert the response to factor for producing class relative likelihood
 training$occ <- as.factor(training$occ)
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 set.seed(32639)
 rf2 <- randomForest(formula = occ ~.,
                     data = training,
@@ -1484,10 +1497,10 @@ temp_validation <- dismo::predict(rf2, validation[,colnames(validation) %in% cov
 temp_validation <- as.numeric(temp_validation)
 names(temp_validation) <- rownames(validation[,colnames(validation) %in% covarsNames]) #add site names
 
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-tmp <- Sys.time() 
+tmp <- proc.time()[3] 
 # predict to raster (for later)
 temp_prediction <- dismo::predict(rf2, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],  type = "prob")[, "1"]
 temp_prediction <- as.numeric(temp_prediction)
@@ -1500,7 +1513,7 @@ temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x
   rename("layer" = temp_prediction)
 
 # get running time
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 temp_runs <- 1
@@ -1555,7 +1568,7 @@ for(no.runs in 1:no.loop.runs){
   bgNum <- as.numeric(table(training$occ)["0"]) # number of backgrounds
   cwt <- c("0" = prNum / bgNum, "1" = 1)
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   set.seed(32639)
   
   svm_e <- e1071::svm(formula = occ ~ .,
@@ -1570,10 +1583,10 @@ for(no.runs in 1:no.loop.runs){
   temp_validation <- data.frame("sites"=rownames(validation[,colnames(validation) %in% covarsNames]), "occ"=temp_validation)
   #head(temp_validation)
     
-  temp_model_time <- Sys.time() - tmp
+  temp_model_time <- proc.time()[3] - tmp
   temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
   
-  tmp <- Sys.time()
+  tmp <- proc.time()[3]
   # predict
   temp_prediction <- e1071:::predict.svm(svm_e, Env_norm_df[,colnames(Env_norm_df) %in% covarsNames], probability=TRUE)
   temp_prediction <- attr(temp_prediction, "probabilities")[,"1"]
@@ -1587,7 +1600,7 @@ for(no.runs in 1:no.loop.runs){
     rename("layer" = temp_prediction)
 
   # get running time
-  temp_predict_time <- Sys.time() - tmp
+  temp_predict_time <- proc.time()[3] - tmp
   temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
   # varImp
@@ -1715,14 +1728,14 @@ myBiomodOption <- BIOMOD_ModelingOptions(
 mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
 
 # model fitting
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 setwd(paste0(here::here(), "/results/", Taxon_name))
 
 set.seed(32639)
 myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
                                              models = mymodels,
                                              models.options = myBiomodOption,
-                                             NbRunEval = 3,   # 3-fold crossvalidation evaluation run
+                                             NbRunEval = 10,   # 3-fold crossvalidation evaluation run
                                              DataSplit = 80, # use subset of the data for training
                                              models.eval.meth = c("ROC"),
                                              SaveObj = FALSE, #save output on hard drive?
@@ -1745,10 +1758,10 @@ myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOu
                                                prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
                                                VarImport = 1)    #number of permutations to estimate variable importance
-temp_model_time <- Sys.time() - tmp
+temp_model_time <- proc.time()[3] - tmp
 temp_model_time <- c(round(as.numeric(temp_model_time), 3), units(temp_model_time))
 
-tmp <- Sys.time()
+tmp <- proc.time()[3]
 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
 # project single models (also needed for ensemble model)
 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
@@ -1768,7 +1781,7 @@ myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiom
                                                       #... same arguments as above could be added but are not necessary when loading myBiomodProj
                                                       selected.models = "all")
 
-temp_predict_time <- Sys.time() - tmp
+temp_predict_time <- proc.time()[3] - tmp
 temp_predict_time <- c(round(as.numeric(temp_predict_time), 3), units(temp_predict_time))
 
 # extracting the values for ensemble prediction
