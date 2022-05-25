@@ -43,15 +43,22 @@ edapho$species <- gsub(",", "", edapho$species)
 # exclude species with only Genus name (followed by identifier's name)
 edapho <- edapho %>% filter(!str_detect(species, " [:upper:]"))
 
+# remove observations before 1990
+edapho$date <- as.Date(edapho$"Observation date (Sampling event)", format="%m/%d/%y") 
+edapho <- edapho %>% filter(date >= "1990-01-01")
+
 edapho$datasource <- "Edaphobase"
 
 # have a look at the data
-edapho[,c("species", "Latitude", "Longitude", "datasource")]
+edapho[,c("species", "Latitude", "Longitude", "datasource")] #n=13.473
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from SoilReCon project (Portugal) ####
   
 recon <- readr::read_csv(file=paste0(here::here(), "/data/SoilReCon_earthworms_clean.csv"))
+
+# remove non-species level and NA species
+recon <- recon[recon$Species!="Octolasion sp." & !is.na(recon$Species),]
 
 # filter relevant columns
 recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
@@ -61,6 +68,8 @@ recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
 ## Data from Jérome Matthieu (Jema) ####
 
 jema <-  read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
+# nrow=27800
+
 jema$Species <- jema$species_name
 
 # rename "A. caliginosa trapezoides"
@@ -72,10 +81,20 @@ jema$Species <- stringr::str_to_sentence(jema$Species)
 # keep only species, not subspecies
 jema$Species <- word(jema$Species, 1, 2)
 
+# remove - from species names
+jema$Species <- gsub("[[:punct:]]", "",jema$Species)
+
+# remove sp species
+jema <- jema %>% filter(jema$Species %in% jema$Species[!stringr::str_detect(jema$Species, "sp[p]?[:blank:]")])
+
 jema$lat <- as.double(stringr::str_replace(jema$lat, ",", "."))
 jema$lon <- as.double(stringr::str_replace(jema$lon, ",", "."))
 
+# remove data before 1990
+jema <- jema %>% filter(obs_year >=1990)
+
 jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon, datasource)
+# nrow=18166
 
 # - - - - - - - - - - - - - - - - - - -
 ## Merge all together ####
@@ -109,10 +128,17 @@ data <- tibble::tibble(species=data$SpeciesBinomial,
                        longitude=data$Longitude_decimal_degrees, 
                        datasource=data$datasource)
 
-data #nrow = 117,965
-data <- data[complete.cases(data$longitude, data$latitude),] #nrow=117,187
+data #nrow = 101,555
+data_merged <- nrow(data)
+data <- data[complete.cases(data$longitude, data$latitude, data$species),] #nrow=83,625
+data
+
+# remove species with only sp in name
+data <- data %>% filter(!stringr::str_detect(data$species, "[[:blank:]]sp"))
+# nrow=83,602
 
 data$OBJECTID <- 1:nrow(data) 
+data_filter <- nrow(data)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
@@ -127,7 +153,7 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
-sum(flags$.summary) #those not flagged! = 113687 out of 117,187
+sum(flags$.summary) #those not flagged! = 80930 out of 83,602
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]
@@ -151,7 +177,7 @@ dev.off()
 # - - - - - - - - - - - - - - - - - - -
 ## Some structuring ####
 # add species ID
-dat_cl <- dplyr::right_join(dat_cl, speciesNames[,c("Species", "SpeciesID")], 
+dat_cl <- dplyr::full_join(dat_cl, speciesNames[,c("Species", "SpeciesID")], 
                             by=c("species" = "Species"))
 
 # create x and y column
@@ -169,8 +195,8 @@ write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name,
 # load number of records during cleaning process
 df_cleaning <- read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep=c("mergedRecords","coordinateCleaner"), 
-                                       NumberRecords=c(nrow(data), nrow(dat_cl)))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep=c("mergedRecords", "filteredRecords", "coordinateCleaner"), 
+                                       NumberRecords=c(data_merged, data_filter, nrow(dat_cl)))
 
 df_cleaning
 

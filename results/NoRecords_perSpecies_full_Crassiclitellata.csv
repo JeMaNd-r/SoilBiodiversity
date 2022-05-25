@@ -1,352 +1,350 @@
-"species","Edaphobase_raw","GBIF_raw","sWorm_raw","Edaphobase_clean","GBIF_clean","sWorm_clean","RawOcc","CleanOcc","Acc_name","SpeciesID","NumCells_1km","NumCells_2km","Included"
-"Allobophoridella eiseni",NA,NA,2,NA,NA,2,2,2,"Allolobophoridella eiseni","Allol_eise",64,61,TRUE
-"Allolobophora chlorotica",1094,3002,581,1080,2779,465,4677,4324,"Allolobophora chlorotica","Allol_chlo",1572,1436,TRUE
-"Allolobophora cupulifera",NA,17,NA,NA,17,NA,17,17,"Allolobophora cupulifera","Allol_cupu",11,11,TRUE
-"Allolobophora muldali",NA,115,NA,NA,105,NA,115,105,"Allolobophora muldali","Allol_muld",54,48,TRUE
-"Allolobophora smaragdina",NA,28,NA,NA,27,NA,28,27,"Allolobophora smaragdina","Allol_smar",22,22,TRUE
-"Allolobophoridella eiseni",65,NA,38,65,NA,38,103,103,"Allolobophoridella eiseni","Allol_eise",64,61,TRUE
-"Amynthas corticis",NA,1,14,NA,1,14,15,15,"Amynthas corticis","Amynt_cort",7,7,TRUE
-"Aporrectodea caliginosa",4027,7409,1522,4005,7096,1368,12958,12469,"Aporrectodea caliginosa","Aporr_cali",2554,2361,TRUE
-"Aporrectodea cupulifera",21,NA,10,20,NA,9,31,29,"Aporrectodea cupulifera","Aporr_cupu",15,14,TRUE
-"Aporrectodea georgii",10,6,NA,10,6,NA,16,16,"Aporrectodea georgii","Aporr_geor",8,8,TRUE
-"Aporrectodea handlirschi",23,5,NA,23,5,NA,28,28,"Aporrectodea handlirschi","Aporr_hand",20,20,TRUE
-"Aporrectodea icterica",88,NA,42,88,NA,42,130,130,"Aporrectodea icterica","Aporr_icte",36,31,TRUE
-"Aporrectodea jassyensis",2,5,NA,2,5,NA,7,7,"Aporrectodea jassyensis","Aporr_jass",5,5,TRUE
-"Aporrectodea limicola",100,144,51,100,135,50,295,285,"Aporrectodea limicola","Aporr_limi",151,147,TRUE
-"Aporrectodea longa",413,1556,301,405,1437,294,2270,2136,"Aporrectodea longa","Aporr_long",912,826,TRUE
-"Aporrectodea molleri",NA,NA,63,NA,NA,60,63,60,"Aporrectodea molleri","Aporr_moll",33,32,TRUE
-"Aporrectodea nocturna",NA,25,13,NA,22,13,38,35,"Aporrectodea nocturna","Aporr_noct",31,28,TRUE
-"Aporrectodea oerley",866,NA,NA,866,NA,NA,866,866,"Aporrectodea","Aporr_oerl",121,113,TRUE
-"Aporrectodea oliveirae",NA,NA,18,NA,NA,18,18,18,"Aporrectodea oliveirae","Aporr_oliv",15,15,TRUE
-"Aporrectodea rosea",2388,6421,1165,2380,6309,1122,9974,9811,"Aporrectodea rosea","Aporr_rose",1871,1755,TRUE
-"Aporrectodea trapezoides",NA,NA,685,NA,NA,638,685,638,"Aporrectodea trapezoides","Aporr_trap",14,12,TRUE
-"Aporrectodea tuberculata",NA,NA,182,NA,NA,180,182,180,"Aporrectodea tuberculata","Aporr_tube",9,8,TRUE
-"Bimastos eiseni",NA,282,NA,NA,265,NA,282,265,"Bimastos eiseni","Bimas_eise",145,134,TRUE
-"Bimastos rubidus",NA,3148,NA,NA,3033,NA,3148,3033,"Bimastos rubidus","Bimas_rubi",562,524,TRUE
-"Criodrilus lacuum",NA,7,2,NA,6,2,9,8,"Criodrilus lacuum","Criod_lacu",8,8,TRUE
-"Dendrobaena alpina",3,23,NA,3,23,NA,26,26,"Dendrobaena alpina","Dendr_alpi",8,8,TRUE
-"Dendrobaena attemsi",90,315,1,90,298,1,406,389,"Dendrobaena attemsi","Dendr_atte",134,123,TRUE
-"Dendrobaena auriculata",9,NA,NA,9,NA,NA,9,9,"Dendrobaena auriculata","Dendr_auri",5,5,TRUE
-"Dendrobaena byblica",1,3,7,1,3,7,11,11,"Dendrobaena byblica","Dendr_bybl",11,11,TRUE
-"Dendrobaena hortensis",12,71,6,11,62,6,89,79,"Dendrobaena hortensis","Dendr_hort",57,53,TRUE
-"Dendrobaena illyrica",137,NA,NA,137,NA,NA,137,137,"Dendrobaena illyrica","Dendr_illy",117,112,TRUE
-"Dendrobaena illyricus",NA,7,NA,NA,7,NA,7,7,"Dendrobaena illyricus","Dendr_illy",117,112,TRUE
-"Dendrobaena lusitana",NA,NA,8,NA,NA,6,8,6,"Dendrobaena lusitana","Dendr_lusi",6,6,TRUE
-"Dendrobaena octaedra",1235,3208,1468,1226,3155,1431,5911,5812,"Dendrobaena octaedra","Dendr_octa",891,828,TRUE
-"Dendrobaena pygmaea",19,NA,19,19,NA,18,38,37,"Dendrobaena pygmaea","Dendr_pygm",39,39,TRUE
-"Dendrobaena pygmaea gallurensis",NA,NA,10,NA,NA,10,10,10,"Dendrobaena pygmaea gallurensis","Dendr_pygm",39,39,TRUE
-"Dendrobaena vejdovskyi",67,5,NA,67,5,NA,72,72,"Dendrobaena vejdovskyi","Dendr_vejd",16,16,TRUE
-"Dendrobaena veneta",7,64,1,6,50,1,72,57,"Dendrobaena veneta","Dendr_vene",39,39,TRUE
-"Dendrodrilus rubidus",605,NA,295,595,NA,270,900,865,"Dendrodrilus rubidus","Dendr_rubi",384,368,TRUE
-"Dendrodrilus rubidus subrubicundus",NA,NA,1,NA,NA,1,1,1,"Dendrodrilus rubidus subrubicundus","Dendr_rubi",384,368,TRUE
-"Dendrodrilus rubidus tenuis",NA,NA,9,NA,NA,9,9,9,"Dendrodrilus rubidus tenuis","Dendr_rubi",384,368,TRUE
-"Eisenia andrei",NA,33,7,NA,26,7,40,33,"Eisenia andrei","Eisen_andr",23,23,TRUE
-"Eisenia fetida",37,564,49,34,503,48,650,585,"Eisenia fetida","Eisen_feti",277,269,TRUE
-"Eisenia lucens",11,NA,3,11,NA,3,14,14,"Eisenia lucens","Eisen_luce",5,5,TRUE
-"Eiseniella tetraedra",248,11133,152,246,11010,103,11533,11359,"Eiseniella tetraedra","Eisen_tetr",5613,5283,TRUE
-"Eiseniona hardlirschi",NA,NA,13,NA,NA,13,13,13,"Eiseniona handlirschi","Eisen_hand",6,4,TRUE
-"Enterion cyaneum",NA,599,NA,NA,559,NA,599,559,"Enterion cyaneum","Enter_cyan",358,340,TRUE
-"Enterion festivum",NA,231,NA,NA,213,NA,231,213,"Enterion festivum","Enter_fest",137,130,TRUE
-"Enterion polyphemus",NA,12,NA,NA,12,NA,12,12,"Enterion polyphemus","Enter_poly",7,7,TRUE
-"Enterion pygmaeum",NA,13,NA,NA,10,NA,13,10,"Enterion pygmaeum","Enter_pygm",9,8,TRUE
-"Enterion tyrtaeum",NA,457,NA,NA,447,NA,457,447,"Enterion tyrtaeum","Enter_tyrt",193,192,TRUE
-"Eophila icterica",NA,111,NA,NA,88,NA,111,88,"Eophila icterica","Eophi_icte",49,48,TRUE
-"Firzingeria depressa",NA,NA,10,NA,NA,10,10,10,NA,"Firzi_depr",6,6,TRUE
-"Helodrilus oculatus",13,12,2,13,11,2,27,26,"Helodrilus oculatus","Helod_ocul",19,19,TRUE
-"Lumbricus badensis",3,5,NA,3,5,NA,8,8,"Lumbricus badensis","Lumbr_bade",7,6,TRUE
-"Lumbricus castaneus",810,1616,233,802,1544,205,2659,2551,"Lumbricus castaneus","Lumbr_cast",1138,1067,TRUE
-"Lumbricus festivus",18,NA,88,17,NA,86,106,103,"Lumbricus festivus","Lumbr_fest",49,49,TRUE
-"Lumbricus friendi",11,28,30,11,27,30,69,68,"Lumbricus friendi","Lumbr_frie",40,40,TRUE
-"Lumbricus herculeus",13,58,NA,12,57,NA,71,69,"Lumbricus herculeus","Lumbr_herc",20,19,TRUE
-"Lumbricus meliboeus",3,2,5,3,2,5,10,10,"Lumbricus meliboeus","Lumbr_meli",9,9,TRUE
-"Lumbricus polyphemus",47,NA,4,47,NA,4,51,51,"Lumbricus polyphemus","Lumbr_poly",27,24,TRUE
-"Lumbricus rubellus",2196,5380,1131,2181,5161,994,8707,8336,"Lumbricus rubellus","Lumbr_rube",2280,2114,TRUE
-"Lumbricus terrestris",2126,3306,950,2111,3094,941,6382,6146,"Lumbricus terrestris","Lumbr_terr",2175,2035,TRUE
-"Microscolex dubius",NA,3,269,NA,3,268,272,271,"Microscolex dubius","Micro_dubi",18,18,TRUE
-"Microscolex phosphoreus",NA,8,189,NA,8,188,197,196,"Microscolex phosphoreus","Micro_phos",34,34,TRUE
-"Murchieona minuscula",14,NA,NA,14,NA,NA,14,14,"Murchieona minuscula","Murch_minu",5,5,TRUE
-"Murchieona muldali",2,NA,39,2,NA,38,41,40,"Murchieona muldali","Murch_muld",17,17,TRUE
-"Octodrilus argoviensis",21,NA,1,21,NA,1,22,22,"Octodrilus argoviensis","Octod_argo",12,12,TRUE
-"Octodrilus complanatus",8,13,16,6,11,16,37,33,"Octodrilus complanatus","Octod_comp",30,30,TRUE
-"Octodrilus compromissus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus compromissus","Octod_comp",30,30,TRUE
-"Octodrilus transpadanus",9,4,NA,9,4,NA,13,13,"Octodrilus transpadanus","Octod_tran",10,10,TRUE
-"Octolasion cyaneum",270,NA,249,270,NA,208,519,478,"Octolasion cyaneum","Octol_cyan",168,158,TRUE
-"Octolasion lacteum",NA,2633,226,NA,2619,226,2859,2845,"Octolasion lacteum","Octol_lact",315,288,TRUE
-"Octolasion oerley",426,NA,NA,426,NA,NA,426,426,"Octolasion","Octol_oerl",94,87,TRUE
-"Octolasion tyrtaeum",1424,NA,190,1420,NA,190,1614,1610,"Octolasion tyrtaeum","Octol_tyrt",444,435,TRUE
-"Perelia gestroi",NA,19,NA,NA,19,NA,19,19,"Perelia gestroi","Perel_gest",7,6,TRUE
-"Proctodrilus antipae",66,20,11,66,20,10,97,96,"Proctodrilus antipae","Proct_anti",40,40,TRUE
-"Proctodrilus antipai",NA,1,NA,NA,1,NA,1,1,"Proctodrilus antipai","Proct_anti",40,40,TRUE
-"Proctodrilus tuberculatus",28,13,4,28,13,4,45,45,"Proctodrilus tuberculatus","Proct_tube",23,21,TRUE
-"Satchellius madeirensis",NA,NA,28,NA,NA,28,28,28,"Satchellius madeirensis","Satch_made",20,20,TRUE
-"Satchellius mammalis",5,355,72,5,339,69,432,413,"Satchellius mammalis","Satch_mamm",221,204,TRUE
-"Scherotheca aquitania",NA,4,15,NA,4,15,19,19,"Scherotheca aquitania","Scher_aqui",7,7,TRUE
-"Agastrodrilus multivesiculatus",NA,NA,4,NA,NA,4,4,4,"Agastrodrilus multivesiculatus","Agast_mult",0,0,FALSE
-"Ailoscolex lacteospumosus",NA,1,NA,NA,1,NA,1,1,"Ailoscolex lacteospumosus","Ailos_lact",1,1,FALSE
-"Allolobophora altimontana",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora altimontana","Allol_alti",0,0,FALSE
-"Allolobophora antipae",NA,2,NA,NA,2,NA,2,2,"Allolobophora","Allol_anti",2,2,FALSE
-"Allolobophora biserialis",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora biserialis","Allol_bise",0,0,FALSE
-"Allolobophora carpathica",NA,NA,2,NA,NA,2,2,2,"Allolobophora carpathica","Allol_carp",2,2,FALSE
-"Allolobophora carpatica",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora carpatica","Allol_carp",2,2,FALSE
-"Allolobophora cernosvitoviana",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora cernosvitoviana","Allol_cern",0,0,FALSE
-"Allolobophora cyrnea",1,NA,NA,1,NA,NA,1,1,"Allolobophora cyrnea","Allol_cyrn",1,1,FALSE
-"Allolobophora dacica",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora dacica","Allol_daci",0,0,FALSE
-"Allolobophora dubiosa",2,NA,NA,2,NA,NA,2,2,"Allolobophora dubiosa","Allol_dubi",2,2,FALSE
-"Allolobophora dugesi",2,NA,NA,2,NA,NA,2,2,"Allolobophora dugesi","Allol_duge",2,2,FALSE
-"Allolobophora exacystis",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora exacystis","Allol_exac",0,0,FALSE
-"Allolobophora gestroides",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora gestroides","Allol_gest",0,0,FALSE
-"Allolobophora giardi",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora giardi","Allol_giar",0,0,FALSE
-"Allolobophora hispanica",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora hispanica","Allol_hisp",0,0,FALSE
-"Allolobophora leoni",1,NA,NA,1,NA,NA,1,1,"Allolobophora leoni","Allol_leon",1,1,FALSE
-"Allolobophora mehadiensis",1,NA,NA,1,NA,NA,1,1,"Allolobophora mehadiensis","Allol_meha",1,1,FALSE
-"Allolobophora minuscula",NA,12,NA,NA,12,NA,12,12,"Allolobophora minuscula","Allol_minu",4,4,FALSE
-"Allolobophora molleri",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora molleri","Allol_moll",0,0,FALSE
-"Allolobophora morenoe",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora morenoe","Allol_more",0,0,FALSE
-"Allolobophora oculata",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora oculata","Allol_ocul",0,0,FALSE
-"Allolobophora parva",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora parva","Allol_parv",0,0,FALSE
-"Allolobophora robusta",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora robusta","Allol_robu",0,0,FALSE
-"Allolobophora satchelli",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora satchelli","Allol_satc",0,0,FALSE
-"Allolobophora sturanyi",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora sturanyi","Allol_stur",2,2,FALSE
-"Allolobophora sturanyi dacidoides",NA,NA,2,NA,NA,2,2,2,"Allolobophora sturanyi dacidoides","Allol_stur",2,2,FALSE
-"Allolobophora terrestris",NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora terrestris","Allol_terr",0,0,FALSE
-"Allolobophora thaleri",NA,5,NA,NA,5,NA,5,5,"Allolobophora thaleri","Allol_thal",1,1,FALSE
-"Allurus neapolitanus",NA,NA,NA,NA,NA,NA,NA,NA,"Allurus neapolitanus","Allur_neap",0,0,FALSE
-"Amynthas agrestis",NA,1,11,NA,1,11,12,12,"Amynthas agrestis","Amynt_agre",1,1,FALSE
-"Amynthas aspergillum",NA,NA,41,NA,NA,41,41,41,"Amynthas aspergillum","Amynt_aspe",0,0,FALSE
-"Amynthas gracilis",NA,NA,8,NA,NA,8,8,8,"Amynthas gracilis","Amynt_grac",0,0,FALSE
-"Amynthas heterochaetus",NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas heterochaetus","Amynt_hete",0,0,FALSE
-"Amynthas hupeiensis",NA,NA,2,NA,NA,2,2,2,"Amynthas hupeiensis","Amynt_hupe",0,0,FALSE
-"Amynthas mediocus",NA,NA,1,NA,NA,1,1,1,"Amynthas mediocus","Amynt_medi",0,0,FALSE
-"Amynthas minimus",NA,NA,6,NA,NA,NA,6,0,"Amynthas minimus","Amynt_mini",0,0,FALSE
-"Amynthas morrisi",NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas morrisi","Amynt_morr",0,0,FALSE
-"Amynthas rodericensis",NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas rodericensis","Amynt_rode",0,0,FALSE
-"Amynthas tokioensis",NA,NA,8,NA,NA,5,8,5,"Amynthas tokioensis","Amynt_toki",0,0,FALSE
-"Andiorrhinus sp.1",NA,NA,1,NA,NA,1,1,1,"Andiorrhinus","Andio_sp.1",0,0,FALSE
-"Andiorrhinus sp.2",NA,NA,1,NA,NA,1,1,1,"Andiorrhinus","Andio_sp.2",0,0,FALSE
-"Anisochaeta macleayi",NA,NA,113,NA,NA,113,113,113,"Anisochaeta macleayi","Aniso_macl",0,0,FALSE
-"Aporrectodea dubiosa",NA,NA,4,NA,NA,4,4,4,"Aporrectodea dubiosa","Aporr_dubi",2,2,FALSE
-"Aporrectodea giardi",NA,NA,10,NA,NA,10,10,10,"Aporrectodea giardi","Aporr_giar",3,3,FALSE
-"Aporrectodea haymoziformis",NA,NA,NA,NA,NA,NA,NA,NA,"Aporrectodea haymoziformis","Aporr_haym",0,0,FALSE
-"Aporrectodea moebii",NA,NA,3,NA,NA,3,3,3,"Aporrectodea moebii","Aporr_moeb",3,3,FALSE
-"Aporrectodea opisthosellata",NA,NA,1,NA,NA,1,1,1,"Aporrectodea opisthosellata","Aporr_opis",1,1,FALSE
-"Aporrectodea smaragdina",2,NA,NA,2,NA,NA,2,2,"Aporrectodea smaragdina","Aporr_smar",2,2,FALSE
-"Aporrectodea thaleri",7,NA,NA,7,NA,NA,7,7,"Aporrectodea thaleri","Aporr_thal",3,3,FALSE
-"Aporrectodea turgida",NA,NA,43,NA,NA,43,43,43,"Aporrectodea turgida","Aporr_turg",0,0,FALSE
-"Balanteodrilus pearsei",NA,NA,23,NA,NA,23,23,23,"Balanteodrilus pearsei","Balan_pear",0,0,FALSE
-"Belladrilus emilianii",NA,NA,3,NA,NA,3,3,3,"Belladrilus emilianii","Bella_emil",0,0,FALSE
-"Bimastos antiquus",NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos antiquus","Bimas_anti",0,0,FALSE
-"Bimastos jordanis",NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos jordanis","Bimas_jord",0,0,FALSE
-"Bimastos parvus",1,NA,19,1,NA,19,20,20,"Bimastos parvus","Bimas_parv",1,1,FALSE
-"Bimastus parvus",NA,NA,NA,NA,NA,NA,NA,NA,"Bimastus parvus","Bimas_parv",1,1,FALSE
-"Cataladrilus edwardsi",NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus edwardsi","Catal_edwa",0,0,FALSE
-"Cataladrilus monticola",NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus monticola","Catal_mont",0,0,FALSE
-"Cataladrilus porquerollensis",NA,6,NA,NA,NA,NA,6,0,"Cataladrilus porquerollensis","Catal_porq",0,0,FALSE
-"Cernosvitovia bertae",NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia bertae","Cerno_bert",0,0,FALSE
-"Cernosvitovia dudichi",NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia dudichi","Cerno_dudi",0,0,FALSE
-"Dendrobaena clujensis",1,NA,NA,1,NA,NA,1,1,"Dendrobaena clujensis","Dendr_cluj",1,1,FALSE
-"Dendrobaena cognettii",NA,1,NA,NA,1,NA,1,1,"Dendrobaena cognettii","Dendr_cogn",1,1,FALSE
-"Dendrobaena franzi",NA,NA,1,NA,NA,1,1,1,"Dendrobaena franzi","Dendr_fran",1,1,FALSE
-"Dendrobaena fridericae",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena fridericae","Dendr_frid",0,0,FALSE
-"Dendrobaena ganglbaueri",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ganglbaueri","Dendr_gang",0,0,FALSE
-"Dendrobaena mariupolienis",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena mariupolienis","Dendr_mari",0,0,FALSE
-"Dendrobaena osellai",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena osellai","Dendr_osel",0,0,FALSE
-"Dendrobaena pantaleonis",NA,NA,5,NA,NA,4,5,4,"Dendrobaena pantaleonis","Dendr_pant",3,3,FALSE
-"Dendrobaena pavliceki",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pavliceki","Dendr_pavl",0,0,FALSE
-"Dendrobaena pentheri",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pentheri","Dendr_pent",0,0,FALSE
-"Dendrobaena persimilis",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena persimilis","Dendr_pers",0,0,FALSE
-"Dendrobaena platyura",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena platyura","Dendr_plat",0,0,FALSE
-"Dendrobaena pseudorrosea",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pseudorrosea","Dendr_pseu",0,0,FALSE
-"Dendrobaena ressli",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ressli","Dendr_ress",0,0,FALSE
-"Dendrobaena ruffoi",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ruffoi","Dendr_ruff",0,0,FALSE
-"Dendrobaena schmidti",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena schmidti","Dendr_schm",1,1,FALSE
-"Dendrobaena schmidti schmidti",NA,NA,2,NA,NA,2,2,2,"Dendrobaena schmidti schmidti","Dendr_schm",1,1,FALSE
-"Dendrobaena schmidti tellermanica",NA,NA,1,NA,NA,1,1,1,"Dendrobaena schmidti tellermanica","Dendr_schm",1,1,FALSE
-"Dendrobaena succincta",NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena succincta","Dendr_succ",0,0,FALSE
-"Dichogaster affinis",NA,NA,22,NA,NA,22,22,22,"Dichogaster affinis","Dicho_affi",0,0,FALSE
-"Dichogaster baeri",NA,NA,3,NA,NA,3,3,3,"Dichogaster baeri","Dicho_baer",0,0,FALSE
-"Dichogaster bolaui",NA,2,8,NA,2,8,10,10,"Dichogaster bolaui","Dicho_bola",2,2,FALSE
-"Dichogaster ehrhardti",NA,NA,2,NA,NA,2,2,2,"Dichogaster ehrhardti","Dicho_ehrh",0,0,FALSE
-"Dichogaster gracilis",NA,NA,3,NA,NA,3,3,3,"Dichogaster gracilis","Dicho_grac",0,0,FALSE
-"Dichogaster leroyi",NA,NA,9,NA,NA,9,9,9,"Dichogaster leroyi","Dicho_lero",0,0,FALSE
-"Dichogaster mamillata",NA,NA,3,NA,NA,3,3,3,"Dichogaster mamillata","Dicho_mami",0,0,FALSE
-"Dichogaster modiglianii",NA,NA,2,NA,NA,2,2,2,"Dichogaster modiglianii","Dicho_modi",0,0,FALSE
-"Dichogaster notabilis",NA,NA,6,NA,NA,6,6,6,"Dichogaster notabilis","Dicho_nota",0,0,FALSE
-"Dichogaster papillosa",NA,NA,4,NA,NA,4,4,4,"Dichogaster papillosa","Dicho_papi",0,0,FALSE
-"Dichogaster saliens",NA,NA,18,NA,NA,17,18,17,"Dichogaster saliens","Dicho_sali",0,0,FALSE
-"Dichogaster terraenigrae",NA,NA,2,NA,NA,2,2,2,"Dichogaster terraenigrae","Dicho_terr",0,0,FALSE
-"Diplocardia hulberti",NA,NA,1,NA,NA,1,1,1,"Diplocardia hulberti","Diplo_hulb",0,0,FALSE
-"Diplocardia kansensis",NA,NA,2,NA,NA,2,2,2,"Diplocardia kansensis","Diplo_kans",0,0,FALSE
-"Diplocardia longiseta",NA,NA,7,NA,NA,7,7,7,"Diplocardia longiseta","Diplo_long",0,0,FALSE
-"Diplocardia singularis",NA,NA,3,NA,NA,3,3,3,"Diplocardia singularis","Diplo_sing",0,0,FALSE
-"Diplotrema oxcutzcabensis",NA,NA,7,NA,NA,7,7,7,"Diplotrema oxcutzcabensis","Diplo_oxcu",0,0,FALSE
-"Diplotrema papillata",NA,NA,2,NA,NA,2,2,2,"Diplotrema papillata","Diplo_papi",0,0,FALSE
-"Diporodrilus pilosus",NA,NA,NA,NA,NA,NA,NA,NA,"Diporodrilus pilosus","Dipor_pilo",0,0,FALSE
-"Dorgiodrilus robustus",NA,NA,1,NA,NA,1,1,1,"Dorgiodrilus robustus","Dorgi_robu",0,0,FALSE
-"Drawida barwelli",NA,NA,4,NA,NA,4,4,4,"Drawida barwelli","Drawi_barw",0,0,FALSE
-"Drawida gisti",NA,NA,2,NA,NA,2,2,2,"Drawida gisti","Drawi_gist",0,0,FALSE
-"Drawida japonica",NA,NA,2,NA,NA,2,2,2,"Drawida japonica","Drawi_japo",0,0,FALSE
-"Drawida nepalensis",NA,NA,5,NA,NA,5,5,5,"Drawida nepalensis","Drawi_nepa",0,0,FALSE
-"Eisenia atlavinyteae",NA,1796,4,NA,1796,4,1800,1800,"Eisenia atlavinyteae","Eisen_atla",0,0,FALSE
-"Eisenia austriaca",NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia austriaca","Eisen_aust",0,0,FALSE
-"Eisenia balatonica",NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia balatonica","Eisen_bala",1,1,FALSE
-"Eisenia japonica",NA,NA,14,NA,NA,14,14,14,"Eisenia japonica","Eisen_japo",0,0,FALSE
-"Eisenia nordenskioldi",NA,25,NA,NA,25,NA,25,25,"Eisenia nordenskioldi","Eisen_nord",3,3,FALSE
-"Eisenia nordenskioldi nordenskioldi",NA,NA,34,NA,NA,34,34,34,"Eisenia nordenskioldi nordenskioldi","Eisen_nord",3,3,FALSE
-"Eisenia rhodopensis",NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia rhodopensis","Eisen_rhod",0,0,FALSE
-"Eisenia spelaea",NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia spelaea","Eisen_spel",1,1,FALSE
-"Eisenia spelea",NA,2,NA,NA,2,NA,2,2,"Eisenia spelea","Eisen_spel",1,1,FALSE
-"Eisenia submontana",2,NA,NA,2,NA,NA,2,2,"Eisenia submontana","Eisen_subm",2,2,FALSE
-"Eiseniella balatonica",1,NA,NA,1,NA,NA,1,1,"Eiseniella balatonica","Eisen_bala",1,1,FALSE
-"Eiseniella balcanica",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella balcanica","Eisen_balc",0,0,FALSE
-"Eiseniella neapolitana",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella neapolitana","Eisen_neap",0,0,FALSE
-"Eiseniella ochridana",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella ochridana","Eisen_ochr",0,0,FALSE
-"Eiseniella oltenica",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella oltenica","Eisen_olte",0,0,FALSE
-"Eiseniona albolineata",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona albolineata","Eisen_albo",0,0,FALSE
-"Eiseniona oliveirai",NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona oliveirai","Eisen_oliv",0,0,FALSE
-"Eminoscolex lamani",NA,NA,NA,NA,NA,NA,NA,NA,"Eminoscolex lamani","Emino_lama",0,0,FALSE
-"Eminoscolex violaceus",NA,NA,3,NA,NA,3,3,3,"Eminoscolex violaceus","Emino_viol",0,0,FALSE
-"Eophila crodabepis",NA,NA,NA,NA,NA,NA,NA,NA,"Eophila crodabepis","Eophi_crod",0,0,FALSE
-"Eophila cyanea",NA,NA,NA,NA,NA,NA,NA,NA,"Eophila cyanea","Eophi_cyan",0,0,FALSE
-"Eophila pyrenaica",NA,NA,NA,NA,NA,NA,NA,NA,"Eophila pyrenaica","Eophi_pyre",0,0,FALSE
-"Eophila tellinii",NA,9,NA,NA,9,NA,9,9,"Eophila tellinii","Eophi_tell",4,4,FALSE
-"Ephyriodrilus afroccidentalis",NA,NA,3,NA,NA,3,3,3,"Ephyriodrilus afroccidentalis","Ephyr_afro",0,0,FALSE
-"Ethnodrilus aveli",NA,NA,NA,NA,NA,NA,NA,NA,"Ethnodrilus aveli","Ethno_avel",0,0,FALSE
-"Eudrilus eugeniae",NA,NA,3,NA,NA,3,3,3,"Eudrilus eugeniae","Eudri_euge",0,0,FALSE
-"Eudrilus pallidus",NA,NA,3,NA,NA,3,3,3,"Eudrilus pallidus","Eudri_pall",0,0,FALSE
-"Eukerria saltensis",NA,NA,4,NA,NA,4,4,4,"Eukerria saltensis","Euker_salt",4,4,FALSE
-"Eutyphoeus incommodus",NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus incommodus","Eutyp_inco",0,0,FALSE
-"Eutyphoeus mizoramensis",NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus mizoramensis","Eutyp_mizo",0,0,FALSE
-"Eutyphoeus waltoni",NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus waltoni","Eutyp_walt",0,0,FALSE
-"Fimoscolex bartzi",NA,NA,2,NA,NA,2,2,2,"Fimoscolex bartzi","Fimos_bart",0,0,FALSE
-"Firzingeria platyura",NA,NA,4,NA,NA,4,4,4,"Fitzingeria platyura","Fitzi_plat",3,2,FALSE
-"Gatesona chaetophora",NA,NA,NA,NA,NA,NA,NA,NA,"Gatesona chaetophora","Gates_chae",0,0,FALSE
-"Gemascolex lateralis",NA,NA,7,NA,NA,7,7,7,"Gemascolex lateralis","Gemas_late",0,0,FALSE
-"Gemascolex octothecatus",NA,NA,67,NA,NA,67,67,67,"Gemascolex octothecatus","Gemas_octo",0,0,FALSE
-"Gemascolex walkeri",NA,NA,22,NA,NA,22,22,22,"Gemascolex walkeri","Gemas_walk",0,0,FALSE
-"Glossodrilus parecis",NA,NA,2,NA,NA,2,2,2,"Glossodrilus parecis","Gloss_pare",0,0,FALSE
-"Glossoscolex giocondoi",NA,NA,1,NA,NA,1,1,1,"Glossoscolex giocondoi","Gloss_gioc",0,0,FALSE
-"Gordiodrilus marcusi",NA,NA,4,NA,NA,4,4,4,"Gordiodrilus marcusi","Gordi_marc",0,0,FALSE
-"Gordiodrilus wemanus",NA,NA,3,NA,NA,3,3,3,"Gordiodrilus wemanus","Gordi_wema",0,0,FALSE
-"Healyella boluana",NA,NA,NA,NA,NA,NA,NA,NA,"Healyella boluana","Healy_bolu",0,0,FALSE
-"Healyella zicsii",NA,NA,NA,NA,NA,NA,NA,NA,"Healyella zicsii","Healy_zics",0,0,FALSE
-"Helodrilus cortezi",NA,NA,NA,NA,NA,NA,NA,NA,"Helodrilus cortezi","Helod_cort",0,0,FALSE
-"Helodrilus moebii",1,NA,NA,1,NA,NA,1,1,"Helodrilus moebii","Helod_moeb",1,1,FALSE
-"Helodrilus norvegicus",1,NA,NA,1,NA,NA,1,1,"Helodrilus norvegicus","Helod_norv",1,1,FALSE
-"Helodrilus patriarchalis",NA,NA,NA,NA,NA,NA,NA,NA,"Helodrilus patriarchalis","Helod_patr",0,0,FALSE
-"Helodrilus putris",2,NA,NA,1,NA,NA,2,1,"Helodrilus","Helod_putr",1,1,FALSE
-"Hemigastrodrilus monicae",NA,1,NA,NA,1,NA,1,1,"Hemigastrodrilus monicae","Hemig_moni",1,1,FALSE
-"Heteroporodrilus shephardi",NA,NA,22,NA,NA,22,22,22,"Heteroporodrilus shephardi","Heter_shep",0,0,FALSE
-"Holoscolex sp.1",NA,NA,2,NA,NA,2,2,2,"Holoscolex","Holos_sp.1",0,0,FALSE
-"Hormogaster castillana",NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster castillana","Hormo_cast",0,0,FALSE
-"Hormogaster elisae",NA,1,23,NA,1,23,24,24,"Hormogaster elisae","Hormo_elis",1,1,FALSE
-"Hormogaster najaformis",NA,1,NA,NA,1,NA,1,1,"Hormogaster najaformis","Hormo_naja",1,1,FALSE
-"Hormogaster pretiosa",NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster pretiosa","Hormo_pret",0,0,FALSE
-"Hormogaster redii",NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster redii","Hormo_redi",0,0,FALSE
-"Hormogaster riojana",NA,1,NA,NA,1,NA,1,1,"Hormogaster riojana","Hormo_rioj",1,1,FALSE
-"Hormogaster samnitica",NA,1,NA,NA,1,NA,1,1,"Hormogaster samnitica","Hormo_samn",1,1,FALSE
-"Hyperiodrilus africanus",NA,NA,13,NA,NA,13,13,13,"Hyperiodrilus africanus","Hyper_afri",0,0,FALSE
-"Kenleenus armadas",NA,2,NA,NA,NA,NA,2,0,"Kenleenus armadas","Kenle_arma",0,0,FALSE
-"Kritodrilus micrurus",NA,NA,NA,NA,NA,NA,NA,NA,"Kritodrilus micrurus","Krito_micr",0,0,FALSE
-"Kritodrilus tetryae",NA,NA,NA,NA,NA,NA,NA,NA,"Kritodrilus tetryae","Krito_tetr",0,0,FALSE
-"Lampito mauritti",NA,NA,NA,NA,NA,NA,NA,NA,"Lampito mauritti","Lampi_maur",0,0,FALSE
-"Larsonidrilus orbiculatus",NA,NA,3,NA,NA,3,3,3,"Larsonidrilus orbiculatus","Larso_orbi",0,0,FALSE
-"Lavellodrilus bonampakensis",NA,NA,1,NA,NA,1,1,1,"Lavellodrilus bonampakensis","Lavel_bona",0,0,FALSE
-"Lennogaster pusilla",NA,NA,2,NA,NA,2,2,2,"Lennogaster pusilla","Lenno_pusi",0,0,FALSE
-"Lumbricus baicalensis",1,NA,NA,1,NA,NA,1,1,"Lumbricus baicalensis","Lumbr_baic",1,1,FALSE
-"Lumbricus centralis",NA,7,NA,NA,7,NA,7,7,"Lumbricus centralis","Lumbr_cent",2,2,FALSE
-"Lumbricus gigas",NA,NA,NA,NA,NA,NA,NA,NA,"Lumbricus gigas","Lumbr_giga",0,0,FALSE
-"Lumbricus klarae",NA,1,NA,NA,1,NA,1,1,"Lumbricus klarae","Lumbr_klar",1,1,FALSE
-"Lumbricus lucens",NA,7,NA,NA,7,NA,7,7,"Lumbricus lucens","Lumbr_luce",3,3,FALSE
-"Malodrilus buarensis",NA,NA,NA,NA,NA,NA,NA,NA,"Malodrilus buarensis","Malod_buar",0,0,FALSE
-"Mayadrilus calakmulensis",NA,NA,2,NA,NA,2,2,2,"Mayadrilus calakmulensis","Mayad_cala",0,0,FALSE
-"Metaphire cai",NA,NA,6,NA,NA,6,6,6,"Metaphire cai","Metap_cai",0,0,FALSE
-"Metaphire californica",NA,NA,2,NA,NA,2,2,2,"Metaphire californica","Metap_cali",0,0,FALSE
-"Metaphire guillelmi",NA,NA,2,NA,NA,2,2,2,"Metaphire guillelmi","Metap_guil",0,0,FALSE
-"Metaphire houlleti",NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire houlleti","Metap_houl",0,0,FALSE
-"Metaphire kiengiangensis",NA,2,NA,NA,1,NA,2,1,"Metaphire kiengiangensis","Metap_kien",1,1,FALSE
-"Metaphire megascolidioides",NA,NA,4,NA,NA,4,4,4,"Metaphire megascolidioides","Metap_mega",0,0,FALSE
-"Metaphire posthuma",NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire posthuma","Metap_post",0,0,FALSE
-"Metaphire tschiliensis",NA,NA,1,NA,NA,1,1,1,"Metaphire tschiliensis","Metap_tsch",0,0,FALSE
-"Millsonia guttata",NA,NA,3,NA,NA,3,3,3,"Millsonia guttata","Mills_gutt",0,0,FALSE
-"Millsonia inermis",NA,NA,17,NA,NA,17,17,17,"Millsonia inermis","Mills_iner",0,0,FALSE
-"Millsonia lamtoiana",NA,NA,2,NA,NA,2,2,2,"Millsonia lamtoiana","Mills_lamt",0,0,FALSE
-"Millsonia schlegeli",NA,NA,3,NA,NA,3,3,3,"Millsonia schlegeli","Mills_schl",0,0,FALSE
-"Millsonia schlegelii",NA,NA,NA,NA,NA,NA,NA,NA,"Millsonia schlegelii","Millo_schl",0,0,FALSE
-"Nematogenia lacuum",NA,NA,15,NA,NA,15,15,15,"Nematogenia lacuum","Nemat_lacu",0,0,FALSE
-"Neotrigaster rufa",NA,NA,2,NA,NA,2,2,2,"Neotrigaster rufa","Neotr_rufa",0,0,FALSE
-"Nicodrilus rubicundus",NA,NA,NA,NA,NA,NA,NA,NA,"Nicodrilus rubicundus","Nicod_rubi",0,0,FALSE
-"Ocnerodrilus eiseni",NA,NA,NA,NA,NA,NA,NA,NA,"Ocnerodrilus eiseni","Ocner_eise",0,0,FALSE
-"Ocnerodrilus occidentalis",NA,NA,3,NA,NA,3,3,3,"Ocnerodrilus occidentalis","Ocner_occi",3,3,FALSE
-"Octochaetona beatrix",NA,NA,3,NA,NA,3,3,3,"Octochaetona beatrix","Octoc_beat",0,0,FALSE
-"Octodriloides boninoi",NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides boninoi","Octod_boni",0,0,FALSE
-"Octodriloides damianii",NA,NA,2,NA,NA,2,2,2,"Octodriloides damianii","Octod_dami",2,2,FALSE
-"Octodriloides kovacevici",NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides kovacevici","Octod_kova",0,0,FALSE
-"Octodrilus bretscheri",1,1,NA,1,1,NA,2,2,"Octodrilus bretscheri","Octod_bret",2,2,FALSE
-"Octodrilus exacystis",2,NA,NA,2,NA,NA,2,2,"Octodrilus exacystis","Octod_exac",2,2,FALSE
-"Octodrilus gradinescui",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus gradinescui","Octod_grad",0,0,FALSE
-"Octodrilus hemiandrus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus hemiandrus","Octod_hemi",0,0,FALSE
-"Octodrilus juvyi",NA,4,NA,NA,4,NA,4,4,"Octodrilus juvyi","Octod_juvy",4,2,FALSE
-"Octodrilus kvarnerus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus kvarnerus","Octod_kvar",0,0,FALSE
-"Octodrilus lissaensis",1,NA,NA,1,NA,NA,1,1,"Octodrilus lissaensis","Octod_liss",1,1,FALSE
-"Octodrilus mimus",3,NA,NA,2,NA,NA,3,2,"Octodrilus mimus","Octod_mimu",1,1,FALSE
-"Octodrilus pseudotranspadanus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus pseudotranspadanus","Octod_pseu",0,0,FALSE
-"Octodrilus slovenicus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus slovenicus","Octod_slov",0,0,FALSE
-"Octodrilus tergestinus",NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus tergestinus","Octod_terg",0,0,FALSE
-"Octolasion gracile",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasion gracile","Octol_grac",0,0,FALSE
-"Octolasium complanatum",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium complanatum","Octol_comp",0,0,FALSE
-"Octolasium croaticum",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium croaticum","Octol_croa",0,0,FALSE
-"Octolasium hemiandrum",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium hemiandrum","Octol_hemi",0,0,FALSE
-"Octolasium lissaense",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium lissaense","Octol_liss",0,0,FALSE
-"Octolasium mima",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium mima","Octol_mima",0,0,FALSE
-"Octolasium transpadana",NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium transpadana","Octol_tran",0,0,FALSE
-"Onychochaeta borincana",NA,NA,3,NA,NA,3,3,3,"Onychochaeta borincana","Onych_bori",0,0,FALSE
-"Perelia nematogena",NA,NA,NA,NA,NA,NA,NA,NA,"Perelia nematogena","Perel_nema",0,0,FALSE
-"Perelia tuberosa",NA,1787,NA,NA,1787,NA,1787,1787,"Perelia tuberosa","Perel_tube",0,0,FALSE
-"Perichaeta morrisi",NA,1,NA,NA,1,NA,1,1,"Perichaeta morrisi","Peric_morr",1,1,FALSE
-"Perionyx excavatus",NA,NA,5,NA,NA,5,5,5,"Perionyx excavatus","Perio_exca",0,0,FALSE
-"Perionyx macintoshii",NA,NA,NA,NA,NA,NA,NA,NA,"Perionyx macintoshii","Perio_maci",0,0,FALSE
-"Periscolex brachycystis",NA,NA,1,NA,NA,1,1,1,"Periscolex brachycystis","Peris_brac",0,0,FALSE
-"Pheretima indicus",NA,NA,NA,NA,NA,NA,NA,NA,"Pheretima indicus","Phere_indi",0,0,FALSE
-"Phoenicodrilus taste",NA,NA,1,NA,NA,1,1,1,"Phoenicodrilus taste","Phoen_tast",0,0,FALSE
-"Pithemera bicincta",NA,NA,5,NA,NA,5,5,5,"Pithemera bicincta","Pithe_bici",0,0,FALSE
-"Polypheretima cordata",NA,1,NA,NA,NA,NA,1,0,"Polypheretima cordata","Polyp_cord",0,0,FALSE
-"Polypheretima elongata",NA,NA,6,NA,NA,6,6,6,"Polypheretima elongata","Polyp_elon",0,0,FALSE
-"Polypheretima taprobanae",NA,NA,1,NA,NA,NA,1,0,"Polypheretima taprobanae","Polyp_tapr",0,0,FALSE
-"Polytoreutus annulatus",NA,NA,5,NA,NA,5,5,5,"Polytoreutus annulatus","Polyt_annu",0,0,FALSE
-"Pontodrilus litoralis",NA,NA,NA,NA,NA,NA,NA,NA,"Pontodrilus litoralis","Ponto_lito",0,0,FALSE
-"Pontoscolex corethrurus",NA,NA,312,NA,NA,303,312,303,"Pontoscolex corethrurus","Ponto_core",0,0,FALSE
-"Postandrilus majorcanus",NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus majorcanus","Posta_majo",0,0,FALSE
-"Postandrilus medoakus",NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus medoakus","Posta_medo",0,0,FALSE
-"Postandrilus palmensis",NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus palmensis","Posta_palm",0,0,FALSE
-"Postandrilus sapkarevi",NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus sapkarevi","Posta_sapk",0,0,FALSE
-"Proctodrilus opisthoductus",NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus opisthoductus","Proct_opis",0,0,FALSE
-"Proctodrilus thaleri",NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus thaleri","Proct_thal",0,0,FALSE
-"Prosellodrilus albus",NA,2,NA,NA,2,NA,2,2,"Prosellodrilus albus","Prose_albu",1,1,FALSE
-"Prosellodrilus amplisetosus",NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus amplisetosus","Prose_ampl",2,2,FALSE
-"Prosellodrilus amplisetosus amplisetosus",NA,NA,6,NA,NA,6,6,6,"Prosellodrilus amplisetosus amplisetosus","Prose_ampl",2,2,FALSE
-"Prosellodrilus biauriculatus",NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biauriculatus","Prose_biau",0,0,FALSE
-"Prosellodrilus biserialis",NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biserialis","Prose_bise",0,0,FALSE
-"Prosellodrilus praticola",NA,NA,9,NA,NA,9,9,9,"Prosellodrilus praticola","Prose_prat",3,3,FALSE
-"Prosellodrilus pyrenaicus",NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus pyrenaicus","Prose_pyre",0,0,FALSE
-"Reginaldia omodeoi",NA,NA,11,NA,NA,11,11,11,"Reginaldia omodeoi","Regin_omod",0,0,FALSE
-"Rhiphaeodrilus diplotetrathecus",NA,NA,11,NA,NA,11,11,11,"Rhiphaeodrilus diplotetrathecus","Rhiph_dipl",0,0,FALSE
-"Righiodrilus gurupi",NA,NA,5,NA,NA,4,5,4,"Righiodrilus gurupi","Righi_guru",0,0,FALSE
-"Rosadrilus camerunensis",NA,NA,NA,NA,NA,NA,NA,NA,"Rosadrilus camerunensis","Rosad_came",0,0,FALSE
-"Satchellius alvaradoi",NA,NA,1,NA,NA,1,1,1,"Satchellius alvaradoi","Satch_alva",1,1,FALSE
-"Scherotheca corsicana",NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca corsicana","Scher_cors",0,0,FALSE
-"Scherotheca dugesi",NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca dugesi","Scher_duge",0,0,FALSE
-"Scherotheca hexatheca",1,NA,NA,1,NA,NA,1,1,"Scherotheca hexatheca","Scher_hexa",1,1,FALSE
-"Scherotheca portcrosana",NA,5,NA,NA,NA,NA,5,0,"Scherotheca portcrosana","Scher_port",0,0,FALSE
-"Scherotheca rhodana",NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca rhodana","Scher_rhod",0,0,FALSE
-"Scherotheca savignyi",NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca savignyi","Scher_savi",0,0,FALSE
-"Scherotheca targionii",NA,NA,5,NA,NA,5,5,5,"Scherotheca targionii","Scher_targ",4,3,FALSE
-"Sparganophilus tamesis",NA,4,NA,NA,4,NA,4,4,"Sparganophilus tamesis","Sparg_tame",1,1,FALSE
-"Spenceriella montana",NA,NA,31,NA,NA,31,31,31,"Spenceriella montana","Spenc_mont",0,0,FALSE
-"Stuhlmannia palustris",NA,NA,8,NA,NA,8,8,8,"Stuhlmannia palustris","Stuhl_palu",0,0,FALSE
-"Stuhlmannia zielae",NA,NA,7,NA,NA,7,7,7,"Stuhlmannia zielae","Stuhl_ziel",0,0,FALSE
-"Urobenus brasiliensis",NA,NA,1,NA,NA,1,1,1,"Urobenus brasiliensis","Urobe_bras",0,0,FALSE
-"Vignysa popi",NA,1,NA,NA,1,NA,1,1,"Vignysa popi","Vigny_popi",1,1,FALSE
-"Xana omodeoi",NA,1,NA,NA,1,NA,1,1,"Xana omodeoi","Xana_omod",1,1,FALSE
-"Zophoscolex chitae",NA,NA,1,NA,NA,1,1,1,"Zophoscolex chitae","Zopho_chit",1,1,FALSE
-"Zophoscolex ibericus",NA,NA,44,NA,NA,44,44,44,"Zophoscolex ibericus","Zopho_iber",2,2,FALSE
-"Zophoscolex zhangi",NA,NA,NA,NA,NA,NA,NA,NA,"Zophoscolex zhangi","Zopho_zhan",0,0,FALSE
+"species","Edaphobase_raw","GBIF_raw","sWorm_raw","Edaphobase_clean","GBIF_clean","jerome","SoilReCon","sWorm_clean","RawOcc","CleanOcc","Acc_name","Species_final","SpeciesID","NumCells_2km","Included"
+"Allobophoridella eiseni",NA,NA,2,NA,NA,NA,NA,2,2,0,"Allolobophoridella eiseni","Allolobophoridella eiseni","Allol_eise",47,TRUE
+"Allolobophora antipae",NA,2,NA,NA,2,NA,NA,NA,2,2,"Allolobophora","Proctodrilus antipai","Proct_anti",27,TRUE
+"Allolobophora chlorotica",1094,3002,581,739,2779,17,24,465,4677,3535,"Allolobophora chlorotica","Allolobophora chlorotica","Allol_chlo",1356,TRUE
+"Allolobophora cupulifera",NA,17,NA,NA,17,NA,NA,NA,17,17,"Allolobophora cupulifera","Aporrectodea cupulifera","Aporr_cupu",6,TRUE
+"Allolobophora muldali",NA,115,NA,NA,105,NA,NA,NA,115,105,"Allolobophora muldali","Murcheiona muldali","Murch_muld",15,TRUE
+"Allolobophora smaragdina",NA,28,NA,NA,27,NA,NA,NA,28,27,"Allolobophora smaragdina","Aporrectodea smaragdina","Aporr_smar",12,TRUE
+"Allolobophoridella eiseni",65,NA,38,16,NA,NA,NA,38,103,16,"Allolobophoridella eiseni","Allolobophoridella eiseni","Allol_eise",47,TRUE
+"Amynthas corticis",NA,1,14,NA,1,NA,1,14,15,1,"Amynthas corticis","Amynthas corticis","Amynt_cort",8,TRUE
+"Aporrectodea caliginosa",4027,7409,1522,2794,7096,62,6,1368,12958,9952,"Aporrectodea caliginosa","Aporrectodea caliginosa","Aporr_cali",2077,TRUE
+"Aporrectodea cupulifera",21,NA,10,3,NA,NA,NA,9,31,3,"Aporrectodea cupulifera","Aporrectodea cupulifera","Aporr_cupu",6,TRUE
+"Aporrectodea georgii",10,6,NA,9,6,NA,NA,NA,16,15,"Aporrectodea georgii","Aporrectodea georgii","Aporr_geor",7,TRUE
+"Aporrectodea handlirschi",23,5,NA,3,5,NA,NA,NA,28,8,"Aporrectodea handlirschi","Aporrectodea handlirschi","Aporr_hand",6,TRUE
+"Aporrectodea icterica",88,NA,42,33,NA,NA,NA,42,130,33,"Aporrectodea icterica","Aporrectodea icterica","Aporr_icte",18,TRUE
+"Aporrectodea jassyensis",2,5,NA,NA,5,14,NA,NA,7,19,"Aporrectodea jassyensis","Aporrectodea jassyensis","Aporr_jass",5,TRUE
+"Aporrectodea limicola",100,144,51,41,135,NA,NA,50,295,176,"Aporrectodea limicola","Aporrectodea limicola","Aporr_limi",115,TRUE
+"Aporrectodea longa",413,1556,301,224,1437,2,NA,294,2270,1663,"Aporrectodea longa","Aporrectodea longa","Aporr_long",766,TRUE
+"Aporrectodea moebii",NA,NA,3,NA,NA,NA,NA,3,3,0,"Aporrectodea moebii","Aporrectodea molleri","Aporr_moll",33,TRUE
+"Aporrectodea molleri",NA,NA,63,NA,NA,NA,1,60,63,0,"Aporrectodea molleri","Aporrectodea molleri","Aporr_moll",33,TRUE
+"Aporrectodea nocturna",NA,25,13,NA,22,NA,NA,13,38,22,"Aporrectodea nocturna","Aporrectodea nocturna","Aporr_noct",28,TRUE
+"Aporrectodea oliveirae",NA,NA,18,NA,NA,NA,11,18,18,0,"Aporrectodea oliveirae","Aporrectodea oliveirae","Aporr_oliv",26,TRUE
+"Aporrectodea rosea",2388,6421,1165,1596,6309,77,11,1122,9974,7982,"Aporrectodea rosea","Aporrectodea rosea","Aporr_rose",1546,TRUE
+"Aporrectodea smaragdina",2,NA,NA,2,NA,12,NA,NA,2,14,"Aporrectodea smaragdina","Aporrectodea smaragdina","Aporr_smar",12,TRUE
+"Aporrectodea trapezoides",NA,NA,685,NA,NA,2,50,638,685,2,"Aporrectodea trapezoides","Aporrectodea trapezoides","Aporr_trap",63,TRUE
+"Aporrectodea tuberculata",NA,NA,182,NA,NA,NA,NA,180,182,0,"Aporrectodea tuberculata","Aporrectodea tuberculata","Aporr_tube",7,TRUE
+"Bimastos eiseni",NA,282,NA,NA,265,NA,NA,NA,282,265,"Bimastos eiseni","Allolobophoridella eiseni","Allol_eise",47,TRUE
+"Bimastos rubidus",NA,3148,NA,NA,3033,2,NA,NA,3148,3035,"Bimastos rubidus","Dendrodrilus rubidus tenuis","Dendr_rubi",228,TRUE
+"Criodrilus lacuum",NA,7,2,NA,6,1,NA,2,9,7,"Criodrilus lacuum","Criodrilus lacuum","Criod_lacu",8,TRUE
+"Dendrobaena alpina",3,23,NA,1,23,6,NA,NA,26,30,"Dendrobaena alpina","Dendrobaena alpina","Dendr_alpi",11,TRUE
+"Dendrobaena attemsi",90,315,1,82,298,6,8,1,406,386,"Dendrobaena attemsi","Dendrobaena attemsi","Dendr_atte",130,TRUE
+"Dendrobaena byblica",1,3,7,1,3,5,NA,7,11,9,"Dendrobaena byblica","Dendrobaena byblica","Dendr_bybl",15,TRUE
+"Dendrobaena cognettii",NA,1,NA,NA,1,NA,NA,NA,1,1,"Dendrobaena cognettii","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
+"Dendrobaena hortensis",12,71,6,8,62,11,NA,6,89,81,"Dendrobaena hortensis","Dendrobaena hortensis","Dendr_hort",60,TRUE
+"Dendrobaena illyrica",137,NA,NA,126,NA,NA,NA,NA,137,126,"Dendrobaena illyrica","Dendrobaena illyrica","Dendr_illy",109,TRUE
+"Dendrobaena illyricus",NA,7,NA,NA,7,NA,NA,NA,7,7,"Dendrobaena illyricus","Dendrobaena illyrica","Dendr_illy",109,TRUE
+"Dendrobaena lusitana",NA,NA,8,NA,NA,NA,NA,6,8,0,"Dendrobaena lusitana","Dendrobaena lusitana","Dendr_lusi",6,TRUE
+"Dendrobaena octaedra",1235,3208,1468,886,3155,18,1,1431,5911,4059,"Dendrobaena octaedra","Dendrobaena octaedra","Dendr_octa",669,TRUE
+"Dendrobaena persimilis",NA,NA,NA,NA,NA,9,NA,NA,0,9,"Dendrobaena persimilis","Dendrobaena persimilis","Dendr_pers",9,TRUE
+"Dendrobaena pygmaea",19,NA,19,4,NA,NA,NA,18,38,4,"Dendrobaena pygmaea","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
+"Dendrobaena vejdovskyi",67,5,NA,54,5,NA,NA,NA,72,59,"Dendrobaena vejdovskyi","Dendrobaena vejdovskyi","Dendr_vejd",8,TRUE
+"Dendrobaena veneta",7,64,1,3,50,6,NA,1,72,59,"Dendrobaena veneta","Dendrobaena veneta","Dendr_vene",40,TRUE
+"Dendrodrilus rubidus",605,NA,295,310,NA,7,1,270,900,317,"Dendrodrilus rubidus","Dendrodrilus rubidus","Dendr_rubi",228,TRUE
+"Dendrodrilus rubidus subrubicundus",NA,NA,1,NA,NA,NA,1,1,1,0,"Dendrodrilus rubidus subrubicundus","Dendrodrilus rubidus subrubicundus","Dendr_rubi",228,TRUE
+"Dendrodrilus rubidus tenuis",NA,NA,9,NA,NA,NA,3,9,9,0,"Dendrodrilus rubidus tenuis","Dendrodrilus rubidus tenuis","Dendr_rubi",228,TRUE
+"Eisenia andrei",NA,33,7,NA,26,NA,NA,7,40,26,"Eisenia andrei","Eisenia andrei","Eisen_andr",21,TRUE
+"Eisenia fetida",37,564,49,12,503,4,NA,48,650,519,"Eisenia fetida","Eisenia fetida","Eisen_feti",242,TRUE
+"Eisenia lucens",11,NA,3,6,NA,6,NA,3,14,12,"Eisenia lucens","Eisenia lucens","Eisen_luce",10,TRUE
+"Eiseniella tetraedra",248,11133,152,148,11010,14,1,103,11533,11172,"Eiseniella tetraedra","Eiseniella tetraedra","Eisen_tetr",5210,TRUE
+"Eiseniona hardlirschi",NA,NA,13,NA,NA,NA,NA,13,13,0,"Eiseniona handlirschi","Aporrectodea handlirschi","Aporr_hand",6,TRUE
+"Enterion cyaneum",NA,599,NA,NA,559,NA,NA,NA,599,559,"Enterion cyaneum","Octolasion cyaneum","Octol_cyan",107,TRUE
+"Enterion festivum",NA,231,NA,NA,213,NA,NA,NA,231,213,"Enterion festivum","Lumbricus festivus","Lumbr_fest",47,TRUE
+"Enterion polyphemus",NA,12,NA,NA,12,NA,NA,NA,12,12,"Enterion polyphemus","Lumbricus polyphemus","Lumbr_poly",12,TRUE
+"Enterion pygmaeum",NA,13,NA,NA,10,NA,NA,NA,13,10,"Enterion pygmaeum","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
+"Enterion tyrtaeum",NA,457,NA,NA,447,NA,NA,NA,457,447,"Enterion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",281,TRUE
+"Eophila icterica",NA,111,NA,NA,88,NA,NA,NA,111,88,"Eophila icterica","Aporrectodea icterica","Aporr_icte",18,TRUE
+"Helodrilus oculatus",13,12,2,1,11,3,NA,2,27,15,"Helodrilus oculatus","Helodrilus oculatus","Helod_ocul",13,TRUE
+"Lumbricus badensis",3,5,NA,NA,5,NA,NA,NA,8,5,"Lumbricus badensis","Lumbricus badensis","Lumbr_bade",5,TRUE
+"Lumbricus castaneus",810,1616,233,471,1544,17,2,205,2659,2032,"Lumbricus castaneus","Lumbricus castaneus","Lumbr_cast",945,TRUE
+"Lumbricus festivus",18,NA,88,15,NA,NA,NA,86,106,15,"Lumbricus festivus","Lumbricus festivus","Lumbr_fest",47,TRUE
+"Lumbricus friendi",11,28,30,NA,27,NA,5,30,69,27,"Lumbricus friendi","Lumbricus friendi","Lumbr_frie",36,TRUE
+"Lumbricus herculeus",13,58,NA,NA,57,NA,NA,NA,71,57,"Lumbricus herculeus","Lumbricus herculeus","Lumbr_herc",15,TRUE
+"Lumbricus lucens",NA,7,NA,NA,7,NA,NA,NA,7,7,"Lumbricus lucens","Eisenia lucens","Eisen_luce",10,TRUE
+"Lumbricus meliboeus",3,2,5,NA,2,1,NA,5,10,3,"Lumbricus meliboeus","Lumbricus meliboeus","Lumbr_meli",8,TRUE
+"Lumbricus polyphemus",47,NA,4,24,NA,NA,NA,4,51,24,"Lumbricus polyphemus","Lumbricus polyphemus","Lumbr_poly",12,TRUE
+"Lumbricus rubellus",2196,5380,1131,1542,5161,18,2,994,8707,6721,"Lumbricus rubellus","Lumbricus rubellus","Lumbr_rube",1822,TRUE
+"Lumbricus terrestris",2126,3306,950,1475,3094,14,1,941,6382,4583,"Lumbricus terrestris","Lumbricus terrestris","Lumbr_terr",1859,TRUE
+"Microscolex dubius",NA,3,269,NA,3,11,6,268,272,14,"Microscolex dubius","Microscolex dubius","Micro_dubi",24,TRUE
+"Microscolex phosphoreus",NA,8,189,NA,8,6,4,188,197,14,"Microscolex phosphoreus","Microscolex phosphoreus","Micro_phos",38,TRUE
+"Murchieona muldali",2,NA,39,NA,NA,NA,NA,38,41,0,"Murchieona muldali","Murchieona muldali","Murch_muld",15,TRUE
+"Octodrilus complanatus",8,13,16,NA,11,12,NA,16,37,23,"Octodrilus complanatus","Octodrilus complanatus","Octod_comp",27,TRUE
+"Octodrilus compromissus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus compromissus","Octodrilus compromissus","Octod_comp",27,TRUE
+"Octodrilus transpadanus",9,4,NA,6,4,4,NA,NA,13,14,"Octodrilus transpadanus","Octodrilus transpadanus","Octod_tran",10,TRUE
+"Octolasion cyaneum",270,NA,249,112,NA,5,5,208,519,117,"Octolasion cyaneum","Octolasion cyaneum","Octol_cyan",107,TRUE
+"Octolasion lacteum",NA,2633,226,NA,2619,7,2,226,2859,2626,"Octolasion lacteum","Octolasion lacteum","Octol_lact",279,TRUE
+"Octolasion tyrtaeum",1424,NA,190,1010,NA,1,2,190,1614,1011,"Octolasion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",281,TRUE
+"Octolasion tyrtaeum ",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",281,TRUE
+"Perelia gestroi",NA,19,NA,NA,19,NA,NA,NA,19,19,"Perelia gestroi","Perelia gestroi","Perel_gest",6,TRUE
+"Proctodrilus antipae",66,20,11,51,20,NA,NA,10,97,71,"Proctodrilus antipae","Proctodrilus antipai","Proct_anti",27,TRUE
+"Proctodrilus antipai",NA,1,NA,NA,1,NA,NA,NA,1,1,"Proctodrilus antipai","Proctodrilus antipai","Proct_anti",27,TRUE
+"Proctodrilus tuberculatus",28,13,4,7,13,NA,NA,4,45,20,"Proctodrilus tuberculatus","Proctodrilus tuberculatus","Proct_tube",14,TRUE
+"Satchellius madeirensis",NA,NA,28,NA,NA,NA,27,28,28,0,"Satchellius madeirensis","Satchellius madeirensis","Satch_made",47,TRUE
+"Satchellius mammalis",5,355,72,2,339,NA,NA,69,432,341,"Satchellius mammalis","Satchellius mammalis","Satch_mamm",199,TRUE
+"Scherotheca aquitania",NA,4,15,NA,4,NA,NA,15,19,4,"Scherotheca aquitania","Scherotheca aquitania","Scher_aqui",7,TRUE
+"Agastrodrilus multivesiculatus",NA,NA,4,NA,NA,NA,NA,4,4,0,"Agastrodrilus multivesiculatus","Agastrodrilus multivesiculatus","Agast_mult",0,FALSE
+"Ailoscolex lacteospumosus",NA,1,NA,NA,1,NA,NA,NA,1,1,"Ailoscolex lacteospumosus","Ailoscolex lacteospumosus","Ailos_lact",1,FALSE
+"Allolobophora altimontana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora altimontana","Allolobophora altimontana","Allol_alti",0,FALSE
+"Allolobophora biserialis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora biserialis","Allolobophora biserialis","Allol_bise",0,FALSE
+"Allolobophora carpathica",NA,NA,2,NA,NA,NA,NA,2,2,0,"Allolobophora carpathica","Aporrectodea carpathica","Aporr_carp",0,FALSE
+"Allolobophora carpatica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora carpatica","Allolobophora carpatica","Allol_carp",2,FALSE
+"Allolobophora cernosvitoviana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora cernosvitoviana","Allolobophora cernosvitoviana","Allol_cern",0,FALSE
+"Allolobophora cyrnea",1,NA,NA,1,NA,NA,NA,NA,1,1,"Allolobophora cyrnea","Scherotheca corsicana?","Scher_cors",0,FALSE
+"Allolobophora dacica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora dacica","Allolobophora dacica","Allol_daci",0,FALSE
+"Allolobophora dubiosa",2,NA,NA,2,NA,NA,NA,NA,2,2,"Allolobophora dubiosa","Aporrectodea dubiosa","Aporr_dubi",2,FALSE
+"Allolobophora dugesi",2,NA,NA,2,NA,NA,NA,NA,2,2,"Allolobophora dugesi","Scherotheca dugesi","Scher_duge",0,FALSE
+"Allolobophora exacystis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora exacystis","Allolobophora exacystis","Allol_exac",0,FALSE
+"Allolobophora gestroides",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora gestroides","Allolobophora gestroides","Allol_gest",0,FALSE
+"Allolobophora giardi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora giardi","Allolobophora giardi","Allol_giar",0,FALSE
+"Allolobophora hispanica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora hispanica","Allolobophora hispanica","Allol_hisp",0,FALSE
+"Allolobophora leoni",1,NA,NA,NA,NA,NA,NA,NA,1,0,"Allolobophora leoni","Allolobophora leoni","Allol_leon",0,FALSE
+"Allolobophora mehadiensis",1,NA,NA,1,NA,NA,NA,NA,1,1,"Allolobophora mehadiensis","Allolobophora mehadiensis","Allol_meha",1,FALSE
+"Allolobophora minuscula",NA,12,NA,NA,12,6,NA,NA,12,18,"Allolobophora minuscula","Murcheiona minuscula","Murch_minu",4,FALSE
+"Allolobophora molleri",NA,NA,NA,NA,NA,1,NA,NA,0,1,"Allolobophora molleri","Allolobophora molleri","Allol_moll",0,FALSE
+"Allolobophora morenoe",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora morenoe","Allolobophora morenoe","Allol_more",0,FALSE
+"Allolobophora oculata",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora oculata","Allolobophora oculata","Allol_ocul",0,FALSE
+"Allolobophora parva",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora parva","Allolobophora parva","Allol_parv",0,FALSE
+"Allolobophora robusta",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora robusta","Allolobophora robusta","Allol_robu",0,FALSE
+"Allolobophora satchelli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora satchelli","Allolobophora satchelli","Allol_satc",0,FALSE
+"Allolobophora sturanyi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora sturanyi","Allolobophora sturanyi","Allol_stur",2,FALSE
+"Allolobophora sturanyi dacidoides",NA,NA,2,NA,NA,NA,NA,2,2,0,"Allolobophora sturanyi dacidoides","Allolobophora sturanyi dacidoides","Allol_stur",2,FALSE
+"Allolobophora terrestris",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora terrestris","Allolobophora terrestris","Allol_terr",0,FALSE
+"Allolobophora thaleri",NA,5,NA,NA,5,NA,NA,NA,5,5,"Allolobophora thaleri","Aporrectodea thaleri","Aporr_thal",1,FALSE
+"Allurus neapolitanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allurus neapolitanus","Allurus neapolitanus","Allur_neap",0,FALSE
+"Amynthas agrestis",NA,1,11,NA,1,NA,NA,11,12,1,"Amynthas agrestis","Amynthas agrestis","Amynt_agre",1,FALSE
+"Amynthas aspergillum",NA,NA,41,NA,NA,NA,NA,41,41,0,"Amynthas aspergillum","Amynthas aspergillum","Amynt_aspe",0,FALSE
+"Amynthas gracilis",NA,NA,8,NA,NA,NA,NA,8,8,0,"Amynthas gracilis","Amynthas gracilis","Amynt_grac",0,FALSE
+"Amynthas heterochaetus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas heterochaetus","Amynthas heterochaetus","Amynt_hete",0,FALSE
+"Amynthas hupeiensis",NA,NA,2,NA,NA,NA,NA,2,2,0,"Amynthas hupeiensis","Amynthas hupeiensis","Amynt_hupe",0,FALSE
+"Amynthas mediocus",NA,NA,1,NA,NA,NA,NA,1,1,0,"Amynthas mediocus","Amynthas mediocus","Amynt_medi",0,FALSE
+"Amynthas minimus",NA,NA,6,NA,NA,NA,NA,NA,6,0,"Amynthas minimus","Amynthas minimus","Amynt_mini",0,FALSE
+"Amynthas morrisi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas morrisi","Amynthas morrisi","Amynt_morr",0,FALSE
+"Amynthas rodericensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas rodericensis","Amynthas rodericensis","Amynt_rode",0,FALSE
+"Amynthas tokioensis",NA,NA,8,NA,NA,NA,NA,5,8,0,"Amynthas tokioensis","Amynthas tokioensis","Amynt_toki",0,FALSE
+"Anisochaeta macleayi",NA,NA,113,NA,NA,NA,NA,113,113,0,"Anisochaeta macleayi","Anisochaeta macleayi","Aniso_macl",0,FALSE
+"Aporrectodea dubiosa",NA,NA,4,NA,NA,NA,NA,4,4,0,"Aporrectodea dubiosa","Aporrectodea dubiosa","Aporr_dubi",2,FALSE
+"Aporrectodea giardi",NA,NA,10,NA,NA,NA,NA,10,10,0,"Aporrectodea giardi","Aporrectodea giardi","Aporr_giar",3,FALSE
+"Aporrectodea haymoziformis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Aporrectodea haymoziformis","Aporrectodea haymoziformis","Aporr_haym",0,FALSE
+"Aporrectodea oerley",866,NA,NA,795,NA,NA,NA,NA,866,795,"Aporrectodea","Aporrectodea","Aporr_NA",0,FALSE
+"Aporrectodea opisthosellata",NA,NA,1,NA,NA,NA,NA,1,1,0,"Aporrectodea opisthosellata","Aporrectodea opisthosellata","Aporr_opis",1,FALSE
+"Aporrectodea thaleri",7,NA,NA,2,NA,NA,NA,NA,7,2,"Aporrectodea thaleri","Aporrectodea thaleri","Aporr_thal",1,FALSE
+"Aporrectodea turgida",NA,NA,43,NA,NA,NA,NA,43,43,0,"Aporrectodea turgida","Aporrectodea turgida","Aporr_turg",0,FALSE
+"Balanteodrilus pearsei",NA,NA,23,NA,NA,NA,NA,23,23,0,"Balanteodrilus pearsei","Balanteodrilus pearsei","Balan_pear",0,FALSE
+"Belladrilus emilianii",NA,NA,3,NA,NA,NA,NA,3,3,0,"Belladrilus emilianii","Belladrilus emilianii","Bella_emil",0,FALSE
+"Bimastos antiquus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos antiquus","Bimastos antiquus","Bimas_anti",0,FALSE
+"Bimastos jordanis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos jordanis","Bimastos jordanis","Bimas_jord",0,FALSE
+"Bimastos parvus",1,NA,19,1,NA,NA,NA,19,20,1,"Bimastos parvus","Bimastos parvus","Bimas_parv",1,FALSE
+"Bimastus parvus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastus parvus","Bimastus parvus","Bimas_parv",1,FALSE
+"Cataladrilus edwardsi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus edwardsi","Cataladrilus edwardsi","Catal_edwa",0,FALSE
+"Cataladrilus monticola",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus monticola","Cataladrilus monticola","Catal_mont",0,FALSE
+"Cataladrilus porquerollensis",NA,6,NA,NA,NA,NA,NA,NA,6,0,"Cataladrilus porquerollensis","Cataladrilus porquerollensis","Catal_porq",0,FALSE
+"Cernosvitovia bertae",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia bertae","Cernosvitovia bertae","Cerno_bert",0,FALSE
+"Cernosvitovia dudichi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia dudichi","Cernosvitovia dudichi","Cerno_dudi",0,FALSE
+"Dendrobaena auriculata",9,NA,NA,6,NA,NA,NA,NA,9,6,"Dendrobaena auriculata","Dendrobaena auriculata","Dendr_auri",2,FALSE
+"Dendrobaena clujensis",1,NA,NA,1,NA,NA,NA,NA,1,1,"Dendrobaena clujensis","Dendrobaena clujensis","Dendr_cluj",1,FALSE
+"Dendrobaena franzi",NA,NA,1,NA,NA,NA,NA,1,1,0,"Dendrobaena franzi","Dendrobaena franzi","Dendr_fran",1,FALSE
+"Dendrobaena fridericae",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena fridericae","Dendrobaena fridericae","Dendr_frid",0,FALSE
+"Dendrobaena ganglbaueri",NA,NA,NA,NA,NA,4,NA,NA,0,4,"Dendrobaena ganglbaueri","Dendrobaena ganglbaueri","Dendr_gang",3,FALSE
+"Dendrobaena mariupolienis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena mariupolienis","Dendrobaena mariupolienis","Dendr_mari",0,FALSE
+"Dendrobaena osellai",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena osellai","Dendrobaena osellai","Dendr_osel",0,FALSE
+"Dendrobaena pantaleonis",NA,NA,5,NA,NA,NA,NA,4,5,0,"Dendrobaena pantaleonis","Dendrobaena pantaleonis","Dendr_pant",3,FALSE
+"Dendrobaena pavliceki",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pavliceki","Dendrobaena pavliceki","Dendr_pavl",0,FALSE
+"Dendrobaena pentheri",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pentheri","Dendrobaena pentheri","Dendr_pent",0,FALSE
+"Dendrobaena platyura",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena platyura","Dendrobaena platyura","Dendr_plat",0,FALSE
+"Dendrobaena pseudorrosea",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pseudorrosea","Dendrobaena pseudorrosea","Dendr_pseu",0,FALSE
+"Dendrobaena pygmaea gallurensis",NA,NA,10,NA,NA,NA,NA,10,10,0,"Dendrobaena pygmaea gallurensis","Dendrobaena gallurensis","Dendr_gall",0,FALSE
+"Dendrobaena ressli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ressli","Dendrobaena ressli","Dendr_ress",0,FALSE
+"Dendrobaena ruffoi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ruffoi","Dendrobaena ruffoi","Dendr_ruff",0,FALSE
+"Dendrobaena schmidti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena schmidti","Dendr_schm",0,FALSE
+"Dendrobaena schmidti schmidti",NA,NA,2,NA,NA,NA,NA,2,2,0,"Dendrobaena schmidti schmidti","Dendrobaena schmidti schmidti","Dendr_schm",0,FALSE
+"Dendrobaena schmidti tellermanica",NA,NA,1,NA,NA,NA,NA,1,1,0,"Dendrobaena schmidti tellermanica","Dendrobaena schmidti tellermanica","Dendr_schm",0,FALSE
+"Dendrobaena succincta",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena succincta","Dendrobaena succincta","Dendr_succ",0,FALSE
+"Dichogaster affinis",NA,NA,22,NA,NA,NA,NA,22,22,0,"Dichogaster affinis","Dichogaster affinis","Dicho_affi",0,FALSE
+"Dichogaster baeri",NA,NA,3,NA,NA,NA,NA,3,3,0,"Dichogaster baeri","Dichogaster baeri","Dicho_baer",0,FALSE
+"Dichogaster bolaui",NA,2,8,NA,2,NA,NA,8,10,2,"Dichogaster bolaui","Dichogaster bolaui","Dicho_bola",2,FALSE
+"Dichogaster ehrhardti",NA,NA,2,NA,NA,NA,NA,2,2,0,"Dichogaster ehrhardti","Dichogaster ehrhardti","Dicho_ehrh",0,FALSE
+"Dichogaster gracilis",NA,NA,3,NA,NA,NA,NA,3,3,0,"Dichogaster gracilis","Dichogaster gracilis","Dicho_grac",0,FALSE
+"Dichogaster leroyi",NA,NA,9,NA,NA,NA,NA,9,9,0,"Dichogaster leroyi","Dichogaster leroyi","Dicho_lero",0,FALSE
+"Dichogaster mamillata",NA,NA,3,NA,NA,NA,NA,3,3,0,"Dichogaster mamillata","Dichogaster mamillata","Dicho_mami",0,FALSE
+"Dichogaster modiglianii",NA,NA,2,NA,NA,NA,NA,2,2,0,"Dichogaster modiglianii","Dichogaster modiglianii","Dicho_modi",0,FALSE
+"Dichogaster notabilis",NA,NA,6,NA,NA,NA,NA,6,6,0,"Dichogaster notabilis","Dichogaster notabilis","Dicho_nota",0,FALSE
+"Dichogaster papillosa",NA,NA,4,NA,NA,NA,NA,4,4,0,"Dichogaster papillosa","Dichogaster papillosa","Dicho_papi",0,FALSE
+"Dichogaster saliens",NA,NA,18,NA,NA,NA,NA,17,18,0,"Dichogaster saliens","Dichogaster saliens","Dicho_sali",0,FALSE
+"Dichogaster terraenigrae",NA,NA,2,NA,NA,NA,NA,2,2,0,"Dichogaster terraenigrae","Dichogaster terraenigrae","Dicho_terr",0,FALSE
+"Diplocardia hulberti",NA,NA,1,NA,NA,NA,NA,1,1,0,"Diplocardia hulberti","Diplocardia hulberti","Diplo_hulb",0,FALSE
+"Diplocardia kansensis",NA,NA,2,NA,NA,NA,NA,2,2,0,"Diplocardia kansensis","Diplocardia kansensis","Diplo_kans",0,FALSE
+"Diplocardia longiseta",NA,NA,7,NA,NA,NA,NA,7,7,0,"Diplocardia longiseta","Diplocardia longiseta","Diplo_long",0,FALSE
+"Diplocardia singularis",NA,NA,3,NA,NA,NA,NA,3,3,0,"Diplocardia singularis","Diplocardia singularis","Diplo_sing",0,FALSE
+"Diplotrema oxcutzcabensis",NA,NA,7,NA,NA,NA,NA,7,7,0,"Diplotrema oxcutzcabensis","Diplotrema oxcutzcabensis","Diplo_oxcu",0,FALSE
+"Diplotrema papillata",NA,NA,2,NA,NA,NA,NA,2,2,0,"Diplotrema papillata","Diplotrema papillata","Diplo_papi",0,FALSE
+"Diporodrilus pilosus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Diporodrilus pilosus","Diporodrilus pilosus","Dipor_pilo",0,FALSE
+"Dorgiodrilus robustus",NA,NA,1,NA,NA,NA,NA,1,1,0,"Dorgiodrilus robustus","Dorgiodrilus robustus","Dorgi_robu",0,FALSE
+"Drawida barwelli",NA,NA,4,NA,NA,NA,NA,4,4,0,"Drawida barwelli","Drawida barwelli","Drawi_barw",0,FALSE
+"Drawida gisti",NA,NA,2,NA,NA,NA,NA,2,2,0,"Drawida gisti","Drawida gisti","Drawi_gist",0,FALSE
+"Drawida japonica",NA,NA,2,NA,NA,NA,NA,2,2,0,"Drawida japonica","Drawida japonica","Drawi_japo",0,FALSE
+"Drawida nepalensis",NA,NA,5,NA,NA,NA,NA,5,5,0,"Drawida nepalensis","Drawida nepalensis","Drawi_nepa",0,FALSE
+"Eisenia atlavinyteae",NA,1796,4,NA,1796,NA,NA,4,1800,1796,"Eisenia atlavinyteae","Eisenia atlavinyteae","Eisen_atla",0,FALSE
+"Eisenia austriaca",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia austriaca","Eisenia austriaca","Eisen_aust",0,FALSE
+"Eisenia balatonica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia balatonica","Eisenia balatonica","Eisen_bala",1,FALSE
+"Eisenia japonica",NA,NA,14,NA,NA,NA,NA,14,14,0,"Eisenia japonica","Eisenia japonica","Eisen_japo",0,FALSE
+"Eisenia nordenskioldi",NA,25,NA,NA,25,NA,NA,NA,25,25,"Eisenia nordenskioldi","Eisenia nordenskioldi","Eisen_nord",0,FALSE
+"Eisenia nordenskioldi nordenskioldi",NA,NA,34,NA,NA,NA,NA,34,34,0,"Eisenia nordenskioldi nordenskioldi","Eisenia nordenskioldi","Eisen_nord",0,FALSE
+"Eisenia rhodopensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia rhodopensis","Eisenia rhodopensis","Eisen_rhod",0,FALSE
+"Eisenia spelaea",NA,NA,NA,NA,NA,1,NA,NA,0,1,"Eisenia spelaea","Eisenia spelaea","Eisen_spel",2,FALSE
+"Eisenia spelea",NA,2,NA,NA,2,NA,NA,NA,2,2,"Eisenia spelea","Eisenia spelea","Eisen_spel",2,FALSE
+"Eisenia submontana",2,NA,NA,1,NA,NA,NA,NA,2,1,"Eisenia submontana","Eisenia submontana","Eisen_subm",1,FALSE
+"Eiseniella balatonica",1,NA,NA,1,NA,NA,NA,NA,1,1,"Eiseniella balatonica","Eisenia balatonica","Eisen_bala",1,FALSE
+"Eiseniella balcanica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella balcanica","Eiseniella balcanica","Eisen_balc",0,FALSE
+"Eiseniella neapolitana",NA,NA,NA,NA,NA,2,NA,NA,0,2,"Eiseniella neapolitana","Eiseniella neapolitana","Eisen_neap",0,FALSE
+"Eiseniella ochridana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella ochridana","Eiseniella ochridana","Eisen_ochr",0,FALSE
+"Eiseniella oltenica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella oltenica","Eiseniella oltenica","Eisen_olte",0,FALSE
+"Eiseniona albolineata",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona albolineata","Eiseniona albolineata","Eisen_albo",0,FALSE
+"Eiseniona oliveirai",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona oliveirai","Eiseniona oliveirai","Eisen_oliv",0,FALSE
+"Eminoscolex lamani",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eminoscolex lamani","Eminoscolex lamani","Emino_lama",0,FALSE
+"Eminoscolex violaceus",NA,NA,3,NA,NA,NA,NA,3,3,0,"Eminoscolex violaceus","Eminoscolex violaceus","Emino_viol",0,FALSE
+"Eophila crodabepis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila crodabepis","Eophila crodabepis","Eophi_crod",0,FALSE
+"Eophila cyanea",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila cyanea","Eophila cyanea","Eophi_cyan",0,FALSE
+"Eophila pyrenaica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila pyrenaica","Eophila pyrenaica","Eophi_pyre",0,FALSE
+"Eophila tellinii",NA,9,NA,NA,9,NA,NA,NA,9,9,"Eophila tellinii","Eophila tellinii","Eophi_tell",4,FALSE
+"Ephyriodrilus afroccidentalis",NA,NA,3,NA,NA,NA,NA,3,3,0,"Ephyriodrilus afroccidentalis","Ephyriodrilus afroccidentalis","Ephyr_afro",0,FALSE
+"Ethnodrilus aveli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Ethnodrilus aveli","Ethnodrilus aveli","Ethno_avel",0,FALSE
+"Eudrilus eugeniae",NA,NA,3,NA,NA,NA,NA,3,3,0,"Eudrilus eugeniae","Eudrilus eugeniae","Eudri_euge",0,FALSE
+"Eudrilus pallidus",NA,NA,3,NA,NA,NA,NA,3,3,0,"Eudrilus pallidus","Eudrilus pallidus","Eudri_pall",0,FALSE
+"Eukerria saltensis",NA,NA,4,NA,NA,NA,NA,4,4,0,"Eukerria saltensis","Eukerria saltensis","Euker_salt",4,FALSE
+"Eutyphoeus incommodus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus incommodus","Eutyphoeus incommodus","Eutyp_inco",0,FALSE
+"Eutyphoeus mizoramensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus mizoramensis","Eutyphoeus mizoramensis","Eutyp_mizo",0,FALSE
+"Eutyphoeus waltoni",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus waltoni","Eutyphoeus waltoni","Eutyp_walt",0,FALSE
+"Fimoscolex bartzi",NA,NA,2,NA,NA,NA,NA,2,2,0,"Fimoscolex bartzi","Fimoscolex bartzi","Fimos_bart",0,FALSE
+"Firzingeria depressa",NA,NA,10,NA,NA,NA,NA,10,10,0,NA,"Dendrobaena depressa","Dendr_depr",0,FALSE
+"Firzingeria platyura",NA,NA,4,NA,NA,NA,NA,4,4,0,"Fitzingeria platyura","Dendrobaena platyura","Dendr_plat",0,FALSE
+"Fitzingeria platyura",36,15,NA,NA,NA,NA,NA,NA,51,0,"Fitzingeria platyura","Fitzingeria platyura","Fitzi_plat",2,FALSE
+"Gatesona chaetophora",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Gatesona chaetophora","Gatesona chaetophora","Gates_chae",0,FALSE
+"Gemascolex lateralis",NA,NA,7,NA,NA,NA,NA,7,7,0,"Gemascolex lateralis","Gemascolex lateralis","Gemas_late",0,FALSE
+"Gemascolex octothecatus",NA,NA,67,NA,NA,NA,NA,67,67,0,"Gemascolex octothecatus","Gemascolex octothecatus","Gemas_octo",0,FALSE
+"Gemascolex walkeri",NA,NA,22,NA,NA,NA,NA,22,22,0,"Gemascolex walkeri","Gemascolex walkeri","Gemas_walk",0,FALSE
+"Glossodrilus parecis",NA,NA,2,NA,NA,NA,NA,2,2,0,"Glossodrilus parecis","Glossodrilus parecis","Gloss_pare",0,FALSE
+"Glossoscolex giocondoi",NA,NA,1,NA,NA,NA,NA,1,1,0,"Glossoscolex giocondoi","Glossoscolex giocondoi","Gloss_gioc",0,FALSE
+"Gordiodrilus marcusi",NA,NA,4,NA,NA,NA,NA,4,4,0,"Gordiodrilus marcusi","Gordiodrilus marcusi","Gordi_marc",0,FALSE
+"Gordiodrilus wemanus",NA,NA,3,NA,NA,NA,NA,3,3,0,"Gordiodrilus wemanus","Gordiodrilus wemanus","Gordi_wema",0,FALSE
+"Healyella boluana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Healyella boluana","Healyella boluana","Healy_bolu",0,FALSE
+"Healyella zicsii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Healyella zicsii","Healyella zicsii","Healy_zics",0,FALSE
+"Helodrilus cortezi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Helodrilus cortezi","Helodrilus cortezi","Helod_cort",0,FALSE
+"Helodrilus moebii",1,NA,NA,NA,NA,NA,NA,NA,1,0,"Helodrilus moebii","Helodrilus moebii","Helod_moeb",0,FALSE
+"Helodrilus norvegicus",1,NA,NA,1,NA,NA,NA,NA,1,1,"Helodrilus norvegicus","Helodrilus norvegicus","Helod_norv",1,FALSE
+"Helodrilus patriarchalis",NA,NA,NA,NA,NA,13,NA,NA,0,13,"Helodrilus patriarchalis","Helodrilus patriarchalis","Helod_patr",0,FALSE
+"Helodrilus putris",2,NA,NA,NA,NA,NA,NA,NA,2,0,"Helodrilus","Helodrilus","Helod_NA",0,FALSE
+"Hemigastrodrilus monicae",NA,1,NA,NA,1,NA,NA,NA,1,1,"Hemigastrodrilus monicae","Hemigastrodrilus monicae","Hemig_moni",1,FALSE
+"Heteroporodrilus shephardi",NA,NA,22,NA,NA,NA,NA,22,22,0,"Heteroporodrilus shephardi","Heteroporodrilus shephardi","Heter_shep",0,FALSE
+"Hormogaster castillana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster castillana","Hormogaster castillana","Hormo_cast",0,FALSE
+"Hormogaster elisae",NA,1,23,NA,1,3,NA,23,24,4,"Hormogaster elisae","Hormogaster elisae","Hormo_elis",1,FALSE
+"Hormogaster najaformis",NA,1,NA,NA,1,NA,NA,NA,1,1,"Hormogaster najaformis","Hormogaster najaformis","Hormo_naja",1,FALSE
+"Hormogaster pretiosa",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster pretiosa","Hormogaster pretiosa","Hormo_pret",0,FALSE
+"Hormogaster redii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster redii","Hormogaster redii","Hormo_redi",0,FALSE
+"Hormogaster riojana",NA,1,NA,NA,1,NA,NA,NA,1,1,"Hormogaster riojana","Hormogaster riojana","Hormo_rioj",1,FALSE
+"Hormogaster samnitica",NA,1,NA,NA,1,NA,NA,NA,1,1,"Hormogaster samnitica","Hormogaster samnitica","Hormo_samn",1,FALSE
+"Hyperiodrilus africanus",NA,NA,13,NA,NA,NA,NA,13,13,0,"Hyperiodrilus africanus","Hyperiodrilus africanus","Hyper_afri",0,FALSE
+"Kenleenus armadas",NA,2,NA,NA,NA,NA,NA,NA,2,0,"Kenleenus armadas","Kenleenus armadas","Kenle_arma",0,FALSE
+"Kritodrilus micrurus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Kritodrilus micrurus","Kritodrilus micrurus","Krito_micr",0,FALSE
+"Kritodrilus tetryae",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Kritodrilus tetryae","Kritodrilus tetryae","Krito_tetr",0,FALSE
+"Lampito mauritti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Lampito mauritti","Lampito mauritti","Lampi_maur",0,FALSE
+"Larsonidrilus orbiculatus",NA,NA,3,NA,NA,NA,NA,3,3,0,"Larsonidrilus orbiculatus","Larsonidrilus orbiculatus","Larso_orbi",0,FALSE
+"Lavellodrilus bonampakensis",NA,NA,1,NA,NA,NA,NA,1,1,0,"Lavellodrilus bonampakensis","Lavellodrilus bonampakensis","Lavel_bona",0,FALSE
+"Lennogaster pusilla",NA,NA,2,NA,NA,NA,NA,2,2,0,"Leptogaster pusilla","Leptogaster pusilla","Lenno_pusi",0,FALSE
+"Lumbricus baicalensis",1,NA,NA,NA,NA,NA,NA,NA,1,0,"Lumbricus baicalensis","Lumbricus baicalensis","Lumbr_baic",0,FALSE
+"Lumbricus centralis",NA,7,NA,NA,7,NA,NA,NA,7,7,"Lumbricus centralis","Lumbricus centralis","Lumbr_cent",2,FALSE
+"Lumbricus gigas",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Lumbricus gigas","Lumbricus gigas","Lumbr_giga",0,FALSE
+"Lumbricus klarae",NA,1,NA,NA,1,NA,NA,NA,1,1,"Lumbricus klarae","Lumbricus klarae","Lumbr_klar",1,FALSE
+"Malodrilus buarensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Malodrilus buarensis","Malodrilus buarensis","Malod_buar",0,FALSE
+"Mayadrilus calakmulensis",NA,NA,2,NA,NA,NA,NA,2,2,0,"Mayadrilus calakmulensis","Mayadrilus calakmulensis","Mayad_cala",0,FALSE
+"Metaphire cai",NA,NA,6,NA,NA,NA,NA,6,6,0,"Metaphire cai","Metaphire cai","Metap_cai",0,FALSE
+"Metaphire californica",NA,NA,2,NA,NA,NA,NA,2,2,0,"Metaphire californica","Metaphire californica","Metap_cali",0,FALSE
+"Metaphire guillelmi",NA,NA,2,NA,NA,NA,NA,2,2,0,"Metaphire guillelmi","Metaphire guillelmi","Metap_guil",0,FALSE
+"Metaphire houlleti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire houlleti","Metaphire houlleti","Metap_houl",0,FALSE
+"Metaphire kiengiangensis",NA,2,NA,NA,1,NA,NA,NA,2,1,"Metaphire kiengiangensis","Metaphire kiengiangensis","Metap_kien",0,FALSE
+"Metaphire megascolidioides",NA,NA,4,NA,NA,NA,NA,4,4,0,"Metaphire megascolidioides","Metaphire megascolidioides","Metap_mega",0,FALSE
+"Metaphire posthuma",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire posthuma","Metaphire posthuma","Metap_post",0,FALSE
+"Metaphire tschiliensis",NA,NA,1,NA,NA,NA,NA,1,1,0,"Metaphire tschiliensis","Metaphire tschiliensis","Metap_tsch",0,FALSE
+"Millsonia guttata",NA,NA,3,NA,NA,NA,NA,3,3,0,"Millsonia guttata","Millsonia guttata","Mills_gutt",0,FALSE
+"Millsonia inermis",NA,NA,17,NA,NA,NA,NA,17,17,0,"Millsonia inermis","Millsonia inermis","Mills_iner",0,FALSE
+"Millsonia lamtoiana",NA,NA,2,NA,NA,NA,NA,2,2,0,"Millsonia lamtoiana","Millsonia lamtoiana","Mills_lamt",0,FALSE
+"Millsonia schlegeli",NA,NA,3,NA,NA,NA,NA,3,3,0,"Millsonia schlegeli","Millsonia schlegeli","Mills_schl",0,FALSE
+"Murchieona minuscula",14,NA,NA,10,NA,NA,NA,NA,14,10,"Murchieona minuscula","Murchieona minuscula","Murch_minu",4,FALSE
+"Nematogenia lacuum",NA,NA,15,NA,NA,NA,NA,15,15,0,"Nematogenia lacuum","Nematogenia lacuum","Nemat_lacu",0,FALSE
+"Neotrigaster rufa",NA,NA,2,NA,NA,NA,NA,2,2,0,"Neotrigaster rufa","Neotrigaster rufa","Neotr_rufa",0,FALSE
+"Nicodrilus rubicundus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Nicodrilus rubicundus","Nicodrilus rubicundus","Nicod_rubi",0,FALSE
+"Ocnerodrilus eiseni",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Ocnerodrilus eiseni","Ocnerodrilus eiseni","Ocner_eise",0,FALSE
+"Ocnerodrilus occidentalis",NA,NA,3,NA,NA,1,NA,3,3,1,"Ocnerodrilus occidentalis","Ocnerodrilus occidentalis","Ocner_occi",3,FALSE
+"Octochaetona beatrix",NA,NA,3,NA,NA,NA,NA,3,3,0,"Octochaetona beatrix","Octochaetona beatrix","Octoc_beat",0,FALSE
+"Octodriloides boninoi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides boninoi","Octodriloides boninoi","Octod_boni",0,FALSE
+"Octodriloides damianii",NA,NA,2,NA,NA,NA,NA,2,2,0,"Octodriloides damianii","Octodriloides damianii","Octod_dami",2,FALSE
+"Octodriloides kovacevici",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides kovacevici","Octodriloides kovacevici","Octod_kova",0,FALSE
+"Octodrilus argoviensis",21,NA,1,NA,NA,3,NA,1,22,3,"Octodrilus argoviensis","Octodrilus argoviensis","Octod_argo",3,FALSE
+"Octodrilus bretscheri",1,1,NA,1,1,NA,NA,NA,2,2,"Octodrilus bretscheri","Octodrilus bretscheri","Octod_bret",2,FALSE
+"Octodrilus exacystis",2,NA,NA,1,NA,NA,NA,NA,2,1,"Octodrilus exacystis","Octodrilus exacystis","Octod_exac",1,FALSE
+"Octodrilus gradinescui",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus gradinescui","Octodrilus gradinescui","Octod_grad",0,FALSE
+"Octodrilus hemiandrus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus hemiandrus","Octodrilus hemiandrus","Octod_hemi",0,FALSE
+"Octodrilus juvyi",NA,4,NA,NA,4,NA,NA,NA,4,4,"Octodrilus juvyi","Octodrilus juvyi","Octod_juvy",2,FALSE
+"Octodrilus kvarnerus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus kvarnerus","Octodrilus kvarnerus","Octod_kvar",0,FALSE
+"Octodrilus lissaensis",1,NA,NA,1,NA,8,NA,NA,1,9,"Octodrilus lissaensis","Octodrilus lissaensis","Octod_liss",2,FALSE
+"Octodrilus mimus",3,NA,NA,NA,NA,NA,NA,NA,3,0,"Octodrilus mimus","Octodrilus mimus","Octod_mimu",0,FALSE
+"Octodrilus pseudotranspadanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus pseudotranspadanus","Octodrilus pseudotranspadanus","Octod_pseu",0,FALSE
+"Octodrilus slovenicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus slovenicus","Octodrilus slovenicus","Octod_slov",0,FALSE
+"Octodrilus tergestinus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus tergestinus","Octodrilus tergestinus","Octod_terg",0,FALSE
+"Octolasion gracile",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasion gracile","Octolasion gracile","Octol_grac",0,FALSE
+"Octolasion oerley",426,NA,NA,386,NA,NA,NA,NA,426,386,"Octolasion","Octolasion","Octol_NA",0,FALSE
+"Octolasium complanatum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium complanatum","Octolasium complanatum","Octol_comp",0,FALSE
+"Octolasium croaticum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium croaticum","Octolasium croaticum","Octol_croa",0,FALSE
+"Octolasium hemiandrum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium hemiandrum","Octolasium hemiandrum","Octol_hemi",0,FALSE
+"Octolasium lissaense",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium lissaense","Octolasium lissaense","Octol_liss",0,FALSE
+"Octolasium mima",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium mima","Octolasium mima","Octol_mima",0,FALSE
+"Octolasium transpadana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium transpadana","Octolasium transpadana","Octol_tran",0,FALSE
+"Onychochaeta borincana",NA,NA,3,NA,NA,NA,NA,3,3,0,"Onychochaeta borincana","Onychochaeta borincana","Onych_bori",0,FALSE
+"Perelia nematogena",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Perelia nematogena","Perelia nematogena","Perel_nema",0,FALSE
+"Perelia tuberosa",NA,1787,NA,NA,1787,NA,NA,NA,1787,1787,"Perelia tuberosa","Perelia tuberosa","Perel_tube",0,FALSE
+"Perichaeta morrisi",NA,1,NA,NA,1,NA,NA,NA,1,1,"Perichaeta morrisi","Amynthas morrisi","Amynt_morr",0,FALSE
+"Perionyx excavatus",NA,NA,5,NA,NA,NA,NA,5,5,0,"Perionyx excavatus","Perionyx excavatus","Perio_exca",0,FALSE
+"Perionyx macintoshii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Perionyx macintoshii","Perionyx macintoshii","Perio_maci",0,FALSE
+"Periscolex brachycystis",NA,NA,1,NA,NA,NA,NA,1,1,0,"Periscolex brachycystis","Periscolex brachycystis","Peris_brac",0,FALSE
+"Pheretima indicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pheretima indicus","Pheretima indicus","Phere_indi",0,FALSE
+"Phoenicodrilus taste",NA,NA,1,NA,NA,NA,NA,1,1,0,"Phoenicodrilus taste","Phoenicodrilus taste","Phoen_tast",0,FALSE
+"Pithemera bicincta",NA,NA,5,NA,NA,NA,NA,5,5,0,"Pithemera bicincta","Pithemera bicincta","Pithe_bici",0,FALSE
+"Polypheretima cordata",NA,1,NA,NA,NA,NA,NA,NA,1,0,"Polypheretima cordata","Polypheretima cordata","Polyp_cord",0,FALSE
+"Polypheretima elongata",NA,NA,6,NA,NA,NA,NA,6,6,0,"Polypheretima elongata","Polypheretima elongata","Polyp_elon",0,FALSE
+"Polypheretima taprobanae",NA,NA,1,NA,NA,NA,NA,NA,1,0,"Polypheretima taprobanae","Polypheretima taprobanae","Polyp_tapr",0,FALSE
+"Polytoreutus annulatus",NA,NA,5,NA,NA,NA,NA,5,5,0,"Polytoreutus annulatus","Polytoreutus annulatus","Polyt_annu",0,FALSE
+"Pontodrilus litoralis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pontodrilus litoralis","Pontodrilus litoralis","Ponto_lito",0,FALSE
+"Pontoscolex corethrurus",NA,NA,312,NA,NA,NA,NA,303,312,0,"Pontoscolex corethrurus","Pontoscolex corethrurus","Ponto_core",0,FALSE
+"Postandrilus majorcanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus majorcanus","Postandrilus majorcanus","Posta_majo",0,FALSE
+"Postandrilus medoakus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus medoakus","Postandrilus medoakus","Posta_medo",0,FALSE
+"Postandrilus palmensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus palmensis","Postandrilus palmensis","Posta_palm",0,FALSE
+"Postandrilus sapkarevi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus sapkarevi","Postandrilus sapkarevi","Posta_sapk",0,FALSE
+"Proctodrilus opisthoductus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus opisthoductus","Proctodrilus opisthoductus","Proct_opis",0,FALSE
+"Proctodrilus thaleri",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus thaleri","Proctodrilus thaleri","Proct_thal",0,FALSE
+"Prosellodrilus albus",NA,2,NA,NA,2,NA,NA,NA,2,2,"Prosellodrilus albus","Prosellodrilus albus","Prose_albu",1,FALSE
+"Prosellodrilus amplisetosus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus amplisetosus","Prose_ampl",2,FALSE
+"Prosellodrilus amplisetosus amplisetosus",NA,NA,6,NA,NA,NA,NA,6,6,0,"Prosellodrilus amplisetosus amplisetosus","Prosellodrilus amplisetosus","Prose_ampl",2,FALSE
+"Prosellodrilus biauriculatus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biauriculatus","Prosellodrilus biauriculatus","Prose_biau",0,FALSE
+"Prosellodrilus biserialis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biserialis","Prosellodrilus biserialis","Prose_bise",0,FALSE
+"Prosellodrilus praticola",NA,NA,9,NA,NA,NA,NA,9,9,0,"Prosellodrilus praticola","Prosellodrilus praticola","Prose_prat",3,FALSE
+"Prosellodrilus pyrenaicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus pyrenaicus","Prosellodrilus pyrenaicus","Prose_pyre",0,FALSE
+"Reginaldia omodeoi",NA,NA,11,NA,NA,NA,NA,11,11,0,"Reginaldia omodeoi","Reginaldia omodeoi","Regin_omod",0,FALSE
+"Rhiphaeodrilus diplotetrathecus",NA,NA,11,NA,NA,NA,NA,11,11,0,"Rhiphaeodrilus diplotetrathecus","Rhiphaeodrilus diplotetrathecus","Rhiph_dipl",0,FALSE
+"Righiodrilus gurupi",NA,NA,5,NA,NA,NA,NA,4,5,0,"Righiodrilus gurupi","Righiodrilus gurupi","Righi_guru",0,FALSE
+"Rosadrilus camerunensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Rosadrilus camerunensis","Rosadrilus camerunensis","Rosad_came",0,FALSE
+"Satchellius alvaradoi",NA,NA,1,NA,NA,NA,NA,1,1,0,"Satchellius alvaradoi","Satchellius alvaradoi","Satch_alva",1,FALSE
+"Scherotheca corsicana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca corsicana","Scherotheca corsicana","Scher_cors",0,FALSE
+"Scherotheca dugesi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca dugesi","Scherotheca dugesi","Scher_duge",0,FALSE
+"Scherotheca hexatheca",1,NA,NA,NA,NA,NA,NA,NA,1,0,"Scherotheca hexatheca","Scherotheca corsicana?","Scher_cors",0,FALSE
+"Scherotheca portcrosana",NA,5,NA,NA,NA,NA,NA,NA,5,0,"Scherotheca portcrosana","Scherotheca portcrosana","Scher_port",0,FALSE
+"Scherotheca rhodana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca rhodana","Scherotheca rhodana","Scher_rhod",0,FALSE
+"Scherotheca savignyi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca savignyi","Scherotheca savignyi","Scher_savi",0,FALSE
+"Scherotheca targionii",NA,NA,5,NA,NA,NA,NA,5,5,0,"Scherotheca targionii","Scherotheca targionii","Scher_targ",3,FALSE
+"Sparganophilus tamesis",NA,4,NA,NA,4,NA,NA,NA,4,4,"Sparganophilus tamesis","Sparganophilus tamesis","Sparg_tame",1,FALSE
+"Spenceriella montana",NA,NA,31,NA,NA,NA,NA,31,31,0,"Spenceriella montana","Spenceriella montana","Spenc_mont",0,FALSE
+"Stuhlmannia palustris",NA,NA,8,NA,NA,NA,NA,8,8,0,"Stuhlmannia palustris","Stuhlmannia palustris","Stuhl_palu",0,FALSE
+"Stuhlmannia zielae",NA,NA,7,NA,NA,NA,NA,7,7,0,"Stuhlmannia zielae","Stuhlmannia zielae","Stuhl_ziel",0,FALSE
+"Urobenus brasiliensis",NA,NA,1,NA,NA,NA,NA,1,1,0,"Urobenus brasiliensis","Urobenus brasiliensis","Urobe_bras",0,FALSE
+"Vignysa popi",NA,1,NA,NA,1,NA,NA,NA,1,1,"Vignysa popi","Vignysa popi","Vigny_popi",1,FALSE
+"Xana omodeoi",NA,1,NA,NA,1,NA,NA,NA,1,1,"Xana omodeoi","Xanina omodeoi","Xanin_omod",0,FALSE
+"Zophoscolex chitae",NA,NA,1,NA,NA,NA,NA,1,1,0,"Zophoscolex chitae","Zophoscolex chitae","Zopho_chit",1,FALSE
+"Zophoscolex ibericus",NA,NA,44,NA,NA,NA,NA,44,44,0,"Zophoscolex ibericus","Zophoscolex ibericus","Zopho_iber",2,FALSE
+"Zophoscolex zhangi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Zophoscolex zhangi","Zophoscolex zhangi","Zopho_zhan",0,FALSE

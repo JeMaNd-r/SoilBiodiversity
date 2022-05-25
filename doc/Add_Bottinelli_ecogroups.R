@@ -86,7 +86,7 @@ ew_list
 recon <- recon[recon$Species!="Octolasion sp." & !is.na(recon$Species),]
 
 recon$Species <- stringr::str_to_sentence(recon$Species)
-recon$Species <- word(recon$Species, 1, 2)
+#recon$Species <- word(recon$Species, 1, 2)
 unique(recon$Species)
 
 ew_list <- dplyr::full_join(ew_list, recon %>% dplyr::select(Species), by="Species") %>% unique()
@@ -109,14 +109,16 @@ jema$Species <- stringr::str_to_sentence(jema$Species)
 # keep only species, not subspecies
 jema$Species <- word(jema$Species, 1, 2)
 
-# remove species with sp or spp
+# remove - from species names
+jema$Species <- gsub("[[:punct:]]", "",jema$Species)
 
+ew_list <- dplyr::full_join(ew_list, jema %>% dplyr::select(Species), by="Species") %>% unique()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Define SpeciesID while accounting for synonyms ####
 
 # delete species with Identifier name as species name (e.g., Lumbricus Linneous)
-ew_list <- ew_list %>% filter(!str_detect(Species, " [:upper:]"))
+ew_list <- ew_list %>% filter(!str_detect(Species, " [:upper:]"), !is.na(Species))
 
 #tax_key <- rgbif::name_suggest(q=Taxon_name, rank=Taxon_rank)
 
@@ -279,40 +281,59 @@ for(i in 1:nrow(ew_list)){
 
 phylogeny <- taxize::classification(unique(ew_list$Genus), db="itis", rows=NA) #rows=NA means all rows
 phylogeny_list <- lapply(1:length(phylogeny), function(x) {
-  if(!is.na(phylogeny[[x]])) pivot_wider(phylogeny[[x]] %>% dplyr::select(-id),names_from = rank, values_from=name)})
+  if(length(phylogeny[[x]])!=1) pivot_wider(phylogeny[[x]] %>% dplyr::select(-id),names_from = rank, values_from=name)})
 phylogeny_df <- bind_rows(phylogeny_list)
+head(phylogeny_df)
 
-ew_list <- ew_list %>% full_join(phylogeny_df, by=c("Acc_name" = "species"))
-
-ew_list[is.na(ew_list$genus),"genus"] <- word(ew_list[is.na(ew_list$genus),]$Acc_name, 1, 1)
-
-#ew_list %>% inner_join(ew_list %>% dplyr::select(kingdom, phylum, order, family, genus) %>% unique(), by=c("kingdom", "phylum", "order", "family", "genus"))
-
+ew_list <- ew_list %>% full_join(phylogeny_df, by=c("Genus" = "genus"))
 
 ew_list$Group_name <- "Earthworms"
 
-# #... TODO: use taxize to get information :)
-# Phylogeny <- ew_list %>% 
-#   dplyr::select(Group_name, Kingdom, Phylum, Class, Order, Family, Genus) %>%
-#   unique() %>%
-#   filter(!is.na(Family), !is.na(Kingdom))
-# 
-# ew_list <- dplyr::full_join(ew_list, Phylogeny)
-
 #- - - - - - - - - - - - - - - - - - - - -
 ## Save expanded ew_list ####
-ew_list <- ew_list[order(ew_list$Acc_name),]
+# add wrong speciesID (Leptogaster in Lennogaster)
+ew_list[ew_list$Species=="Lennogaster pusilla", "SpeciesID"] <- "Lenno_pusi"
+ew_list[ew_list$Species=="Lennogaster pusilla", "Genus"] <- "Lennogaster"
+ew_list[ew_list$Species=="Lennogaster pusilla", "Species_final"] <- "Lennogaster pusilla"
+
+# replace SpeciesID and Species_Biones "Esienia" with "Eisenia"
+ew_list[ew_list$Species_final=="Esienia lucens","Species_final"] <- "Eisenia lucens"
+ew_list[ew_list$Species_final=="Eisenia lucens","SpeciesID"] <- "Eisen_luce"
+
+# remove rows with name = sp. or name only being genus
+ew_list <- ew_list %>% filter(Species_final != Genus & SpeciesID != "Amint_spp")
+
+# remove duplicates
+ew_list <- ew_list %>% unique()
 ew_list
 
-write.csv(ew_list, file=paste0(here::here(), "/data/Species_list_Crassiclitellata.csv"), row.names = F)
+# add remaining (missing) classification based on GBIF websearch
+ew_list[ew_list$Genus=="Allurus", "family"] <- "Lumbricidae"
+ew_list[ew_list$SpeciesID=="Appor_rose", "SpeciesID"] <- "Aporr_rose"
+ew_list[ew_list$Genus=="Bismastus", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Dendrodilus", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Eisenia", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Eiseniella", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Eiseniona", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Kenleenus", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Lennogaster", "family"] <- "Octochaetidae"
+ew_list[ew_list$Genus=="Nicodrilus", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Octolasium", "family"] <- "Lumbricidae"
+ew_list[ew_list$Genus=="Rhiphaeodrilus", "family"] <- "Lumbricidae"
 
-# BY HAND:
-# add remaining (missing) classification based on already present genus, or with internet.
-# remove duplicates
-# add wrong speciesID (Leptogaster in Lennogaster)
-# make Firzingeria depressa classification to Firzingeria (not otehr genus)
-# replace SpeciesID and Species_Biones "Esienia" with "Eisenia"
-# remove rows with name = sp.
-# result: 351 unique species names ...
+# add missing SpeciesID
+for(sp in unique(ew_list[is.na(ew_list$SpeciesID),"species"])){
+	temp_ID <- paste0(substr(word(ew_list[ew_list$Species==sp,"Species"], 1), 1, 5), "_", 
+                            substr(word(ew_list[ew_list$Species==sp,"Species"], 2), 1, 4))
+	ew_list[ew_list$Species==sp,"SpeciesID"] <- temp_ID
+	rm(temp_ID)
+}
+
+ew_list <- ew_list[order(ew_list$Species_final),]
+
+length(unique(ew_list$SpeciesID)); length(unique(ew_list$Species))
+# result: 339 unique species IDs and  388 species
+
+write.csv(ew_list, file=paste0(here::here(), "/data/Species_list_Crassiclitellata.csv"), row.names = F)
 
 
