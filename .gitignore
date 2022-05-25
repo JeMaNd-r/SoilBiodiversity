@@ -88,3 +88,5 @@ data/Shapefiles/
 
 /results/ModelEvaluation_*
 results/EnvPredictor_2km_df_normalized.csv
+results/Occurrence_rasterized_2km_Crassiclitellata.csv
+results/Occurrences_Crassiclitellata.csv
