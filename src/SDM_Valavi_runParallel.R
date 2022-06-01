@@ -759,7 +759,7 @@ temp_predict_time <- proc.time()[3] - tmp
  
 
 # varImp
-temp_varImp <- as.data.frame(temp.results[str_detect(rownames(maxent@results),"permutation.importance"),])
+temp_varImp <- as.data.frame(maxent@results[str_detect(rownames(maxent@results),"permutation.importance"),])
 # Note: permutation importance = determine the importance of predictors 
 # calculated by permuting values of each predictor &  resulting reduction
 # in training AUC: large reduction = model is influenced by that predictor. 
