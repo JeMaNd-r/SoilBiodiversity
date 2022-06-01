@@ -291,6 +291,8 @@ clim_folders <- c(clim_folders, list.dirs("D:/00_datasets/Climate/V005_MAT_Seas"
 clim_folders
 
 files <- list.files(clim_folders, include.dirs = T, recursive=F, full.names = T)
+files <- files[stringr::str_detect(files, "CHELSA")]
+files
 
 for(no_future in futureNames){
    temp_files <- files[stringr::str_detect(files, no_future)]
@@ -302,7 +304,7 @@ for(no_future in futureNames){
       temp_name <- stringr::str_extract(temp_files[i], "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
       temp_name <- substr(temp_name, 6, nchar(temp_name))
     
-      makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/", raster_grid = grid2k, temp_file = substr(temp_files[i], 24, nchar(temp_files)), 
+      makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/", raster_grid = grid2k, temp_file = substr(temp_files[i], 24, nchar(temp_files[i])), 
                   file_name=paste0(temp_name, "_", no_future, "_2km_mean.tif"))
    }
 }
