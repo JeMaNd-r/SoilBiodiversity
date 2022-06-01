@@ -146,6 +146,11 @@ checkSave_precitor <- FALSE
 # define the species you wanted names
 speciesNames <- read.csv(file=paste0(here::here(), "/data/Species_list_", Taxon_name, ".csv"))    #pre-defined list only
 
+# define future scenarios
+scenarioNames <- paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
+                          "mri-esm2-0", "ukesm1-0-ll"), "_",
+                          rep(c("ssp126", "ssp370", "ssp585"),3))
+
 # define first species
 spID <- "Lumbr_terr"
 #spID <- "Aporr_cali"

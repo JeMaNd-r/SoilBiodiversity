@@ -13,7 +13,7 @@ grid2k <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
 raster::crs(grid2k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file="I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity/doc/Env_Predictors_table.csv")
+pred_tab <- readr::read_csv(file="D:/_students/Romy/SoilBiodiversity/doc/Env_Predictors_table.csv")
 
 # combine ID and Predictor name (to get folder names later on)
 pred_tab$Predictor_long <- pred_tab$Predictor
@@ -247,7 +247,7 @@ raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/res
 
 # as dataframe
 Env_df <- as.data.frame(raster::rasterToPoints(Env))
-save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df.RData")
+save(Env_df, file="D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_2km_df.RData")
 
 ## cut to grid (should not be necessary anymore...)
 #Env <- raster::mask(Env, grid1k)
@@ -258,7 +258,7 @@ save(Env_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPred
 # 
 # Env <- raster::stack(Env)
 
-#pdf(file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/figures/Predictors_Europe_2km.pdf", height=15, width = 18)
+#pdf(file="D:/_students/Romy/SoilBiodiversity/figures/Predictors_Europe_2km.pdf", height=15, width = 18)
 raster::plot(Env, maxnl=35)
 dev.off()
 
@@ -269,11 +269,86 @@ Env_norm <- raster::scale(Env)
 Env_norm <- raster::stack(Env_norm)
   
 # save Env_norm
-raster::writeRaster(Env_norm, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_normalized.grd", overwrite=T)
+raster::writeRaster(Env_norm, file="D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_2km_normalized.grd", overwrite=T)
 
 # same for dataframe
 Env_norm_df <- as.data.frame(raster::rasterToPoints(Env_norm))
-save(Env_norm_df, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData")
+save(Env_norm_df, file="D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_2km_df_normalized.RData")
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Create future climate stacks ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+# same stack but MAT and MAP (MAT_Seas and MAP_Seas as well) from scenarios
+futureNames <- sort(paste0(rep(c("2011-2040", "2041-2070", "2071-2100"),each=length(scenarioNames)), "_", scenarioNames))
+futureNames
+
+# define file names
+clim_folders <- list.dirs("D:/00_datasets/Climate/V002_MAP", recursive=F)
+clim_folders <- c(clim_folders, list.dirs("D:/00_datasets/Climate/V003_MAP_Seas", recursive=F))
+clim_folders <- c(clim_folders, list.dirs("D:/00_datasets/Climate/V004_MAT", recursive=F))
+clim_folders <- c(clim_folders, list.dirs("D:/00_datasets/Climate/V005_MAT_Seas", recursive=F))
+clim_folders
+
+files <- list.files(clim_folders, include.dirs = T, recursive=F, full.names = T)
+
+for(no_future in futureNames){
+   temp_files <- files[stringr::str_detect(files, no_future)]
+   temp_files
+
+   for(i in 1:length(temp_files)){
+
+      # define name of variable
+      temp_name <- stringr::str_extract(temp_files[i], "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
+      temp_name <- substr(temp_name, 6, nchar(temp_name))
+    
+      makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/", raster_grid = grid2k, temp_file = substr(temp_files[i], 24, nchar(temp_files)), 
+                  file_name=paste0(temp_name, "_", no_future, "_2km_mean.tif"))
+   }
+}
+
+
+files <- list.files(clim_folders, include.dirs = T, recursive=F, full.names = T)
+temp_files <- files[stringr::str_detect(files, paste0(no_future, "_2km_mean.tif$"))]
+temp_files
+
+# load env. stack
+Env_norm <- raster::stack("D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_2km_normalized.grd")
+
+for(no_future in futureNames){
+
+   print("====================================")
+   print(no_future)
+
+   temp_Env_norm <- Env_norm
+
+   for(i in 1:length(temp_files)){
+
+      # define name of variable
+      temp_name <- stringr::str_extract(temp_files[i], "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
+      temp_name <- substr(temp_name, 6, nchar(temp_name))
+      
+      temp_raster <- raster::raster(temp_files[i])
+      names(temp_raster) <- temp_name
+
+      temp_raster <- raster::mask(temp_raster, grid2k)
+      temp_raster <- raster::scale(temp_raster)
+  
+      temp_Env_norm[[temp_name]] <- temp_raster
+  
+      print(paste0("Stacked file ", names(temp_raster)))
+   }
+
+   # save Env_norm
+   raster::writeRaster(temp_Env_norm, file=paste0("D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_", no_future, "_2km_normalized.grd"), overwrite=T)
+
+   # same for dataframe
+   temp_Env_df <- as.data.frame(raster::rasterToPoints(temp_Env_norm))
+   save(temp_Env_df, file=paste0("D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_", no_future, "_2km_df_normalized.RData"))
+   
+}
+
+
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Save all ####
@@ -283,7 +358,7 @@ stack_files <- files[stringr::str_detect(files, "_2km_mean.tif$")]
 
 stack_files
 
-# create empty stacj
+# create empty stack
 Env <- raster::stack()
 
 # load and merge them
