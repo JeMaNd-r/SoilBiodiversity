@@ -214,25 +214,27 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 
 ```{r numberOcc}
 count_cuts <- c(0,1,5,10,15,20,50,100,200,300,500,1000)
-data <- data.frame("NumCells_2km" = count_cuts, "Num_species"=NA, "Num_speciesID"=NA)
+data <- data.frame("NumOcc" = count_cuts, "NumSpecies"=NA, "NumSpeciesID"=NA, "OccType"="NumCells_2km")
 for(i in count_cuts){
-   data[data$NumCells_2km==i,"Num_species"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
-   data[data$NumCells_2km==i,"Num_speciesID"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
+   data[data$NumOcc==i,"NumSpecies"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
+   data[data$NumOcc==i,"NumSpeciesID"] <- speciesNames %>% filter(NumCells_2km>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
 }
 data
 
-data2 <- data.frame("Records" = count_cuts, "Num_species"=NA, "Num_speciesID"=NA)
+data2 <- data.frame("NumOcc" = count_cuts, "NumSpecies"=NA, "NumSpeciesID"=NA, "OccType"="Records")
 for(i in count_cuts){
-   data2[data2$Records==i,"Num_species"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
-   data2[data2$Records==i,"Num_speciesID"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
+   data2[data2$NumOcc==i,"NumSpecies"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("Species_final") %>% unique() %>% count()
+   data2[data2$NumOcc==i,"NumSpeciesID"] <- speciesNames %>% filter(Records>=i) %>% dplyr::select("SpeciesID") %>% unique() %>% count()
 }
 data2
 
+# merge both datasets
+data <- rbind(data, data2)
+data
 
+write.csv(data, file=paste0(here::here(), "/results/NumSpecies_perOcc.csv"), row.names=F)
 
-write.csv(data, file=paste0(here::here(), "/results/NumSpecies_perOcc.csv"))
-
-ggplot(data, aes(x=as.factor(NumCells_2km), y=Num_speciesID))+
+ggplot(data %>% filter(OccType=="NumCells_2km"), aes(x=as.factor(NumOcc), y=NumSpeciesID))+
 	geom_bar(stat="identity")+ theme_bw()
 
 # plot some of the species' occurrences
@@ -685,9 +687,9 @@ world.inp <- map_data("world")
 for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,]$SpeciesID)){ try({
     
     # read model performance evaluation table (for threshold MaxEnt & saving best model)
-    mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
+    mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
   
-    best_bg <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+    best_bg <- mod_eval[mod_eval$species==sp & mod_eval$best == 1 & !is.na(mod_eval$best), "bg"]
     
     # identify and load all relevant data files
     temp.files <- list.files(path = paste0(here::here(),"/results/",Taxon_name),
@@ -745,14 +747,14 @@ Let's do so.
 
 data.frame
 
-for(temp.sp in speciesNames$SpeciesID){ try({
+for(spID in speciesNames$SpeciesID){ try({
   # name of the best model
-  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", spID, ".csv"))
-  temp.model <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T), "model"]
+  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
+  temp.model <- mod_eval[mod_eval$species==spID & mod_eval$best == 1 & !is.na(mod_eval$best), "model"]
   temp.model
   
   # information about modelling (running time, background data)
-  temp.details <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T), c("model", "tss", "time", "bg")]
+  temp.details <- mod_eval[mod_eval$species==spID & mod_eval$best == 1 & !is.na(mod_eval$best), c("model", "tss", "time", "bg")]
   temp.details
   
   # varImp of the best model
@@ -840,9 +842,9 @@ occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized
 for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"])){try({
   
   # read model performance evaluation table (for threshold MaxEnt & saving best model)
-  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, "_", sp, ".csv"))
+  mod_eval <- read.csv(file=paste0(here::here(), "/results/ModelEvaluation_", Taxon_name, ".csv"))
 
-  best_bg <- mod_eval[mod_eval$tss+mod_eval$roc == max(mod_eval$tss+mod_eval$roc, na.rm=T) & !is.na(mod_eval$bg), "bg"]
+  best_bg <- mod_eval[mod_eval$species==spID & mod_eval$best == 1 & !is.na(mod_eval$best), "bg"]
   
   temp_points <- occ_points %>% dplyr::select(x,y, sp) %>% 
     mutate("occ"=occ_points[,sp]) %>% filter(!is.na(occ))
@@ -865,10 +867,11 @@ for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"])){try({
   # plot input data (training + validation)
   load(file=paste0(here::here(), "/results/", Taxon_name, "/PA_Env_", Taxon_name, "_", sp, ".RData")) #bg.list
     
-  temp_training <- bg.list[[best_bg]] %>% 
-                 mutate("occ"=bg.list[[best_bg]][,1]) %>% 
-                 dplyr::select(occ,x,y) #%>% filter(!is.na(occ))
+  temp_training <- data.frame("occ"=bg.list[[best_bg]][[best_bg]]@data.species, 
+					"x" = bg.list[[best_bg]][[best_bg]]@coord$x,
+					"y" = bg.list[[best_bg]][[best_bg]]@coord$y)
   temp_training[is.na(temp_training$occ),"occ"] <- 0
+  temp_training[temp_training$occ=="TRUE","occ"] <- 1
   
   plot_tra <- ggplot()+
       geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
@@ -902,7 +905,9 @@ for(sp in unique(speciesNames[speciesNames$NumCells_2km>=5,"SpeciesID"])){try({
   
   # load SDM
   load(paste0(here::here(), "/results/_Maps/SDM_bestPrediction_", Taxon_name, "_", sp, ".RData")) #best_pred
-
+ 
+  best_model <- mod_eval[mod_eval$species==spID & mod_eval$best == 1 & !is.na(mod_eval$best), "model"]
+ 
   plot_sdm <- ggplot(data=best_pred, aes(x=x, y=y, fill=layer))+
       geom_tile()+
       ggtitle(best_model)+
