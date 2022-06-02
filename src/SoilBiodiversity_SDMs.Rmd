@@ -416,7 +416,7 @@ Please be aware that the validation data sets are randomly simulated (10 times) 
 
 ## predict SDMS
 
-```{r}
+```{r Predict_SDM}
 source(file=paste0(here::here(), "/src/Predict_SDMs.R"))
 ```
 
@@ -424,10 +424,28 @@ And finally
 
 ## transform prediction to binary
 
-```{r}
+```{r Estimate_richness}
 source(file=paste0(here::here(), "/src/Estimate_richness.R"))
 ```
 
+
+Let's summarize which models worked and which ones didn't.
+
+```{r check_success}
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/temp_files"))
+temp_files <- temp_files %>% str_replace("lm_subset", "lmSubset")
+temp_files <- temp_files %>% str_replace("rf_downsample", "rfDownsample")
+temp_files <- as.data.frame(stringr::str_split_fixed(temp_files, "[:punct:]", 5))[,1:4]
+colnames(temp_files) <- c("SDM", "algorithm", "Genus", "Species")
+temp_files$SpeciesID <- paste0(temp_files$Genus, "_", temp_files$Species)
+temp_files$value <- 1
+head(temp_files)
+
+# summarize what models are present
+model_overview <- temp_files %>% dplyr::select(-Genus, -Species) %>% pivot_wider(names_from = algorithm, values_from=value, values_fn=sum)
+model_overview <- model_overview[order(model_overview$SpeciesID),]
+write.csv(model_overview, file=paste0(here::here(), "/results/ModelOverview_", Taxon_name, ".csv"), row.names=F) 
+```
 
 
 # Repeat for all other taxa
