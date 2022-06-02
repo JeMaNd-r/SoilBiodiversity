@@ -294,25 +294,32 @@ files <- list.files(clim_folders, include.dirs = T, recursive=F, full.names = T)
 files <- files[stringr::str_detect(files, "CHELSA")]
 files
 
-for(no_future in futureNames){
+for(no_future in futureNames){try({
    temp_files <- files[stringr::str_detect(files, no_future)]
    temp_files
 
-   for(i in 1:length(temp_files)){
+   for(i in 1:length(temp_files)){try({
 
       # define name of variable
       temp_name <- stringr::str_extract(temp_files[i], "V[:digit:]{3}_[:alpha:]*_*[:alpha:]*")
       temp_name <- substr(temp_name, 6, nchar(temp_name))
     
-      makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/", raster_grid = grid2k, temp_file = substr(temp_files[i], 24, nchar(temp_files[i])), 
+      makeTo2kmGrid(temp_path = "D:/00_datasets/Climate", raster_grid = grid2k, temp_file = substr(temp_files[i], 24, nchar(temp_files[i])), 
                   file_name=paste0(temp_name, "_", no_future, "_2km_mean.tif"))
-   }
-}
+   })}
+})}
 
 
 files <- list.files(clim_folders, include.dirs = T, recursive=F, full.names = T)
-temp_files <- files[stringr::str_detect(files, paste0(no_future, "_2km_mean.tif$"))]
-temp_files
+files <- files[stringr::str_detect(files, "ssp[:digit:]*_2km_mean.tif$")]
+files
+
+# check if all exisit
+check_files <- paste0(c("V002_MAP/Future/MAP", "V003_MAP_Seas/Future/MAP_Seas", "V004_MAT/Future/MAT", "V005_MAT_Seas/Future/MAT_Seas"), "_", rep(futureNames, 4))
+check_files <- paste0("D:/00_datasets/Climate/", check_files, "_2km_mean.tif")
+check_files
+
+setdiff(sort(check_files), sort(files))
 
 # load env. stack
 Env_norm <- raster::stack("D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_2km_normalized.grd")
@@ -320,9 +327,13 @@ Env_norm <- raster::stack("D:/_students/Romy/SoilBiodiversity/results/EnvPredict
 for(no_future in futureNames){
 
    print("====================================")
-   print(no_future)
+   print(paste0("Processing of future scenario ", no_future))
+
+   temp_files <- files[stringr::str_detect(files, no_future)]
 
    temp_Env_norm <- Env_norm
+
+   if(length(temp_files)!=4) print("Please check... there are not 4 climate variables")
 
    for(i in 1:length(temp_files)){
 
