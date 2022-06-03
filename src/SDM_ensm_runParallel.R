@@ -5,7 +5,8 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-setwd("~/share/groups/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity_RStudio")
+#setwd("~/share/groups/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity_RStudio")
+setwd("D:/_students/Romy/SoilBiodiversity")
 
 options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx8g")) # expand Java memory
 gc()
@@ -13,27 +14,14 @@ library(tidyverse)
 library(here)
 
 # read functions for ensemble of small moels (ESM)
-devtools::source_url("https://raw.githubusercontent.com/cran/ecospat/master/R/ecospat.ESM.R")
-#library(ecospat)
+#devtools::source_url("https://raw.githubusercontent.com/cran/ecospat/master/R/ecospat.ESM.R")
+library(ecospat)
 
 library(raster)
 
 library(biomod2) # also to create pseudo-absences
 
 library(usdm) # for variable inflation factor calculation
-
-library(mgcv) # for GAM
-library(gam)  # for GLM (!)
-#library(remotes) #to download package from github
-
-
-# download maxent.jar 3.3.3k, and place the file in the
-# desired folder
-# utils::download.file(url = "https://raw.githubusercontent.com/mrmaxent/Maxent/master/ArchivedReleases/3.3.3k/maxent.jar", 
-#     destfile = paste0(system.file("java", package = "dismo"), 
-#         "/maxent.jar"), mode = "wb")  ## wb for binary file, otherwise maxent.jar can not execute
-
-library(scales) # for Ensemble model
 
 # for model performance:
 library(precrec)
@@ -104,152 +92,171 @@ registerDoParallel(no.cores)
 foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2")) %dopar% { try({
-             
+   
+        
   #- - - - - - - - - - - - - - - - - - - - -
   ## biomod ####
   #- - - - - - - - - - - - - - - - - - - - -
   
-  modelName <- "bg.biomod"
+  mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+  myResp <- as.numeric(mySpeciesOcc[,spID])
+ 
+  # get NAs id
+  na.id <- which(is.na(myResp))
+  # remove NAs to enforce PA sampling to be done on explanatory rasters
+  myResp <- myResp[-na.id]
+
+  myRespCoord <- mySpeciesOcc[-na.id,c('x','y')]
   
-  # identify and load all relevant data files
-  temp.files <- list.files(path = paste0("./results/",Taxon_name), 
-                           pattern = paste0(modelName, "[[:graph:]]*", spID), full.name = T)
-  
-  lapply(temp.files, load, .GlobalEnv)
-  
-  # create biomod data format
-  myBiomodData <- training$bg.biomod
+  myBiomodData <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
+                                             expl.var = Env_norm,
+                                             resp.xy = myRespCoord,
+                                             resp.name = spID,
+                                             PA.nb.rep = 1,
+                                             PA.nb.absences = 10000,
+                                             PA.strategy = "random")
+
+  # save data
+  save(myBiomodData, file=paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData"))
+    
+
+})}
+stopImplicitCluster()
+
+registerDoParallel(no.cores)
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+         .export = c("Env_norm", "Env_norm_df", "form"),
+         .packages = c("tidyverse","biomod2")) %dopar% { try({
+
+  load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
   
   # subset covarsNames
   myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
-  
-  myRespName <- "occ"
-  
-  # # create own function for GAM and MAXENT.Phillips
-  # myBiomodOption <- BIOMOD_ModelingOptions(
-  #   GAM = list( algo = 'GAM_mgcv',
-  #               type = 's_smoother',
-  #               k = -1,
-  #               interaction.level = 0,
-  #               myFormula = as.formula(form),
-  #               family = binomial(link = 'logit'),
-  #               method = 'GCV.Cp',
-  #               optimizer = c('outer','newton'),
-  #               select = FALSE,
-  #               knots = NULL,
-  #               paraPen = NULL,
-  #               control = list(nthreads = 1, irls.reg = 0, epsilon = 1e-07, maxit = 200, trace = FALSE,
-  #                              mgcv.tol = 1e-07, mgcv.half = 15, rank.tol = 1.49011611938477e-08,
-  #                              nlm = list(ndigit=7, gradtol=1e-06, stepmax=2, steptol=1e-04, iterlim=200, check.analyticals=0),
-  #                              optim = list(factr=1e+07),
-  #                              newton = list(conv.tol=1e-06, maxNstep=5, maxSstep=2, maxHalf=30, use.svd=0), outerPIsteps = 0,
-  #                              idLinksBases = TRUE, scalePenalty = TRUE, keepData = FALSE, scale.est = "fletcher",
-  #                              edge.correct = FALSE)),
-  #   MAXENT.Phillips = list( path_to_maxent.jar = paste0("./results/", Taxon_name, "/maxent_files"), # change it to maxent directory
-  #                           memory_allocated = 512,
-  #                           background_data_dir = 'default',
-  #                           maximumbackground = 50000,
-  #                           maximumiterations = 200,
-  #                           visible = FALSE,
-  #                           linear = TRUE,
-  #                           quadratic = TRUE,
-  #                           product = TRUE,
-  #                           threshold = TRUE,
-  #                           hinge = TRUE,
-  #                           lq2lqptthreshold = 80,
-  #                           l2lqthreshold = 10,
-  #                           hingethreshold = 15,
-  #                           beta_threshold = -1,
-  #                           beta_categorical = -1,
-  #                           beta_lqp = -1,
-  #                           beta_hinge = -1,
-  #                           betamultiplier = 1,
-  #                           defaultprevalence = 0.5)
-  # )
-  
-  # alternative: default algorithms
-  # Note: try this out to see if GAM works
+
+  # define parameters of the algorithms
   myBiomodOption <- BIOMOD_ModelingOptions(
-    GAM = list (k = -1), #avoid error messages
-    #MAXENT.Phillips = list( path_to_maxent.jar =paste0("./results" )), # change it to maxent directory
+	GLM = list (type = "quadratic",
+			interaction.level = 1,
+			myFormula = NULL,
+			test = "AIC",
+			family = binomial(link = "logit") ),
+
+    	GAM = list (algo = "GAM_mgcv",
+			myFormula = NULL,
+			type = "s_smoother",
+			interaction.level = 1,
+			family =  binomial(link = "logit"),
+			method = "GCV.Cp",
+			optimizer = c("outer","newton"),
+			select = FALSE,
+ 			knots = NULL,
+ 			paraPen = NULL,
+			k = -1 ), 		#avoid error messages
+
+	MARS = list(myFormula = NULL,
+			nk = NULL, 		# maximum number of model terms, NULL: max(21, 2*nb_expl_var+1)
+			penalty = 2, 	# default
+			thresh = 0.001, 	# default
+			nprune = 1+length(covarsNames), # max. number of terms including intercept
+			pmethod = "backward" ), #pruning method
+
+	MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results"), # change it to maxent directory
+			memory_allocated = NULL, # use default from Java defined above
+			visible = FALSE, 	# don't make maxEnt user interface visible
+                  linear = TRUE, 	# linear features allowed
+                  quadratic = TRUE, # quadratic allowed
+			product = TRUE,	# product allowed
+			threshold = TRUE,	# threshold allowed
+			hinge = TRUE,	# hinge allowed
+			lq2lqptthreshold = 80, # default
+			l2lqthreshold = 10, # default
+			hingethreshold = 15, # default
+			beta_threshold = -1, # default
+			beta_categorical = -1, # default
+			beta_lqp = -1, # default
+			beta_hinge = -1, # default
+			betamultiplier = 1, # default
+			defaultprevalence = 0.5 ), #default   
+
+	GBM = list( distribution = "bernoulli",
+			n.trees = 2500,	# default
+			interaction.depth = 7, # default
+			n.minobsinnode = 5, # default
+			shrinkage = 0.001, # default, learning rate
+			bag.fraction = 0.5, # default, proportion of observations used in selecting variables
+			train.fraction = 0.8, # default 1, train.fraction * nrows(data) observations are used to fit the gbm 
+			cv.folds = 10,	# default 3
+			keep.data = FALSE, # default
+			verbose = FALSE,	# default
+			perf.method = "cv", # default
+			n.cores = 1 ),	# default
+
+	CTA = list(	method = "class", # default, response is factor
+			parms = "default", # default
+			cost = NULL ),	# default
+
+	ANN = list(	NbCV = 10, 		# default, number CV
+			size = NULL, 	# default, size parameter will be optimised by cross validation based on model AUC
+			decay = NULL, 	# default, decay parameter will be optimised by cross validation
+			rang = 0.1, 	# default, initial random weights on [-rang, rang] 
+			maxit = 200 ), 	# default, maximum number of iterations
+
+	SRE = list(	quant = 0.025),	# default
+	
+	FDA = list(	method = "mars",	# default, regression method used in optimal scaling
+			add_args = NULL ),# default
+
+	RF = list(	do.classif = TRUE, # default classification random.forest computed, else regression random.forest 
+			ntree = 500,	# default
+			mtry = 10,		# number of variables randomly sampled as candidates at each split
+			nodesize = 1,	# default 5, but 1 for classification, minimum size of terminal nodes
+			maxnodes = NULL ) # default, maximum number of terminal nodes trees in the forest
   )
   
   # models to predict with
   mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
   
-  # if less than 100 occurrences (but more than 10)
-  if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){ 
-    
-    # model fitting
-    tmp <- proc.time()[3]
-    setwd(paste0("./results/", Taxon_name))
-    
-    set.seed(32639)
-  
-    myBiomodModelOut <- ecospat.ESM.Modeling(data = myBiomodData,
-                                             models = mymodels,
-                                             models.options = myBiomodOption,
-                                             Prevalence = NULL,
-                                             tune = TRUE, # TRUE: estimate optimal parameters for the models
-                                             NbRunEval = 10,   # 3-fold crossvalidation evaluation run
-                                             DataSplit = 80, # use subset of the data for training
-                                             weighting.score = "TSS",
-                                             ESM_Projection = FALSE, #no projections now (will be done later)
-                                             cleanup = 2, #when to delete temporary unused files, in hours
-                                             modeling.id = paste(myRespName,"_Modeling", sep = ""))
-    
-    # ensemble modeling
-    myBiomodEM <- ecospat.ESM.EnsembleModeling(ESM.modeling.output = myBiomodModelOut,
-                                               weighting.score = "TSS")
-    
-    temp_model_time <- proc.time()[3] - tmp
-    
-    
-    tmp <- proc.time()[3]
-    
-    
   #- - - - - - - - - - - - - - - - - - - - -
   # if more than 100 occurrences    
-  }else{
     
-    # model fitting
-    tmp <- proc.time()[3]
-    setwd(paste0("./results/", Taxon_name))
+  # model fitting
+  tmp <- proc.time()[3]
+  setwd(paste0("./results/", Taxon_name))
     
-    set.seed(32639)
-    myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
+  set.seed(32639)
+  myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
                                                  models = mymodels,
                                                  models.options = myBiomodOption,
                                                  NbRunEval = 10,   # 3-fold crossvalidation evaluation run
                                                  DataSplit = 80, # use subset of the data for training
-                                                 models.eval.meth = c("TSS"),
-                                                 SaveObj = FALSE, #save output on hard drive?
+                                                 models.eval.meth = "TSS",
+                                                 SaveObj = TRUE, #save output on hard drive?
                                                  rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                                  do.full.models = FALSE, # do evaluation & calibration with whole dataset
                                                  modeling.id = paste(myRespName,"_Modeling", sep = ""))
     
-    # ensemble modeling using mean probability
-    myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
+  # ensemble modeling using mean probability
+  myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
                                                    chosen.models = "all",  # all algorithms
                                                    em.by = "all",    #evaluated over evaluation data if given (it is not, see Prepare_input.R)
                                                    # note: evaluation not that important as we will calculate measures on independent data
-                                                   eval.metric = c("TSS"), # 'all' would takes same as above in BIOMOD_Modelling
+                                                   eval.metric = "TSS", # 'all' would takes same as above in BIOMOD_Modelling
                                                    eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
                                                    prob.mean = FALSE, #estimate mean probabilities across predictions
                                                    prob.cv = TRUE,   #estimate coefficient of variation across predictions
                                                    prob.ci = FALSE,  #estimate confidence interval around the prob.mean
                                                    prob.median = FALSE, #estimate the median of probabilities
-                                                   committee.averaging = FALSE, #estimate committee averaging across predictions
+                                                   committee.averaging = TRUE, #estimate committee averaging across predictions
                                                    prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                    prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
-                                                   VarImport = 1)    #number of permutations to estimate variable importance
-    temp_model_time <- proc.time()[3] - tmp
+                                                   VarImport = 5)    #number of permutations to estimate variable importance
+  temp_model_time <- proc.time()[3] - tmp
      
     
-    tmp <- proc.time()[3]
-    ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
-    # project single models (also needed for ensemble model)
-    myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
+  tmp <- proc.time()[3]
+  ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
+  # project single models (also needed for ensemble model)
+  myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
                                                new.env = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],        #column/variable names have to perfectly match with training
                                                proj.name = "modeling",  #name of the new folder being created
                                                selected.models = "all", #use all models
@@ -260,21 +267,21 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
                                                output.format = ".RData", #what format should projections have: RData, grd or img
                                                keep.in.memory = TRUE)  #FALSE: only story link to copy to projection file
     
-    # project ensemble of all models
-    myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
+  # project ensemble of all models
+  myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
                                                           EM.output = myBiomodEM,
                                                           #... same arguments as above could be added but are not necessary when loading myBiomodProj
                                                           selected.models = "all")
     
-    temp_predict_time <- proc.time()[3] - tmp
+  temp_predict_time <- proc.time()[3] - tmp
      
     
-    # extracting the values for ensemble prediction
-    myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted probability mean
+  # extracting the values for ensemble prediction
+  myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted probability mean
     
-    # see the first few predictions
-    # note: the prediction scale of biomod is between 0 and 1000
-    #head(myEnProjDF)
+  # see the first few predictions
+  # note: the prediction scale of biomod is between 0 and 1000
+  #head(myEnProjDF)
     
     temp_validation <- myEnProjDF[,1]
     temp_validation <- as.data.frame(temp_validation)
@@ -363,6 +370,38 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
 })}
 stopImplicitCluster()
 
+
+#- - - - - - - - - - - - - - - - - - - - -
+  # if less than 100 occurrences (but more than 10)
+  if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){ 
+    
+    # model fitting
+    tmp <- proc.time()[3]
+    setwd(paste0("./results/", Taxon_name))
+    
+    set.seed(32639)
+  
+    myBiomodModelOut <- ecospat.ESM.Modeling(data = myBiomodData,
+                                             models = mymodels,
+                                             models.options = myBiomodOption,
+                                             Prevalence = NULL,
+                                             tune = TRUE, # TRUE: estimate optimal parameters for the models
+                                             NbRunEval = 10,   # 3-fold crossvalidation evaluation run
+                                             DataSplit = 80, # use subset of the data for training
+                                             weighting.score = "TSS",
+                                             ESM_Projection = FALSE, #no projections now (will be done later)
+                                             cleanup = 2, #when to delete temporary unused files, in hours
+                                             modeling.id = paste(myRespName,"_Modeling", sep = ""))
+    
+    # ensemble modeling
+    myBiomodEM <- ecospat.ESM.EnsembleModeling(ESM.modeling.output = myBiomodModelOut,
+                                               weighting.score = "TSS")
+    
+    temp_model_time <- proc.time()[3] - tmp
+    
+    
+    tmp <- proc.time()[3]
+    
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Check if everything went well ####
