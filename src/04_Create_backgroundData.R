@@ -187,7 +187,7 @@ foreach(myRespName = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$Specie
   }, silent=TRUE)
   
   if(!exists("bg.rf")){ #if bg.rf fails, take bg.glm
-    print(paste0("No pseudoabsence creation for ", temp.strategy, " n=", temp.number, " ", spID, "."))
+    print(paste0("No pseudoabsence creation for ", temp.strategy, " n=", temp.number, " ", myRespName, "."))
     temp.runs <- 1
     bg.rf <- bg.glm
     temp.strategy <- model.settings[model.settings$model=="GLM.GAM", "strategy"]
