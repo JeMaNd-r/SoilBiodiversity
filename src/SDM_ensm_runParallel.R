@@ -67,7 +67,8 @@ covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% 
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 # exclude based on VIF
 env_vif <- read.csv(file=paste0("./results/VIF_predictors.csv"))
-env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
+env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% c()
+
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
 # excluded:
 print("=== We excluded the following variables based on VIF and Pearson correlation: ===")

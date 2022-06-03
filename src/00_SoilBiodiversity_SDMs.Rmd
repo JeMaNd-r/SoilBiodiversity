@@ -390,10 +390,24 @@ source(file=paste0(here::here(),"/src/Prepare_input.R"))
 ```
 
 
-## Define model parameters
+Let's summarize which models worked and which ones didn't.
 
-```{r}
+```{r check_success}
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name), include.dirs=F)
+temp_files <- temp_files %>% str_replace("PA_Env", "PA_Env_PA")
+temp_files <- temp_files[stringr::str_detect(temp_files, "TrainingData") | stringr::str_detect(temp_files, "PA_Env")]
 
+temp_files <- as.data.frame(stringr::str_split_fixed(temp_files, "[:punct:]", 7))[,1:6]
+colnames(temp_files) <- c("Step", "Data", "Model", "Taxon","Genus", "Species")
+temp_files$SpeciesID <- paste0(temp_files$Genus, "_", temp_files$Species)
+temp_files$value <- 1
+head(temp_files)
+
+# summarize what models are present
+data_overview <- temp_files %>% dplyr::select(-Genus, -Species, -Data, -Step) %>% pivot_wider(names_from = Model, values_from=value, values_fn=sum)
+data_overview <- data_overview[order(data_overview$SpeciesID),]
+head(data_overview)
+write.csv(data_overview, file=paste0(here::here(), "/results/DataOverview_", Taxon_name, ".csv"), row.names=F) 
 ```
 
 
