@@ -104,17 +104,43 @@ stopImplicitCluster()
 
 var_imp <- var_imp_template
 
-temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name))
+
+var_imp$Species <- NA
+
+var_imp$Model <- NA
+
+var_imp$varImp <- NA
+
+
+temp_files <- list.files(paste0("./results/", Taxon_name))
+
 temp_files <- temp_files[stringr::str_detect(temp_files, "Variable_importance")]
+
 temp_files
 
+
+
 for(file in temp_files){
-  temp_varImp <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/", file))
-  var_imp <- rbind(var_imp, temp_varImp)
+  
+	print(file)
+  
+	temp_varImp <- read.csv(file=paste0("./results/", Taxon_name, "/", file))
+  
+	temp_varImp$varImp <- rowMeans(temp_varImp %>% dplyr::select(where(is.numeric)), na.rm=T)
+  
+	temp_varImp$Species <- substr(file, 21, 30)
+  
+	temp_varImp$Model <- paste0(colnames(temp_varImp %>% dplyr::select(-Predictor, -Species, -varImp)), collapse = "-")
+  
+	var_imp <- rbind(var_imp, temp_varImp %>% dplyr::select(Predictor, varImp, Species, Model))
 }
 
-var_imp <- var_imp[!is.na(var_imp$species),] %>% unique()
+
+
+var_imp <- var_imp[!is.na(var_imp$Species),] %>% unique()
+
 str(var_imp)
+
 
 write.csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_", Taxon_name,".csv"), row.names = F)
 
