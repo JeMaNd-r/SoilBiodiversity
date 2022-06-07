@@ -67,9 +67,9 @@ print("=== And we kept the following, final predictor variables: ===")
 covarsNames
 
 # define future scenarios
-scenarioNames <- paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
+scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
                           "mri-esm2-0", "ukesm1-0-ll"), "_",
-                          rep(c("ssp126", "ssp370", "ssp585"),3))
+                          rep(c("ssp126", "ssp370", "ssp585"),5)))
 
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
@@ -136,7 +136,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
   # define parameters of the algorithms
   myBiomodOption <- BIOMOD_ModelingOptions(
 	GLM = list (type = "quadratic",
-			interaction.level = 1,
+			interaction.level = 0,
 			myFormula = NULL,
 			test = "AIC",
 			family = binomial(link = "logit") ),
@@ -144,7 +144,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
     	GAM = list (algo = "GAM_mgcv",
 			myFormula = NULL,
 			type = "s_smoother",
-			interaction.level = 1,
+			interaction.level = 0,
 			family =  binomial(link = "logit"),
 			method = "GCV.Cp",
 			optimizer = c("outer","newton"),
@@ -214,7 +214,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
   )
   
   # models to predict with
-  mymodels <- c("GLM","GBM","GAM","CTA","ANN","FDA","MARS","RF","MAXENT.Phillips")
+  mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Phillips")
   
   #- - - - - - - - - - - - - - - - - - - - -
   # if more than 100 occurrences    
@@ -233,7 +233,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
                                                  SaveObj = TRUE, #save output on hard drive?
                                                  rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                                  do.full.models = FALSE, # do evaluation & calibration with whole dataset
-                                                 modeling.id = paste(myRespName,"_Modeling", sep = ""))
+                                                 modeling.id = paste(spID,"_Modeling", sep = ""))
     
   # ensemble modeling using mean probability
   myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
@@ -251,7 +251,31 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
                                                    prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
                                                    VarImport = 5)    #number of permutations to estimate variable importance
   temp_model_time <- proc.time()[3] - tmp
-     
+  
+  setwd(here::here())
+})}
+stopImplicitCluster()
+
+
+#- - - - - - - - - - - - - - - - -
+## Predict in current climate ####
+
+registerDoParallel(no.cores)
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+         .export = c("Env_norm", "Env_norm_df", "form"),
+         .packages = c("tidyverse","biomod2")) %dopar% { try({   
+
+  # list files in species-specific BIOMOD folder
+  temp_files <- list.files(paste0("./results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+  
+  # load model output
+  myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
+  print(myBiomodModelOut)
+  myBiomodModelOut <-get(load(myBiomodModelOut))
+
+  # load ensemble model output
+  myBiomodEM <- temp_files[stringr::str_detect(temp_files,"Modelingensemble.models.out")]
+  myBiomodEM <- get(load(myBiomodEM))
     
   tmp <- proc.time()[3]
   ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
@@ -275,11 +299,10 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
     
   temp_predict_time <- proc.time()[3] - tmp
      
-    
-  # extracting the values for ensemble prediction
+  # extracting the values for ensemble validation
   myEnProjDF <- as.data.frame(get_predictions(myBiomodEM)[,2]) #for weighted probability mean
     
-  # see the first few predictions
+  # see the first few validations
   # note: the prediction scale of biomod is between 0 and 1000
   #head(myEnProjDF)
     
@@ -317,15 +340,39 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
     
     temp_runs <- 1
     
-    biomod_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
-    save(biomod_list, file=paste0("./results/", Taxon_name, "/temp_files/SDM_biomod_", spID, ".RData"))
+    biomod_list <- list(time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
+    save(biomod_list, file=paste0("./SDMs/SDM_biomod_", spID, ".RData"))
     
     rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF)
+    
+})}
+stopImplicitCluster()
+
+
+#- - - - - - - - - - - - - - - - -
+## Predict in future climate ####
+
+registerDoParallel(no.cores)
+foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+         .export = c("Env_norm", "Env_norm_df", "form"),
+         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
+
+  # list files in species-specific BIOMOD folder
+  temp_files <- list.files(paste0("./", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+  
+  # load model output
+  myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
+  print(myBiomodModelOut)
+  myBiomodModelOut <-get(load(myBiomodModelOut))
+
+  # load ensemble model output
+  myBiomodEM <- temp_files[stringr::str_detect(temp_files,"Modelingensemble.models.out")]
+  myBiomodEM <- get(load(myBiomodEM))
     
     for(no_future in scenarioNames){
       
       # load env. data with future climate (MAP, MAT, MAP_Seas)
-      load(paste0("./results/EnvPredictor_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
+      load(paste0("./results/EnvPredictor_2041", no_future, "_2km_df_normalized.RData")) #temp_Env_df
       
       ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
       # project single models (also needed for ensemble model)
