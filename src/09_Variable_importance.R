@@ -30,7 +30,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID),
          .export = c("var_imp_temp"),
          .packages = c("tidyverse", "biomod2", "caret")) %dopar% { try({
 
-var_imp <- var_imp_temp
+var_imp <- var_imp_template
 
 # for loop through all models
 for(i in 1:length(sdm_names)){ try({
@@ -87,7 +87,7 @@ try(temp_varImp <- temp_varImp %>% full_join(var_imp$brt2), silent=T)
 try(temp_varImp <- temp_varImp %>% full_join(var_imp$rf2), silent=T)
 try(temp_varImp <- temp_varImp %>% full_join(var_imp$maxent), silent=T)
 
-try({var_imp$ensemble <- round(rowMeans(temp_varImp, na.rm=T),3)
+try(var_imp$ensemble <- round(rowMeans(temp_varImp, na.rm=T),3))
 rm(temp_varImp)
 
 var_imp
