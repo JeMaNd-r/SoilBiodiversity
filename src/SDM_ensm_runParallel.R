@@ -352,13 +352,15 @@ stopImplicitCluster()
 #- - - - - - - - - - - - - - - - -
 ## Predict in future climate ####
 
+setwd(here::here())
+
 registerDoParallel(no.cores)
 foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
          .export = c("Env_norm", "Env_norm_df", "form"),
          .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
   # list files in species-specific BIOMOD folder
-  temp_files <- list.files(paste0("./", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+  temp_files <- list.files(paste0("./results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
   
   # load model output
   myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
@@ -372,8 +374,10 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
     for(no_future in scenarioNames){
       
       # load env. data with future climate (MAP, MAT, MAP_Seas)
-      load(paste0("./results/EnvPredictor_2041", no_future, "_2km_df_normalized.RData")) #temp_Env_df
+      load(paste0("./results/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
       
+      setwd(paste0(here::here(), "/results/", Taxon_name))
+
       ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
       # project single models (also needed for ensemble model)
       myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
@@ -392,8 +396,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
                                                             EM.output = myBiomodEM,
                                                             #... same arguments as above could be added but are not necessary when loading myBiomodProj
                                                             selected.models = "all")
-      
-
+     
       # save predictions as raster file
       temp_prediction <- myBiomodEnProj@proj@val[,2]
       temp_prediction <- as.numeric(temp_prediction)
@@ -406,14 +409,14 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
         rename("layer" = temp_prediction)
       temp_prediction$layer <- temp_prediction$layer / 1000
       
-      save(temp_prediction, paste0("./results/_Maps/SDM_", no_future, "_biomod_", spID,  ".RData"))
+      setwd(here::here())
+      save(temp_prediction, paste0("./results/_Maps/SDM_2041-2070_", no_future, "_biomod_", spID,  ".RData")) 
+      rm(temp_prediction, temp_Env_df, myBiomodEnProj, myBiomodProj)
     }
-    
-   rm(temp_prediction, temp_Env_df, myBiomodEnProj, myBiomodProj)
     
   }
    
-  setwd(here::here())
+
 })}
 stopImplicitCluster()
 
