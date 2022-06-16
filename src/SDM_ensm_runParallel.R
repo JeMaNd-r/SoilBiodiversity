@@ -75,13 +75,13 @@ no.cores <-  parallel::detectCores()/2
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Prepare data ####
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 registerDoParallel(no.cores)
 foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
-        .export = c("Env_norm", "Env_norm_df", "form"),
+        .export = c("Env_norm", "Env_norm_df", "form", "mySpeciesOcc"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
-          mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
           myResp <- as.numeric(mySpeciesOcc[,spID])
           
           # get NAs id
@@ -102,6 +102,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
           # save data
           save(myBiomodData, file=paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData"))
 
+          rm(myBiomodData, myResp, myRespCoord, spID, na.id)
 })}
 stopImplicitCluster()
 
