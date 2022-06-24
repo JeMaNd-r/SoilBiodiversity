@@ -51,7 +51,7 @@ for(i in 1:length(sdm_names)){ try({
   print(temp.model)
 
   try(temp_sdm <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/temp_files/SDM_",temp.model,"_", spID, ".RData"))), silent=T)
-  if(!exists("temp_sdm")) next   
+  if(exists("temp_sdm")){   
 
   #- - - - - - - - - - - - - - - - - - - 
   ## calculate statistics for BIOMOD ####
@@ -223,7 +223,7 @@ for(i in 1:length(sdm_names)){ try({
   }
   
   rm(temp.tss, sen_spe, temp.model, modelName, precrec_obj, temp.kappa, temp.tresh, temp_sdm)
-})}
+}})}
 
 #mod_eval
 
