@@ -45,16 +45,16 @@ library(gridExtra) #to plot multiple panels
 
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
-speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
 
-corMatPearson <- as.matrix(read.csv(file=paste0("./results/corMatPearson_predictors.csv")))
+corMatPearson <- as.matrix(read.csv(file=paste0(here::here(), "/results/corMatPearson_predictors.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 # based on Valavi et al. 2021: Pearson 0.8
 env_exclude <- caret::findCorrelation(corMatPearson, cutoff = 0.8, names=TRUE)
 covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% env_exclude)]
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 # exclude based on VIF
-env_vif <- read.csv(file=paste0("./results/VIF_predictors.csv"))
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors.csv"))
 env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
 # excluded:
@@ -69,11 +69,11 @@ covarsNames
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0("./results/EnvPredictor_2km_normalized.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load(paste0("./results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -87,7 +87,7 @@ no.cores <-  parallel::detectCores()/2
 
 for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { try({
   
-  mySpeciesOcc <- read.csv(file=paste0("./results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+  mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
   myResp <- as.numeric(mySpeciesOcc[,spID])
   
   # get NAs id
@@ -121,8 +121,8 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { 
   training <- training[, c("occ", covarsNames[covarsNames %in% colnames(myData)])]
   
   # save all datasets
-  save(training, file=paste0("./results/", Taxon_name, "/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
-  save(validation, file=paste0("./results/", Taxon_name, "/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
+  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
+  save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
   
 })}
 
@@ -135,7 +135,7 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)[46:
   modelName <- "MaxentData"
   
   # identify and load all relevant data files
-  temp.files <- list.files(path = paste0("./results/",Taxon_name, "/_TopPredictor"), 
+  temp.files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_TopPredictor"), 
                            pattern = paste0(modelName, "_[[:graph:]]*_", spID), full.name = T)
   lapply(temp.files, load, .GlobalEnv)
   
@@ -255,7 +255,7 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)[46:
   #response(maxent)  
   
   maxent_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, validation=temp_validation, prediction=temp_prediction, varImp=temp_varImp)
-  save(maxent_list, file=paste0("./results/", Taxon_name, "/_TopPredictor/SDM_maxent_", spID, ".RData"))
+  save(maxent_list, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/SDM_maxent_", spID, ".RData"))
   
   rm(maxent, maxent_list, param_optim, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp)
   gc()
@@ -283,7 +283,7 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ t
   print("=====================================")
   print(spID)
   
-  temp_sdm <- get(load(file=paste0("./results/", Taxon_name, "/_TopPredictor/SDM_maxent_", spID, ".RData")))
+  temp_sdm <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/SDM_maxent_", spID, ".RData")))
 
   temp_vi <- temp_sdm[["varImp"]]
   
@@ -311,17 +311,17 @@ var_imp
 str(var_imp)
 
 ## Save ####
-write_csv(var_imp, file=paste0("./results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
+write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
  
 
 #- - - - - - - - - - - - - - - - - -
 ## Vizualize and get top 10 ####
-var_imp <- read.csv(file=paste0("./results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
+var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
 var_imp
 
 # load predictor table to get classification of variables
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file=paste0("./Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/Env_Predictors_table.csv"))
 
 # transform to long format and add variable categories
 var_imp <- var_imp %>%
@@ -351,12 +351,12 @@ plotTopVI
 # pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
 
 # plot maps
-temp_files <- list.files(paste0("./results/", Taxon_name, "/_TopPredictor"))
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
 temp_files <- temp_files[stringr::str_detect(temp_files, "SDM_maxent_[:graph:]*.RData")]
 
 plots <- lapply(c(1:length(temp_files)), function(m) {try({
   print(temp_files[m]); print(m)
-  temp_pred <- get(load(file=paste0("./results/", Taxon_name, "/_TopPredictor/", temp_files[m])))[["prediction"]]
+  temp_pred <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/", temp_files[m])))[["prediction"]]
   #print(m)
   spID <- substr(temp_files[m], 12, 21)
   ggplot(data=temp_pred, aes(x=x, y=y, fill=layer))+
@@ -371,7 +371,7 @@ plots <- lapply(c(1:length(temp_files)), function(m) {try({
 lapply(plots, class) # if error, remove that species
 
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
-png(file=paste0("./figures/DistributionMaps_", Taxon_name, "_MaxEnt.png"),width=3000, height=3000)
+png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_MaxEnt.png"),width=3000, height=3000)
 do.call(gridExtra::grid.arrange, plots)
 dev.off()
 
