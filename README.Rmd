@@ -31,9 +31,9 @@ sessionInfo()
 ### Installing
 
 * Code is available at GitHub.
-* Data can be downloaded according to Zeiss et al. 2022.
+* Data can be downloaded according to Zeiss et al. 2023.
 
-Folder structure should be maintained. Additionally, please start with loading the SoilBiodiversity.Rproj file, and load individual R scripts from there. This is necessary to access all data files that will be called with `here::here()`.
+Folder structure should be maintained. Additionally, please start with loading the SoilBiodiversity.Rproj file, and load individual R scripts from there. Working directory should be the SoilBiodiversity folder containing the .Rproj file. This is necessary to access all data files that will be called with `here::here()`.
 
 
 ### Executing program
@@ -46,10 +46,8 @@ If any of the individual R scripts doesn't run when using `load()`, please run t
 
 ## Help
 
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
+You may need to download the spatial grid (*grid_2k_0p016.tif*) into the *data* subfolder, as well as the raster stack(s) of environmental variables (*EnvPredictor_2km...*) into the *results* subfolder.
+
 
 ## Authors
 
