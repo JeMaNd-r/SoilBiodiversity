@@ -475,7 +475,7 @@ stopImplicitCluster()
 # if less than 100 occurrences (but more than 10)
 if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){ 
   
-  
+} 
   
   
   #- - - - - - - - - - - - - - - - - - - - -
