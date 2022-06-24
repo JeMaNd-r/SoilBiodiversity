@@ -65,7 +65,7 @@ recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
   mutate("datasource"="SoilReCon")
 
 # - - - - - - - - - - - - - - - - - - -
-## Data from Jérome Matthieu (Jema) ####
+## Data from J?rome Matthieu (Jema) ####
 
 jema <-  read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
 # nrow=27800
@@ -130,6 +130,14 @@ data_raw <- tibble::tibble(species=data_raw$SpeciesBinomial,
 
 data_raw #nrow = 101,190
 
+# - - - - - - - - - - - - - - - - - - -
+## Save data ####
+write.csv(data_raw, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
+          row.names = F)
+
+# - - - - - - - - - - - - - - - - - - -
+## Cleaning ####
+
 # create a table to see how many records get removed.
 df_cleaning <- tibble::tibble(CleaningStep="merged_RawData", NumberRecords=nrow(data_raw))
 
@@ -142,22 +150,18 @@ df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_coordinates", Number
 # remove records outside of Europe
 data <- data %>% filter(extent_Europe[1] <= longitude &  longitude <= extent_Europe[2]) %>% 
   filter(extent_Europe[3] <= latitude &  latitude <= extent_Europe[4])
+data # nrow=78,055
 
 df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_Europe", NumberRecords=nrow(data))
 
 # remove species with only sp in name
 data <- data %>% filter(!stringr::str_detect(data$species, "[[:blank:]]sp"))
-data # nrow=83,237
+data # nrow=78,036
 
 df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_species", NumberRecords=nrow(data))
-
-data$OBJECTID <- 1:nrow(data) 
 df_cleaning
 
-# - - - - - - - - - - - - - - - - - - -
-## Save data ####
-write.csv(data, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
-          row.names = F)
+data$OBJECTID <- 1:nrow(data) 
 
 # - - - - - - - - - - - - - - - - - - -
 ## CoordinateCleaner ####
@@ -168,6 +172,9 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
 sum(flags$.summary) #those not flagged! = 75526 out of 78036
+
+# save flagged coordinates
+write.csv(flags %>% filter(!.summary), file=paste0(here::here(), "/results/FlaggedRecords_Crassiclitellata.csv"), row.names=F)
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]

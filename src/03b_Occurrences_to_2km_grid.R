@@ -8,7 +8,7 @@
 # Note: to run the other grid, you have to comment & un-comment 4 lines
 
 ## load grid
-r <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
+r <- raster::raster(paste0(here::here(),"/data/grid_2k_0p016.tif"))
 
 ## Load occurrence data
 occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
@@ -90,7 +90,7 @@ print("Error messages are fine. They relate to species without records.")
 write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"), row.names=F)
 
 occ_points %>% pivot_longer(cols=(colnames(occ_points %>% dplyr::select(-x, -y)))) %>% filter(!is.na(value))
-# 23,971 records in total
+# 19,993 records in total
 
 # # save individual species as own files
 # raster::writeRaster(occ_stack, filename=names(occ_stack), bylayer=TRUE, format="GTiff")
