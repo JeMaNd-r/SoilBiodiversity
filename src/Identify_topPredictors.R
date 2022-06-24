@@ -130,13 +130,14 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Modeling ####
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)[46:68]){ try({
- 
-  modelName <- "MaxentData"
+modelName <- "MaxentData"
+files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_TopPredictor"), 
+                    pattern = paste0(modelName), full.name = T)
+
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ try({
   
   # identify and load all relevant data files
-  temp.files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_TopPredictor"), 
-                           pattern = paste0(modelName, "_[[:graph:]]*_", spID), full.name = T)
+  temp.files <- files[stringr::str_detect(files, spID)]
   lapply(temp.files, load, .GlobalEnv)
   
   # "We used five different regularization multipliers (0.5, 1, 2, 3 and 4)
@@ -204,7 +205,7 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)[46:
   # tune MaxEnt parameters
   param_optim <- maxent_param(data = training,
                               k = nfolds,
-                              filepath = paste0("results/", Taxon_name, "/_TopPredictor/maxent_files"))
+                              filepath = paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/maxent_files"))
   
   ## fit a maxent model with the tuned parameters
   maxent <- dismo::maxent(x = training[, covarsNames],
@@ -373,5 +374,71 @@ lapply(plots, class) # if error, remove that species
 #pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
 png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_MaxEnt.png"),width=3000, height=3000)
 do.call(gridExtra::grid.arrange, plots)
+dev.off()
+
+#- - - - - - - - - - - - - - - - - -
+## Estimate richness ####
+
+# create empty data frame
+species_stack <- Env_norm_df %>% dplyr::select(x, y)
+
+# for loop through all species
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ try({
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## Load probability maps ####
+  temp_pred <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/SDM_maxent_", spID, ".RData")))[["prediction"]] #maxent_list
+  
+  print(paste0(spID, " successfully loaded."))
+  
+  ## Transform to binary maps 
+  
+  # extract threshold to define presence/absence
+  temp_thresh <- 0.8
+  
+  # change to binary
+  temp_pred[temp_pred$layer>=temp_thresh & !is.na(temp_pred$layer), "layer"] <- 1
+  temp_pred[temp_pred$layer<temp_thresh & !is.na(temp_pred$layer), "layer"] <- 0
+  
+  temp_pred[,paste0(spID,"_", "MaxEnt")] <- temp_pred$layer
+  temp_pred <- temp_pred[,c("x","y",paste0(spID,"_", "MaxEnt"))]
+  
+  ## Stack species binary maps 
+  
+  # add species dataframe to stacked dataframe
+  species_stack <- species_stack %>% full_join(temp_pred, by=c("x","y"))
+  
+  print(paste0("Added binary prediction of ", spID, " to the species stack."))
+  
+  rm(temp_thresh, temp_pred)
+}, silent=T)}  
+
+head(species_stack)
+
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Calculate richness ####
+species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=T)
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Save species stack ####
+save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_MaxEnt_binary0.8_", Taxon_name, ".RData"))
+
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## View individual binary maps and species stack ####
+
+species_stack$Richness[species_stack$Richness == 0] <- NA
+
+# species richness
+png(file=paste0(here::here(), "/figures/SpeciesRichness_MaxEnt0.8_", Taxon_name, ".png"),width=1000, height=1000)
+ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
+  geom_tile()+
+  ggtitle("Species richness (number of species)",
+          subtitle=paste0("n = ", ncol(species_stack)-3))+
+  scale_fill_viridis_c(na.value = "grey")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
 dev.off()
 
