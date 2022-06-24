@@ -18,52 +18,60 @@ dat <- readr::read_delim(file=paste0(here::here(), "/data/GBIF_", Taxon_name, "/
 ## Cleaning coordinates based on meta-data ####
 
 # create a table to see how many records get removed.
-df_cleaning <- tibble::tibble(CleaningStep="RawData", NumberRecords=nrow(dat))
+df_cleaning <- tibble::tibble(CleaningStep="GBIF_RawData", NumberRecords=nrow(dat))
 
 # remove records outside of Europe
 dat_cl <- dat %>% filter(extent_Europe[1] <= decimalLongitude &  decimalLongitude <= extent_Europe[2]) %>% 
   filter(extent_Europe[3] <= decimalLatitude &  decimalLatitude <= extent_Europe[4])
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="Europe", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_Europe", NumberRecords=nrow(dat_cl))
+
+# remove records from iNaturalist
+dat_cl <- dat_cl %>% filter(publisher!="iNaturalist.org")
+
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_iNat", NumberRecords=nrow(dat_cl))
 
 # remove records with low coordinate precision (lower than 1km)
 #hist(dat$coordinateUncertaintyInMeters, breaks = 30)
 dat_cl <- dat_cl %>% filter(coordinateUncertaintyInMeters <= 1000 | is.na(coordinateUncertaintyInMeters))
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="coordinateUncertainty", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_coordinateUncertainty", NumberRecords=nrow(dat_cl))
 
 # remove unsuitable data sources, especially fossils, and keep only those listed here
 #table(dat_cl$basisOfRecord) 
 dat_cl <- filter(dat_cl, basisOfRecord == "LIVING_SPECIMEN" | basisOfRecord == "HUMAN_OBSERVATION" | 
                    basisOfRecord == "PRESERVED_SPECIMEN" | is.na(basisOfRecord))
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="basisOfRecord", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_basisOfRecord", NumberRecords=nrow(dat_cl))
 
 # Individual count: remove records with less than 1 observation
 #table(dat_cl$individualCount)
 dat_cl <- dat_cl %>% filter(individualCount > 0 | is.na(individualCount)) %>% 
   filter(individualCount < 99 | is.na(individualCount))  # high counts are not a problem
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="individualCount_min1", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_individualCount_min1", NumberRecords=nrow(dat_cl))
 
 # Age of records
 print("Occurrence records per year"); print(table(dat_cl$year)); print("Records before 1990 will be removed.")
 dat_cl <- dat_cl %>% filter(year >= 1990) 
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="year_1990", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_year1990", NumberRecords=nrow(dat_cl))
 
 # taxonomic problems
-print("Please indicate if the listed families look good to you.")
+print("Please check if the listed families look good to you.")
 print(table(dat_cl$family))  #that looks good
 
 #table(dat_cl$taxonRank)  # We will only include records identified to species level
 dat_cl <- dat_cl %>% filter(taxonRank == "SPECIES" | is.na(taxonRank))
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="taxonRank_Species", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_taxonRank_Species", NumberRecords=nrow(dat_cl))
 
 # check how many excluded
 print("Records during the cleaning process:"); print(df_cleaning)
 print("Records removed [%]:"); print(round((nrow(dat) - nrow(dat_cl)) / nrow(dat) * 100, 0))
+
+print("Records removed from Europe [%]:")
+print(round((as.numeric(df_cleaning[2,2]) - nrow(dat_cl)) / as.numeric(df_cleaning[2,2]) * 100, 0))
 
 ## will be done in a later step 
 # # flag problems

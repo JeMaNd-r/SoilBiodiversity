@@ -99,46 +99,60 @@ jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon
 # - - - - - - - - - - - - - - - - - - -
 ## Merge all together ####
 
-data <- dplyr::full_join(sworm, gbif, 
+data_raw <- dplyr::full_join(sworm, gbif, 
                          by=c("SpeciesBinomial"="species", 
                               "Latitude_decimal_degrees"="decimalLatitude", 
                               "Longitude_decimal_degrees"="decimalLongitude", 
                               "datasource"))
 
-data <- data %>% dplyr::full_join(edapho, 
+data_raw <- data_raw %>% dplyr::full_join(edapho, 
                  by=c("SpeciesBinomial"="species", 
                       "Latitude_decimal_degrees"="Latitude", 
                       "Longitude_decimal_degrees"="Longitude",
                       "datasource"))
 
-data <- data %>% dplyr::full_join(recon, 
+data_raw <- data_raw %>% dplyr::full_join(recon, 
                          by=c("SpeciesBinomial"="Species", 
                               "Latitude_decimal_degrees"="POINT_Y", 
                               "Longitude_decimal_degrees"="POINT_X",
                               "datasource"))
 
-data <- data %>% dplyr::full_join(jema, 
+data_raw <- data_raw %>% dplyr::full_join(jema, 
                          by=c("SpeciesBinomial"="Species", 
                               "Latitude_decimal_degrees"="lat", 
                               "Longitude_decimal_degrees"="lon",
                               "datasource"))
 
-data <- tibble::tibble(species=data$SpeciesBinomial, 
-                       latitude=data$Latitude_decimal_degrees, 
-                       longitude=data$Longitude_decimal_degrees, 
-                       datasource=data$datasource)
+data_raw <- tibble::tibble(species=data_raw$SpeciesBinomial, 
+                       latitude=data_raw$Latitude_decimal_degrees, 
+                       longitude=data_raw$Longitude_decimal_degrees, 
+                       datasource=data_raw$datasource)
 
-data #nrow = 101,555
-data_merged <- nrow(data)
-data <- data[complete.cases(data$longitude, data$latitude, data$species),] #nrow=83,625
+data_raw #nrow = 101,190
+
+# create a table to see how many records get removed.
+df_cleaning <- tibble::tibble(CleaningStep="merged_RawData", NumberRecords=nrow(data_raw))
+
+# remove data without coordinates or taxa names
+data <- data_raw[complete.cases(data_raw$longitude, data_raw$latitude, data_raw$species),] #nrow=83,260
 data
+
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_coordinates", NumberRecords=nrow(data))
+
+# remove records outside of Europe
+data <- data %>% filter(extent_Europe[1] <= longitude &  longitude <= extent_Europe[2]) %>% 
+  filter(extent_Europe[3] <= latitude &  latitude <= extent_Europe[4])
+
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_Europe", NumberRecords=nrow(data))
 
 # remove species with only sp in name
 data <- data %>% filter(!stringr::str_detect(data$species, "[[:blank:]]sp"))
-# nrow=83,602
+data # nrow=83,237
+
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_species", NumberRecords=nrow(data))
 
 data$OBJECTID <- 1:nrow(data) 
-data_filter <- nrow(data)
+df_cleaning
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
@@ -153,10 +167,12 @@ flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
                                               country_refcol = "iso_a3")
-sum(flags$.summary) #those not flagged! = 80930 out of 83,602
+sum(flags$.summary) #those not flagged! = 75526 out of 78036
 
 # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 dat_cl <- dat_cl[flags$.summary, ]
+
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="merged_CoordinateCleaner", NumberRecords=nrow(dat_cl))
 
 ## Plot flagged records
 world.inp <- map_data("world")
@@ -166,7 +182,7 @@ ggplot() +
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") + 
   xlim(min(data$longitude, na.rm = T), max(data$longitude, na.rm = T)) + 
   ylim(min(data$latitude, na.rm = T), max(data$latitude, na.rm = T)) + 
-  geom_point(data = data, aes(x = longitude, y = latitude), colour = "darkred", size = 1, show.legend = T) +
+  geom_point(data = data_raw, aes(x = longitude, y = latitude), colour = "darkred", size = 1, show.legend = T) +
   geom_point(data = dat_cl, aes(x = longitude, y = latitude), colour = "darkgreen", size = 1, show.legend = T) + 
   coord_fixed() + 
   scale_color_manual(name='CoordinateCleaner',
@@ -183,7 +199,7 @@ dat_cl <- dplyr::full_join(dat_cl, speciesNames[,c("Species", "SpeciesID")],
 # create x and y column
 dat_cl <- dat_cl %>% mutate("x"=longitude, "y"=latitude)
 
-# remove NA in coordinates
+# remove NA in coordinates (should not change nrow() as we filtered for complete.cases before)
 dat_cl <- dat_cl[complete.cases(dat_cl$x),]
 dat_cl <- dat_cl[complete.cases(dat_cl$y),]
 
@@ -193,11 +209,9 @@ write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name,
           row.names = F)
 
 # load number of records during cleaning process
-df_cleaning <- read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
+df_cleaning1 <- read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"))
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep=c("mergedRecords", "filteredRecords", "coordinateCleaner"), 
-                                       NumberRecords=c(data_merged, data_filter, nrow(dat_cl)))
-
+df_cleaning <- df_cleaning1 %>% full_join(df_cleaning)
 df_cleaning
 
 # save updated number of records during cleaning process
