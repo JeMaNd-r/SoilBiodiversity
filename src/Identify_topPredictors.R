@@ -85,9 +85,10 @@ no.cores <-  parallel::detectCores()/2
 - - - - - - - - - - - - - - - - - - - - -
 ## Prepare model input ####
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { try({
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
   
-  mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { try({
+ 
   myResp <- as.numeric(mySpeciesOcc[,spID])
   
   # get NAs id
@@ -211,7 +212,7 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ t
   maxent <- dismo::maxent(x = training[, covarsNames],
                           p = training$occ,
                           removeDuplicates = FALSE, #remove occurrences that fall into same grid cell (not necessary)
-                          #path = paste0("results/", Taxon_name, "/maxent_files"), #wanna save files?
+                          path = paste0("results/", Taxon_name, "/maxent_files/", spID), #wanna save files?
                           args = param_optim)
   
   #temp_validation <- dismo::predict(maxent, validation[,colnames(validation) %in% covarsNames], type="response")
@@ -322,7 +323,7 @@ var_imp
 
 # load predictor table to get classification of variables
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
 
 # transform to long format and add variable categories
 var_imp <- var_imp %>%
@@ -332,11 +333,12 @@ var_imp <- var_imp %>%
 var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 
 # plot VIF
-plotVarImp <- ggplot(data=var_imp, aes(x=maxent, y=Predictor, fill=Category))+
+plotVarImp <- ggplot(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent), fill=Category))+
   geom_boxplot(cex=0.2, outlier.size=0.2)+
-  xlab("Variable importance (Permutation importances)")+
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
   theme_bw()+
-  theme(axis.text.y = element_text(size = 3))
+  theme(axis.text.y = element_text(size = 5))
 plotVarImp
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_", Taxon_name, ".pdf")); plotVarImp; dev.off()
@@ -346,7 +348,8 @@ plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
   group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(maxent)) %>%
   ggplot(aes(x=maxent, y=reorder(Predictor, maxent), fill=Category)) + 
   geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
-  geom_text(aes(label=round(maxent,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=1.1, cex=3)
+  geom_text(aes(label=round(maxent,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=1.1, cex=3)+
+  theme_bw()
 plotTopVI
 
 # pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
