@@ -52,10 +52,10 @@ dat_cl <- dat_cl %>% filter(individualCount > 0 | is.na(individualCount)) %>%
 df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_individualCount_min1", NumberRecords=nrow(dat_cl))
 
 # Age of records
-print("Occurrence records per year"); print(table(dat_cl$year)); print("Records before 1990 will be removed.")
-dat_cl <- dat_cl %>% filter(year >= 1990) 
+print("Occurrence records per year"); print(table(dat_cl$year)); print("Records before 1970 will be removed.")
+dat_cl <- dat_cl %>% filter(year >= 1970) 
 
-df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_year1990", NumberRecords=nrow(dat_cl))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_year1970", NumberRecords=nrow(dat_cl))
 
 # taxonomic problems
 print("Please check if the listed families look good to you.")
@@ -88,7 +88,7 @@ print(round((as.numeric(df_cleaning[2,2]) - nrow(dat_cl)) / as.numeric(df_cleani
 ## Plot flagged records
 world.inp <- map_data("world")
 
-print({
+pdf(paste0(here::here(), "/figures/CoordinateCleaner_flagged_records_Crassiclitellata_1970.pdf"), width=18, height=6)
   ggplot() +
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
     xlim(min(dat$decimalLongitude, na.rm = T), max(dat$decimalLongitude, na.rm = T)) +
@@ -99,7 +99,7 @@ print({
     scale_color_manual(name='ManualCleaning',
                        values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+
     theme_bw() + theme(axis.title = element_blank())
-})
+dev.off()
 
 
 # filter data columns
@@ -123,7 +123,7 @@ dat_wide <- pivot_wider(dat_wide, id_cols=c(decimalLongitude, decimalLatitude),
 dat_wide <- as.data.frame(dat_wide)
 
 # save only if we want to do so
-if (checkSave_cleanData==T){
+#if (checkSave_cleanData==T){
 
   # save number of records during cleaning process
   write.csv(df_cleaning, file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, ".csv"), row.names = F)
@@ -134,7 +134,7 @@ if (checkSave_cleanData==T){
   # save cleaned occurrence records in wide format
   write.csv(dat_wide, file=paste0(here::here(), "/results/Occurrences_GBIF_wide_", Taxon_name, ".csv"), row.names = F)
   
-}
+#}
 
 # remove temporal R objects
 rm(dat, dat_cl, df_cleaning, flags, tax_key, world.inp)

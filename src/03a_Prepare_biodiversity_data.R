@@ -43,9 +43,9 @@ edapho$species <- gsub(",", "", edapho$species)
 # exclude species with only Genus name (followed by identifier's name)
 edapho <- edapho %>% filter(!str_detect(species, " [:upper:]"))
 
-# remove observations before 1990
+# remove observations before 1970
 edapho$date <- as.Date(edapho$"Observation date (Sampling event)", format="%m/%d/%y") 
-edapho <- edapho %>% filter(date >= "1990-01-01")
+edapho <- edapho %>% filter(date >= "1970-01-01")
 
 edapho$datasource <- "Edaphobase"
 
@@ -90,11 +90,11 @@ jema <- jema %>% filter(jema$Species %in% jema$Species[!stringr::str_detect(jema
 jema$lat <- as.double(stringr::str_replace(jema$lat, ",", "."))
 jema$lon <- as.double(stringr::str_replace(jema$lon, ",", "."))
 
-# remove data before 1990
-jema <- jema %>% filter(obs_year >=1990)
+# remove data before 1970
+jema <- jema %>% filter(obs_year >=1970)
 
 jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon, datasource)
-# nrow=18166
+# nrow=26414 (1990: 18166 records)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Merge all together ####
@@ -128,7 +128,7 @@ data_raw <- tibble::tibble(species=data_raw$SpeciesBinomial,
                        longitude=data_raw$Longitude_decimal_degrees, 
                        datasource=data_raw$datasource)
 
-data_raw #nrow = 101,190
+data_raw #nrow = 109,438 (1990: 101,190)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
