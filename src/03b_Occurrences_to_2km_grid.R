@@ -90,7 +90,7 @@ print("Error messages are fine. They relate to species without records.")
 write.csv(occ_points, file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"), row.names=F)
 
 occ_points %>% pivot_longer(cols=(colnames(occ_points %>% dplyr::select(-x, -y)))) %>% filter(!is.na(value))
-# 19,993 records in total
+# 27,460 (1990: 19,993) records in total
 
 # # save individual species as own files
 # raster::writeRaster(occ_stack, filename=names(occ_stack), bylayer=TRUE, format="GTiff")
