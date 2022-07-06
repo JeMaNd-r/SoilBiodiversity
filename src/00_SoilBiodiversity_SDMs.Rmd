@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Soil Biodiversity SDMs"
 author: "Romy Zeiss"
 date: "12/3/2021"
@@ -202,7 +202,7 @@ source(file=paste0(here::here(),"src/Prepare_biodiversity_data.R"))
 
 ## Harmonization
 
-To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
+To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km�.
 
 
 ```{r mergeSpecies}
@@ -503,7 +503,7 @@ First, number of raw occurrences.
 
 ```{r numberOcc}
 # load raw data
-occ_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edaphobase.csv"))
+occ_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
 
 # load cleaned occurrence records 
 occ_clean <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
@@ -524,8 +524,8 @@ count_data <- occ_raw %>% group_by(datasource, species) %>% count() %>%
   pivot_wider(names_from = datasource, values_from = n) %>%
   full_join(occ_clean %>% group_by(datasource, species) %>% count() %>%
   pivot_wider(names_from = datasource, values_from = n), suffix = c("_raw", "_clean"), by="species")
-count_data$RawOcc <- rowSums(count_data[,2:4], na.rm=T)
-count_data$CleanOcc <- rowSums(count_data[,5:7], na.rm=T)
+count_data$RawOcc <- rowSums(count_data[,2:7], na.rm=T)
+count_data$CleanOcc <- rowSums(count_data[,8:13], na.rm=T)
 
 # add number of records after
 count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "Species_final", "SpeciesID", #"NumCells_1km", 
@@ -545,16 +545,19 @@ count_data
 
 # save
 write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
+
+# look at speciesID with most records
+View(count_data %>% arrange(desc(CleanOcc), SpeciesID))
 ```
 
 Add information of functional (ecological) groups, and visualize.
 
 ```{r numOccFG}
 count_data <- count_data %>% full_join(speciesNames %>%
-                                         dplyr::select(-NumCells_2km, -Group_name), by=c("species" = "Species", "Acc_name", "SpeciesID"))
+                                         dplyr::select(-NumCells_2km, -Group_name), by=c("species" = "Species", "Acc_name", "SpeciesID", "Species_final"))
 count_data
 
-ggplot(count_data %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup_Bottinelli))+
+ggplot(count_data %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup))+
   geom_bar(stat = "identity")
 ```
 
@@ -584,6 +587,7 @@ plotOccRaw
 rm(plotOccRaw)
 
 occ_clean %>% group_by(datasource) %>% count() 
+# edapho 13054, gbif 60219, jean 24860, jerome 732, soilrecon 175, swowm 5908
 ```
 
 Zoom to Germany
@@ -615,9 +619,10 @@ Third, we plot the data we used for the models (i.e., the gridded or rasterized 
 world.inp <- map_data("world")
 
 # calculate raw species richness
+#### needs to be fixed ######
 occ_rich <- occ_points %>% 
                group_by(Latitude = round(x,0), Longitude=round(y,0)) %>%
-               summarise_at(vars(c(speciesNames[speciesNames$NumCells>=5,"SpeciesID"])), sum, na.rm=T)
+               summarise_at(vars(colnames(occ_points %>% dplyr::select(-x, -y))), mean, na.rm=T)
 occ_rich$Richness <- apply(occ_rich > 0, 1, sum)
 
 # plot total species' occurrences
@@ -630,10 +635,11 @@ plotOcc <- ggplot()+
               dplyr::select(c(Latitude, Longitude, Richness)),
              aes(x=Latitude, y=Longitude, color=Richness))+ #, alpha=`Number of Species`
    
-  scale_color_gradientn(    # provide any number of colors
-    colors = c("black", "blue", "orange"),
-    values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
-    breaks = c(5, 20, 50, 100, 200))+
+  scale_color_gradient2(5,    # provide any number of colors
+    low = "black", high="orange", mid= "blue",
+    midpoint = 100,
+    #values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
+    breaks = c(5, 20, 50, 100, 200, 300), limits=c(0,300))+
   theme_bw()+
   theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
 
