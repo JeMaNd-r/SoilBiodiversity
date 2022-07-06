@@ -12,7 +12,18 @@ sworm_site <- readr::read_csv(file=paste0(here::here(), "/data/SiteData_sWorm_v2
 
 sworm <- dplyr::full_join(sworm_occ, sworm_site)
 
-sworm <- sworm %>% filter(Abundance>0, !is.na(SpeciesBinomial))
+# extract year (of publication)
+sworm$year <- stringr::str_extract(sworm$ID,"[:alpha:]+[:digit:]{4}")
+sworm$year <- stringr::str_extract(sworm$year,"[:digit:]{4}")
+sworm[sworm$year > 2020 & !is.na(sworm$year), "year"] <- NA
+sworm[sworm$year < 1900 & !is.na(sworm$year), "year"] <- NA #note: last real dates in 1986
+sworm$year <- as.numeric(sworm$year)
+
+summary(sworm$year)
+
+sworm <- sworm %>% filter(Abundance>0, !is.na(SpeciesBinomial),
+                          year >= 1970) %>%
+  dplyr::select(SpeciesBinomial, Latitude_decimal_degrees, Longitude_decimal_degrees, year)
 
 sworm$datasource <- "sWorm"
 
@@ -23,7 +34,7 @@ rm(sworm_occ, sworm_site)
 
 dat <- read.csv(file=paste0(here::here(), "/results/Occurrences_GBIF_Crassiclitellata.csv")) #dat
 
-gbif <- dat[,c("species", "decimalLatitude", "decimalLongitude")] %>%
+gbif <- dat[,c("species", "decimalLatitude", "decimalLongitude", "year")] %>%
   mutate(datasource = "GBIF")
 
 rm(dat)
@@ -45,12 +56,14 @@ edapho <- edapho %>% filter(!str_detect(species, " [:upper:]"))
 
 # remove observations before 1970
 edapho$date <- as.Date(edapho$"Observation date (Sampling event)", format="%m/%d/%y") 
-edapho <- edapho %>% filter(date >= "1970-01-01")
+edapho <- edapho %>% filter(date >= "1970-01-01") %>% mutate(year=substr(date, 1,4))
+edapho$year <- as.numeric(edapho$year)
 
 edapho$datasource <- "Edaphobase"
 
 # have a look at the data
-edapho[,c("species", "Latitude", "Longitude", "datasource")] #n=13.473
+edapho <- edapho[,c("species", "Latitude", "Longitude", "year", "datasource")] #n=13.473
+edapho
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from SoilReCon project (Portugal) ####
@@ -62,7 +75,7 @@ recon <- recon[recon$Species!="Octolasion sp." & !is.na(recon$Species),]
 
 # filter relevant columns
 recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
-  mutate("datasource"="SoilReCon")
+  mutate("year"=2021, "datasource"="SoilReCon")
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from Jerome Matthieu (Jema) ####
@@ -93,16 +106,28 @@ jema <- jema %>% filter(jema$Species %in% jema$Species[!stringr::str_detect(jema
 jema$lat <- as.double(stringr::str_replace(jema$lat, ",", "."))
 jema$lon <- as.double(stringr::str_replace(jema$lon, ",", "."))
 
-# plot occurrences colored by year
+# plot raw records
+world.inp <- map_data("world")
+
 pdf(paste0(here::here(), "/figures/OccurrenceRaw_JM_perYear.pdf"), width=10)
-ggplot(jema, aes(x=lon, y=lat, col=obs_year))+geom_point()+ theme_bw()+
-    scale_color_steps2(breaks=c(1900, 1950, 1970, 1990), midpoint=1960, high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")
-dev.off() 
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
+  geom_point(data=jema, aes(x=lon, y=lat, col=obs_year), cex=0.3)+ theme_bw()+
+  xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
+  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+  scale_color_steps2(breaks=c(1900, 1950, 1970, 1990), midpoint=1960, 
+                     high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")+
+  theme(panel.background = element_rect(fill = "grey80",
+                                colour = "grey80",
+                                size = 0.5, linetype = "solid"),
+        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
+                                        colour = "grey80"))
+dev.off()
 
 # remove data before 1970
 jema <- jema %>% filter(obs_year >=1970)
 
-jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon, datasource)
+jema <- jema %>% rename("datasource"=source) %>% dplyr::select(Species, lat, lon, obs_year, datasource)
 # nrow=26414 (1990: 18166 records)
 
 # - - - - - - - - - - - - - - - - - - -
@@ -112,37 +137,54 @@ data_raw <- dplyr::full_join(sworm, gbif,
                          by=c("SpeciesBinomial"="species", 
                               "Latitude_decimal_degrees"="decimalLatitude", 
                               "Longitude_decimal_degrees"="decimalLongitude", 
-                              "datasource"))
+                              "datasource", "year"))
 
 data_raw <- data_raw %>% dplyr::full_join(edapho, 
                  by=c("SpeciesBinomial"="species", 
                       "Latitude_decimal_degrees"="Latitude", 
                       "Longitude_decimal_degrees"="Longitude",
-                      "datasource"))
+                      "datasource", "year"))
 
 data_raw <- data_raw %>% dplyr::full_join(recon, 
                          by=c("SpeciesBinomial"="Species", 
                               "Latitude_decimal_degrees"="POINT_Y", 
                               "Longitude_decimal_degrees"="POINT_X",
-                              "datasource"))
+                              "datasource", "year"))
 
 data_raw <- data_raw %>% dplyr::full_join(jema, 
                          by=c("SpeciesBinomial"="Species", 
                               "Latitude_decimal_degrees"="lat", 
                               "Longitude_decimal_degrees"="lon",
-                              "datasource"))
+                              "datasource", "year"="obs_year"))
 
 data_raw <- tibble::tibble(species=data_raw$SpeciesBinomial, 
                        latitude=data_raw$Latitude_decimal_degrees, 
                        longitude=data_raw$Longitude_decimal_degrees, 
-                       datasource=data_raw$datasource)
+                       datasource=data_raw$datasource, 
+                       year=data_raw$year)
 
-data_raw #nrow = 109,438 (1990: 101,190)
+data_raw #nrow = 108,027 (1990: 101,190)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
 write.csv(data_raw, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
           row.names = F)
+
+# plot occurrences colored by year
+pdf(paste0(here::here(), "/figures/OccurrenceRaw_perYear.pdf"), width=10)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
+  geom_point(data=data_raw, aes(x=longitude, y=latitude, col=year),cex=0.3)+ theme_bw()+
+  xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
+  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+  scale_color_steps2(breaks=c(1970, 1980, 1990, 2000, 2010), midpoint=1995, 
+                     high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")+
+  theme(panel.background = element_rect(fill = "grey80",
+                                        colour = "grey80",
+                                        size = 0.5, linetype = "solid"),
+        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
+                                        colour = "grey80"))
+dev.off()
 
 # - - - - - - - - - - - - - - - - - - -
 ## Cleaning ####
