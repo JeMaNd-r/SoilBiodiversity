@@ -65,7 +65,7 @@ recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
   mutate("datasource"="SoilReCon")
 
 # - - - - - - - - - - - - - - - - - - -
-## Data from J?rome Matthieu (Jema) ####
+## Data from Jerome Matthieu (Jema) ####
 
 jema <-  read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
 # nrow=27800
@@ -78,6 +78,9 @@ jema[jema$Species=="A. caliginosa trapezoides","Species"] <- "Aporrectodea calig
 # make upper letter
 jema$Species <- stringr::str_to_sentence(jema$Species)
 
+# remove underscore in species names
+jema$Species <- gsub("_", " ", jema$Species)
+
 # keep only species, not subspecies
 jema$Species <- word(jema$Species, 1, 2)
 
@@ -89,6 +92,12 @@ jema <- jema %>% filter(jema$Species %in% jema$Species[!stringr::str_detect(jema
 
 jema$lat <- as.double(stringr::str_replace(jema$lat, ",", "."))
 jema$lon <- as.double(stringr::str_replace(jema$lon, ",", "."))
+
+# plot occurrences colored by year
+pdf(paste0(here::here(), "/figures/OccurrenceRaw_JM_perYear.pdf"), width=10)
+ggplot(jema, aes(x=lon, y=lat, col=obs_year))+geom_point()+ theme_bw()+
+    scale_color_steps2(breaks=c(1900, 1950, 1970, 1990), midpoint=1960, high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")
+dev.off() 
 
 # remove data before 1970
 jema <- jema %>% filter(obs_year >=1970)
@@ -170,7 +179,7 @@ dat_cl <- data.frame(data)
 flags <- CoordinateCleaner::clean_coordinates(x = dat_cl, lon = "longitude", lat = "latitude",
                                               species = "species", tests = c("capitals", "centroids", "equal", "gbif", "zeros", "seas"), #normally: test "countries"
                                               country_ref = rnaturalearth::ne_countries("small"), 
-                                              country_refcol = "iso_a3")
+                                              country_refcol = "iso_a3", urban_ref = NULL)
 sum(flags$.summary) #those not flagged! = 75526 out of 78036
 
 # save flagged coordinates
