@@ -202,7 +202,7 @@ source(file=paste0(here::here(),"src/Prepare_biodiversity_data.R"))
 
 ## Harmonization
 
-To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km².
+To get all biodiversity data into the same format, we reduce available occurrence data to presence/absence per grid cell. The grid we use has a resolution of 1km?.
 
 
 ```{r mergeSpecies}
@@ -509,7 +509,7 @@ occ_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-s
 occ_clean <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
 
 # load matrix containing information on number of occurrence records in grid
-occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_1km_", Taxon_name, ".csv"))
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 # calculate number of records per datasource
 full_join(occ_raw %>% group_by(datasource) %>% count(name="raw"), 
@@ -520,16 +520,19 @@ read.csv(file=paste0(here::here(), "/results/NoRecords_cleaning_", Taxon_name, "
 
 
 # count occurrences per species & data source
-count_data <- occ_raw %>% group_by(datasource, species) %>% count() %>%
+count_data <- occ_raw %>% 
+  full_join(speciesNames[,c("Species", "SpeciesID")], by=c("species"="Species")) %>%
+  group_by(datasource, SpeciesID) %>% count() %>%
   pivot_wider(names_from = datasource, values_from = n) %>%
-  full_join(occ_clean %>% group_by(datasource, species) %>% count() %>%
-  pivot_wider(names_from = datasource, values_from = n), suffix = c("_raw", "_clean"), by="species")
+  full_join(occ_clean %>% group_by(datasource, SpeciesID) %>% count() %>%
+  pivot_wider(names_from = datasource, values_from = n), suffix = c("_raw", "_clean"), by="SpeciesID")
 count_data$RawOcc <- rowSums(count_data[,2:7], na.rm=T)
 count_data$CleanOcc <- rowSums(count_data[,8:13], na.rm=T)
 
 # add number of records after
-count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "Species_final", "SpeciesID", #"NumCells_1km", 
-									"NumCells_2km")], by=c("species" = "Species")) %>%
+count_data <- count_data %>% full_join(speciesNames[,c("SpeciesID",
+  #"Acc_name", "Species_final", "Species", #"NumCells_1km", 
+									"NumCells_2km")], by=c("SpeciesID")) %>%
   filter(!is.na(SpeciesID))
 
 # replace NA with 0
@@ -537,27 +540,29 @@ count_data <- count_data %>% full_join(speciesNames[,c("Species", "Acc_name", "S
 
 # add info if species was analysed or not
 count_data$Included <- FALSE
-count_data[count_data$NumCells_2km >=5, "Included"] <- TRUE 
+count_data[count_data$NumCells_2km >=10, "Included"] <- TRUE 
 
 # sort by included or not, and have a look
-count_data <- count_data %>% arrange(desc(Included), species)
+count_data <- count_data %>% arrange(desc(Included), SpeciesID) %>%
+  dplyr::select(SpeciesID, RawOcc, CleanOcc, NumCells_2km, everything()) %>%
+  unique()
 count_data
 
 # save
 write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_full_", Taxon_name, ".csv"), row.names = F)
 
 # look at speciesID with most records
-View(count_data %>% arrange(desc(CleanOcc), SpeciesID))
+count_data %>% arrange(desc(NumCells_2km), SpeciesID)
 ```
 
 Add information of functional (ecological) groups, and visualize.
 
 ```{r numOccFG}
-count_data <- count_data %>% full_join(speciesNames %>%
+count_data2 <- count_data %>% full_join(speciesNames %>%
                                          dplyr::select(-NumCells_2km, -Group_name), by=c("species" = "Species", "Acc_name", "SpeciesID", "Species_final"))
-count_data
+count_data2
 
-ggplot(count_data %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup))+
+ggplot(count_data2 %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup))+
   geom_bar(stat = "identity")
 ```
 
@@ -569,15 +574,20 @@ Second, raw occurrences after we downloaded and cleaned them.
 world.inp <- map_data("world")
 
 # plot total species' occurrences
-plotOccRaw <- ggplot(occ_clean, 
-       aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
-  #geom_polygon(data=bg.map)
-  #geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+plotOccRaw <- ggplot()+ 
+   geom_map(data = world.inp, map = world.inp, 
+            aes(map_id = region), fill = "white")+
   xlim(min(extent_Europe[1], na.rm = T), 40) +
   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
-  geom_point(cex=0.3)+
+  geom_point(data=occ_clean, 
+       aes(x=longitude, y=latitude, color=datasource), 
+       cex=0.3, shape=".")+
   theme_bw()+
   theme(legend.position = "bottom")+
+   theme(panel.background = element_rect(fill = "grey80",
+                                        colour = "grey80",
+                                        size = 0.5, 
+                                      linetype = "solid"))+
   guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
 
 plotOccRaw
@@ -587,21 +597,31 @@ plotOccRaw
 rm(plotOccRaw)
 
 occ_clean %>% group_by(datasource) %>% count() 
-# edapho 13054, gbif 60219, jean 24860, jerome 732, soilrecon 175, swowm 5908
+# edapho 13054, gbif 60219, jean 24860, jerome 732, soilrecon 175, sworm 5908
 ```
 
 Zoom to Germany
 
 ```{r plotOccRaw_Germany}
+german.inp <- map_data("world", "Germany")
+
 # plot total species' occurrences
-plotOccRawGER <- ggplot(occ_clean, 
-       aes(x=longitude, y=latitude, color=datasource))+ #, alpha=`Number of Records`
-  #geom_polygon(data=bg.map)
-  geom_point(cex=0.6)+
-  scale_x_continuous(limits=c(5, 17))+ 
-  scale_y_continuous(limits=c(46,57))+
+plotOccRawGER <- ggplot()+ #, alpha=`Number of Records`
+  #geom_polygon(data=bg.map)+
+  geom_map(data=world.inp, map = world.inp, aes(map_id = region), fill="grey90") +
+  geom_map(data=german.inp, map = german.inp, aes(map_id = region), fill="white")+
+  xlim(5, 17) +
+  ylim(46,57) +
+  
+  geom_point(data=occ_clean, aes(x=longitude, y=latitude, color=datasource, shape="."), cex=0.4)+
+  #scale_x_continuous(limits=c(5, 17))+ 
+  #scale_y_continuous(limits=c(46,57))+
   theme_bw()+
   theme(legend.position = "bottom")+
+  theme(panel.background = element_rect(fill = "grey70",
+                                        colour = "grey70",
+                                        size = 0.5, 
+                                       linetype = "solid"))+
   guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
 
 plotOccRawGER
