@@ -14,7 +14,7 @@ r <- raster::raster(paste0(here::here(),"/data/grid_2k_0p016.tif"))
 occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
 occ$occ <- 1
 occ_stack <- raster()
-occ_points <- data.frame(x=0, y=0)[0,]
+occ_points <- data.frame(x=0, y=0, year=1800)[0,]
 
 speciesNames$Records <- NA
 
@@ -26,7 +26,7 @@ for(sp in unique(speciesNames$SpeciesID)){
   try({
   
   # load occurrences for specific species
-  temp_occ <- occ[occ$SpeciesID==sp & !is.na(occ$SpeciesID), c("x", "y", "occ", "SpeciesID")]
+  temp_occ <- occ[occ$SpeciesID==sp & !is.na(occ$SpeciesID), c("x", "y", "occ", "SpeciesID", "year")]
   
   ## save number of records for later ####
   speciesNames[speciesNames$SpeciesID==sp,]$Records <- nrow(temp_occ)
@@ -36,10 +36,13 @@ for(sp in unique(speciesNames$SpeciesID)){
   
   # make points to raster
   occ_grid <- raster::rasterize(temp_occ, r, "occ", fun=sum)
+  occ_year <- raster::rasterize(temp_occ, r, "year", fun=max)
   names(occ_grid) <- sp
+  names(occ_year) <- "year"
 
   # crop to raster extent
   occ_grid <- raster::mask(occ_grid, r)
+  occ_year <- raster::mask(occ_year, r)
   
   # # add to raster stack
   # occ_stack <- raster::stack(occ_stack, occ_grid)
@@ -48,7 +51,11 @@ for(sp in unique(speciesNames$SpeciesID)){
   
   # add to point data frame
   temp_points <- as.data.frame(rasterToPoints(occ_grid))
-  occ_points <- dplyr::full_join(occ_points, temp_points)
+  occ_year <- as.data.frame(rasterToPoints(occ_year))
+
+  temp_points <- dplyr::full_join(temp_points, occ_year)
+
+  occ_points <- dplyr::full_join(occ_points, temp_points, by=c("x", "y", "year"))
   
   print(paste0(sp, " was now tried to add to raster stack."))
   print(paste0("It has ", nrow(occ[occ$SpeciesID==sp, c("x", "y", "occ", "SpeciesID")]), " records."))
