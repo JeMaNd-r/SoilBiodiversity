@@ -37,6 +37,17 @@ dat_cl <- dat_cl %>% filter(coordinateUncertaintyInMeters <= 1000 | is.na(coordi
 
 df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_coordinateUncertainty", NumberRecords=nrow(dat_cl))
 
+# remove records with issues in species identification or lat/long
+unique(unlist(str_split(unique(dat_cl$issue), ";")))
+
+dat_cl <- dat_cl %>% filter(!stringr::str_detect(issue, "RECORDED_DATE_INVALID"))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_issueDate", NumberRecords=nrow(dat_cl))
+
+dat_cl <- dat_cl %>% filter(!stringr::str_detect(issue, "GEODETIC_DATUM_INVALID"))
+df_cleaning <- df_cleaning %>% add_row(CleaningStep="GBIF_issueGeoDate", NumberRecords=nrow(dat_cl))
+
+# note: coordinate_rounded are rounded to 1m precision
+
 # remove unsuitable data sources, especially fossils, and keep only those listed here
 #table(dat_cl$basisOfRecord) 
 dat_cl <- filter(dat_cl, basisOfRecord == "LIVING_SPECIMEN" | basisOfRecord == "HUMAN_OBSERVATION" | 
