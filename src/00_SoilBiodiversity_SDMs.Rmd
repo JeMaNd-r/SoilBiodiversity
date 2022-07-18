@@ -553,13 +553,14 @@ write.csv(count_data, file=paste0(here::here(), "/results/NoRecords_perSpecies_f
 
 # look at speciesID with most records
 count_data %>% arrange(desc(NumCells_2km), SpeciesID)
+# Eisen_tetr, Aporr_cali, Aporr_rose, Lumbr_terr, Lumbr_rube...
 ```
 
 Add information of functional (ecological) groups, and visualize.
 
 ```{r numOccFG}
 count_data2 <- count_data %>% full_join(speciesNames %>%
-                                         dplyr::select(-NumCells_2km, -Group_name), by=c("species" = "Species", "Acc_name", "SpeciesID", "Species_final"))
+                                         dplyr::select(-NumCells_2km, -Group_name), by=c("SpeciesID"))
 count_data2
 
 ggplot(count_data2 %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup))+
@@ -597,7 +598,7 @@ plotOccRaw
 rm(plotOccRaw)
 
 occ_clean %>% group_by(datasource) %>% count() 
-# edapho 13054, gbif 60219, jean 24860, jerome 732, soilrecon 175, sworm 5908
+# edapho 13054, gbif 54883, jean 24860, jerome 732, soilrecon 175, sworm 5028
 ```
 
 Zoom to Germany
@@ -643,7 +644,7 @@ world.inp <- map_data("world")
 occ_rich <- occ_points %>% 
                group_by(Latitude = round(x,0), Longitude=round(y,0)) %>%
                summarise_at(vars(colnames(occ_points %>% dplyr::select(-x, -y))), mean, na.rm=T)
-occ_rich$Richness <- apply(occ_rich > 0, 1, sum)
+occ_rich$Richness <- apply(occ_rich > 0, 1, sum, na.rm=T)
 
 # plot total species' occurrences
 plotOcc <- ggplot()+ 
@@ -657,9 +658,9 @@ plotOcc <- ggplot()+
    
   scale_color_gradient2(5,    # provide any number of colors
     low = "black", high="orange", mid= "blue",
-    midpoint = 100,
-    #values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
-    breaks = c(5, 20, 50, 100, 200, 300), limits=c(0,300))+
+    midpoint = 10,
+    #values = scales::rescale(c(1, 2, 3, 5, 10, 30)), 
+    breaks = c(1, 2, 5, 10, 20, 30), limits=c(0,30))+
   theme_bw()+
   theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
 

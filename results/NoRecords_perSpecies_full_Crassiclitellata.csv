@@ -1,389 +1,340 @@
-"species","Edaphobase_raw","GBIF_raw","jean_raw","jerome_raw","SoilReCon_raw","sWorm_raw","Edaphobase_clean","GBIF_clean","jean_clean","jerome_clean","SoilReCon_clean","sWorm_clean","RawOcc","CleanOcc","Acc_name","Species_final","SpeciesID","NumCells_2km","Included"
-"Allobophoridella eiseni",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,2,"Allolobophoridella eiseni","Allolobophoridella eiseni","Allol_eise",164,TRUE
-"Allolobophora antipae",NA,2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,2,2,"Allolobophora","Proctodrilus antipai","Proct_anti",31,TRUE
-"Allolobophora chlorotica",779,3176,3247,25,24,581,738,2944,3186,20,24,427,7832,7339,"Allolobophora chlorotica","Allolobophora chlorotica","Allol_chlo",2025,TRUE
-"Allolobophora cupulifera",NA,26,NA,NA,NA,NA,NA,26,NA,NA,NA,NA,26,26,"Allolobophora cupulifera","Aporrectodea cupulifera","Aporr_cupu",18,TRUE
-"Allolobophora dofleini",NA,NA,NA,44,NA,NA,NA,NA,NA,43,NA,NA,44,43,"Allolobophora dofleini","Allolobophora dofleini","Allol_dofl",36,TRUE
-"Allolobophora jassyensis",NA,NA,NA,8,NA,NA,NA,NA,NA,8,NA,NA,8,8,"Allolobophora jassyensis","Allolobophora jassyensis","Allol_jass",7,TRUE
-"Allolobophora leoni",NA,NA,NA,6,NA,NA,NA,NA,NA,6,NA,NA,6,6,"Allolobophora leoni","Allolobophora leoni","Allol_leon",6,TRUE
-"Allolobophora minuscula",NA,12,NA,6,NA,NA,NA,12,NA,6,NA,NA,18,18,"Allolobophora minuscula","Murcheiona minuscula","Murch_minu",10,TRUE
-"Allolobophora muldali",NA,117,NA,NA,NA,NA,NA,107,NA,NA,NA,NA,117,107,"Allolobophora muldali","Murcheiona muldali","Murch_muld",59,TRUE
-"Allolobophora rosea",NA,NA,NA,38,NA,NA,NA,NA,NA,38,NA,NA,38,38,"Allolobophora rosea","Allolobophora rosea","Allol_rose",24,TRUE
-"Allolobophora smaragdina",NA,7,NA,2,NA,NA,NA,7,NA,2,NA,NA,9,9,"Allolobophora smaragdina","Aporrectodea smaragdina","Aporr_smar",21,TRUE
-"Allolobophoridella eiseni",16,NA,NA,NA,NA,38,15,NA,NA,NA,NA,19,54,34,"Allolobophoridella eiseni","Allolobophoridella eiseni","Allol_eise",164,TRUE
-"Aporrectodea caliginosa",2849,8139,4989,82,6,1522,2793,7785,4848,71,6,1041,17587,16544,"Aporrectodea caliginosa","Aporrectodea caliginosa","Aporr_cali",3399,TRUE
-"Aporrectodea cupulifera",6,NA,NA,NA,NA,10,3,NA,NA,NA,NA,9,16,12,"Aporrectodea cupulifera","Aporrectodea cupulifera","Aporr_cupu",18,TRUE
-"Aporrectodea georgii",9,14,NA,NA,NA,NA,9,14,NA,NA,NA,NA,23,23,"Aporrectodea georgii","Aporrectodea georgii","Aporr_geor",9,TRUE
-"Aporrectodea handlirschi",3,7,NA,NA,NA,NA,3,7,NA,NA,NA,NA,10,10,"Aporrectodea handlirschi","Aporrectodea handlirschi","Aporr_hand",11,TRUE
-"Aporrectodea icterica",41,NA,NA,NA,NA,42,33,NA,NA,NA,NA,42,83,75,"Aporrectodea icterica","Aporrectodea icterica","Aporr_icte",68,TRUE
-"Aporrectodea jassyensis",NA,5,NA,17,NA,NA,NA,5,NA,14,NA,NA,22,19,"Aporrectodea jassyensis","Aporrectodea jassyensis","Aporr_jass",5,TRUE
-"Aporrectodea limicola",41,150,NA,NA,NA,51,41,141,NA,NA,NA,50,242,232,"Aporrectodea limicola","Aporrectodea limicola","Aporr_limi",118,TRUE
-"Aporrectodea longa",239,1703,1346,11,NA,301,224,1577,1280,5,NA,278,3600,3364,"Aporrectodea longa","Aporrectodea longa","Aporr_long",1049,TRUE
-"Aporrectodea moebii",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Aporrectodea moebii","Aporrectodea molleri","Aporr_moll",33,TRUE
-"Aporrectodea molleri",NA,NA,NA,NA,1,63,NA,NA,NA,NA,1,60,64,61,"Aporrectodea molleri","Aporrectodea molleri","Aporr_moll",33,TRUE
-"Aporrectodea nocturna",NA,25,NA,NA,NA,13,NA,22,NA,NA,NA,13,38,35,"Aporrectodea nocturna","Aporrectodea nocturna","Aporr_noct",28,TRUE
-"Aporrectodea oliveirae",NA,NA,NA,NA,11,18,NA,NA,NA,NA,11,18,29,29,"Aporrectodea oliveirae","Aporrectodea oliveirae","Aporr_oliv",26,TRUE
-"Aporrectodea rosea",1644,6916,3241,86,11,1165,1594,6774,3175,72,11,735,13063,12361,"Aporrectodea rosea","Aporrectodea rosea","Aporr_rose",2543,TRUE
-"Aporrectodea smaragdina",2,NA,NA,12,NA,NA,2,NA,NA,12,NA,NA,14,14,"Aporrectodea smaragdina","Aporrectodea smaragdina","Aporr_smar",21,TRUE
-"Aporrectodea trapezoides",NA,NA,NA,4,50,685,NA,NA,NA,2,50,97,739,149,"Aporrectodea trapezoides","Aporrectodea trapezoides","Aporr_trap",55,TRUE
-"Aporrectodea tuberculata",NA,NA,NA,NA,NA,182,NA,NA,NA,NA,NA,18,182,18,"Aporrectodea tuberculata","Aporrectodea tuberculata","Aporr_tube",7,TRUE
-"Apporectodea rosea",NA,NA,NA,9,NA,NA,NA,NA,NA,9,NA,NA,9,9,"Apporectodea rosea","Apporectodea rosea","Aporr_rose",2543,TRUE
-"Bimastos eiseni",NA,286,NA,NA,NA,NA,NA,269,NA,NA,NA,NA,286,269,"Bimastos eiseni","Allolobophoridella eiseni","Allol_eise",164,TRUE
-"Bimastos rubidus",NA,3210,NA,2,NA,NA,NA,3095,NA,2,NA,NA,3212,3097,"Bimastos rubidus","Dendrodrilus rubidus tenuis","Dendr_rubi",940,TRUE
-"Criodrilus lacuum",NA,7,NA,1,NA,2,NA,6,NA,1,NA,2,10,9,"Criodrilus lacuum","Criodrilus lacuum","Criod_lacu",8,TRUE
-"Dendrobaena alpina",1,23,NA,6,NA,NA,1,23,NA,6,NA,NA,30,30,"Dendrobaena alpina","Dendrobaena alpina","Dendr_alpi",11,TRUE
-"Dendrobaena attemsi",82,318,NA,7,8,1,82,301,NA,6,8,1,416,398,"Dendrobaena attemsi","Dendrobaena attemsi","Dendr_atte",130,TRUE
-"Dendrobaena byblica",1,3,NA,5,NA,7,1,3,NA,5,NA,7,16,16,"Dendrobaena byblica","Dendrobaena byblica","Dendr_bybl",15,TRUE
-"Dendrobaena cognettii",NA,1,NA,2,NA,NA,NA,1,NA,2,NA,NA,3,3,"Dendrobaena cognettii","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
-"Dendrobaena hortensis",8,72,NA,11,NA,6,8,62,NA,11,NA,6,97,87,"Dendrobaena hortensis","Dendrobaena hortensis","Dendr_hort",60,TRUE
-"Dendrobaena illyrica",126,NA,NA,NA,NA,NA,126,NA,NA,NA,NA,NA,126,126,"Dendrobaena illyrica","Dendrobaena illyrica","Dendr_illy",110,TRUE
-"Dendrobaena illyricus",NA,9,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,9,9,"Dendrobaena illyricus","Dendrobaena illyrica","Dendr_illy",110,TRUE
-"Dendrobaena octaedra",886,3663,1552,36,1,1469,886,3550,1531,35,1,493,7607,6496,"Dendrobaena octaedra","Dendrobaena octaedra","Dendr_octa",1346,TRUE
-"Dendrobaena persimilis",NA,NA,NA,9,NA,NA,NA,NA,NA,9,NA,NA,9,9,"Dendrobaena persimilis","Dendrobaena persimilis","Dendr_pers",9,TRUE
-"Dendrobaena pygmaea",4,NA,NA,NA,NA,19,4,NA,NA,NA,NA,12,23,16,"Dendrobaena pygmaea","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
-"Dendrobaena pygmaea gallurensis",NA,NA,NA,NA,NA,10,NA,NA,NA,NA,NA,10,10,10,"Dendrobaena pygmaea gallurensis","Dendrobaena gallurensis","Dendr_gall",6,TRUE
-"Dendrobaena rubida",NA,NA,NA,11,NA,NA,NA,NA,NA,11,NA,NA,11,11,"Dendrobaena rubida","Dendrobaena rubida","Dendr_rubi",940,TRUE
-"Dendrobaena vejdovskyi",54,51,NA,NA,NA,NA,54,51,NA,NA,NA,NA,105,105,"Dendrobaena vejdovskyi","Dendrobaena vejdovskyi","Dendr_vejd",8,TRUE
-"Dendrobaena veneta",4,59,NA,7,NA,1,3,45,NA,7,NA,1,71,56,"Dendrobaena veneta","Dendrobaena veneta","Dendr_vene",36,TRUE
-"Dendrodilus rubidus",NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,NA,2,0,"Dendrodilus rubidus","Dendrodilus rubidus","Dendr_rubi",940,TRUE
-"Dendrodrilus rubidus",311,NA,654,10,1,295,310,NA,623,10,1,175,1271,1119,"Dendrodrilus rubidus","Dendrodrilus rubidus","Dendr_rubi",940,TRUE
-"Dendrodrilus rubidus subrubicundus",NA,NA,NA,NA,1,1,NA,NA,NA,NA,1,1,2,2,"Dendrodrilus rubidus subrubicundus","Dendrodrilus rubidus subrubicundus","Dendr_rubi",940,TRUE
-"Dendrodrilus rubidus tenuis",NA,NA,NA,NA,3,9,NA,NA,NA,NA,3,9,12,12,"Dendrodrilus rubidus tenuis","Dendrodrilus rubidus tenuis","Dendr_rubi",940,TRUE
-"Eisaniella tetraeda",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Eiseniella tetraeda","Eiseniella tetraeda","Eisen_tetr",5474,TRUE
-"Eisenia andrei",NA,28,NA,NA,NA,7,NA,24,NA,NA,NA,NA,35,24,"Eisenia andrei","Eisenia andrei","Eisen_andr",12,TRUE
-"Eisenia fetida",13,557,369,4,NA,49,12,494,337,4,NA,46,992,893,"Eisenia fetida","Eisenia fetida","Eisen_feti",335,TRUE
-"Eisenia lucens",6,NA,NA,6,NA,3,6,NA,NA,6,NA,3,15,15,"Eisenia lucens","Eisenia lucens","Eisen_luce",12,TRUE
-"Eiseniella tetraedra",149,12049,NA,18,1,152,147,11904,NA,17,1,91,12369,12160,"Eiseniella tetraedra","Eiseniella tetraedra","Eisen_tetr",5474,TRUE
-"Eiseniona hardlirschi",NA,NA,NA,NA,NA,13,NA,NA,NA,NA,NA,13,13,13,"Eiseniona handlirschi","Aporrectodea handlirschi","Aporr_hand",11,TRUE
-"Enterion cyaneum",NA,640,NA,NA,NA,NA,NA,598,NA,NA,NA,NA,640,598,"Enterion cyaneum","Octolasion cyaneum","Octol_cyan",894,TRUE
-"Enterion festivum",NA,236,NA,NA,NA,NA,NA,218,NA,NA,NA,NA,236,218,"Enterion festivum","Lumbricus festivus","Lumbr_fest",235,TRUE
-"Enterion polyphemus",NA,17,NA,NA,NA,NA,NA,17,NA,NA,NA,NA,17,17,"Enterion polyphemus","Lumbricus polyphemus","Lumbr_poly",19,TRUE
-"Enterion pygmaeum",NA,15,NA,NA,NA,NA,NA,11,NA,NA,NA,NA,15,11,"Enterion pygmaeum","Dendrobaena pygmaea","Dendr_pygm",27,TRUE
-"Enterion tyrtaeum",NA,693,NA,NA,NA,NA,NA,652,NA,NA,NA,NA,693,652,"Enterion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",480,TRUE
-"Eophila icterica",NA,122,NA,NA,NA,NA,NA,99,NA,NA,NA,NA,122,99,"Eophila icterica","Aporrectodea icterica","Aporr_icte",68,TRUE
-"Firzingeria depressa",NA,NA,NA,NA,NA,10,NA,NA,NA,NA,NA,10,10,10,NA,"Dendrobaena depressa","Dendr_depr",6,TRUE
-"Fitzingeria platyura",30,24,NA,NA,NA,NA,30,24,NA,NA,NA,NA,54,54,"Fitzingeria platyura","Fitzingeria platyura","Fitzi_plat",23,TRUE
-"Healyella mariae",NA,NA,NA,6,NA,NA,NA,NA,NA,6,NA,NA,6,6,"Healyella mariae","Healyella mariae","Healy_mari",6,TRUE
-"Helodrilus oculatus",1,12,NA,3,NA,2,1,11,NA,3,NA,2,18,17,"Helodrilus oculatus","Helodrilus oculatus","Helod_ocul",13,TRUE
-"Lumbricus badensis",NA,5,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,5,5,"Lumbricus badensis","Lumbricus badensis","Lumbr_bade",5,TRUE
-"Lumbricus castaneus",500,1832,1927,23,2,233,471,1745,1885,18,2,197,4517,4318,"Lumbricus castaneus","Lumbricus castaneus","Lumbr_cast",1589,TRUE
-"Lumbricus festivus",15,NA,244,NA,NA,88,15,NA,235,NA,NA,86,347,336,"Lumbricus festivus","Lumbricus festivus","Lumbr_fest",235,TRUE
-"Lumbricus friendi",NA,28,NA,NA,5,30,NA,27,NA,NA,5,30,63,62,"Lumbricus friendi","Lumbricus friendi","Lumbr_frie",36,TRUE
-"Lumbricus herculeus",NA,58,NA,NA,NA,NA,NA,57,NA,NA,NA,NA,58,57,"Lumbricus herculeus","Lumbricus herculeus","Lumbr_herc",15,TRUE
-"Lumbricus lucens",NA,6,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,6,6,"Lumbricus lucens","Eisenia lucens","Eisen_luce",12,TRUE
-"Lumbricus meliboeus",NA,2,NA,1,NA,5,NA,2,NA,1,NA,5,8,8,"Lumbricus meliboeus","Lumbricus meliboeus","Lumbr_meli",8,TRUE
-"Lumbricus polyphemus",24,NA,NA,NA,NA,4,24,NA,NA,NA,NA,4,28,28,"Lumbricus polyphemus","Lumbricus polyphemus","Lumbr_poly",19,TRUE
-"Lumbricus rubellus",1558,5884,3601,39,2,1131,1542,5619,3509,34,2,654,12215,11360,"Lumbricus rubellus","Lumbricus rubellus","Lumbr_rube",2473,TRUE
-"Lumbricus terrestris",1557,3583,3442,19,1,952,1475,3363,3320,17,1,450,9554,8626,"Lumbricus terrestris","Lumbricus terrestris","Lumbr_terr",2496,TRUE
-"Lumbricus tubellus",NA,NA,NA,5,NA,NA,NA,NA,NA,5,NA,NA,5,5,"Lumbricus rubellus","Lumbricus rubellus","Lumbr_rube",2473,TRUE
-"Microscolex dubius",NA,1,47,11,6,269,NA,1,40,11,6,6,334,64,"Microscolex dubius","Microscolex dubius","Micro_dubi",42,TRUE
-"Microscolex phosphoreus",NA,8,61,6,4,189,NA,8,58,6,4,49,268,125,"Microscolex phosphoreus","Microscolex phosphoreus","Micro_phos",93,TRUE
-"Murchieona minuscula",10,NA,NA,NA,NA,NA,10,NA,NA,NA,NA,NA,10,10,"Murchieona minuscula","Murchieona minuscula","Murch_minu",10,TRUE
-"Murchieona muldali",1,NA,NA,NA,NA,39,NA,NA,NA,NA,NA,38,40,38,"Murchieona muldali","Murchieona muldali","Murch_muld",59,TRUE
-"Nicodrilus caliginosus",NA,NA,NA,14,NA,NA,NA,NA,NA,14,NA,NA,14,14,"Nicodrilus caliginosus","Nicodrilus caliginosus","Nicod_cali",14,TRUE
-"Octodrilus complanatus",NA,2,NA,12,NA,16,NA,2,NA,12,NA,11,30,25,"Octodrilus complanatus","Octodrilus complanatus","Octod_comp",15,TRUE
-"Octodrilus compromissus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus compromissus","Octodrilus compromissus","Octod_comp",15,TRUE
-"Octodrilus transpadanus",6,7,NA,8,NA,NA,6,7,NA,7,NA,NA,21,20,"Octodrilus transpadanus","Octodrilus transpadanus","Octod_tran",13,TRUE
-"Octolasion cyaneum",116,NA,853,10,5,250,112,NA,833,5,5,112,1234,1067,"Octolasion cyaneum","Octolasion cyaneum","Octol_cyan",894,TRUE
-"Octolasion lacteum",NA,2631,NA,10,2,226,NA,2616,NA,8,2,211,2869,2837,"Octolasion lacteum","Octolasion lacteum","Octol_lact",285,TRUE
-"Octolasion tyrtaeum",1044,NA,NA,1,2,191,1010,NA,NA,1,2,42,1238,1055,"Octolasion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",480,TRUE
-"Octolasion tyrtaeum ",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasion tyrtaeum","Octolasion tyrtaeum","Octol_tyrt",480,TRUE
-"Octolasium lacteum",NA,NA,NA,19,NA,NA,NA,NA,NA,19,NA,NA,19,19,"Octolasium lacteum","Octolasium lacteum","Octol_lact",285,TRUE
-"Perelia gestroi",NA,19,NA,NA,NA,NA,NA,19,NA,NA,NA,NA,19,19,"Perelia gestroi","Perelia gestroi","Perel_gest",6,TRUE
-"Proctodrilus antipae",54,23,NA,NA,NA,11,51,23,NA,NA,NA,10,88,84,"Proctodrilus antipae","Proctodrilus antipai","Proct_anti",31,TRUE
-"Proctodrilus antipai",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Proctodrilus antipai","Proctodrilus antipai","Proct_anti",31,TRUE
-"Proctodrilus tuberculatus",7,13,NA,NA,NA,4,7,13,NA,NA,NA,4,24,24,"Proctodrilus tuberculatus","Proctodrilus tuberculatus","Proct_tube",14,TRUE
-"Satchellius madeirensis",NA,NA,NA,NA,27,28,NA,NA,NA,NA,27,28,55,55,"Satchellius madeirensis","Satchellius madeirensis","Satch_made",47,TRUE
-"Satchellius mammalis",2,359,NA,NA,NA,72,2,343,NA,NA,NA,69,433,414,"Satchellius mammalis","Satchellius mammalis","Satch_mamm",203,TRUE
-"Scherotheca aquitania",NA,4,NA,NA,NA,15,NA,4,NA,NA,NA,15,19,19,"Scherotheca aquitania","Scherotheca aquitania","Scher_aqui",7,TRUE
-"Agastrodrilus multivesiculatus",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,0,"Agastrodrilus multivesiculatus","Agastrodrilus multivesiculatus","Agast_mult",0,FALSE
-"Ailoscolex lacteospumosus",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Ailoscolex lacteospumosus","Ailoscolex lacteospumosus","Ailos_lact",1,FALSE
-"Allolobophora altimontana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora altimontana","Allolobophora altimontana","Allol_alti",0,FALSE
-"Allolobophora antipai",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Allolobophora antipai","Allolobophora antipai","Allol_anti",2,FALSE
-"Allolobophora bellicosa",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Allolobophora bellicosa","Allolobophora bellicosa","Allol_bell",1,FALSE
-"Allolobophora biserialis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora biserialis","Allolobophora biserialis","Allol_bise",0,FALSE
-"Allolobophora borellii",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Allolobophora borellii","Allolobophora borellii","Allol_bore",0,FALSE
-"Allolobophora caliginosa",NA,NA,NA,10,NA,NA,NA,NA,NA,10,NA,NA,10,10,"Allolobophora caliginosa","Allolobophora caliginosa","Allol_cali",1,FALSE
-"Allolobophora carpathica",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,2,"Allolobophora carpathica","Aporrectodea carpathica","Aporr_carp",2,FALSE
-"Allolobophora carpatica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora carpatica","Allolobophora carpatica","Allol_carp",0,FALSE
-"Allolobophora cernosvitoviana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora cernosvitoviana","Allolobophora cernosvitoviana","Allol_cern",0,FALSE
-"Allolobophora cyrnea",2,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,2,1,"Allolobophora cyrnea","Scherotheca corsicana?","Scher_cors",1,FALSE
-"Allolobophora dacica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora dacica","Allolobophora dacica","Allol_daci",0,FALSE
-"Allolobophora dubiosa",2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,"Allolobophora dubiosa","Aporrectodea dubiosa","Aporr_dubi",4,FALSE
-"Allolobophora dugesi",2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,"Allolobophora dugesi","Scherotheca dugesi","Scher_duge",2,FALSE
-"Allolobophora exacystis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora exacystis","Allolobophora exacystis","Allol_exac",0,FALSE
-"Allolobophora gestroides",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora gestroides","Allolobophora gestroides","Allol_gest",0,FALSE
-"Allolobophora giardi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora giardi","Allolobophora giardi","Allol_giar",0,FALSE
-"Allolobophora hispanica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora hispanica","Allolobophora hispanica","Allol_hisp",0,FALSE
-"Allolobophora mehadiensis",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Allolobophora mehadiensis","Allolobophora mehadiensis","Allol_meha",1,FALSE
-"Allolobophora molleri",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Allolobophora molleri","Allolobophora molleri","Allol_moll",0,FALSE
-"Allolobophora morenoe",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora morenoe","Allolobophora morenoe","Allol_more",0,FALSE
-"Allolobophora oculata",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora oculata","Allolobophora oculata","Allol_ocul",0,FALSE
-"Allolobophora parva",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora parva","Allolobophora parva","Allol_parv",0,FALSE
-"Allolobophora robusta",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora robusta","Allolobophora robusta","Allol_robu",0,FALSE
-"Allolobophora satchelli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora satchelli","Allolobophora satchelli","Allol_satc",0,FALSE
-"Allolobophora sturanyi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora sturanyi","Allolobophora sturanyi","Allol_stur",2,FALSE
-"Allolobophora sturanyi dacidoides",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,2,"Allolobophora sturanyi dacidoides","Allolobophora sturanyi dacidoides","Allol_stur",2,FALSE
-"Allolobophora terrestris",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allolobophora terrestris","Allolobophora terrestris","Allol_terr",0,FALSE
-"Allolobophora thaleri",NA,5,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,5,5,"Allolobophora thaleri","Aporrectodea thaleri","Aporr_thal",2,FALSE
-"Allurus neapolitanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Allurus neapolitanus","Allurus neapolitanus","Allur_neap",0,FALSE
-"Amynthas agrestis",NA,1,NA,NA,NA,11,NA,1,NA,NA,NA,NA,12,1,"Amynthas agrestis","Amynthas agrestis","Amynt_agre",1,FALSE
-"Amynthas aspergillum",NA,NA,NA,NA,NA,41,NA,NA,NA,NA,NA,NA,41,0,"Amynthas aspergillum","Amynthas aspergillum","Amynt_aspe",0,FALSE
-"Amynthas corticis",NA,1,NA,NA,1,14,NA,1,NA,NA,1,2,16,4,"Amynthas corticis","Amynthas corticis","Amynt_cort",4,FALSE
-"Amynthas gracilis",NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,8,0,"Amynthas gracilis","Amynthas gracilis","Amynt_grac",0,FALSE
-"Amynthas heterochaetus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas heterochaetus","Amynthas heterochaetus","Amynt_hete",0,FALSE
-"Amynthas hupeiensis",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Amynthas hupeiensis","Amynthas hupeiensis","Amynt_hupe",0,FALSE
-"Amynthas mediocus",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Amynthas mediocus","Amynthas mediocus","Amynt_medi",0,FALSE
-"Amynthas minimus",NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,0,"Amynthas minimus","Amynthas minimus","Amynt_mini",0,FALSE
-"Amynthas morrisi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Amynthas morrisi","Amynthas morrisi","Amynt_morr",1,FALSE
-"Amynthas rodericensis",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Amynthas rodericensis","Amynthas rodericensis","Amynt_rode",1,FALSE
-"Amynthas tokioensis",NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,8,0,"Amynthas tokioensis","Amynthas tokioensis","Amynt_toki",0,FALSE
-"Anisochaeta macleayi",NA,NA,NA,NA,NA,113,NA,NA,NA,NA,NA,NA,113,0,"Anisochaeta macleayi","Anisochaeta macleayi","Aniso_macl",0,FALSE
-"Aporrectodea dubiosa",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,4,4,4,"Aporrectodea dubiosa","Aporrectodea dubiosa","Aporr_dubi",4,FALSE
-"Aporrectodea giardi",NA,NA,NA,NA,NA,10,NA,NA,NA,NA,NA,9,10,9,"Aporrectodea giardi","Aporrectodea giardi","Aporr_giar",3,FALSE
-"Aporrectodea haymoziformis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Aporrectodea haymoziformis","Aporrectodea haymoziformis","Aporr_haym",0,FALSE
-"Aporrectodea opisthosellata",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,1,"Aporrectodea opisthosellata","Aporrectodea opisthosellata","Aporr_opis",1,FALSE
-"Aporrectodea thaleri",2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,"Aporrectodea thaleri","Aporrectodea thaleri","Aporr_thal",2,FALSE
-"Aporrectodea turgida",NA,NA,NA,NA,NA,43,NA,NA,NA,NA,NA,NA,43,0,"Aporrectodea turgida","Aporrectodea turgida","Aporr_turg",0,FALSE
-"Balanteodrilus pearsei",NA,NA,NA,NA,NA,23,NA,NA,NA,NA,NA,NA,23,0,"Balanteodrilus pearsei","Balanteodrilus pearsei","Balan_pear",0,FALSE
-"Belladrilus emilianii",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Belladrilus emilianii","Belladrilus emilianii","Bella_emil",0,FALSE
-"Bimastos antiquus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos antiquus","Bimastos antiquus","Bimas_anti",0,FALSE
-"Bimastos jordanis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastos jordanis","Bimastos jordanis","Bimas_jord",0,FALSE
-"Bimastos parvus",1,NA,NA,NA,NA,19,1,NA,NA,NA,NA,16,20,17,"Bimastos parvus","Bimastos parvus","Bimas_parv",1,FALSE
-"Bimastus eiseni",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Bimastus eiseni","Bimastus eiseni","Bimas_eise",3,FALSE
-"Bimastus parvus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Bimastus parvus","Bimastus parvus","Bimas_parv",1,FALSE
-"Bismastus eiseni",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Bimastus eiseni","Bimastus eiseni","Bimas_eise",3,FALSE
-"Cataladrilus edwardsi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus edwardsi","Cataladrilus edwardsi","Catal_edwa",0,FALSE
-"Cataladrilus monticola",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cataladrilus monticola","Cataladrilus monticola","Catal_mont",0,FALSE
-"Cataladrilus porquerollensis",NA,6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,6,0,"Cataladrilus porquerollensis","Cataladrilus porquerollensis","Catal_porq",0,FALSE
-"Cernosvitovia bertae",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia bertae","Cernosvitovia bertae","Cerno_bert",0,FALSE
-"Cernosvitovia dudichi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Cernosvitovia dudichi","Cernosvitovia dudichi","Cerno_dudi",0,FALSE
-"Cernosvitovia rebeli",NA,NA,NA,4,NA,NA,NA,NA,NA,4,NA,NA,4,4,"Cernosvitovia rebeli","Cernosvitovia rebeli","Cerno_rebe",2,FALSE
-"Cernosvitovia schweigeri",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Cernosvitovia schweigeri","Cernosvitovia schweigeri","Cerno_schw",1,FALSE
-"Dendrobaena auriculata",6,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,6,6,"Dendrobaena auriculata","Dendrobaena auriculata","Dendr_auri",4,FALSE
-"Dendrobaena auriculifera",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Dendrobaena auriculifera","Dendrobaena auriculifera","Dendr_auri",4,FALSE
-"Dendrobaena clujensis",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Dendrobaena clujensis","Dendrobaena clujensis","Dendr_cluj",1,FALSE
-"Dendrobaena franzi",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,1,"Dendrobaena franzi","Dendrobaena franzi","Dendr_fran",1,FALSE
-"Dendrobaena fridericae",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Dendrobaena fridericae","Dendrobaena fridericae","Dendr_frid",1,FALSE
-"Dendrobaena ganglbaueri",NA,NA,NA,4,NA,NA,NA,NA,NA,4,NA,NA,4,4,"Dendrobaena ganglbaueri","Dendrobaena ganglbaueri","Dendr_gang",3,FALSE
-"Dendrobaena lusitana",NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,3,8,3,"Dendrobaena lusitana","Dendrobaena lusitana","Dendr_lusi",3,FALSE
-"Dendrobaena mariupolienis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena mariupolienis","Dendrobaena mariupolienis","Dendr_mari",0,FALSE
-"Dendrobaena orientalis",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Dendrobaena orientalis","Dendrobaena orientalis","Dendr_orie",0,FALSE
-"Dendrobaena osellai",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena osellai","Dendrobaena osellai","Dendr_osel",0,FALSE
-"Dendrobaena pantaleonis",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,4,5,4,"Dendrobaena pantaleonis","Dendrobaena pantaleonis","Dendr_pant",3,FALSE
-"Dendrobaena pavliceki",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pavliceki","Dendrobaena pavliceki","Dendr_pavl",0,FALSE
-"Dendrobaena pentheri",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pentheri","Dendrobaena pentheri","Dendr_pent",0,FALSE
-"Dendrobaena perula",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Dendrobaena perula","Dendrobaena perula","Dendr_peru",1,FALSE
-"Dendrobaena platyura",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena platyura","Dendrobaena platyura","Dendr_plat",2,FALSE
-"Dendrobaena pseudorrosea",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena pseudorrosea","Dendrobaena pseudorrosea","Dendr_pseu",0,FALSE
-"Dendrobaena ressli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ressli","Dendrobaena ressli","Dendr_ress",0,FALSE
-"Dendrobaena ruffoi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena ruffoi","Dendrobaena ruffoi","Dendr_ruff",0,FALSE
-"Dendrobaena schmidti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena schmidti","Dendr_schm",0,FALSE
-"Dendrobaena schmidti schmidti",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,2,"Dendrobaena schmidti schmidti","Dendrobaena schmidti schmidti","Dendr_schm",0,FALSE
-"Dendrobaena schmidti tellermanica",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,1,"Dendrobaena schmidti tellermanica","Dendrobaena schmidti tellermanica","Dendr_schm",0,FALSE
-"Dendrobaena semitica",NA,NA,NA,4,NA,NA,NA,NA,NA,4,NA,NA,4,4,"Dendrobaena semitica","Dendrobaena semitica","Dendr_semi",1,FALSE
-"Dendrobaena succincta",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Dendrobaena succincta","Dendrobaena succincta","Dendr_succ",0,FALSE
-"Dichogaster affinis",NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,22,0,"Dichogaster affinis","Dichogaster affinis","Dicho_affi",0,FALSE
-"Dichogaster baeri",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Dichogaster baeri","Dichogaster baeri","Dicho_baer",0,FALSE
-"Dichogaster bolaui",NA,2,NA,NA,NA,8,NA,2,NA,NA,NA,NA,10,2,"Dichogaster bolaui","Dichogaster bolaui","Dicho_bola",2,FALSE
-"Dichogaster ehrhardti",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Dichogaster ehrhardti","Dichogaster ehrhardti","Dicho_ehrh",0,FALSE
-"Dichogaster gracilis",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Dichogaster gracilis","Dichogaster gracilis","Dicho_grac",0,FALSE
-"Dichogaster leroyi",NA,NA,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,9,0,"Dichogaster leroyi","Dichogaster leroyi","Dicho_lero",0,FALSE
-"Dichogaster mamillata",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Dichogaster mamillata","Dichogaster mamillata","Dicho_mami",0,FALSE
-"Dichogaster modiglianii",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Dichogaster modiglianii","Dichogaster modiglianii","Dicho_modi",0,FALSE
-"Dichogaster notabilis",NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,0,"Dichogaster notabilis","Dichogaster notabilis","Dicho_nota",0,FALSE
-"Dichogaster papillosa",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,0,"Dichogaster papillosa","Dichogaster papillosa","Dicho_papi",0,FALSE
-"Dichogaster saliens",NA,NA,NA,NA,NA,18,NA,NA,NA,NA,NA,NA,18,0,"Dichogaster saliens","Dichogaster saliens","Dicho_sali",0,FALSE
-"Dichogaster terraenigrae",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Dichogaster terraenigrae","Dichogaster terraenigrae","Dicho_terr",0,FALSE
-"Diplocardia hulberti",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Diplocardia hulberti","Diplocardia hulberti","Diplo_hulb",0,FALSE
-"Diplocardia kansensis",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Diplocardia kansensis","Diplocardia kansensis","Diplo_kans",0,FALSE
-"Diplocardia longiseta",NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,7,0,"Diplocardia longiseta","Diplocardia longiseta","Diplo_long",0,FALSE
-"Diplocardia singularis",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Diplocardia singularis","Diplocardia singularis","Diplo_sing",0,FALSE
-"Diplotrema oxcutzcabensis",NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,7,0,"Diplotrema oxcutzcabensis","Diplotrema oxcutzcabensis","Diplo_oxcu",0,FALSE
-"Diplotrema papillata",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Diplotrema papillata","Diplotrema papillata","Diplo_papi",0,FALSE
-"Diporodrilus pilosus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Diporodrilus pilosus","Diporodrilus pilosus","Dipor_pilo",0,FALSE
-"Dorgiodrilus robustus",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Dorgiodrilus robustus","Dorgiodrilus robustus","Dorgi_robu",0,FALSE
-"Drawida barwelli",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,0,"Drawida barwelli","Drawida barwelli","Drawi_barw",0,FALSE
-"Drawida gisti",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Drawida gisti","Drawida gisti","Drawi_gist",0,FALSE
-"Drawida japonica",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Drawida japonica","Drawida japonica","Drawi_japo",0,FALSE
-"Drawida nepalensis",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,5,0,"Drawida nepalensis","Drawida nepalensis","Drawi_nepa",0,FALSE
-"Eisenia atlavinyteae",NA,1796,NA,NA,NA,4,NA,1796,NA,NA,NA,4,1800,1800,"Eisenia atlavinyteae","Eisenia atlavinyteae","Eisen_atla",0,FALSE
-"Eisenia austriaca",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia austriaca","Eisenia austriaca","Eisen_aust",0,FALSE
-"Eisenia balatonica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia balatonica","Eisenia balatonica","Eisen_bala",1,FALSE
-"Eisenia foetica",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Eisenia foetida","Eisenia foetida","Eisen_foet",1,FALSE
-"Eisenia japonica",NA,NA,NA,NA,NA,14,NA,NA,NA,NA,NA,NA,14,0,"Eisenia japonica","Eisenia japonica","Eisen_japo",0,FALSE
-"Eisenia nordenskioldi",NA,33,NA,NA,NA,NA,NA,33,NA,NA,NA,NA,33,33,"Eisenia nordenskioldi","Eisenia nordenskioldi","Eisen_nord",0,FALSE
-"Eisenia nordenskioldi nordenskioldi",NA,NA,NA,NA,NA,34,NA,NA,NA,NA,NA,34,34,34,"Eisenia nordenskioldi nordenskioldi","Eisenia nordenskioldi","Eisen_nord",0,FALSE
-"Eisenia rhodopensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia rhodopensis","Eisenia rhodopensis","Eisen_rhod",0,FALSE
-"Eisenia rosea",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eisenia rosea","Eisenia rosea","Eisen_rose",0,FALSE
-"Eisenia spelaea",NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,NA,3,0,"Eisenia spelaea","Eisenia spelaea","Eisen_spel",0,FALSE
-"Eisenia spelea",NA,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,0,"Eisenia spelea","Eisenia spelea","Eisen_spel",0,FALSE
-"Eisenia storkani",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Eisenia storkani","Eisenia storkani","Eisen_stor",2,FALSE
-"Eisenia submontana",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Eisenia submontana","Eisenia submontana","Eisen_subm",1,FALSE
-"Eiseniella balatonica",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Eiseniella balatonica","Eisenia balatonica","Eisen_bala",1,FALSE
-"Eiseniella balcanica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella balcanica","Eiseniella balcanica","Eisen_balc",0,FALSE
-"Eiseniella colchidica",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Eiseniella colchidica","Eiseniella colchidica","Eisen_colc",1,FALSE
-"Eiseniella neapolitana",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Eiseniella neapolitana","Eiseniella neapolitana","Eisen_neap",0,FALSE
-"Eiseniella ochridana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella ochridana","Eiseniella ochridana","Eisen_ochr",0,FALSE
-"Eiseniella oltenica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniella oltenica","Eiseniella oltenica","Eisen_olte",0,FALSE
-"Eiseniona albolineata",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona albolineata","Eiseniona albolineata","Eisen_albo",0,FALSE
-"Eiseniona oliveirai",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eiseniona oliveirai","Eiseniona oliveirai","Eisen_oliv",0,FALSE
-"Eiseniona sineporis",NA,NA,NA,6,NA,NA,NA,NA,NA,6,NA,NA,6,6,"Eiseniona sineporis","Eiseniona sineporis","Eisen_sine",2,FALSE
-"Eminoscolex lamani",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eminoscolex lamani","Eminoscolex lamani","Emino_lama",0,FALSE
-"Eminoscolex violaceus",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Eminoscolex violaceus","Eminoscolex violaceus","Emino_viol",0,FALSE
-"Eophila crodabepis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila crodabepis","Eophila crodabepis","Eophi_crod",0,FALSE
-"Eophila cyanea",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila cyanea","Eophila cyanea","Eophi_cyan",0,FALSE
-"Eophila gestroi",NA,NA,NA,6,NA,NA,NA,NA,NA,6,NA,NA,6,6,"Eophila gestroi","Eophila gestroi","Eophi_gest",3,FALSE
-"Eophila pyrenaica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eophila pyrenaica","Eophila pyrenaica","Eophi_pyre",0,FALSE
-"Eophila tellinii",NA,9,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,9,9,"Eophila tellinii","Eophila tellinii","Eophi_tell",4,FALSE
-"Ephyriodrilus afroccidentalis",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Ephyriodrilus afroccidentalis","Ephyriodrilus afroccidentalis","Ephyr_afro",0,FALSE
-"Ethnodrilus aveli",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Ethnodrilus aveli","Ethnodrilus aveli","Ethno_avel",0,FALSE
-"Eudrilus eugeniae",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Eudrilus eugeniae","Eudrilus eugeniae","Eudri_euge",0,FALSE
-"Eudrilus pallidus",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Eudrilus pallidus","Eudrilus pallidus","Eudri_pall",0,FALSE
-"Eukerria saltensis",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,4,4,4,"Eukerria saltensis","Eukerria saltensis","Euker_salt",4,FALSE
-"Eutyphoeus incommodus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus incommodus","Eutyphoeus incommodus","Eutyp_inco",0,FALSE
-"Eutyphoeus mizoramensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus mizoramensis","Eutyphoeus mizoramensis","Eutyp_mizo",0,FALSE
-"Eutyphoeus waltoni",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Eutyphoeus waltoni","Eutyphoeus waltoni","Eutyp_walt",0,FALSE
-"Fimoscolex bartzi",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Fimoscolex bartzi","Fimoscolex bartzi","Fimos_bart",0,FALSE
-"Firzingeria platyura",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,4,4,4,"Fitzingeria platyura","Dendrobaena platyura","Dendr_plat",2,FALSE
-"Gatesona chaetophora",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Gatesona chaetophora","Gatesona chaetophora","Gates_chae",0,FALSE
-"Gemascolex lateralis",NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,7,0,"Gemascolex lateralis","Gemascolex lateralis","Gemas_late",0,FALSE
-"Gemascolex octothecatus",NA,NA,NA,NA,NA,67,NA,NA,NA,NA,NA,NA,67,0,"Gemascolex octothecatus","Gemascolex octothecatus","Gemas_octo",0,FALSE
-"Gemascolex walkeri",NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,22,0,"Gemascolex walkeri","Gemascolex walkeri","Gemas_walk",0,FALSE
-"Glossodrilus parecis",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Glossodrilus parecis","Glossodrilus parecis","Gloss_pare",0,FALSE
-"Glossoscolex giocondoi",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Glossoscolex giocondoi","Glossoscolex giocondoi","Gloss_gioc",0,FALSE
-"Gordiodrilus marcusi",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,0,"Gordiodrilus marcusi","Gordiodrilus marcusi","Gordi_marc",0,FALSE
-"Gordiodrilus wemanus",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Gordiodrilus wemanus","Gordiodrilus wemanus","Gordi_wema",0,FALSE
-"Healyella boluana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Healyella boluana","Healyella boluana","Healy_bolu",0,FALSE
-"Healyella naja",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Healyella naja","Healyella naja","Healy_naja",2,FALSE
-"Healyella suriaca",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Healyella syriaca","Healyella syriaca","Healy_syri",1,FALSE
-"Healyella zicsii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Healyella zicsii","Healyella zicsii","Healy_zics",0,FALSE
-"Helodrilus antipae",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Helodrilus antipae","Helodrilus antipae","Helod_anti",2,FALSE
-"Helodrilus antipai",NA,NA,NA,4,NA,NA,NA,NA,NA,4,NA,NA,4,4,"Helodrilus antipae","Helodrilus antipae","Helod_anti",2,FALSE
-"Helodrilus cortezi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Helodrilus cortezi","Helodrilus cortezi","Helod_cort",0,FALSE
-"Helodrilus moebii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Helodrilus moebii","Helodrilus moebii","Helod_moeb",0,FALSE
-"Helodrilus norvegicus",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Helodrilus norvegicus","Helodrilus norvegicus","Helod_norv",1,FALSE
-"Helodrilus patriarchalis",NA,NA,NA,14,NA,NA,NA,NA,NA,12,NA,NA,14,12,"Helodrilus patriarchalis","Helodrilus patriarchalis","Helod_patr",0,FALSE
-"Hemigastrodrilus monicae",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Hemigastrodrilus monicae","Hemigastrodrilus monicae","Hemig_moni",1,FALSE
-"Heteroporodrilus shephardi",NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,22,0,"Heteroporodrilus shephardi","Heteroporodrilus shephardi","Heter_shep",0,FALSE
-"Hormogaster castillana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster castillana","Hormogaster castillana","Hormo_cast",0,FALSE
-"Hormogaster elisae",NA,1,NA,3,NA,23,NA,1,NA,3,NA,23,27,27,"Hormogaster elisae","Hormogaster elisae","Hormo_elis",1,FALSE
-"Hormogaster najaformis",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Hormogaster najaformis","Hormogaster najaformis","Hormo_naja",1,FALSE
-"Hormogaster pretiosa",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster pretiosa","Hormogaster pretiosa","Hormo_pret",0,FALSE
-"Hormogaster redii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Hormogaster redii","Hormogaster redii","Hormo_redi",0,FALSE
-"Hormogaster riojana",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Hormogaster riojana","Hormogaster riojana","Hormo_rioj",1,FALSE
-"Hormogaster samnitica",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Hormogaster samnitica","Hormogaster samnitica","Hormo_samn",1,FALSE
-"Hyperiodrilus africanus",NA,NA,NA,NA,NA,13,NA,NA,NA,NA,NA,NA,13,0,"Hyperiodrilus africanus","Hyperiodrilus africanus","Hyper_afri",0,FALSE
-"Kenleenus armadas",NA,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,0,"Kenleenus armadas","Kenleenus armadas","Kenle_arma",0,FALSE
-"Kritodrilus micrurus",NA,2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,2,2,"Kritodrilus micrurus","Kritodrilus micrurus","Krito_micr",1,FALSE
-"Kritodrilus tetryae",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Kritodrilus tetryae","Kritodrilus tetryae","Krito_tetr",0,FALSE
-"Lampito mauritti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Lampito mauritti","Lampito mauritti","Lampi_maur",0,FALSE
-"Larsonidrilus orbiculatus",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Larsonidrilus orbiculatus","Larsonidrilus orbiculatus","Larso_orbi",0,FALSE
-"Lavellodrilus bonampakensis",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Lavellodrilus bonampakensis","Lavellodrilus bonampakensis","Lavel_bona",0,FALSE
-"Lennogaster pusilla",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Leptogaster pusilla","Lennogaster pusilla","Lenno_pusi",0,FALSE
-"Lumbricus baicalensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Lumbricus baicalensis","Lumbricus baicalensis","Lumbr_baic",0,FALSE
-"Lumbricus centralis",NA,7,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,7,7,"Lumbricus centralis","Lumbricus centralis","Lumbr_cent",2,FALSE
-"Lumbricus gigas",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Lumbricus gigas","Lumbricus gigas","Lumbr_giga",0,FALSE
-"Lumbricus klarae",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Lumbricus klarae","Lumbricus klarae","Lumbr_klar",1,FALSE
-"Malodrilus buarensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Malodrilus buarensis","Malodrilus buarensis","Malod_buar",0,FALSE
-"Mayadrilus calakmulensis",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Mayadrilus calakmulensis","Mayadrilus calakmulensis","Mayad_cala",0,FALSE
-"Metaphire cai",NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,0,"Metaphire cai","Metaphire cai","Metap_cai",0,FALSE
-"Metaphire californica",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Metaphire californica","Metaphire californica","Metap_cali",0,FALSE
-"Metaphire guillelmi",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Metaphire guillelmi","Metaphire guillelmi","Metap_guil",0,FALSE
-"Metaphire houlleti",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire houlleti","Metaphire houlleti","Metap_houl",0,FALSE
-"Metaphire kiengiangensis",NA,2,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,2,1,"Metaphire kiengiangensis","Metaphire kiengiangensis","Metap_kien",0,FALSE
-"Metaphire megascolidioides",NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,0,"Metaphire megascolidioides","Metaphire megascolidioides","Metap_mega",0,FALSE
-"Metaphire posthuma",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Metaphire posthuma","Metaphire posthuma","Metap_post",0,FALSE
-"Metaphire tschiliensis",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Metaphire tschiliensis","Metaphire tschiliensis","Metap_tsch",0,FALSE
-"Millsonia guttata",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Millsonia guttata","Millsonia guttata","Mills_gutt",0,FALSE
-"Millsonia inermis",NA,NA,NA,NA,NA,17,NA,NA,NA,NA,NA,NA,17,0,"Millsonia inermis","Millsonia inermis","Mills_iner",0,FALSE
-"Millsonia lamtoiana",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Millsonia lamtoiana","Millsonia lamtoiana","Mills_lamt",0,FALSE
-"Millsonia schlegeli",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Millsonia schlegeli","Millsonia schlegeli","Mills_schl",0,FALSE
-"Nematogenia lacuum",NA,NA,NA,NA,NA,15,NA,NA,NA,NA,NA,NA,15,0,"Nematogenia lacuum","Nematogenia lacuum","Nemat_lacu",0,FALSE
-"Neotrigaster rufa",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,0,"Neotrigaster rufa","Neotrigaster rufa","Neotr_rufa",0,FALSE
-"Nicodrilus rubicundus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Nicodrilus rubicundus","Nicodrilus rubicundus","Nicod_rubi",0,FALSE
-"Ocnerodrilus eiseni",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Ocnerodrilus eiseni","Ocnerodrilus eiseni","Ocner_eise",0,FALSE
-"Ocnerodrilus occidentalis",NA,NA,NA,1,NA,3,NA,NA,NA,1,NA,NA,4,1,"Ocnerodrilus occidentalis","Ocnerodrilus occidentalis","Ocner_occi",0,FALSE
-"Octochaetona beatrix",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Octochaetona beatrix","Octochaetona beatrix","Octoc_beat",0,FALSE
-"Octodriloides boninoi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides boninoi","Octodriloides boninoi","Octod_boni",0,FALSE
-"Octodriloides damianii",NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,2,2,2,"Octodriloides damianii","Octodriloides damianii","Octod_dami",2,FALSE
-"Octodriloides karawankensis",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Octodriloides karawankensis","Octodriloides karawankensis","Octod_kara",1,FALSE
-"Octodriloides kovacevici",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodriloides kovacevici","Octodriloides kovacevici","Octod_kova",0,FALSE
-"Octodrilus argoviensis",NA,NA,NA,3,NA,1,NA,NA,NA,3,NA,1,4,4,"Octodrilus argoviensis","Octodrilus argoviensis","Octod_argo",3,FALSE
-"Octodrilus bretscheri",1,1,NA,NA,NA,NA,1,1,NA,NA,NA,NA,2,2,"Octodrilus bretscheri","Octodrilus bretscheri","Octod_bret",2,FALSE
-"Octodrilus croaticus",NA,NA,NA,1,NA,NA,NA,NA,NA,1,NA,NA,1,1,"Octodrilus croaticus","Octodrilus croaticus","Octod_croa",1,FALSE
-"Octodrilus exacystis",1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,"Octodrilus exacystis","Octodrilus exacystis","Octod_exac",1,FALSE
-"Octodrilus gradinescui",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus gradinescui","Octodrilus gradinescui","Octod_grad",0,FALSE
-"Octodrilus hemiandrus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus hemiandrus","Octodrilus hemiandrus","Octod_hemi",0,FALSE
-"Octodrilus juvyi",NA,4,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,4,4,"Octodrilus juvyi","Octodrilus juvyi","Octod_juvy",2,FALSE
-"Octodrilus kvarnerus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus kvarnerus","Octodrilus kvarnerus","Octod_kvar",0,FALSE
-"Octodrilus lissaensis",1,NA,NA,8,NA,NA,1,NA,NA,8,NA,NA,9,9,"Octodrilus lissaensis","Octodrilus lissaensis","Octod_liss",2,FALSE
-"Octodrilus mimus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus mimus","Octodrilus mimus","Octod_mimu",0,FALSE
-"Octodrilus pseudocomplanatus",NA,NA,NA,7,NA,NA,NA,NA,NA,7,NA,NA,7,7,"Octodrilus pseudocomplanatus","Octodrilus pseudocomplanatus","Octod_pseu",1,FALSE
-"Octodrilus pseudotranspadanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus pseudotranspadanus","Octodrilus pseudotranspadanus","Octod_pseu",1,FALSE
-"Octodrilus slovenicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus slovenicus","Octodrilus slovenicus","Octod_slov",0,FALSE
-"Octodrilus tergestinus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octodrilus tergestinus","Octodrilus tergestinus","Octod_terg",0,FALSE
-"Octolasion gracile",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasion gracile","Octolasion gracile","Octol_grac",0,FALSE
-"Octolasium complanatum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium complanatum","Octolasium complanatum","Octol_comp",0,FALSE
-"Octolasium croaticum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium croaticum","Octolasium croaticum","Octol_croa",0,FALSE
-"Octolasium hemiandrum",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium hemiandrum","Octolasium hemiandrum","Octol_hemi",0,FALSE
-"Octolasium lissaense",NA,NA,NA,9,NA,NA,NA,NA,NA,9,NA,NA,9,9,"Octolasium lissaense","Octolasium lissaense","Octol_liss",3,FALSE
-"Octolasium mima",NA,NA,NA,3,NA,NA,NA,NA,NA,3,NA,NA,3,3,"Octolasium mima","Octolasium mima","Octol_mima",2,FALSE
-"Octolasium transpadana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Octolasium transpadana","Octolasium transpadana","Octol_tran",0,FALSE
-"Onychochaeta borincana",NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,0,"Onychochaeta borincana","Onychochaeta borincana","Onych_bori",0,FALSE
-"Perelia galileana",NA,NA,NA,2,NA,NA,NA,NA,NA,2,NA,NA,2,2,"Perelia galileana","Perelia galileana","Perel_gali",0,FALSE
-"Perelia kaznakovi",NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,NA,2,0,"Perelia kaznakovi","Perelia kaznakovi","Perel_kazn",0,FALSE
-"Perelia nematogena",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Perelia nematogena","Perelia nematogena","Perel_nema",0,FALSE
-"Perelia shamsi",NA,NA,NA,3,NA,NA,NA,NA,NA,3,NA,NA,3,3,"Perelia shamsi","Perelia shamsi","Perel_sham",0,FALSE
-"Perelia tuberosa",NA,1786,NA,NA,NA,NA,NA,1786,NA,NA,NA,NA,1786,1786,"Perelia tuberosa","Perelia tuberosa","Perel_tube",0,FALSE
-"Perichaeta morrisi",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Perichaeta morrisi","Amynthas morrisi","Amynt_morr",1,FALSE
-"Perionyx excavatus",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,5,0,"Perionyx excavatus","Perionyx excavatus","Perio_exca",0,FALSE
-"Perionyx macintoshii",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Perionyx macintoshii","Perionyx macintoshii","Perio_maci",0,FALSE
-"Periscolex brachycystis",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Periscolex brachycystis","Periscolex brachycystis","Peris_brac",0,FALSE
-"Pheretima californica",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pheretima californica","Pheretima californica","Phere_cali",0,FALSE
-"Pheretima elongata",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pheretima elongata","Pheretima elongata","Phere_elon",0,FALSE
-"Pheretima indicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pheretima indicus","Pheretima indicus","Phere_indi",0,FALSE
-"Phoenicodrilus taste",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Phoenicodrilus taste","Phoenicodrilus taste","Phoen_tast",0,FALSE
-"Pithemera bicincta",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,5,0,"Pithemera bicincta","Pithemera bicincta","Pithe_bici",0,FALSE
-"Polypheretima cordata",NA,1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,0,"Polypheretima cordata","Polypheretima cordata","Polyp_cord",0,FALSE
-"Polypheretima elongata",NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,0,"Polypheretima elongata","Polypheretima elongata","Polyp_elon",0,FALSE
-"Polypheretima taprobanae",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Polypheretima taprobanae","Polypheretima taprobanae","Polyp_tapr",0,FALSE
-"Polytoreutus annulatus",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,5,0,"Polytoreutus annulatus","Polytoreutus annulatus","Polyt_annu",0,FALSE
-"Pontodrilus litoralis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Pontodrilus litoralis","Pontodrilus litoralis","Ponto_lito",0,FALSE
-"Pontoscolex corethrurus",NA,NA,NA,NA,NA,312,NA,NA,NA,NA,NA,NA,312,0,"Pontoscolex corethrurus","Pontoscolex corethrurus","Ponto_core",0,FALSE
-"Postandrilus majorcanus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus majorcanus","Postandrilus majorcanus","Posta_majo",0,FALSE
-"Postandrilus medoakus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus medoakus","Postandrilus medoakus","Posta_medo",0,FALSE
-"Postandrilus palmensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus palmensis","Postandrilus palmensis","Posta_palm",0,FALSE
-"Postandrilus sapkarevi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Postandrilus sapkarevi","Postandrilus sapkarevi","Posta_sapk",0,FALSE
-"Proctodrilus opisthoductus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus opisthoductus","Proctodrilus opisthoductus","Proct_opis",0,FALSE
-"Proctodrilus thaleri",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Proctodrilus thaleri","Proctodrilus thaleri","Proct_thal",0,FALSE
-"Prosellodrilus albus",NA,2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,2,2,"Prosellodrilus albus","Prosellodrilus albus","Prose_albu",1,FALSE
-"Prosellodrilus amplisetosus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus amplisetosus","Prose_ampl",2,FALSE
-"Prosellodrilus amplisetosus amplisetosus",NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,6,6,6,"Prosellodrilus amplisetosus amplisetosus","Prosellodrilus amplisetosus","Prose_ampl",2,FALSE
-"Prosellodrilus biauriculatus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biauriculatus","Prosellodrilus biauriculatus","Prose_biau",0,FALSE
-"Prosellodrilus biserialis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus biserialis","Prosellodrilus biserialis","Prose_bise",0,FALSE
-"Prosellodrilus praticola",NA,NA,NA,NA,NA,9,NA,NA,NA,NA,NA,9,9,9,"Prosellodrilus praticola","Prosellodrilus praticola","Prose_prat",3,FALSE
-"Prosellodrilus pyrenaicus",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Prosellodrilus pyrenaicus","Prosellodrilus pyrenaicus","Prose_pyre",0,FALSE
-"Reginaldia omodeoi",NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA,NA,11,0,"Reginaldia omodeoi","Reginaldia omodeoi","Regin_omod",0,FALSE
-"Rhiphaeodrilus diplotetrathecus",NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA,11,11,11,"Rhiphaeodrilus diplotetrathecus","Rhiphaeodrilus diplotetrathecus","Rhiph_dipl",0,FALSE
-"Righiodrilus gurupi",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,5,0,"Righiodrilus gurupi","Righiodrilus gurupi","Righi_guru",0,FALSE
-"Rosadrilus camerunensis",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Rosadrilus camerunensis","Rosadrilus camerunensis","Rosad_came",0,FALSE
-"Satchellius alvaradoi",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,1,"Satchellius alvaradoi","Satchellius alvaradoi","Satch_alva",1,FALSE
-"Scherotheca corsicana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca corsicana","Scherotheca corsicana","Scher_cors",1,FALSE
-"Scherotheca dugesi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca dugesi","Scherotheca dugesi","Scher_duge",2,FALSE
-"Scherotheca hexatheca",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca hexatheca","Scherotheca corsicana?","Scher_cors",1,FALSE
-"Scherotheca portcrosana",NA,5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,0,"Scherotheca portcrosana","Scherotheca portcrosana","Scher_port",0,FALSE
-"Scherotheca rhodana",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca rhodana","Scherotheca rhodana","Scher_rhod",0,FALSE
-"Scherotheca savignyi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Scherotheca savignyi","Scherotheca savignyi","Scher_savi",0,FALSE
-"Scherotheca targionii",NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,5,5,5,"Scherotheca targionii","Scherotheca targionii","Scher_targ",3,FALSE
-"Sparganophilus tamesis",NA,4,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,4,4,"Sparganophilus tamesis","Sparganophilus tamesis","Sparg_tame",1,FALSE
-"Spenceriella montana",NA,NA,NA,NA,NA,31,NA,NA,NA,NA,NA,NA,31,0,"Spenceriella montana","Spenceriella montana","Spenc_mont",0,FALSE
-"Spermophorodrilus vignai",NA,NA,NA,3,NA,NA,NA,NA,NA,3,NA,NA,3,3,"Spermophorodrilus vignai","Spermophorodrilus vignai","Sperm_vign",3,FALSE
-"Stuhlmannia palustris",NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,8,0,"Stuhlmannia palustris","Stuhlmannia palustris","Stuhl_palu",0,FALSE
-"Stuhlmannia zielae",NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,7,0,"Stuhlmannia zielae","Stuhlmannia zielae","Stuhl_ziel",0,FALSE
-"Urobenus brasiliensis",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,0,"Urobenus brasiliensis","Urobenus brasiliensis","Urobe_bras",0,FALSE
-"Vignysa popi",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Vignysa popi","Vignysa popi","Vigny_popi",1,FALSE
-"Xana omodeoi",NA,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1,1,"Xana omodeoi","Xanina omodeoi","Xanin_omod",1,FALSE
-"Zophoscolex chitae",NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1,1,1,"Zophoscolex chitae","Zophoscolex chitae","Zopho_chit",1,FALSE
-"Zophoscolex ibericus",NA,NA,NA,NA,NA,44,NA,NA,NA,NA,NA,44,44,44,"Zophoscolex ibericus","Zophoscolex ibericus","Zopho_iber",2,FALSE
-"Zophoscolex zhangi",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Zophoscolex zhangi","Zophoscolex zhangi","Zopho_zhan",0,FALSE
+"SpeciesID","RawOcc","CleanOcc","NumCells_2km","Edaphobase_raw","GBIF_raw","jean_raw","jerome_raw","SoilReCon_raw","sWorm_raw","NA","Edaphobase_clean","GBIF_clean","jean_clean","jerome_clean","SoilReCon_clean","sWorm_clean","Included"
+"Allol_chlo",7761,6886,2004,779,3141,3247,25,24,545,NA,738,2918,3186,20,24,394,TRUE
+"Allol_dofl",44,43,36,NA,NA,NA,44,NA,NA,NA,NA,NA,NA,43,NA,NA,TRUE
+"Allol_eise",342,284,164,16,286,NA,NA,NA,40,NA,15,269,NA,NA,NA,21,TRUE
+"Allol_rose",38,38,24,NA,NA,NA,38,NA,NA,NA,NA,NA,NA,38,NA,NA,TRUE
+"Aporr_cali",16888,15030,3300,2849,7623,4989,82,6,1339,NA,2793,7312,4848,71,6,874,TRUE
+"Aporr_cupu",41,29,18,6,26,NA,NA,NA,9,NA,3,26,NA,NA,NA,8,TRUE
+"Aporr_hand",22,10,10,3,7,NA,NA,NA,12,NA,3,7,NA,NA,NA,12,TRUE
+"Aporr_icte",205,132,68,41,122,NA,NA,NA,42,NA,33,99,NA,NA,NA,42,TRUE
+"Aporr_limi",232,182,112,41,150,NA,NA,NA,41,NA,41,141,NA,NA,NA,41,TRUE
+"Aporr_long",3546,3062,1039,239,1673,1346,11,NA,277,NA,224,1553,1280,5,NA,260,TRUE
+"Aporr_moll",67,1,33,NA,NA,NA,NA,1,66,NA,NA,NA,NA,NA,1,60,TRUE
+"Aporr_noct",38,22,28,NA,25,NA,NA,NA,13,NA,NA,22,NA,NA,NA,13,TRUE
+"Aporr_oliv",29,11,26,NA,NA,NA,NA,11,18,NA,NA,NA,NA,NA,11,18,TRUE
+"Aporr_rose",12532,11238,2495,1644,6490,3241,95,11,1051,NA,1594,6377,3175,81,11,629,TRUE
+"Aporr_smar",22,22,20,2,6,NA,14,NA,NA,NA,2,6,NA,14,NA,NA,TRUE
+"Aporr_trap",738,52,55,NA,NA,NA,4,50,684,NA,NA,NA,NA,2,50,97,TRUE
+"Dendr_alpi",18,18,10,1,11,NA,6,NA,NA,NA,1,11,NA,6,NA,NA,TRUE
+"Dendr_atte",414,397,129,82,317,NA,7,8,NA,NA,82,301,NA,6,8,NA,TRUE
+"Dendr_bybl",16,9,15,1,3,NA,5,NA,7,NA,1,3,NA,5,NA,7,TRUE
+"Dendr_hort",95,81,59,8,72,NA,11,NA,4,NA,8,62,NA,11,NA,4,TRUE
+"Dendr_illy",135,135,110,126,9,NA,NA,NA,NA,NA,126,9,NA,NA,NA,NA,TRUE
+"Dendr_octa",6678,5346,1202,886,2943,1552,36,1,1260,NA,886,2893,1531,35,1,370,TRUE
+"Dendr_pygm",36,17,22,4,15,NA,2,NA,15,NA,4,11,NA,2,NA,8,TRUE
+"Dendr_rubi",4128,3708,916,311,2860,654,25,5,273,NA,310,2747,623,23,5,165,TRUE
+"Dendr_vene",70,54,35,4,58,NA,7,NA,1,NA,3,44,NA,7,NA,1,TRUE
+"Eisen_andr",34,23,11,NA,27,NA,NA,NA,7,NA,NA,23,NA,NA,NA,NA,TRUE
+"Eisen_feti",966,831,329,13,531,369,4,NA,49,NA,12,478,337,4,NA,46,TRUE
+"Eisen_luce",20,18,11,6,6,NA,6,NA,2,NA,6,6,NA,6,NA,2,TRUE
+"Eisen_tetr",11088,10819,5127,149,10770,NA,20,1,148,NA,147,10652,NA,19,1,87,TRUE
+"Fitzi_plat",54,54,23,30,24,NA,NA,NA,NA,NA,30,24,NA,NA,NA,NA,TRUE
+"Helod_ocul",18,15,13,1,12,NA,3,NA,2,NA,1,11,NA,3,NA,2,TRUE
+"Lumbr_cast",4408,4081,1549,500,1778,1927,23,2,178,NA,471,1705,1885,18,2,144,TRUE
+"Lumbr_fest",581,468,235,15,236,244,NA,NA,86,NA,15,218,235,NA,NA,84,TRUE
+"Lumbr_frie",63,32,36,NA,28,NA,NA,5,30,NA,NA,27,NA,NA,5,30,TRUE
+"Lumbr_herc",58,57,15,NA,58,NA,NA,NA,NA,NA,NA,57,NA,NA,NA,NA,TRUE
+"Lumbr_poly",45,41,19,24,17,NA,NA,NA,4,NA,24,17,NA,NA,NA,4,TRUE
+"Lumbr_rube",11525,10236,2359,1558,5360,3601,44,2,960,NA,1542,5144,3509,39,2,515,TRUE
+"Lumbr_terr",9107,7974,2403,1557,3299,3442,19,1,789,NA,1475,3161,3320,17,1,398,TRUE
+"Micro_dubi",334,58,42,NA,1,47,11,6,269,NA,NA,1,40,11,6,6,TRUE
+"Micro_phos",268,76,93,NA,8,61,6,4,189,NA,NA,8,58,6,4,49,TRUE
+"Murch_minu",28,28,10,10,12,NA,6,NA,NA,NA,10,12,NA,6,NA,NA,TRUE
+"Murch_muld",157,107,59,1,117,NA,NA,NA,39,NA,NA,107,NA,NA,NA,38,TRUE
+"Nicod_cali",14,14,14,NA,NA,NA,14,NA,NA,NA,NA,NA,NA,14,NA,NA,TRUE
+"Octod_comp",27,15,12,NA,2,NA,12,NA,13,1,NA,2,NA,12,NA,8,TRUE
+"Octod_tran",21,20,13,6,7,NA,8,NA,NA,NA,6,7,NA,7,NA,NA,TRUE
+"Octol_cyan",1836,1533,885,116,619,853,10,5,233,NA,112,578,833,5,5,108,TRUE
+"Octol_lact",2474,2320,251,NA,2306,NA,29,2,137,NA,NA,2291,NA,27,2,122,TRUE
+"Octol_tyrt",1828,1616,460,1044,612,NA,1,2,169,1,1010,602,NA,1,2,36,TRUE
+"Proct_anti",84,77,25,54,26,NA,NA,NA,4,NA,51,26,NA,NA,NA,3,TRUE
+"Proct_tube",24,20,14,7,13,NA,NA,NA,4,NA,7,13,NA,NA,NA,4,TRUE
+"Satch_made",55,27,47,NA,NA,NA,NA,27,28,NA,NA,NA,NA,NA,27,28,TRUE
+"Satch_mamm",427,345,200,2,359,NA,NA,NA,66,NA,2,343,NA,NA,NA,64,TRUE
+"Agast_mult",4,0,0,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Ailos_lact",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_alti",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_anti",2,2,2,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Allol_bell",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Allol_bise",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_bore",2,2,0,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Allol_cali",10,10,1,NA,NA,NA,10,NA,NA,NA,NA,NA,NA,10,NA,NA,FALSE
+"Allol_carp",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_cern",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_daci",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_exac",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_gest",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_giar",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_hisp",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_jass",8,8,7,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,8,NA,NA,FALSE
+"Allol_leon",6,6,6,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,NA,NA,FALSE
+"Allol_meha",1,1,1,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,FALSE
+"Allol_moll",1,1,0,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Allol_more",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_ocul",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_parv",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_robu",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_satc",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_stur",0,2,0,NA,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,FALSE
+"Allol_terr",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Allur_neap",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_agre",11,0,0,NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_aspe",41,0,0,NA,NA,NA,NA,NA,41,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_cort",16,2,4,NA,1,NA,NA,1,14,NA,NA,1,NA,NA,1,2,FALSE
+"Amynt_grac",8,0,0,NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_hete",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_hupe",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_medi",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_mini",6,0,0,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_morr",1,2,1,NA,1,NA,NA,NA,NA,1,NA,1,NA,NA,NA,NA,FALSE
+"Amynt_rode",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Amynt_toki",8,0,0,NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Aniso_macl",113,0,0,NA,NA,NA,NA,NA,113,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Aporr_carp",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Aporr_dubi",6,2,4,2,NA,NA,NA,NA,4,NA,2,NA,NA,NA,NA,4,FALSE
+"Aporr_geor",23,23,9,9,14,NA,NA,NA,NA,NA,9,14,NA,NA,NA,NA,FALSE
+"Aporr_giar",9,0,3,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,9,FALSE
+"Aporr_haym",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Aporr_jass",22,19,5,NA,5,NA,17,NA,NA,NA,NA,5,NA,14,NA,NA,FALSE
+"Aporr_opis",1,0,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,FALSE
+"Aporr_thal",7,7,2,2,5,NA,NA,NA,NA,NA,2,5,NA,NA,NA,NA,FALSE
+"Aporr_tube",122,0,7,NA,NA,NA,NA,NA,122,NA,NA,NA,NA,NA,NA,18,FALSE
+"Aporr_turg",43,0,0,NA,NA,NA,NA,NA,43,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Balan_pear",23,0,0,NA,NA,NA,NA,NA,23,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Bella_emil",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Bimas_anti",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Bimas_eise",3,3,3,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,NA,NA,FALSE
+"Bimas_jord",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Bimas_parv",20,2,1,1,NA,NA,NA,NA,19,1,1,NA,NA,NA,NA,16,FALSE
+"Catal_edwa",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Catal_mont",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Catal_porq",6,0,0,NA,6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Cerno_bert",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Cerno_dudi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Cerno_rebe",4,4,2,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,NA,NA,FALSE
+"Cerno_schw",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Criod_lacu",10,7,8,NA,7,NA,1,NA,2,NA,NA,6,NA,1,NA,2,FALSE
+"Dendr_auri",8,8,4,6,NA,NA,2,NA,NA,NA,6,NA,NA,2,NA,NA,FALSE
+"Dendr_cluj",1,1,1,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,FALSE
+"Dendr_depr",2,0,2,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,FALSE
+"Dendr_fran",1,0,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,FALSE
+"Dendr_frid",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Dendr_gall",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_gang",4,4,3,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,NA,NA,FALSE
+"Dendr_lusi",8,0,3,NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,3,FALSE
+"Dendr_mari",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_orie",2,2,0,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Dendr_osel",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_pant",5,0,3,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,4,FALSE
+"Dendr_pavl",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_pent",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_pers",9,9,9,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,9,NA,NA,FALSE
+"Dendr_peru",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Dendr_plat",4,1,2,NA,NA,NA,NA,NA,4,1,NA,NA,NA,NA,NA,4,FALSE
+"Dendr_pseu",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_ress",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_ruff",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_schm",3,1,0,NA,NA,NA,NA,NA,3,1,NA,NA,NA,NA,NA,3,FALSE
+"Dendr_semi",4,4,1,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,NA,NA,FALSE
+"Dendr_succ",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dendr_vejd",105,105,8,54,51,NA,NA,NA,NA,NA,54,51,NA,NA,NA,NA,FALSE
+"Dicho_affi",22,0,0,NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_baer",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_bola",8,0,0,NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_ehrh",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_grac",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_lero",9,0,0,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_mami",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_modi",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_nota",6,0,0,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_papi",4,0,0,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_sali",18,0,0,NA,NA,NA,NA,NA,18,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dicho_terr",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_hulb",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_kans",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_long",7,0,0,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_oxcu",7,0,0,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_papi",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Diplo_sing",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Dipor_pilo",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Dorgi_robu",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Drawi_barw",4,0,0,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Drawi_gist",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Drawi_japo",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Drawi_nepa",5,0,0,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_albo",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_atla",1470,1466,0,NA,1466,NA,NA,NA,4,NA,NA,1466,NA,NA,NA,4,FALSE
+"Eisen_aust",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_bala",1,2,1,1,NA,NA,NA,NA,NA,1,1,NA,NA,NA,NA,NA,FALSE
+"Eisen_balc",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_colc",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Eisen_foet",2,2,1,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Eisen_japo",14,0,0,NA,NA,NA,NA,NA,14,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_neap",2,2,0,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Eisen_nord",50,17,0,NA,17,NA,NA,NA,33,NA,NA,17,NA,NA,NA,33,FALSE
+"Eisen_ochr",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_oliv",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_olte",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_rhod",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_rose",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_sine",6,6,2,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,NA,NA,FALSE
+"Eisen_spel",5,0,0,NA,2,NA,3,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Eisen_stor",2,2,2,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Eisen_subm",1,1,1,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,FALSE
+"Emino_lama",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Emino_viol",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Eophi_crod",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eophi_cyan",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eophi_gest",6,6,3,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,NA,NA,FALSE
+"Eophi_pyre",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eophi_tell",9,9,4,NA,9,NA,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,FALSE
+"Ephyr_afro",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Ethno_avel",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eudri_euge",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Eudri_pall",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Euker_salt",4,0,4,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,4,FALSE
+"Eutyp_inco",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eutyp_mizo",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Eutyp_walt",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Fimos_bart",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gates_chae",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Gemas_late",7,0,0,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gemas_octo",67,0,0,NA,NA,NA,NA,NA,67,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gemas_walk",22,0,0,NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gloss_gioc",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gloss_pare",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gordi_marc",4,0,0,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Gordi_wema",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Healy_bolu",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Healy_mari",6,6,6,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,NA,NA,FALSE
+"Healy_naja",2,2,2,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Healy_syri",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Healy_zics",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Helod_anti",6,6,2,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,6,NA,NA,FALSE
+"Helod_cort",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Helod_moeb",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Helod_norv",1,1,1,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,FALSE
+"Helod_patr",14,12,0,NA,NA,NA,14,NA,NA,NA,NA,NA,NA,12,NA,NA,FALSE
+"Hemig_moni",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Heter_shep",22,0,0,NA,NA,NA,NA,NA,22,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_cast",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_elis",26,3,1,NA,NA,NA,3,NA,23,NA,NA,NA,NA,3,NA,23,FALSE
+"Hormo_naja",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_pret",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_redi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_rioj",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hormo_samn",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Hyper_afri",13,0,0,NA,NA,NA,NA,NA,13,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Kenle_arma",2,0,0,NA,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Krito_micr",2,2,1,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,FALSE
+"Krito_tetr",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Lampi_maur",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Larso_orbi",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Lavel_bona",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Lenno_pusi",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Lumbr_bade",5,5,5,NA,5,NA,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,FALSE
+"Lumbr_baic",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Lumbr_cent",7,7,2,NA,7,NA,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,FALSE
+"Lumbr_giga",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Lumbr_klar",1,1,1,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,FALSE
+"Lumbr_meli",7,2,7,NA,1,NA,1,NA,5,NA,NA,1,NA,1,NA,5,FALSE
+"Malod_buar",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Mayad_cala",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_cai",6,0,0,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_cali",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_guil",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_houl",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_kien",2,1,0,NA,2,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,FALSE
+"Metap_mega",4,0,0,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_post",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Metap_tsch",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Mills_gutt",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Mills_iner",17,0,0,NA,NA,NA,NA,NA,17,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Mills_lamt",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Mills_schl",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Nemat_lacu",15,0,0,NA,NA,NA,NA,NA,15,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Neotr_rufa",2,0,0,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Nicod_rubi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Ocner_eise",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Ocner_occi",4,1,0,NA,NA,NA,1,NA,3,NA,NA,NA,NA,1,NA,NA,FALSE
+"Octoc_beat",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_argo",4,3,3,NA,NA,NA,3,NA,1,NA,NA,NA,NA,3,NA,1,FALSE
+"Octod_boni",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_bret",2,2,2,1,1,NA,NA,NA,NA,NA,1,1,NA,NA,NA,NA,FALSE
+"Octod_croa",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Octod_dami",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_exac",1,1,1,1,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,FALSE
+"Octod_grad",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_hemi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_juvy",4,4,2,NA,4,NA,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,FALSE
+"Octod_kara",1,1,1,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,NA,NA,FALSE
+"Octod_kova",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_kvar",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_liss",9,9,2,1,NA,NA,8,NA,NA,NA,1,NA,NA,8,NA,NA,FALSE
+"Octod_mimu",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_pseu",7,8,1,NA,NA,NA,7,NA,NA,1,NA,NA,NA,7,NA,NA,FALSE
+"Octod_slov",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octod_terg",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octol_comp",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octol_croa",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octol_grac",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octol_hemi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Octol_liss",9,9,3,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,9,NA,NA,FALSE
+"Octol_mima",3,3,2,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,NA,NA,FALSE
+"Octol_tran",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Onych_bori",3,0,0,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Perel_gali",2,2,0,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,FALSE
+"Perel_gest",19,19,6,NA,19,NA,NA,NA,NA,NA,NA,19,NA,NA,NA,NA,FALSE
+"Perel_kazn",2,0,0,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Perel_nema",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Perel_sham",3,3,0,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,NA,NA,FALSE
+"Perel_tube",1466,1466,0,NA,1466,NA,NA,NA,NA,NA,NA,1466,NA,NA,NA,NA,FALSE
+"Perio_exca",5,0,0,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Perio_maci",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Peris_brac",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Phere_cali",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Phere_elon",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Phere_indi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Phoen_tast",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Pithe_bici",5,0,0,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Polyp_cord",1,0,0,NA,1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Polyp_elon",6,0,0,NA,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Polyp_tapr",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Polyt_annu",5,0,0,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Ponto_core",150,0,0,NA,NA,NA,NA,NA,150,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Ponto_lito",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Posta_majo",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Posta_medo",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Posta_palm",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Posta_sapk",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Proct_opis",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Proct_thal",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Prose_albu",2,2,1,NA,2,NA,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,FALSE
+"Prose_ampl",6,1,2,NA,NA,NA,NA,NA,6,1,NA,NA,NA,NA,NA,6,FALSE
+"Prose_biau",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Prose_bise",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Prose_prat",9,0,3,NA,NA,NA,NA,NA,9,NA,NA,NA,NA,NA,NA,9,FALSE
+"Prose_pyre",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Regin_omod",11,0,0,NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Rhiph_dipl",11,0,0,NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA,NA,11,FALSE
+"Righi_guru",5,0,0,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Rosad_came",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Satch_alva",1,0,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,FALSE
+"Scher_aqui",19,4,7,NA,4,NA,NA,NA,15,NA,NA,4,NA,NA,NA,15,FALSE
+"Scher_cors",2,3,1,2,NA,NA,NA,NA,NA,2,1,NA,NA,NA,NA,NA,FALSE
+"Scher_duge",2,3,2,2,NA,NA,NA,NA,NA,1,2,NA,NA,NA,NA,NA,FALSE
+"Scher_port",5,0,0,NA,5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Scher_rhod",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Scher_savi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Scher_targ",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Sparg_tame",4,4,1,NA,4,NA,NA,NA,NA,NA,NA,4,NA,NA,NA,NA,FALSE
+"Spenc_mont",31,0,0,NA,NA,NA,NA,NA,31,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Sperm_vign",3,3,3,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,3,NA,NA,FALSE
+"Stuhl_palu",8,0,0,NA,NA,NA,NA,NA,8,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Stuhl_ziel",7,0,0,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Urobe_bras",1,0,0,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,FALSE
+"Vigny_popi",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Xanin_omod",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
+"Zopho_chit",1,0,1,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,1,FALSE
+"Zopho_iber",44,0,2,NA,NA,NA,NA,NA,44,NA,NA,NA,NA,NA,NA,44,FALSE
+"Zopho_zhan",0,1,0,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,FALSE
