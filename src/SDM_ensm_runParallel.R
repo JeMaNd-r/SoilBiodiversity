@@ -47,15 +47,21 @@ library(gridExtra)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+#speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Pop_Dens", "Hg", 
-                 "Agriculture", "Elev", "pH", "Pastures", "MAP")
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Pastures", 
+                 "Agriculture", "Elev", "Dist_Urban", "Cu", "Forest_Coni", "pH")
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
                                "mri-esm2-0", "ukesm1-0-ll"), "_",
                              rep(c("ssp126", "ssp370", "ssp585"),5)))
+
+# load data with sampling year information
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+str(occ_points)
 
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
@@ -73,12 +79,22 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
 
+## function to get PA dataset
+get_PAtab <- function(bfd){
+  dplyr::bind_cols(
+    x = bfd@coord[, 1],
+    y = bfd@coord[, 2],
+    status = bfd@data.species,
+    bfd@PA
+  )
+}
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## Prepare data ####
 mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+foreach(spID = speciesSub, 
         .export = c("Env_norm", "Env_norm_df", "form", "mySpeciesOcc"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
@@ -203,7 +219,18 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
           # subset covarsNames
           myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
  
-          
+	    # define weights of presence records based on sampling year
+ 	    temp_weights <- occ_points %>% dplyr::select(x, y, year, spID) %>% unique()
+ 	    temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
+	    temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
+	    temp_weights$weight <- 0.1
+	    temp_weights[!is.na(temp_weights$status),]$weight <- 0.2 #includes NA in year
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1980 & !is.na(temp_weights$year),]$weight <- 0.3
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1990 & !is.na(temp_weights$year),]$weight <- 0.4
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2000 & !is.na(temp_weights$year),]$weight <- 0.5
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2010 & !is.na(temp_weights$year),]$weight <- 0.6
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2020 & !is.na(temp_weights$year),]$weight <- 0.7 
+         
           # model fitting
           tmp <- proc.time()[3]
           setwd(paste0("./results/", Taxon_name))
@@ -214,6 +241,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
                                                        models.options = myBiomodOption,
                                                        NbRunEval = 10,   # 3-fold crossvalidation evaluation run
                                                        DataSplit = 80, # use subset of the data for training
+                                                       Yweights = temp_weights$weight, # weight to observations, here based on year
                                                        models.eval.meth = "TSS",
                                                        SaveObj = TRUE, #save output on hard drive?
                                                        rescal.all.models = FALSE, #scale all predictions with binomial GLM?
@@ -312,13 +340,15 @@ stopImplicitCluster()
 ## Predict in current climate ####
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+foreach(spID = speciesSub, 
         .export = c("Env_norm", "Env_norm_df", "form"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
           # list files in species-specific BIOMOD folder
-          temp_files <- list.files(paste0("./results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
+  	    setwd(paste0(here::here(), "/results/", Taxon_name))
+
           # load model output
           myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
           print(myBiomodModelOut)
@@ -396,6 +426,8 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
           
           rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF)
           
+          setwd(here::here())
+
         })}
 stopImplicitCluster()
 
@@ -406,7 +438,7 @@ stopImplicitCluster()
 setwd(here::here())
 
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID), 
+foreach(spID = speciesSub, 
         .export = c("Env_norm", "Env_norm_df", "form"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
           
@@ -425,7 +457,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID),
           for(no_future in scenarioNames){
             
             # load env. data with future climate (MAP, MAT, MAP_Seas)
-            load(paste0("./results/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
+            load(paste0("./results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
             
             setwd(paste0(here::here(), "/results/", Taxon_name))
             
@@ -482,7 +514,7 @@ if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){
   ## Check if everything went well ####
   #- - - - - - - - - - - - - - - - - - - - -
   
-  for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 5,]$SpeciesID)){ try({
+  for(spID in speciesSub){ try({
     
     check_files <- list.files(paste0("./results/", Taxon_name, "/temp_files"))
     check_files <- check_files[stringr::str_detect(check_files, spID)]
