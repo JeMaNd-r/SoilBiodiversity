@@ -79,7 +79,7 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
 
-## function to get PA dataset
+## function to get Pseudo-absence dataset
 get_PAtab <- function(bfd){
   dplyr::bind_cols(
     x = bfd@coord[, 1],
@@ -454,69 +454,64 @@ foreach(spID = speciesSub,
             
             setwd(paste0(here::here(), "/results/", Taxon_name))
             
-            ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
-            # project single models (also needed for ensemble model)
-            myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                                       new.env = temp_Env_df[,colnames(temp_Env_df) %in% covarsNames],        #column/variable names have to perfectly match with training
-                                                       proj.name = "modeling",  #name of the new folder being created
-                                                       selected.models = "all", #use all models
-                                                       binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
-                                                       compress = TRUE,         #compression format of objects stored on hard drive
-                                                       build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
-                                                       do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
-                                                       output.format = ".RData", #what format should projections have: RData, grd or img
-                                                       keep.in.memory = TRUE)  #FALSE: only story link to copy to projection file
-            
-            # project ensemble of all models
-            myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
-                                                                  EM.output = myBiomodEM,
-                                                                  #... same arguments as above could be added but are not necessary when loading myBiomodProj
-                                                                  selected.models = "all")
-            
-            # save predictions as raster file
-            temp_prediction <- myBiomodEnProj@proj@val[,2]
-            temp_prediction <- as.numeric(temp_prediction)
-            # add names of grid cell (only for those that have no NA in any layer)
-            names(temp_prediction) <- rownames(temp_Env_df)
-            temp_prediction <- as.data.frame(temp_prediction)
-            temp_prediction$x <- temp_Env_df$x
-            temp_prediction$y <- temp_Env_df$y
-            temp_prediction <- temp_prediction %>% full_join(temp_Env_df %>% dplyr::select(x,y)) %>%
-              rename("layer" = temp_prediction)
-            temp_prediction$layer <- temp_prediction$layer / 1000
-            
-            setwd(here::here())
-            save(temp_prediction, paste0(here::here(), "/results/_Maps/SDM_2041-2070_", no_future, "_biomod_", spID,  ".RData")) 
-            rm(temp_prediction, temp_Env_df, myBiomodEnProj, myBiomodProj)
+            # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
+            for(subclim in c("TP", "T", "P")){
+              
+              if(subclim=="TP"){
+                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+              }
+              
+              if(subclim=="T"){
+                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+                temp_Env_sub$MAP_Seas <- Env_norm_df$MAP_Seas
+              }
+              
+              if(subclim=="P"){
+                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+                temp_Env_sub$MAT <- Env_norm_df$MAT
+              }
+              
+              ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
+              # project single models (also needed for ensemble model)
+              myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
+                                                         new.env = temp_Env_sub,        #column/variable names have to perfectly match with training
+                                                         proj.name = "modeling",  #name of the new folder being created
+                                                         selected.models = "all", #use all models
+                                                         binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
+                                                         compress = TRUE,         #compression format of objects stored on hard drive
+                                                         build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
+                                                         do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
+                                                         output.format = ".RData", #what format should projections have: RData, grd or img
+                                                         keep.in.memory = TRUE)  #FALSE: only story link to copy to projection file
+              
+              # project ensemble of all models
+              myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
+                                                                    EM.output = myBiomodEM,
+                                                                    #... same arguments as above could be added but are not necessary when loading myBiomodProj
+                                                                    selected.models = "all")
+              
+              # save predictions as raster file
+              temp_prediction <- myBiomodEnProj@proj@val[,2]
+              temp_prediction <- as.numeric(temp_prediction)
+              # add names of grid cell (only for those that have no NA in any layer)
+              names(temp_prediction) <- rownames(temp_Env_sub)
+              temp_prediction <- as.data.frame(temp_prediction)
+              temp_prediction$x <- temp_Env_sub$x
+              temp_prediction$y <- temp_Env_sub$y
+              temp_prediction <- temp_prediction %>% full_join(temp_Env_sub %>% dplyr::select(x,y)) %>%
+                rename("layer" = temp_prediction)
+              temp_prediction$layer <- temp_prediction$layer / 1000
+              
+              setwd(here::here())
+              save(temp_prediction, paste0(here::here(), "/results/_Maps/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
+              rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
+            }
           }
                
 })}
 stopImplicitCluster()
 
 
-#- - - - - - - - - - - - - - - - - - - - -
-# if less than 100 occurrences (but more than 10)
-if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){ 
-  
-} 
-  
-  
-  #- - - - - - - - - - - - - - - - - - - - -
-  ## Check if everything went well ####
-  #- - - - - - - - - - - - - - - - - - - - -
-  
-  for(spID in speciesSub){ try({
-    
-    check_files <- list.files(paste0("./results/", Taxon_name, "/temp_files"))
-    check_files <- check_files[stringr::str_detect(check_files, spID)]
-    
-    print(check_files)
-    if(length(check_files)==17){ print("Everything looks well. Please continue :)")
-    }else{ print("Some algorithms weren't saved; please check which ones are missing.")}
-    
-})}
-  
-stopImplicitCluster()
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create maps and calculate richness ####
@@ -528,14 +523,11 @@ species_stack <- Env_norm_df %>% dplyr::select(x, y)
 for(spID in speciesSub){ try({
 
   ## Load probability maps 
-  load(file=paste0(here::here(), "/results/_Maps/SDM_biomod_", spID, ".RData")) #best_pred
+  load(file=paste0(here::here(), "/SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
   
-  # extract name of best model
-  temp_model <- mod_eval[mod_eval$best==1 & !is.na(mod_eval$best), "model"]
   
-  print(paste0(spID, " successfully loaded. Best model is ", temp_model))
+  print(paste0(spID, " successfully loaded."))
   
-  #- - - - - - - - - - - - - - - - - - - - - -
   ## Transform to binary maps ####
   
   # extract threshold to define presence/absence
@@ -603,7 +595,8 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
-
+  })
+})
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_", Taxon_name, ".pdf"))
@@ -615,3 +608,27 @@ while (!is.null(dev.list()))  dev.off()
 
   
   
+#- - - - - - - - - - - - - - - - - - - - -
+## TRASH?
+#- - - - - - - - - - - - - - - - - - - - -
+# if less than 100 occurrences (but more than 10)
+if(speciesNames[speciesNames$SpeciesID==spID, "NumCells_2km"]<100){ 
+  
+} 
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Check if everything went well ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+for(spID in speciesSub){ try({
+  
+  check_files <- list.files(paste0("./results/", Taxon_name, "/temp_files"))
+  check_files <- check_files[stringr::str_detect(check_files, spID)]
+  
+  print(check_files)
+  if(length(check_files)==17){ print("Everything looks well. Please continue :)")
+  }else{ print("Some algorithms weren't saved; please check which ones are missing.")}
+  
+})}
+
+stopImplicitCluster()
