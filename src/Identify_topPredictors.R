@@ -86,7 +86,8 @@ no.cores <-  parallel::detectCores()/2
 ## Prepare model input ####
 
 mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
-  
+mySpeciesOcc <- mySpeciesOcc %>% dplyr::select(-year) %>% unique() 
+ 
 for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { try({
  
   myResp <- as.numeric(mySpeciesOcc[,spID])
@@ -352,7 +353,7 @@ plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
   theme_bw()
 plotTopVI
 
-# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
 
 # plot maps
 temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
