@@ -415,9 +415,9 @@ foreach(spID = speciesSub,
           temp_runs <- 1
           
           biomod_list <- list(time_model=temp_model_time, time_predict=temp_predict_time, validation=myBiomodModelEval, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
-          save(biomod_list, file=paste0("./SDMs/SDM_biomod_", spID, ".RData"))
+          save(biomod_list, file=paste0(here::here(), "/SDMs/SDM_biomod_", spID, ".RData"))
           
-          rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_validation, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF, myBiomodModelOut, myBiomodEM)
+          rm(biomod_list, temp_model_time, temp_predict_time, temp_runs, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF, myBiomodModelOut, myBiomodEM)
           
           setwd(here::here())
 
@@ -436,7 +436,7 @@ foreach(spID = speciesSub,
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
           
           # list files in species-specific BIOMOD folder
-          temp_files <- list.files(paste0("./results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
           # load model output
           myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
@@ -450,7 +450,7 @@ foreach(spID = speciesSub,
           for(no_future in scenarioNames){
             
             # load env. data with future climate (MAP, MAT, MAP_Seas)
-            load(paste0("./results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
+            load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
             
             setwd(paste0(here::here(), "/results/", Taxon_name))
             
@@ -486,12 +486,10 @@ foreach(spID = speciesSub,
             temp_prediction$layer <- temp_prediction$layer / 1000
             
             setwd(here::here())
-            save(temp_prediction, paste0("./results/_Maps/SDM_2041-2070_", no_future, "_biomod_", spID,  ".RData")) 
+            save(temp_prediction, paste0(here::here(), "/results/_Maps/SDM_2041-2070_", no_future, "_biomod_", spID,  ".RData")) 
             rm(temp_prediction, temp_Env_df, myBiomodEnProj, myBiomodProj)
           }
-          
-        
-        
+               
 })}
 stopImplicitCluster()
 
