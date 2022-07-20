@@ -48,7 +48,8 @@ library(gridExtra)
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
 #speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
-speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
+speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
 covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Pastures", 
@@ -67,11 +68,11 @@ str(occ_points)
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0("./results/EnvPredictor_2km_normalized.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load(paste0("./results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -220,7 +221,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
           myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
  
 	    # define weights of presence records based on sampling year
- 	    temp_weights <- occ_points %>% dplyr::select(x, y, year, spID) %>% unique()
+ 	    temp_weights <- mySpeciesOcc %>% dplyr::select(x, y, year, spID) %>% unique()
  	    temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
 	    temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
 	    temp_weights$weight <- 0.1
@@ -233,7 +234,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
          
           # model fitting
           tmp <- proc.time()[3]
-          setwd(paste0("./results/", Taxon_name))
+          setwd(paste0(here::here(), "/results/", Taxon_name))
           
           set.seed(32639)
           myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
