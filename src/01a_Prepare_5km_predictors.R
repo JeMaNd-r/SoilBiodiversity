@@ -9,7 +9,7 @@
 raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
 # load 5km grid
-grid5k <- raster::raster("D:/00_datasets/Grids/grid_5k_0p040.tif")
+grid5k <- raster::raster("D:/00_datasets/Grids/grid_5k_0p041.tif")
 raster::crs(grid5k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # load the predictor table containing the individual file names
@@ -130,7 +130,7 @@ files[stringr::str_detect(files, "_5km_mean.tif$")]
 # Latitude
 temp_raster <- as.data.frame(raster::rasterToPoints(grid5k))
 temp_raster$Latitude <- temp_raster$y
-temp_raster_mean <- raster::rasterFromXYZ(temp_raster %>% dplyr::select(-grid_5k_0p040))
+temp_raster_mean <- raster::rasterFromXYZ(temp_raster %>% dplyr::select(-grid_5k_0p041))
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V019_Lat/Lat_5km_mean.tif", overwrite=T)
 
 # Clay+Silt
