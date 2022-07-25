@@ -338,7 +338,14 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10 & speciesName
 stopImplicitCluster()
 
 #- - - - - - - - - - - - - - - - -
-## Predict in current climate ####
+## Predict in current climate at 5km ####
+
+# load environmental variables (for projections)
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
+#Env_norm <- stack(Env_norm)
+
+# as dataframe
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
 
 registerDoParallel(no.cores)
 foreach(spID = speciesSub, 
@@ -451,7 +458,7 @@ foreach(spID = speciesSub,
           for(no_future in scenarioNames){
             
             # load env. data with future climate (MAP, MAT, MAP_Seas)
-            load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_2km_df_normalized.RData")) #temp_Env_df
+            load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_normalized.RData")) #temp_Env_df
             
             setwd(paste0(here::here(), "/results/", Taxon_name))
             
