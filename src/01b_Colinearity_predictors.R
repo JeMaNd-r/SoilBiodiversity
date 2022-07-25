@@ -114,8 +114,8 @@ Env_norm_df <- Env_norm_df[,c("x", "y", names(Env_norm))]
 corMatSpearman <- cor(Env_norm_df, use="complete.obs", method="spearman") %>% round(2)
 corMatPearson <- cor(Env_norm_df, use="complete.obs", method="pearson") %>% round(2)
 
-write.csv(corMatSpearman, paste0("./results/corMatSpearman_predictors_5km.csv"), row.names = F)
-write.csv(corMatPearson, paste0("./results/corMatPearson_predictors_5km.csv"), row.names = F)
+write.csv(corMatSpearman, paste0(here::here(), "/results/corMatSpearman_predictors_5km.csv"), row.names = F)
+write.csv(corMatPearson, paste0(here::here(), "/results/corMatPearson_predictors_5km.csv"), row.names = F)
 
 rm(env_vif, vif_cor, corMatPearson, corMatSpearman, Env_norm_df)
 
