@@ -243,7 +243,7 @@ for(i in 1:length(stack_files)){
 Env
 
 # save raster
-raster::writeRaster(Env, file="I:/eie/==PERSONAL/RZ SoilBON/SoilBiodiversity/results/EnvPredictor_5km.grd", overwrite=T)
+raster::writeRaster(Env, file="D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_5km.grd", overwrite=T)
 
 # as dataframe
 Env_df <- as.data.frame(raster::rasterToPoints(Env))
