@@ -69,11 +69,11 @@ covarsNames
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load(paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(), "/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -85,10 +85,10 @@ no.cores <-  parallel::detectCores()/2
 - - - - - - - - - - - - - - - - - - - - -
 ## Prepare model input ####
 
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_5km_", Taxon_name, ".csv"))
 mySpeciesOcc <- mySpeciesOcc %>% dplyr::select(-year) %>% unique() 
  
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)) { try({
+for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)) { try({
  
   myResp <- as.numeric(mySpeciesOcc[,spID])
   
@@ -136,7 +136,7 @@ modelName <- "MaxentData"
 files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_TopPredictor"), 
                     pattern = paste0(modelName), full.name = T)
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
   
   # identify and load all relevant data files
   temp.files <- files[stringr::str_detect(files, spID)]
@@ -281,7 +281,7 @@ var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT",
                                               "Moisture", "N", "P", "pH", "SOC", "SoilT"),
                       "maxent"=NA, "Species"=NA)
 
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
   
   print("=====================================")
   print(spID)
@@ -387,7 +387,7 @@ dev.off()
 species_stack <- Env_norm_df %>% dplyr::select(x, y)
 
 # for loop through all species
-for(spID in unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
   
   #- - - - - - - - - - - - - - - - - - - - - -
   ## Load probability maps ####
