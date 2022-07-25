@@ -322,7 +322,7 @@ The selected environmental variables will be called **predictors** hereafter. We
 
 ```{r covarsNames}
 #corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors.csv")))
+corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
 # based on Valavi et al. 2021: Pearson 0.8
@@ -332,7 +332,7 @@ covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% 
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 
 # exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors.csv"))
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors_5km.csv"))
 env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
 
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
@@ -876,17 +876,16 @@ Now, let's look how the variables are correlated.
 
 ```{r resultCorrelations}
 #corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/", 
-                                                Taxon_name, "/corMatPearson_predictors.csv")))
+corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
 # exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/VIF_predictors_", Taxon_name, ".csv"))
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors_5km.csv"))
 
 # plot correlations
-#pdf(file=paste0(here::here(), "/figures/Predictor_correlation_", Taxon_name, ".pdf"))
+pdf(file=paste0(here::here(), "/figures/Predictor_correlation_5km_", Taxon_name, ".pdf"))
 corrplot::corrplot(corMatPearson, type = "upper", tl.cex = 0.5)
-#dev.off()
+dev.off()
 
 
 #GGally::ggpairs()
