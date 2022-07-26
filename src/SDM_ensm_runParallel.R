@@ -207,7 +207,7 @@ myBiomodOption <- BIOMOD_ModelingOptions(
 
 # models to predict with
 mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Phillips")
-          
+         
 #- - - - - - - - - - - - - - - - - - - - -
 # if more than 100 occurrences   
 registerDoParallel(no.cores)
@@ -233,7 +233,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
 	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2020 & !is.na(temp_weights$year),]$weight <- 0.7 
          
           # model fitting
-          tmp <- proc.time()[3]
+          #tmp <- proc.time()[3]
           setwd(paste0(here::here(), "/results/", Taxon_name))
           
           set.seed(32639)
@@ -264,7 +264,7 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
                                                          prob.mean.weight = TRUE, #estimate weighted sum of predictions
                                                          prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
                                                          VarImport = 5)    #number of permutations to estimate variable importance
-          temp_model_time <- proc.time()[3] - tmp
+          #temp_model_time <- proc.time()[3] - tmp
           
           setwd(here::here())
 })}
