@@ -279,6 +279,10 @@ save(Env_norm_df, file="D:/_students/Romy/SoilBiodiversity/results/EnvPredictor_
 ## Create future climate stacks ####
 #- - - - - - - - - - - - - - - - - - - - -
 
+scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
+                          "mri-esm2-0", "ukesm1-0-ll"), "_",
+                          rep(c("ssp126", "ssp370", "ssp585"),5)))
+
 # same stack but MAT and MAP (MAT_Seas and MAP_Seas as well) from scenarios
 futureNames <- sort(paste0(rep(c("2011-2040", "2041-2070", "2071-2100"),each=length(scenarioNames)), "_", scenarioNames))
 futureNames
