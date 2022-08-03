@@ -243,8 +243,11 @@ ggplot(data %>% filter(OccType=="NumCells_2km"), aes(x=as.factor(NumOcc), y=NumS
 	geom_bar(stat="identity")+ theme_bw()
 
 # plot some of the species' occurrences
-hist(speciesNames$NumCells_1km)
-hist(speciesNames$NumCells_2km)
+#hist(speciesNames$NumCells_1km)
+
+ggplot(speciesNames %>% filter(NumCells_2km>0) %>% dplyr::select(SpeciesID, NumCells_2km) %>% unique(),
+       aes(x=as.factor(NumCells_2km)))+
+	geom_bar()+ theme_bw()+theme(axis.text.x = element_text(angle=45, hjust=1, size=5))
 ```
 
 The histogram shows us that most species occur in less than 500 grid cells.
@@ -740,6 +743,36 @@ plotOccSpecies
 
 rm(plotOccSpecies, occ_points_species)
 ```
+
+
+#### Visualize occurrence per year
+
+```{r plotOccYear}
+summary(occ_points$year)
+
+ggplot(data=occ_points, aes(x=year))+
+  geom_bar()+theme_bw()
+```
+
+#### Count number of countries with records
+
+```{r resultOccCountry}
+library(rworldmap)
+m <- rworldmap::getMap()
+
+occ_points_sp <- occ_points
+occ_points_sp <- occ_clean
+
+coordinates(occ_points_sp) <- ~x+y
+proj4string(occ_points_sp) = proj4string(m)
+
+# extract country names
+occ_country <- droplevels(over(occ_points_sp,m)$NAME)
+unique(occ_country)
+
+table(occ_country)
+```
+
 
 
 ### Validation vs. training data
