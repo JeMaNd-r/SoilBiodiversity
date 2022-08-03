@@ -423,7 +423,7 @@ foreach(spID = speciesSub,
           temp_runs <- 1
           
           biomod_list <- list(time_predict=temp_predict_time, validation=myBiomodModelEval, prediction=temp_prediction, varImp=temp_varImp, evaluation=myBiomodModelEval)
-          save(biomod_list, file=paste0(here::here(), "/SDMs/SDM_biomod_", spID, ".RData"))
+          save(biomod_list, file=paste0("./SDMs/SDM_biomod_", spID, ".RData"))
           
           rm(biomod_list, temp_predict_time, temp_runs, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF, myBiomodModelOut, myBiomodEM)
           
