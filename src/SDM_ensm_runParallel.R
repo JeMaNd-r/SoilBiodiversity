@@ -511,7 +511,7 @@ foreach(spID = speciesSub,
               temp_prediction$layer <- temp_prediction$layer / 1000
               
               setwd(here::here())
-              save(temp_prediction, paste0(here::here(), "/results/_Maps/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
+              save(temp_prediction, file=paste0(here::here(), "/results/_Maps/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
               rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
             }
           }
