@@ -466,23 +466,23 @@ foreach(spID = speciesSub,
             for(subclim in c("TP", "T", "P")){
               
               if(subclim=="TP"){
-                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+                temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
               }
               
               if(subclim=="T"){
-                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+                temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                 temp_Env_sub$MAP_Seas <- Env_norm_df$MAP_Seas
               }
               
               if(subclim=="P"){
-                temp_Env_sub <- temp_Env_df[,colnames(temp_Env_df) %in% covarsNames]
+                temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                 temp_Env_sub$MAT <- Env_norm_df$MAT
               }
               
               ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
               # project single models (also needed for ensemble model)
               myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                                         new.env = temp_Env_sub,        #column/variable names have to perfectly match with training
+                                                         new.env = temp_Env_sub[,colnames(temp_Env_sub) %in% covarsNames],  #column/variable names have to perfectly match with training
                                                          proj.name = "modeling",  #name of the new folder being created
                                                          selected.models = "all", #use all models
                                                          binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
