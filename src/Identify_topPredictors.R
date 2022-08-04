@@ -355,6 +355,20 @@ plotTopVI
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
 
+# plot barplot with top 10 (based on 75% quartile)
+plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
+  group_by(Predictor, Category) %>% 
+	summarize(q75 = quantile(maxent, probs = .75)) %>% 
+	arrange(desc(q75)) %>%
+  ggplot(aes(x=q75, y=reorder(Predictor, q75), fill=Category)) + 
+  xlim(0, 20)+
+  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+  geom_text(aes(label=round(q75,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  theme_bw()
+plotTopVI
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+
 # plot maps
 temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
 temp_files <- temp_files[stringr::str_detect(temp_files, "SDM_maxent_[:graph:]*.RData")]
