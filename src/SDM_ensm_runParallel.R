@@ -460,8 +460,6 @@ foreach(spID = speciesSub,
             # load env. data with future climate (MAP, MAT, MAP_Seas)
             load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_normalized.RData")) #temp_Env_df
             
-            setwd(paste0(here::here(), "/results/", Taxon_name))
-            
             # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
             for(subclim in c("TP", "T", "P")){
               
@@ -479,6 +477,8 @@ foreach(spID = speciesSub,
                 temp_Env_sub$MAT <- Env_norm_df$MAT
               }
               
+		  setwd(paste0(here::here(), "/results/", Taxon_name))
+
               ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
               # project single models (also needed for ensemble model)
               myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
@@ -490,7 +490,7 @@ foreach(spID = speciesSub,
                                                          build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
                                                          do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
                                                          output.format = ".RData", #what format should projections have: RData, grd or img
-                                                         keep.in.memory = TRUE)  #FALSE: only story link to copy to projection file
+                                                         keep.in.memory = FALSE) #FALSE: : only story link to copy to projection file
               
               # project ensemble of all models
               myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
