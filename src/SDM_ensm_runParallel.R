@@ -490,7 +490,7 @@ foreach(spID = speciesSub,
                                                          build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
                                                          do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
                                                          output.format = ".RData", #what format should projections have: RData, grd or img
-                                                         keep.in.memory = FALSE) #FALSE: : only story link to copy to projection file
+                                                         keep.in.memory = TRUE) #FALSE: : only story link to copy to projection file
               
               # project ensemble of all models
               myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
