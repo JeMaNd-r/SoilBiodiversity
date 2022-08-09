@@ -25,4 +25,6 @@ Cleaning,GBIF,54883,378.8,1374.3,69,,,
 Cleaning,Mathieu et al.,25592,90.7,511.6,77,,,mean of jean and jerome
 Cleaning,Phillips et al.,5028,35.7,116.1,66,,,
 Cleaning,SoilReCon,175,1.2,5.4,21,,,
-Gridded,total,13082,482.6,,127,2004,2007,
+Gridded,total,13082,482.6,,127,2004,2007,based on occurrence csv (including year replicates). Note: some species occur at same locations
+Gridded,speciesMore0records,26389,207.8,692.4,127,,,based on speciesNames NumCells_2km
+Gridded,speciesMore10records,26185,503.6,1016.5,52,NA,NA,based on speciesNames NumCells_2km
