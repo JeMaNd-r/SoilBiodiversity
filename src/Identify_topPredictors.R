@@ -460,3 +460,108 @@ ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
         legend.position = c(0.1,0.4))
 dev.off()
 
+
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+## Combine results of 10 identification runs  ####
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - -
+
+
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"), recursive=T, full.names=T)
+temp_files <- temp_files[str_detect(temp_files,"202208") & str_detect(temp_files, ".csv")]
+temp_files
+
+if(length(temp_files)==10) print("Now that you have the variable importance estimates from 10 runs, we can identify the top 10 predictors")
+if(length(temp_files)!=10) print("####### PLEASE stop here, you did not have variable importance estimates from 10 runs !!! ########")
+
+var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT", 
+                                     "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
+                                     "Forest_Coni", "Forest_Deci", "NDVI", 
+                                     "Pastures", "Pop_Dens", "Shrubland", "Aspect",
+                                     "Dist_Coast", "Dist_River", "Elev", 
+                                     "Slope", "CEC", "Clay.Silt", "Cu", "Hg",
+                                     "Moisture", "N", "P", "pH", "SOC", "SoilT"),
+                      "maxent"=NA, "Species"=NA, "Run"=NA)
+
+for(files in 1:length(temp_files)){ try({
+  
+  print("=====================================")
+  print(temp_files[files])
+  
+  temp_vi <- read.csv(file=temp_files[files])
+  
+  # add species name
+  temp_vi$Run <- files
+  
+  var_imp <- rbind(var_imp, temp_vi)
+  
+  rm(temp_vi)
+  
+  #var_imp
+  
+})}
+
+var_imp <- var_imp[!is.na(var_imp$Species),] %>% unique()
+rownames(var_imp) <- 1:nrow(var_imp)
+
+head(var_imp)
+str(var_imp)
+
+## Save ####
+write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_MaxEnt_10runs_", Taxon_name, ".csv"))
+
+## Plotting ####
+# load predictor table to get classification of variables
+# load the predictor table containing the individual file names
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+
+# transform to long format and add variable categories
+var_imp <- var_imp %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
+
+# plot VIF
+plotVarImp <- ggplot(data=var_imp , aes(x=maxent, y=reorder(Predictor, maxent), fill=Category))+
+  geom_boxplot(cex=0.2, outlier.size=0.2)+
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 5))
+plotVarImp
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_10runs_", Taxon_name, ".pdf")); plotVarImp; dev.off()
+
+# plot barplot with top 10
+plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
+  group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(maxent)) %>%
+  ggplot(aes(x=maxent, y=reorder(Predictor, maxent), fill=Category)) + 
+  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+  geom_text(aes(label=round(maxent,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=1.1, cex=3)+
+  theme_bw()
+plotTopVI
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_10runs_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+
+# plot barplot with top 10 (based on 75% quartile)
+plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
+  group_by(Predictor, Category) %>% 
+  summarize(q75 = quantile(maxent, probs = .75)) %>% 
+  arrange(desc(q75)) %>%
+  ggplot(aes(x=q75, y=reorder(Predictor, q75), fill=Category)) + 
+  xlim(0, 20)+
+  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+  geom_text(aes(label=round(q75,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  theme_bw()
+plotTopVI
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_10runs", Taxon_name, ".pdf")); plotTopVI; dev.off()
+
+
+
