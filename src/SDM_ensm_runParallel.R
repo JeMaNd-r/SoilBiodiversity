@@ -512,14 +512,13 @@ foreach(spID = speciesSub,
                 rename("layer" = temp_prediction)
               temp_prediction$layer <- temp_prediction$layer / 1000
               
-              setwd(here::here())
               save(temp_prediction, file=paste0(here::here(), "/results/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
               rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
             }
           }
                
 })}
-#stopImplicitCluster()
+stopImplicitCluster()
 
 
 
@@ -582,9 +581,15 @@ save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPred
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
 # species richness
+world.inp <- map_data("world")
+
 png(file=paste0(here::here(), "/figures/SpeciesRichness_", Taxon_name, ".png"),width=1000, height=1000)
-ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
-  geom_tile()+
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-23, 60) +
+  ylim(31, 75) +
+
+  geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
   ggtitle("Species richness (number of species)")+
   scale_fill_viridis_c()+
   theme_bw()+
@@ -598,10 +603,15 @@ while (!is.null(dev.list()))  dev.off()
 # map binary species distributions
 plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
   print(s-2)
-  ggplot(data=species_stack, aes(x=x, y=y, fill=as.factor(species_stack[,s])))+
-    geom_tile()+
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
+              aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
     ggtitle(colnames(species_stack)[s])+
-    scale_fill_manual(values=c("1"="#fde725","0"="#440154","NA"="lightgrey"))+
+    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
@@ -622,20 +632,6 @@ for(no_future in scenarioNames){
   
   # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
   for(subclim in c("TP", "T", "P")){
-    
-    if(subclim=="TP"){
-      temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-    }
-    
-    if(subclim=="T"){
-      temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-      temp_Env_sub$MAP_Seas <- Env_norm_df$MAP_Seas
-    }
-    
-    if(subclim=="P"){
-      temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-      temp_Env_sub$MAT <- Env_norm_df$MAT
-    }
         
     #- - - - - - - - - - - - - - - - - - - - - -
     # create empty data frame
@@ -690,44 +686,65 @@ for(no_future in scenarioNames){
     ## Save species stack ####
     save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_", subclim, ".RData"))
     
+  }
+}
+
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## View individual binary maps and species stack ####
+
+for(no_future in scenarioNames){
+  
+  # only plot subclim scenario TP
+  subclim <- "TP"
     
-    #- - - - - - - - - - - - - - - - - - - - - -
-    ## View individual binary maps and species stack ####
-    # species richness
-    png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=1000, height=1000)
-    ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
-      geom_tile()+
-      ggtitle("Species richness (number of species)")+
-      scale_fill_viridis_c()+
+  load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_", subclim, ".RData")) #species_stack
+  
+
+  # species richness
+  png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=1000, height=1000)
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
+    ggtitle(paste0("Species richness (number of species) ",  no_future, "_", subclim))+
+    scale_fill_viridis_c()+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4))
+  dev.off()
+  
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+  # map binary species distributions
+  plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+    print(s-2)
+    ggplot()+
+      geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+      xlim(-23, 60) +
+      ylim(31, 75) +
+      
+      geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
+                aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
+      ggtitle(colnames(species_stack)[s])+
+      scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
       theme_bw()+
       theme(axis.title = element_blank(), legend.title = element_blank(),
             legend.position = c(0.1,0.4))
-    dev.off()
-    
-    while (!is.null(dev.list()))  dev.off()
-    
-    
-    # map binary species distributions
-    plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
-      print(s-2)
-      ggplot(data=species_stack, aes(x=x, y=y, fill=as.factor(species_stack[,s])))+
-        geom_tile()+
-        ggtitle(colnames(species_stack)[s])+
-        scale_fill_manual(values=c("1"="#fde725","0"="#440154","NA"="lightgrey"))+
-        theme_bw()+
-        theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4))
     })
-    })
-    
-    require(gridExtra)
-    #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".pdf"))
-    png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=3000, height=3000)
-    do.call(grid.arrange, plots)
-    dev.off()
-    
-    while (!is.null(dev.list()))  dev.off()
-  }
+  })
+  
+  require(gridExtra)
+  #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".pdf"))
+  png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=3000, height=3000)
+  do.call(grid.arrange, plots)
+  dev.off()
+  
+  while (!is.null(dev.list()))  dev.off()
+  
 }
   
 
