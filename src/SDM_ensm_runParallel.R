@@ -437,10 +437,11 @@ stopImplicitCluster()
 ## Predict in future climate ####
 
 setwd(here::here())
+setwd(paste0(here::here(), "/results/", Taxon_name))
 
 registerDoParallel(no.cores)
-foreach(spID = speciesSub,
-        .export = c("Env_norm", "Env_norm_df", "form"),
+foreach(spID = speciesSub[c(2:3, 5:length(speciesSub)],
+        .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
 #for(spID in speciesSub){ try({ 
@@ -448,6 +449,8 @@ foreach(spID = speciesSub,
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
+	    temp_files
+
           # load model output
           myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
           print(myBiomodModelOut)
@@ -478,8 +481,7 @@ foreach(spID = speciesSub,
                 temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                 temp_Env_sub$MAT <- Env_norm_df$MAT
               }
-              
-		  setwd(paste0(here::here(), "/results/", Taxon_name))
+
 
               ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
               # project single models (also needed for ensemble model)
@@ -577,13 +579,19 @@ species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm
 ## Save species stack ####
 save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData"))
 
+#load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
+
+# extract most prominent species
+View(as.data.frame(colSums(species_stack, na.rm=T)))
+
 # species richness
 world.inp <- map_data("world")
 
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
   xlim(-23, 60) +
