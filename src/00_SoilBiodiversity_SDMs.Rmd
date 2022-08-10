@@ -324,8 +324,8 @@ source(file=paste0(here::here(), "/src/Colinearity_predictors.R"))
 The selected environmental variables will be called **predictors** hereafter. We save the names of those selected variables into a vector for later.
 
 ```{r covarsNames}
-#corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
+corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
+#corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
 # based on Valavi et al. 2021: Pearson 0.8
@@ -335,7 +335,7 @@ covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% 
 covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
 
 # exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors_5km.csv"))
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors_2km.csv"))
 env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
 
 covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
@@ -908,18 +908,22 @@ rm(plotVarImp, var_imp)
 Now, let's look how the variables are correlated.
 
 ```{r resultCorrelations}
-#corMatSpearman <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatSpearman_predictors.csv"))
-corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
+corMatPearson <- read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors.csv"))
+#corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
-# exclude based on VIF
-env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors_5km.csv"))
+dimnames(corMatPearson)
+text_color <- c("black","black", #x,y
+                "black","red", "red","black", #climate MAT and MAP
+                "red","red","red","black", #agir-forest
+                "black","black","black","red","black","red","black",
+                "red","black","black","black","black","red","black","black","black","red","black")
+if(length(text_color)!=length(dimnames(corMatPearson)[[1]])) print("PLEASE check the colors! Number of colors doesn't match number of predictors.")
 
 # plot correlations
-pdf(file=paste0(here::here(), "/figures/Predictor_correlation_5km_", Taxon_name, ".pdf"))
-corrplot::corrplot(corMatPearson, type = "upper", tl.cex = 0.5)
+pdf(file=paste0(here::here(), "/figures/Predictor_correlation_2km_lower_", Taxon_name, ".pdf"))
+corrplot::corrplot(as.matrix(corMatPearson), type = "upper", tl.cex = 0.5, tl.col=text_color)
 dev.off()
-
 
 #GGally::ggpairs()
 ```
