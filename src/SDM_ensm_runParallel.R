@@ -439,6 +439,9 @@ stopImplicitCluster()
 setwd(here::here())
 setwd(paste0(here::here(), "/results/", Taxon_name))
 
+# load current environmental variables (for projections)
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+
 no.cores <- 3
 registerDoParallel(no.cores)
 foreach(spID = speciesSub[c(2:3, 5:length(speciesSub))],
