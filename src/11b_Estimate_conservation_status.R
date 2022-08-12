@@ -7,7 +7,8 @@
 #- - - - - - - - - - - - - - - - - - - - - -#
 
 # load stack of IUCN category coverage
-protect_stack <- raster::stack(paste0(here::here(), "/data/Shapefiles/WDPA_WDOECM_Dec2021_Public_EU_shp/WDPA_WDOECM_IUCNcat.grd"))
+load(file=paste0(here::here(), "/data/Shapefiles/WDPA_WDOECM_Dec2021_Public_EU_shp/WDPA_WDOECM_IUCNcat_df.RData")) #protect_df
+head(protect_df)
 
 # load species names
 speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv")) #number of records added
@@ -15,10 +16,6 @@ speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Tax
 # load species distributions
 load(paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 head(species_stack)
-
-# transform protected cover into dataframe
-protect_df <- as.data.frame(raster::rasterToPoints(protect_stack))
-head(protect_df)
 
 # merge protected and species stack
 df <- dplyr::full_join(protect_df, species_stack, by=c("x", "y"))
@@ -29,9 +26,9 @@ cover_df <- data.frame("IUCNcat" = "I", "sumCell"=1, "SpeciesID"="species", "cov
 
 # calculate percent of coverage per species and IUCN category
 for(sp in unique(speciesNames$SpeciesID)){ try({
-	temp_df <- df[,c(names(protect_stack), colnames(df)[stringr::str_detect(colnames(df), sp)])]
+	temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), sp)])]
 	temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), sp)]]
-	temp_df <- temp_df[,c(names(protect_stack), "Presence")]
+	temp_df <- temp_df[,c(names(protect_df %>% dplyr::select(-x, -y)), "Presence")]
 
 	if(length(unique(stringr::str_detect(colnames(df), sp)))==1) next
 
@@ -41,13 +38,13 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 	# calculate sum of all columns (will give you coverage)
 	temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))
 	temp_cover$SpeciesID <- sp
-	temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"]),4)
+	temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"], na.rm=T),4)
 
 	cover_df <- rbind(cover_df, temp_cover)
 	rm(temp_cover, temp_df)
 }, silent=TRUE)}
 
-cover_df$coverage_km2 <- round(cover_df$sumCell * 4, 2)
+cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
 
 cover_df
 

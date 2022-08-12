@@ -14,9 +14,9 @@ library(exactextractr)
 # change temporary directory for files
 raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
-# load 2km grid
-grid2k <- raster::raster("D:/00_datasets/Grids/grid_2k_0p016.tif")
-raster::crs(grid2k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+# load 5km grid
+grid5k <- raster::raster("D:/00_datasets/Grids/grid_5k_0p016.tif")
+raster::crs(grid5k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # # load protected area network
 # protect_raw_0 <- raster::shapefile("D:/_students/Romy/SoilBiodiversity/data/Shapefiles/WDPA_WDOECM_Dec2021_Public_EU_shp/WDPA_WDOECM_Dec2021_Public_EU_shp_0/WDPA_WDOECM_Dec2021_Public_EU_shp-polygons.shp")
@@ -45,8 +45,8 @@ for(i in unique(protect_raw$IUCN_CAT)){
 	#rgdal::writeOGR(temp_shp, dsn=getwd(), i, driver="ESRI Shapefile", overwrite_layer=TRUE)
 	
 	# calculate percent of grid cells covered by PA type i
-	#temp_cover <- raster::rasterize(temp_shp, grid2k, getCover = TRUE)
-	temp_cover <- exactextractr::coverage_fraction(grid2k, sf::st_combine(as(temp_shp, "sf")))[[1]]
+	#temp_cover <- raster::rasterize(temp_shp, grid5k, getCover = TRUE)
+	temp_cover <- exactextractr::coverage_fraction(grid5k, sf::st_combine(as(temp_shp, "sf")))[[1]]
 	names(temp_cover) <- i
 
 	# replace values higher than 1 by 1
@@ -61,12 +61,15 @@ for(i in unique(protect_raw$IUCN_CAT)){
 protect_stack
 
 # crop to grid extent
-protect_stack_crop <- raster::mask(protect_stack, grid2k)
+protect_stack_crop <- raster::mask(protect_stack, grid5k)
 protect_stack_crop <- raster::stack(protect_stack_crop)
 
 # save raster stack
 raster::writeRaster(protect_stack_crop, filename="WDPA_WDOECM_IUCNcat.grd")
 
+# transform protected cover into dataframe
+protect_df <- as.data.frame(raster::rasterToPoints(protect_stack))
+save(protect_df, file="WDPA_WDOECM_IUCNcat_df.RData")
 
 ## Crop to Germany
 # load germany borders
