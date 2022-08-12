@@ -542,7 +542,7 @@ pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_10runs_", Taxon_nam
 plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
   group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(maxent)) %>%
   ggplot(aes(x=maxent, y=reorder(Predictor, maxent), fill=Category)) + 
-  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
   geom_text(aes(label=round(maxent,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=1.1, cex=3)+
   theme_bw()
 plotTopVI
@@ -556,12 +556,62 @@ plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
   arrange(desc(q75)) %>%
   ggplot(aes(x=q75, y=reorder(Predictor, q75), fill=Category)) + 
   xlim(0, 20)+
-  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
   geom_text(aes(label=round(q75,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
   theme_bw()
 plotTopVI
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_10runs", Taxon_name, ".pdf")); plotTopVI; dev.off()
 
+## count number of times that predictors are in top10 per species ####
+top10 <- c()
+
+for(spID in unique(var_imp$Species)){
+  for(run in 1:10){
+    temp_top10 <- var_imp %>% filter(Species==spID & Run==run) %>% 
+      filter(maxent > 0 & !is.na(maxent)) %>%
+      top_n(n = 10, wt = maxent) %>% dplyr::select(Predictor, Species)
+    top10 <- rbind(top10, temp_top10)
+  }
+}
+
+top10 <- top10 %>% count(Predictor, Species)
+
+# load the predictor table containing the individual file names
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+
+# transform to long format and add variable categories
+top10 <- top10 %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+top10[top10$Predictor=="Clay.Silt","Category"] <- "Soil"
 
 
+# plot barplot with top 10 (based on top10 counts)
+plotTop10 <- top10 %>% dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(x=sum, y=reorder(Predictor, sum), fill=Category)) + 
+  xlim(0, 400)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  geom_text(aes(label=sum), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs", Taxon_name, ".pdf")); plotTop10; dev.off()
+
+## same but per species ####
+plotTop10 <- top10 %>% dplyr::select(n, Predictor, Category, Species) %>%
+  ggplot(aes(x=n, y=reorder(Predictor, desc(Category)), fill=Category)) + 
+  xlim(0, 10.5)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  geom_text(aes(label=n), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=2)+
+  facet_wrap(vars(Species))+
+  theme_bw()+theme(axis.text = element_text(size=3))
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_species_10runs", Taxon_name, ".pdf"), width=20, height=15); plotTop10; dev.off()
+
+# select based on at least 15 times always used
+top10 %>% filter(n==10) %>% dplyr::select(Predictor) %>% count(Predictor) %>% filter(n>=15)
