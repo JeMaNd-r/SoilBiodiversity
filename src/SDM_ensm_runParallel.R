@@ -439,12 +439,13 @@ stopImplicitCluster()
 setwd(here::here())
 setwd(paste0(here::here(), "/results/", Taxon_name))
 
+no.cores <- 3
 registerDoParallel(no.cores)
-foreach(spID = speciesSub[c(2:3, 5:length(speciesSub)],
+foreach(spID = speciesSub[c(2:3, 5:length(speciesSub))],
         .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
-#for(spID in speciesSub){ try({ 
+for(spID in speciesSub[1:8]){ try({ 
 
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
@@ -483,41 +484,43 @@ foreach(spID = speciesSub[c(2:3, 5:length(speciesSub)],
               }
 
 
-              ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
-              # project single models (also needed for ensemble model)
-              myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                                         new.env = temp_Env_sub[,colnames(temp_Env_sub) %in% covarsNames],  #column/variable names have to perfectly match with training
-                                                         proj.name = "modeling",  #name of the new folder being created
-                                                         selected.models = "all", #use all models
-                                                         binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
-                                                         compress = TRUE,         #compression format of objects stored on hard drive
-                                                         build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
-                                                         do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
-                                                         output.format = ".RData", #what format should projections have: RData, grd or img
-                                                         keep.in.memory = TRUE) #FALSE: : only story link to copy to projection file
-              
-              # project ensemble of all models
-              myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
-                                                                    EM.output = myBiomodEM,
-                                                                    #... same arguments as above could be added but are not necessary when loading myBiomodProj
-                                                                    selected.models = "all")
-              
-              # save predictions as raster file
-              temp_prediction <- myBiomodEnProj@proj@val[,2]
-              temp_prediction <- as.numeric(temp_prediction)
-              # add names of grid cell (only for those that have no NA in any layer)
-              names(temp_prediction) <- rownames(temp_Env_sub)
-              temp_prediction <- as.data.frame(temp_prediction)
-              temp_prediction$x <- temp_Env_sub$x
-              temp_prediction$y <- temp_Env_sub$y
-              temp_prediction <- temp_prediction %>% full_join(temp_Env_sub %>% dplyr::select(x,y)) %>%
-                rename("layer" = temp_prediction)
-              temp_prediction$layer <- temp_prediction$layer / 1000
-              
-              save(temp_prediction, file=paste0(here::here(), "/results/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
-              rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
-            }
-          }
+          ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
+          # project single models (also needed for ensemble model)
+          myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
+                                                     new.env = temp_Env_sub[,colnames(temp_Env_sub) %in% covarsNames],        #column/variable names have to perfectly match with training
+                                                     proj.name = "modeling",  #name of the new folder being created
+                                                     selected.models = "all", #use all models
+                                                     binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
+                                                     compress = TRUE,         #compression format of objects stored on hard drive
+                                                     build.clamping.mask = TRUE, #TRUE: clamping mask will be saved on hard drive different
+                                                     do.stack = TRUE,         #save output projections as rasterstack (if not too heavy)
+                                                     output.format = ".RData", #what format should projections have: RData, grd or img
+                                                     keep.in.memory = TRUE)  #FALSE: only story link to copy to projection file
+          
+          # project ensemble of all models
+          myBiomodEnProj <- biomod2::BIOMOD_EnsembleForecasting(projection.output = myBiomodProj,
+                                                                EM.output = myBiomodEM,
+                                                                #... same arguments as above could be added but are not necessary when loading myBiomodProj
+                                                                selected.models = "all")
+          
+          #temp_predict_time <- proc.time()[3] - tmp
+          
+          # save predictions as raster file
+          temp_prediction <- myBiomodEnProj@proj@val[,2]
+          temp_prediction <- as.numeric(temp_prediction)
+          # add names of grid cell (only for those that have no NA in any layer)
+          names(temp_prediction) <- rownames(temp_Env_sub)
+          temp_prediction <- as.data.frame(temp_prediction)
+          temp_prediction$x <- temp_Env_sub$x
+          temp_prediction$y <-temp_Env_sub$y
+          temp_prediction <- temp_prediction %>% full_join(temp_Env_sub %>% dplyr::select(x,y))
+          colnames(temp_prediction)[1] <- "layer"
+          temp_prediction$layer <- temp_prediction$layer / 1000
+          
+          save(temp_prediction, file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
+          rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
+     }
+  }
                
 })}
 stopImplicitCluster()
