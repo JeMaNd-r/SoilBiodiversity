@@ -619,10 +619,12 @@ plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2k
   dplyr::select(n, Predictor, Category) %>%
   group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
   arrange(desc(sum)) %>%
-  ggplot(aes(x=sum, y=reorder(Predictor, sum), fill=Category)) + 
-  xlim(0, 400)+
-  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-10.5, lty=2)+
-  geom_text(aes(label=sum), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
+  ylim(0, 200)+
+  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  geom_vline(xintercept=length(covarsNames)-10.5, lty=2)+
+  coord_flip() +
   theme_bw()
 plotTop10
 
