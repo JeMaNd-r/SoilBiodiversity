@@ -61,8 +61,25 @@ ggplot(data=cover_df, aes(x=IUCNcat, y=coverage_km2, group=SpeciesID, fill=IUCNc
 	geom_bar(stat="identity")+
 	facet_wrap(vars(SpeciesID))+ 
 	theme_bw()+
-	theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=0))
+	theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=1, size=6))
 dev.off()
+
+# bar chart of percent area covered by PA overall
+pdf(paste0(here::here(), "/figures/ProtectionStatus_total_", Taxon_name, ".pdf"))
+ggplot(data=cover_df, aes(x=reorder(IUCNcat, desc(IUCNcat)), y=coverage_km2))+
+  geom_boxplot()+
+  geom_jitter(alpha=0.6)+
+  theme_bw()+ coord_flip()+
+  theme(legend.position="none", axis.text.x=element_text(angle=45, hjust=1))
+dev.off()
+
+
+#- - - - - - - - - - - - - - - - - - - - 
+## Calculate area BD high, PA high and BD low, PA high etc. ####
+
+
+
+
 
 
 #- - - - - - - - - - - - - - - - - - - - 
