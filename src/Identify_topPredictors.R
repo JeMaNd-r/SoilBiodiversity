@@ -514,6 +514,7 @@ str(var_imp)
 
 ## Save ####
 write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_MaxEnt_10runs_", Taxon_name, ".csv"))
+var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_MaxEnt_10runs_", Taxon_name, ".csv"))
 
 ## Plotting ####
 # load predictor table to get classification of variables
@@ -613,5 +614,38 @@ plotTop10
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_species_10runs", Taxon_name, ".pdf"), width=20, height=15); plotTop10; dev.off()
 
+# plot barplot with top 10 (based on top10 counts) for species n>=100 records
+plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=100,"SpeciesID"]) %>%
+  dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(x=sum, y=reorder(Predictor, sum), fill=Category)) + 
+  xlim(0, 400)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-10.5, lty=2)+
+  geom_text(aes(label=sum), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
+# plot barplot with top 10 (based on top10 counts) for species 10<n<100 records
+plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"]) %>%
+  dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(x=sum, y=reorder(Predictor, sum), fill=Category)) + 
+  xlim(0, 400)+
+  geom_bar(stat="identity") + geom_hline(yintercept=length(covarsNames)-10.5, lty=2)+
+  geom_text(aes(label=sum), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+  geom_text(aes(label=paste0("species n=", length(unique(speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"]))),
+  			x=300, y=2))+
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
+
 # select based on at least 15 times always used
 top10 %>% filter(n==10) %>% dplyr::select(Predictor) %>% count(Predictor) %>% filter(n>=15)
+
+
