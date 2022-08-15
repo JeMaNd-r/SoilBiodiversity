@@ -52,8 +52,8 @@ speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=1
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Pastures", 
-                 "Agriculture", "Elev", "Dist_Urban", "Cu", "Forest_Coni", "pH")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
+                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
@@ -912,6 +912,8 @@ summary(lm1)
 lm_varImp <- data.frame("t_value"=summary(lm1)[["coefficients"]][,"t value"])
 lm_varImp$Predictor <- rownames(lm_varImp)
 lm_varImp <- lm_varImp %>% filter(Predictor != "(Intercept)")
+lm_varImp$t_abs <- abs(lm_varImp$t_value)
+lm_varImp$Direction <- factor(sign(lm_varImp$t_value), 1:(-1), c("positive", "neutral", "negative"))
 
 # transform to long format and add variable categories
 lm_varImp <- lm_varImp%>%
@@ -920,9 +922,9 @@ lm_varImp <- lm_varImp%>%
 # add category for clay.silt
 lm_varImp[lm_varImp$Predictor=="Clay.Silt","Category"] <- "Soil"
 
-plotTopVI <- lm_varImp %>% dplyr::select(Overall, Predictor, Category) %>% arrange(desc(Overall)) %>%
-  ggplot(aes(x=reorder(Predictor, Overall), y=Overall, fill=Category)) + 
-  geom_segment(aes(x=reorder(Predictor, Overall), xend=reorder(Predictor, Overall), y=0, yend=Overall), color="black") +
+plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) %>% arrange(desc(t_abs)) %>%
+  ggplot(aes(x=reorder(Predictor, t_abs), y=t_abs, fill=Category)) + 
+  geom_segment(aes(x=reorder(Predictor, t_abs), xend=reorder(Predictor, t_abs), y=0, yend=t_abs, lty=Direction), color="black") +
   geom_point(aes(color=Category), size=4, alpha=1) +
   coord_flip() +
   xlab("Predictors")+ylab("Variable importance (SR)")+
