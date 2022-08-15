@@ -764,6 +764,56 @@ for(no_future in scenarioNames){
   
 }
   
+#- - - - - - - - - - - - - - - - - - - - -
+## Average future predictions ####
+world.inp <- map_data("world")
+average_stack <- Env_norm_df %>% dplyr::select(x, y)
+
+for(no_future in scenarioNames){
+  
+  # only plot subclim scenario TP
+  subclim <- "TP"
+    
+  load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_", subclim, ".RData")) #species_stack
+  species_stack[,as.character(no_future)] <- species_stack$Richness
+  species_stack <- species_stack[,c("x","y",no_future)]
+      
+  # add layer to stack
+  average_stack <- full_join(average_stack, species_stack)
+ 
+}
+
+average_stack$Mean <- rowMeans(average_stack %>% dplyr::select(-x, -y), na.rm=T)
+
+# Calculate percent change in distribution
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+average_stack <- average_stack %>% dplyr::rename(FutureRichness=Mean) %>%
+				full_join(species_stack %>% dplyr::select(x,y,Richness))
+
+average_stack$Change <- (average_stack$FutureRichness - average_stack$Richness)
+average_stack$Change_f <- cut(average_stack$Change, 
+					breaks=c(-20, -10, -5, 0, 5, 10),
+					labels=c("[-20,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
+
+
+save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
+
+
+# plot change in distribution
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_", Taxon_name, ".png"),width=1000, height=1000)
+print(ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+		aes(x=x, y=y, fill=Change_f))+
+    ggtitle(paste0("Change in species richness (number of species)"))+
+    scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4)))
+dev.off()
 
 
 #- - - - - - - - - - - - - - - - - - - - -
