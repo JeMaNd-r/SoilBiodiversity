@@ -448,7 +448,7 @@ foreach(spID = speciesSub[c(2:3, 5:length(speciesSub))],
         .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
-for(spID in speciesSub[1:8]){ try({ 
+for(spID in speciesSub){ try({ 
 
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
@@ -655,9 +655,12 @@ for(no_future in scenarioNames){
     for(spID in speciesSub){ try({
       
       ## Load probability maps 
-      load(file=paste0(here::here(), "/results/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) #biomod_list
-      best_pred <- biomod_list$prediction
+      load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) #biomod_list
+      best_pred <- temp_prediction
       
+	# load model information 
+  	load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
+  
       print(paste0(spID, " successfully loaded."))
       
       ## Transform to binary maps ####
@@ -670,11 +673,11 @@ for(no_future in scenarioNames){
       best_pred[best_pred$layer>=temp_thresh & !is.na(best_pred$layer), "layer"] <- 1
       best_pred[best_pred$layer<temp_thresh & !is.na(best_pred$layer), "layer"] <- 0
       
-      best_pred[,paste0(spID,"_", temp_model)] <- best_pred$layer
-      best_pred <- best_pred[,c("x","y",paste0(spID,"_", temp_model))]
+      best_pred[,paste0(spID,"_future")] <- best_pred$layer
+      best_pred <- best_pred[,c("x","y",paste0(spID,"_future"))]
       
       # save binary
-      save(best_pred, file=paste0(here::here(), "/results/_SDMs/SDM_bestPrediction_binary_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData"))
+      save(best_pred, file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_bestPrediction_binary_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData"))
       
       print(paste0("Saved binary prediction of ", spID))
       
@@ -686,7 +689,7 @@ for(no_future in scenarioNames){
       
       print(paste0("Added binary prediction of ", spID, " to the species stack"))
       
-      rm(temp_thresh, best_pred, temp_model)
+      rm(temp_thresh, best_pred, temp_prediction)
     }, silent=T)}  
     
     head(species_stack)
@@ -706,6 +709,7 @@ for(no_future in scenarioNames){
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
+world.inp <- map_data("world")
 
 for(no_future in scenarioNames){
   
@@ -713,11 +717,10 @@ for(no_future in scenarioNames){
   subclim <- "TP"
     
   load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_", subclim, ".RData")) #species_stack
-  
 
   # species richness
   png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=1000, height=1000)
-  ggplot()+
+  print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
     xlim(-23, 60) +
     ylim(31, 75) +
@@ -727,10 +730,10 @@ for(no_future in scenarioNames){
     scale_fill_viridis_c()+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4))
+          legend.position = c(0.1,0.4)))
   dev.off()
   
-  while (!is.null(dev.list()))  dev.off()
+  #while (!is.null(dev.list()))  dev.off()
   
   
   # map binary species distributions
@@ -757,7 +760,7 @@ for(no_future in scenarioNames){
   do.call(grid.arrange, plots)
   dev.off()
   
-  while (!is.null(dev.list()))  dev.off()
+  #while (!is.null(dev.list()))  dev.off()
   
 }
   
