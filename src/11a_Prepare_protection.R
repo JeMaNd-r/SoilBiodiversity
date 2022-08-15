@@ -6,6 +6,8 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+#setwd("./data/Shapefiles/WDPA_WDOECM_Dec2021_Public_EU_shp")
+
 library(raster)
 library(rgdal)
 library(sf)
@@ -15,7 +17,7 @@ library(exactextractr)
 raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
 # load 5km grid
-grid5k <- raster::raster("D:/00_datasets/Grids/grid_5k_0p016.tif")
+grid5k <- raster::raster("D:/00_datasets/Grids/grid_5k_0p041.tif")
 raster::crs(grid5k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # # load protected area network
@@ -32,7 +34,7 @@ raster::crs(grid5k) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs8
 # 
 # rm(protect_raw_0, protect_raw_1, protect_raw_2)
 
-protect_raw <- rgdal::readOGR(paste0(getwd(),"/WDPA_WDOECM_Dec2021_EU_merged.shp"))
+protect_raw <- rgdal::readOGR(paste0("WDPA_WDOECM_Dec2021_EU_merged.shp"))
 
 # create empty stack to store PA types as layers
 protect_stack <- raster::stack()
