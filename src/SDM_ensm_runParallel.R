@@ -401,7 +401,7 @@ foreach(spID = speciesSub,
           # Calculate variable importance across all PA sets, eval runs and algorithms
           # and extract only the one for weighed mean predictions (for later)
           temp_varImp <- biomod2::get_variables_importance(myBiomodEM)[, , 2]
-          # average across 3 runs
+          # average across 10 runs
           temp_varImp <- temp_varImp %>% as.data.frame() %>%
             mutate(mean_vi = as.numeric(rowMeans(temp_varImp, na.rm=T)),
                    Predictor = rownames(temp_varImp))
@@ -815,6 +815,121 @@ print(ggplot()+
           legend.position = c(0.1,0.4)))
 dev.off()
 
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Variable importance ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+## Calculate variable importance (VI) ####
+
+# create result data frame
+var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT", 
+                                              "MAT_Seas", "Snow", "Agriculture", "Dist_Urban",
+                                              "Forest_Coni", "Forest_Deci", "NDVI", 
+                                              "Pastures", "Pop_Dens", "Shrubland", "Aspect",
+                                              "Dist_Coast", "Dist_River", "Elev", 
+                                              "Slope", "CEC", "Clay.Silt", "Cu", "Hg",
+                                              "Moisture", "N", "P", "pH", "SOC", "SoilT"),
+                      "biomod"=NA, "Species"=NA)
+
+for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
+  
+  print("=====================================")
+  print(spID)
+  
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
+  temp_vi <- biomod_list$varImp
+  
+  # round variable importance to 3 decimals
+  temp_vi[,"biomod"] <- round(temp_vi[,"biomod"], 3)
+      
+  # add species name
+  temp_vi$Species <- spID
+  
+  var_imp <- rbind(var_imp, temp_vi)
+
+  rm(temp_vi, biomod_list)
+    
+  #var_imp
+          
+})}
+
+var_imp <- var_imp[!is.na(var_imp$Species),] %>% unique()
+rownames(var_imp) <- 1:nrow(var_imp)
+
+var_imp
+str(var_imp)
+
+## Save ####
+write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_biomod_", Taxon_name, ".csv"))
+ 
+
+var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_biomod_", Taxon_name, ".csv"))
+var_imp
+
+# load predictor table to get classification of variables
+# load the predictor table containing the individual file names
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+
+# transform to long format and add variable categories
+var_imp <- var_imp %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
+
+# plot VIF
+plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Predictor, biomod), fill=Category))+
+  geom_boxplot(cex=0.2, outlier.size=0.2)+
+  xlab("Variable importance")+
+  ylab("Predictor")+
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 10))
+plotVarImp
+
+pdf(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".pdf")); plotVarImp; dev.off()
+
+# plot barplot with top 10
+plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
+  group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(biomod)) %>%
+  ggplot(aes(x=reorder(Predictor, biomod), y=biomod, fill=Category)) + 
+  geom_segment(aes(x=reorder(Predictor, biomod), xend=reorder(Predictor, biomod), y=0, yend=biomod), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  coord_flip() +
+  xlab("Predictors")+ylab("Mean variable importance")+
+  theme_bw()+theme(aspect.ratio=1/1)
+plotTopVI
+
+pdf(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Calculate variable importance for richness plot ####
+data_stack <- average_stack %>% full_join(Env_norm_df)
+
+lm1 <- lm(data=data_stack, Richness~MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
+summary(lm1)
+
+lm_varImp <- data.frame("t_value"=summary(lm1)[["coefficients"]][,"t value"])
+lm_varImp$Predictor <- rownames(lm_varImp)
+lm_varImp <- lm_varImp %>% filter(Predictor != "(Intercept)")
+
+# transform to long format and add variable categories
+lm_varImp <- lm_varImp%>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+lm_varImp[lm_varImp$Predictor=="Clay.Silt","Category"] <- "Soil"
+
+plotTopVI <- lm_varImp %>% dplyr::select(Overall, Predictor, Category) %>% arrange(desc(Overall)) %>%
+  ggplot(aes(x=reorder(Predictor, Overall), y=Overall, fill=Category)) + 
+  geom_segment(aes(x=reorder(Predictor, Overall), xend=reorder(Predictor, Overall), y=0, yend=Overall), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  coord_flip() +
+  xlab("Predictors")+ylab("Variable importance (SR)")+
+  theme_bw()+theme(aspect.ratio=1/1)
+plotTopVI
+
+pdf(paste0(here::here(), "/figures/VariableImportance_biomod_top10_lm_", Taxon_name, ".pdf")); plotTopVI; dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## TRASH?
