@@ -5,7 +5,7 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-#setwd("I:/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity_RStudio")
+#setwd("I:/eie/==PERSONAL/RZ_SoilBON/DELETE_SoilBiodiversity_RStudio")
 #setwd("D:/_students/Romy/SoilBiodiversity")
 
 #packageurl <- "https://cran.r-project.org/src/contrib/Archive/biomod2/biomod2_3.1-64.tar.gz"
@@ -55,8 +55,8 @@ speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=1
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Pastures", 
-                 "Agriculture", "Elev", "Dist_Urban", "Cu", "Forest_Coni", "pH")
+covarsNames <- c("Dist_Coast", "Forest_Deci", "Pop_Dens", "Shrubland", 
+                 "Forest_Coni", "Agriculture", "Pasture", "MAP_Seas", "Clay.Silt", "CEC")
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
@@ -102,18 +102,15 @@ foreach(spID = speciesSub,
         .export = c("Env_norm", "Env_norm_df", "form", "mySpeciesOcc"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
-          myResp <- as.numeric(mySpeciesOcc[,spID])
+          # subset coordinates with presence of species spID
+          coords <- mySpeciesOcc %>% filter(!is.na(mySpeciesOcc[,spID])) %>% dplyr::select(x,y)
           
-          # get NAs id
-          na.id <- which(is.na(myResp))
-          # remove NAs to enforce PA sampling to be done on explanatory rasters
-          myResp <- myResp[-na.id]
+          # transform to SpatialPoints object
+          myResp <- sp::SpatialPoints(coords, proj4string=CRS(projection(Env_norm)))
           
-          myRespCoord <- mySpeciesOcc[-na.id,c('x','y')]
-          
+          # transform into BiomodData
           myBiomodData <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
                                                         expl.var = Env_norm,
-                                                        resp.xy = myRespCoord,
                                                         resp.name = spID,
                                                         PA.nb.rep = 1,
                                                         PA.nb.absences = 10000,
@@ -126,48 +123,62 @@ foreach(spID = speciesSub,
         })}
 stopImplicitCluster()
 
+
+registerDoParallel(no.cores)
+foreach(spID = speciesSub, 
+        .export = c("Env_norm", "Env_norm_df", "form", "mySpeciesOcc"),
+        .packages = c("tidyverse","biomod2")) %dopar% { try({
+          
+          load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+          
+          myData <- data.frame(occ = myBiomodData@data.species,
+                               x = myBiomodData@coord$x,
+                               y = myBiomodData@coord$y)
+          myData[is.na(myData$occ),"occ"] <- 0
+          
+          myESMData <- biomod2::BIOMOD_FormatingData(resp.var = as.numeric(myData$occ),
+                                                        expl.var = Env_norm,
+                                                        resp.xy = myData %>% dplyr::select(x,y),
+                                                        resp.name = spID)
+          
+          # save data
+          save(myESMData, file=paste0(here::here(), "/results/", Taxon_name, "/ESMData_", Taxon_name,"_", spID, ".RData"))
+          
+          rm(myBiomodData, myData, spID)
+        })}
+stopImplicitCluster()
+
 #- - - - - - - - - - - - - - - - - - - - -
 # if more than 10 but less than 100 occurrences   
 myBiomodOption <- BIOMOD_ModelingOptions(
-  GLM = list (type = "quadratic",
-              interaction.level = 0,
-              myFormula = NULL,
-              test = "AIC",
-              family = binomial(link = "logit"))
-  )
+  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results"), # change it to maxent directory
+                         memory_allocated = NULL, # use default from Java defined above
+                         visible = FALSE, 	# don't make maxEnt user interface visible
+                         linear = TRUE, 	# linear features allowed
+                         quadratic = TRUE, # quadratic allowed
+                         product = TRUE,	# product allowed
+                         threshold = TRUE,	# threshold allowed
+                         hinge = TRUE,	# hinge allowed
+                         lq2lqptthreshold = 80, # default
+                         l2lqthreshold = 10, # default
+                         hingethreshold = 15, # default
+                         beta_threshold = -1, # default
+                         beta_categorical = -1, # default
+                         beta_lqp = -1, # default
+                         beta_hinge = -1, # default
+                         betamultiplier = 1, # default
+                         defaultprevalence = 0.5 ), #default   
+)
 
 registerDoParallel(no.cores)
 foreach(spID = speciesSub, 
         .export = c("Env_norm", "Env_norm_df", "form"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
-          load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+          load(paste0(here::here(), "/results/", Taxon_name, "/ESMData_", Taxon_name,"_", spID, ".RData")) #myESMData
           
           # subset covarsNames
-          myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
-          
-          models.options <- BIOMOD_ModelingOptions()
-          models.options@GBM$n.trees <- 1000
-          models.options@GBM$interaction.depth <- 4
-          models.options@GBM$shrinkage <- 0.005
-          models.options@GAM$select <- TRUE
-          models.options@CTA$control$cp <- 0
-          models.options@ANN$size <- 8
-          models.options@ANN$decay <- 0.001
-          models.options@MARS$interaction.level <- 0
-          models.options@MARS$nprune <- 2
-          models.options@MAXENT.Phillips$product <- FALSE
-          models.options@MAXENT.Phillips$threshold <- FALSE
-          models.options@MAXENT.Phillips$betamultiplier <- 0.5
-          models.options@MAXENT.Phillips$path_to_maxent.jar <- paste0(here::here())
-          models.options@GLM$test <- "none"
-          
-          trControl <- caret::trainControl(method = "repeatedcv", summaryFunction = caret::twoClassSummary, 
-                                           classProbs = T, returnData = F, repeats = 10)
-          
-          models.options <- BIOMOD_tuning(data = myBiomodData, 
-                                          models = mymodels[mymodels != "RF"], 
-                                          models.options = models.options)$models.options
+          myESMData@data.env.var <- myESMData@data.env.var[,colnames(myESMData@data.env.var) %in% covarsNames]
           
           # model fitting
           tmp <- proc.time()[3]
@@ -175,23 +186,7 @@ foreach(spID = speciesSub,
           
           set.seed(32639)
           
-          myBiomodModelOut <- BIOMOD_Modeling(data = myBiomodData, models = mymodels, models.options = models.options, 
-                                              models.eval.meth = "TSS", DataSplit = 80, NbRunEval = 10, rescal.all.models = FALSE, 
-                                              do.full.models = TRUE, VarImport = 5, modeling.id = paste(spID,"_Modeling", sep = ""))
-          
-          myBiomodModelOut <- ecospat.ESM.Modeling.fixed(data = myBiomodData,
-                                                         models = mymodels,
-                                                         models.options = models.options,
-                                                         Prevalence = NULL,
-                                                         tune = TRUE, # TRUE: estimate optimal parameters for the models
-                                                         NbRunEval = 10,   # 3-fold crossvalidation evaluation run
-                                                         DataSplit = 80, # use subset of the data for training
-                                                         weighting.score = "TSS",
-                                                         #ESM_Projection = FALSE, #no projections now (will be done later)
-                                                         cleanup = 2, #when to delete temporary unused files, in hours
-                                                         modeling.id = paste(myRespName,"_Modeling", sep = ""))
-          
-          ecospat::ecospat.ESM.Modeling(data = myBiomodData,
+          myBiomodModelOut <- ecospat::ecospat.ESM.Modeling(data = myESMData,
                                         models = "MAXENT.Phillips",
                                         models.options = myBiomodOption,
                                         Prevalence = NULL,
@@ -201,7 +196,7 @@ foreach(spID = speciesSub,
                                         weighting.score = "TSS",
                                         #ESM_Projection = FALSE, #no projections now (will be done later)
                                         cleanup = 2, #when to delete temporary unused files, in hours
-                                        modeling.id = paste(myRespName,"_Modeling", sep = ""))
+                                        modeling.id = paste(spID,"_Modeling", sep = ""))
           
           
           # ensemble modeling
