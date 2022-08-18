@@ -347,7 +347,7 @@ Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normal
 # as dataframe
 load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
 
-registerDoParallel(no.cores)
+registerDoParallel(3)
 foreach(spID = speciesSub,
         .export = c("Env_norm", "Env_norm_df", "form"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
