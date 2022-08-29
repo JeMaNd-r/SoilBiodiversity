@@ -47,7 +47,8 @@ uncertain_df$SD <- apply(uncertain_df %>% dplyr::select(-x, -y, -Mean), 1, sd, n
 head(uncertain_df)
 
 # save species' uncertainty map
-save(uncertain_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, "_", spID, ".RData"))
+save(uncertain_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, ".RData")) #uncertain_df
 
 # view uncertainty in map 
 world.inp <- map_data("world")
