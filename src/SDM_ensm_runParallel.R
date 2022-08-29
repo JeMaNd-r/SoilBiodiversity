@@ -270,73 +270,6 @@ foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
 })}
 stopImplicitCluster()
 
-#- - - - - - - - - - - - - - - - - - - - -
-# if more than 10 but less than 100 occurrences   
-registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 10 & speciesNames$NumCells_2km < 100,]$SpeciesID), 
-        .export = c("Env_norm", "Env_norm_df", "form"),
-        .packages = c("tidyverse","biomod2")) %dopar% { try({
-          
-          load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
-          
-          # subset covarsNames
-          myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
-          
-	        models.options <- BIOMOD_ModelingOptions()
-          models.options@GBM$n.trees <- 1000
-          models.options@GBM$interaction.depth <- 4
-          models.options@GBM$shrinkage <- 0.005
-          models.options@GAM$select <- TRUE
-          models.options@CTA$control$cp <- 0
-          models.options@ANN$size <- 8
-          models.options@ANN$decay <- 0.001
-          models.options@MARS$interaction.level <- 0
-          models.options@MARS$nprune <- 2
-          models.options@MAXENT.Phillips$product <- FALSE
-          models.options@MAXENT.Phillips$threshold <- FALSE
-          models.options@MAXENT.Phillips$betamultiplier <- 0.5
-	        models.options@MAXENT.Phillips$path_to_maxent.jar <- paste0(here::here())
-          models.options@GLM$test <- "none"
-
-          trControl <- caret::trainControl(method = "repeatedcv", summaryFunction = caret::twoClassSummary, 
-                                           classProbs = T, returnData = F, repeats = 10)
-          
-          models.options <- BIOMOD_tuning(data = myBiomodData, 
-                                          models = mymodels[mymodels != "RF"], 
-                                          models.options = models.options)$models.options
-          
-          # model fitting
-          tmp <- proc.time()[3]
-          setwd(paste0("./results"))
-          
-          set.seed(32639)
-          
-          myBiomodModelOut <- BIOMOD_Modeling(data = myBiomodData, models = mymodels, models.options = models.options, 
-                models.eval.meth = "TSS", DataSplit = 80, NbRunEval = 10, rescal.all.models = FALSE, 
-                do.full.models = TRUE, VarImport = 5, modeling.id = paste(spID,"_Modeling", sep = ""))
-
-          myBiomodModelOut <- ecospat.ESM.Modeling.fixed(data = myBiomodData,
-                                                   models = mymodels,
-                                                   models.options = models.options,
-                                                   Prevalence = NULL,
-                                                   tune = TRUE, # TRUE: estimate optimal parameters for the models
-                                                   NbRunEval = 10,   # 3-fold crossvalidation evaluation run
-                                                   DataSplit = 80, # use subset of the data for training
-                                                   weighting.score = "TSS",
-                                                   #ESM_Projection = FALSE, #no projections now (will be done later)
-                                                   cleanup = 2, #when to delete temporary unused files, in hours
-                                                   modeling.id = paste(myRespName,"_Modeling", sep = ""))
-          
-          
-          # ensemble modeling
-          myBiomodEM <- ecospat.ESM.EnsembleModeling(ESM.modeling.output = myBiomodModelOut,
-                                                     weighting.score = "TSS")
-          
-          temp_model_time <- proc.time()[3] - tmp
-          
-})}
-stopImplicitCluster()
-
 #- - - - - - - - - - - - - - - - -
 ## Predict in current climate at 5km ####
 
@@ -448,7 +381,7 @@ foreach(spID = speciesSub[c(2:3, 5:length(speciesSub))],
         .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
-for(spID in speciesSub){ try({ 
+for(spID in speciesSub[10:15]){ try({ 
 
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
@@ -592,7 +525,7 @@ save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPred
 ## View individual binary maps and species stack ####
 
 # extract most prominent species
-View(as.data.frame(colSums(species_stack, na.rm=T)))
+View(as.data.frame(colSums(species_stack, na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
 
 # species richness
 world.inp <- map_data("world")
@@ -716,8 +649,8 @@ for(no_future in scenarioNames){
   # only plot subclim scenario TP
   subclim <- "TP"
     
-  load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_", subclim, ".RData")) #species_stack
-
+  load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_2041-2070_", no_future, "_", subclim, ".RData")) #species_stack
+  
   # species richness
   png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=1000, height=1000)
   print(ggplot()+
@@ -792,12 +725,28 @@ average_stack <- average_stack %>% dplyr::rename(FutureRichness=Mean) %>%
 
 average_stack$Change <- (average_stack$FutureRichness - average_stack$Richness)
 average_stack$Change_f <- cut(average_stack$Change, 
-					breaks=c(-20, -10, -5, 0, 5, 10),
-					labels=c("[-20,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
+					breaks=c(-15, -10, -5, 0, 5, 10),
+					labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 
 
 save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
 
+
+# plot future mean distribution
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_future_", Taxon_name, ".png"),width=1000, height=1000)
+print(ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+		aes(x=x, y=y, fill=FutureRichness))+
+    ggtitle(paste0("Future species richness (number of species)"))+
+    scale_fill_viridis_c()+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4)))
+dev.off()
 
 # plot change in distribution
 png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_", Taxon_name, ".png"),width=1000, height=1000)
@@ -809,7 +758,7 @@ print(ggplot()+
     geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
 		aes(x=x, y=y, fill=Change_f))+
     ggtitle(paste0("Change in species richness (number of species)"))+
-    scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"))+
+    scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
@@ -880,14 +829,15 @@ var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 
 # plot VIF
 plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Predictor, biomod), fill=Category))+
-  geom_boxplot(cex=0.2, outlier.size=0.2)+
+  geom_boxplot(cex=0.2, outlier.size=1.5)+
+  geom_jitter(height=0.2, alpha=0.3)+
   xlab("Variable importance")+
   ylab("Predictor")+
   theme_bw()+
   theme(axis.text.y = element_text(size = 10))
 plotVarImp
 
-pdf(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".pdf")); plotVarImp; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png")); plotVarImp; dev.off()
 
 # plot barplot with top 10
 plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
@@ -900,7 +850,7 @@ plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
   theme_bw()+theme(aspect.ratio=1/1)
 plotTopVI
 
-pdf(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance for richness plot ####
@@ -931,7 +881,7 @@ plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) 
   theme_bw()+theme(aspect.ratio=1/1)
 plotTopVI
 
-pdf(paste0(here::here(), "/figures/VariableImportance_biomod_top10_lm_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## TRASH?
