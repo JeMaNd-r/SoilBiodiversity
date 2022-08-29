@@ -324,7 +324,7 @@ source(file=paste0(here::here(), "/src/Colinearity_predictors.R"))
 The selected environmental variables will be called **predictors** hereafter. We save the names of those selected variables into a vector for later.
 
 ```{r covarsNames}
-corMatPearson <- read.csv(file=paste0(here::here(),"/results/", Taxon_name, "/corMatPearson_predictors.csv"))
+corMatPearson <- read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors.csv"))
 #corMatPearson <- as.matrix(read.csv(file=paste0(here::here(),"/results/corMatPearson_predictors_5km.csv")))
 dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
 
