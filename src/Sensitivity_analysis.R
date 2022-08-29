@@ -6,7 +6,7 @@
 #- - - - - - - - - - - - - - - - - - - - - -#
 
 # Sensitivity analysis: We will check, if SDMs for species with many occurrence 
-# records (i.e., present in >200 grid cells) are similar to the SDMs for the 
+# records (i.e., present in >100 grid cells) are similar to the SDMs for the 
 # same species made with only a subset of available records (i.e., with only 50, 
 # 10, and 5 records).
 
@@ -33,367 +33,228 @@ mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasteriz
 
 # get species with more than equal to 200 records:
 if(is.null(speciesNames$NumCells_2km)) print("Please use the species list in the results folder!")
-temp_species <- speciesNames[speciesNames$NumCells_2km >= 200,]$SpeciesID
+temp_species <- unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
 
 # subset species' records
 mySpeciesOcc <- mySpeciesOcc[,c("x", "y", temp_species)]
 
+# covariates in order of importance (top 10 important)
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
+                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+
 ## parallelize
 # Calculate the number of cores
-no.cores <- length(temp_species)/2; no.cores
+#no.cores <- length(temp_species)/2; no.cores
+no.cores <- 10
 
 # Initiate cluster used in foreach function
 doParallel::registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all selected species ####
-foreach(myRespName = temp_species, .export = c("mySpeciesOcc"), 
+foreach(spID = temp_species, .export = c("mySpeciesOcc"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
           
           
-      for(no_subset in c(5, 10, 50)){
+      for(no_subset in c(5, 10, 20, 50)){
           
           # subset occurrence records
-          mySpeciesOcc_temp <- mySpeciesOcc[!is.na(mySpeciesOcc[,myRespName]),] %>% 
-            dplyr::slice_sample(n = no_subset)
-        
-          # define response variable
-          myResp <- as.numeric(mySpeciesOcc_temp[,myRespName])
-          myRespCoord <- mySpeciesOcc_temp[,c('x','y')]
+          myResp <- mySpeciesOcc[!is.na(mySpeciesOcc[,spID]),] %>% 
+            dplyr::slice_sample(n = no_subset) %>%
+		filter(!is.na(spID))
+         
+          myBiomodData <- biomod2::BIOMOD_FormatingData(resp.var = as.numeric(myResp[,spID]),
+                                                        expl.var = Env_norm,
+                                                        resp.xy = myResp[,c("x","y")],
+                                                        resp.name = spID,
+                                                        PA.nb.rep = 1,
+                                                        PA.nb.absences = 10000,
+                                                        PA.strategy = "random")
           
-          # create summary table for model settings
-          model.settings <- data.frame(SpeciesID=myRespName, model="X", strategy="test", 
-                                       No.runs=1, No.points=1, min.distance=1, run.time=0)[0,]
-          
-          ## GLM, GAM ####
-          # randomly performs consistently well, excepted when presences are climatically 
-          #   biased for which ‘2°far’ is the best method
-          # 10,000 PA or a minimum of 10 runs with 1,000 PA with an equal weight for 
-          #   presences and absences
-          temp.runs <- 1
-          temp.number <- 10000
-          temp.strategy <- "random"
-          
-          tmp <- Sys.time()
-          bg.glm <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
-                                                  expl.var = Env_norm,
-                                                  resp.xy = myRespCoord,
-                                                  resp.name = myRespName,
-                                                  PA.nb.rep = temp.runs,
-                                                  PA.nb.absences = temp.number,
-                                                  PA.strategy = temp.strategy)
-          temp.time <- Sys.time() - tmp
-          
-          if(temp.runs==1){
-            bg.glm <- cbind(bg.glm@data.species, bg.glm@coord, bg.glm@data.env.var)
-          }else{
-            bg.glm <- cbind(bg.glm@PA, bg.glm@coord, bg.glm@data.env.var)
-          }
-          bg.glm$SpeciesID <- myRespName
-          
-          str(bg.glm)
-          print("Note: TRUE in PA means presence.")
-          
-          # add model settings into summary table
-          temp.dat <- data.frame(SpeciesID=myRespName, model="GLM.GAM", strategy=temp.strategy,
-                                 No.runs=temp.runs, No.points=temp.number, 
-                                 min.distance=NA, run.time=temp.time)
-          model.settings <- rbind(model.settings, temp.dat)
-          
-          rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
-          
-          ## MARS ####	
-          # random performs consistently well, except when presences are climatically 
-          #    biased for which ‘2°far’ is the best method 
-          # minimum of 10 runs with 100 PA
-          temp.runs <- 10
-          temp.number <- 100
-          temp.strategy <- "random"
-          
-          tmp <- Sys.time()
-          bg.mars <- BIOMOD_FormatingData(resp.var = myResp,
-                                          expl.var = Env_norm,
-                                          resp.xy = myRespCoord,
-                                          resp.name = myRespName,
-                                          PA.nb.rep = temp.runs,
-                                          PA.nb.absences = temp.number,
-                                          PA.strategy = temp.strategy)
-          temp.time <- Sys.time() - tmp
-          
-          bg.mars <- cbind(bg.mars@PA, bg.mars@coord, bg.mars@data.env.var)
-          bg.mars$SpeciesID <- myRespName
-          
-          
-          # add model settings into summary table
-          temp.dat <- data.frame(SpeciesID=myRespName, model="MARS",strategy=temp.strategy, 
-                                 No.runs=temp.runs, No.points=temp.number, 
-                                 min.distance=NA, run.time=temp.time)
-          model.settings <- rbind(model.settings, temp.dat)
-          
-          rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
-          
-          ## CTA, BRT, RF ####	
-          # ‘2°far’ performs consistently better with few presences, ‘SRE’ performs 
-          #   better with a large number of presences 	
-          # same as number of presences, 10 runs when less than 1000 PA with an equal 
-          # weight for presences and absences
-          if(length(myResp) < 500){
-            temp.runs <- 10
-            temp.number <- 100
-            temp.strategy <- "disk"
-            temp.min.dist <- 200 #in meters
-            
-          }else{
-            if(length(myResp) < 1000){
-              temp.runs <- 10
-              temp.number <- length(myResp)
-              temp.strategy <- "sre"
-              temp.min.dist <- NULL
-            }else{
-              temp.runs <- 1
-              temp.number <- length(myResp)
-              temp.strategy <- "sre"
-              temp.min.dist <- NULL
-            }
-          }
-          
-          tmp <- Sys.time()
-          bg.rf <- BIOMOD_FormatingData(resp.var = myResp,
-                                        expl.var = Env_norm,
-                                        resp.xy = myRespCoord,
-                                        resp.name = myRespName,
-                                        PA.nb.rep = temp.runs,
-                                        PA.nb.absences = temp.number,
-                                        PA.strategy = temp.strategy, 
-                                        PA.dist.min = temp.min.dist)
-          temp.time <- Sys.time() - tmp
-          
-          if(temp.runs==1){
-            bg.rf <- cbind(bg.rf@data.species, bg.rf@coord, bg.rf@data.env.var)
-            bg.rf$SpeciesID <- myRespName
-          }else{
-            bg.rf <- cbind(bg.rf@PA, bg.rf@coord, bg.rf@data.env.var)
-            bg.rf$SpeciesID <- myRespName
-          }
-          
-          # add model settings into summary table
-          temp.dat <- data.frame(SpeciesID=myRespName, model="RF.BRT.CTA",strategy=temp.strategy, 
-                                 No.runs=temp.runs, No.points=temp.number, 
-                                 min.distance=NA, run.time=temp.time)
-          model.settings <- rbind(model.settings, temp.dat)
-          
-          rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
-          
-          #- - - - - - - - - - - - - - - - - - - 
-          ## BIOMOD ####
-          temp.runs <- 1
-          temp.number <- 10000 
-          temp.strategy <- "random"
-          
-          tmp <- Sys.time()
-          bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
-                                                     expl.var = Env_norm,
-                                                     resp.xy = myRespCoord,
-                                                     resp.name = myRespName,
-                                                     PA.nb.rep = temp.runs,
-                                                     PA.nb.absences = temp.number,
-                                                     PA.strategy = temp.strategy)
-          temp.time <- Sys.time() - tmp
-          
-          # NOTE: testing data and validation data will be used from bg.glm
-          # therefore, we need to save some parameters for later
-          bg.biomod <- list("bg.biomod"=bg.biomod, "myResp"=myResp, "myRespCoord"=myRespCoord, "myRespName"=myRespName,
-                            "temp.runs"=temp.runs, "temp.number"=temp.number, "temp.strategy"=temp.strategy)
-          
-          # add model settings into summary table
-          temp.dat <- data.frame(SpeciesID=myRespName, model="BIOMOD", strategy=temp.strategy,
-                                 No.runs=temp.runs, No.points=temp.number, 
-                                 min.distance=NA, run.time=temp.time)
-          model.settings <- rbind(model.settings, temp.dat)
-          
-          rm(temp.strategy, temp.runs, temp.number, temp.min.dist, temp.time)
-          
-          print(model.settings)
-          print("The strategy used for GLM/GAM can be used for other models than listed.")
-          
-          
-          # save model setting summary for later
-          save(model.settings, file=paste0(here::here(), "/results/",  Taxon_name, "/_Sensitivity/SensAna_BackgroundData_modelSettings_", Taxon_name, "_", myRespName, "_", no_subset, ".RData"))
-          
-          # save background data
-          bg.list <- list(bg.glm, bg.mars, bg.rf, bg.biomod)
-          names(bg.list) <- c("bg.glm", "bg.rf", "bg.mars", "bg.biomod")
-          save(bg.list, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_", Taxon_name, "_", myRespName, "_", no_subset, ".RData"))
-          # write.csv(bg.glm, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_GLM_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-          # write.csv(bg.mars, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_MARS_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-          # write.csv(bg.mda, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_MDA_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-          # write.csv(bg.rf, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_RF_", Taxon_name, "_", myRespName, ".csv"), row.names = F)
-        }}
+          # save data
+          save(myBiomodData, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_data/BiomodData_", spID, "_", no_subset, ".RData"))
+
+          rm(myBiomodData, myResp, myRespCoord, na.id)
+ }
+
+ rm(spID)
+
+}
 
 # at the end
 doParallel::stopImplicitCluster()
 
-
 #- - - - - - - - - - - - - - - - - - - - -
-## Prepare inout for SDMs ####
-#- - - - - - - - - - - - - - - - - - - - -
+## Build models ####
+# define parameters of the algorithms
+myBiomodOption <- BIOMOD_ModelingOptions(
+  GLM = list (type = "quadratic",
+              interaction.level = 0,
+              myFormula = NULL,
+              test = "AIC",
+              family = binomial(link = "logit") ),
+  
+  GAM = list (algo = "GAM_mgcv",
+              myFormula = NULL,
+              type = "s_smoother",
+              interaction.level = 0,
+              family =  binomial(link = "logit"),
+              method = "GCV.Cp",
+              optimizer = c("outer","newton"),
+              select = FALSE,
+              knots = NULL,
+              paraPen = NULL,
+              k = -1 ), 		#avoid error messages
+  
+  MARS = list(myFormula = NULL,
+              nk = NULL, 		# maximum number of model terms, NULL: max(21, 2*nb_expl_var+1)
+              penalty = 2, 	# default
+              thresh = 0.001, 	# default
+              nprune = 1+length(covarsNames), # max. number of terms including intercept
+              pmethod = "backward" ), #pruning method
+  
+  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity"), # change it to maxent directory
+                         memory_allocated = NULL, # use default from Java defined above
+                         visible = FALSE, 	# don't make maxEnt user interface visible
+                         linear = TRUE, 	# linear features allowed
+                         quadratic = TRUE, # quadratic allowed
+                         product = TRUE,	# product allowed
+                         threshold = TRUE,	# threshold allowed
+                         hinge = TRUE,	# hinge allowed
+                         lq2lqptthreshold = 80, # default
+                         l2lqthreshold = 10, # default
+                         hingethreshold = 15, # default
+                         beta_threshold = -1, # default
+                         beta_categorical = -1, # default
+                         beta_lqp = -1, # default
+                         beta_hinge = -1, # default
+                         betamultiplier = 1, # default
+                         defaultprevalence = 0.5 ), #default   
+  
+  GBM = list( distribution = "bernoulli",
+              n.trees = 2500,	# default
+              interaction.depth = 7, # default
+              n.minobsinnode = 5, # default
+              shrinkage = 0.001, # default, learning rate
+              bag.fraction = 0.5, # default, proportion of observations used in selecting variables
+              train.fraction = 0.8, # default 1, train.fraction * nrows(data) observations are used to fit the gbm 
+              cv.folds = 10,	# default 3
+              keep.data = FALSE, # default
+              verbose = FALSE,	# default
+              perf.method = "cv", # default
+              n.cores = 1 ),	# default
+  
+  CTA = list(	method = "class", # default, response is factor
+              parms = "default", # default
+              cost = NULL ),	# default
+  
+  ANN = list(	NbCV = 10, 		# default, number CV
+              size = NULL, 	# default, size parameter will be optimised by cross validation based on model AUC
+              decay = NULL, 	# default, decay parameter will be optimised by cross validation
+              rang = 0.1, 	# default, initial random weights on [-rang, rang] 
+              maxit = 200 ), 	# default, maximum number of iterations
+  
+  SRE = list(quant = 0.025),	# default
+  
+  FDA = list(	method = "mars",	# default, regression method used in optimal scaling
+              add_args = NULL ),# default
+  
+  RF = list(	do.classif = TRUE, # default classification random.forest computed, else regression random.forest 
+             ntree = 500,	# default
+             mtry = 10,		# number of variables randomly sampled as candidates at each split
+             nodesize = 1,	# default 5, but 1 for classification, minimum size of terminal nodes
+             maxnodes = NULL ) # default, maximum number of terminal nodes trees in the forest
+)
 
-## define function to split data ####
-split.data <- function(x){
-  training <- x
-  
-  # split data into training (80%, including testing data), and validation data (20%)
-  set.seed(1)
-  random.rows <- sample(1:nrow(training), nrow(training))
-  
-  validation <- training[random.rows[1:round(0.2*nrow(training))], 
-                         c("x","y", "SpeciesID", "occ", covarsNames[covarsNames %in% colnames(x)])]
-  
-  training <- training[random.rows[round(0.2*nrow(training)):nrow(training)],]
-  
-  # subset uncorrelated covariates
-  training <- training[, c("occ", covarsNames[covarsNames %in% colnames(x)])]
-  
-  # # convert the categoricals to factor
-  # training$vegsys <- as.factor(training$vegsys)
-  # validation_env$vegsys <- as.factor(validation_env$vegsys)
-  
-  # # print the first few rows and columns
-  # print(paste0("Head of the prepared dataset for ", modelName, "."))
-  # print(training[1:5, 1:5])
-  
-  # save all datasets
-  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", sp,"_", no_subset, ".RData"))
-  save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_ValidationData_", modelName, runningNumber, "_", Taxon_name,"_", sp,"_", no_subset, ".RData"))
+# models to predict with
+mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Phillips")
+       
+# load sampling year information
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))  
+
+## function to get Pseudo-absence dataset
+get_PAtab <- function(bfd){
+  dplyr::bind_cols(
+    x = bfd@coord[, 1],
+    y = bfd@coord[, 2],
+    status = bfd@data.species,
+    bfd@PA
+  )
 }
 
 #- - - - - - - - - - - - - - - - - - - - - -
-## parallelize ####
 # Calculate the number of cores
-no.cores <- detectCores()/2; no.cores
+no.cores <- 3
 
 # Initiate cluster used in foreach function
 doParallel::registerDoParallel(no.cores)
 
-# check if right data are loaded
-if(length(speciesNames$NumCells_2km) == 0){
-  print("Error: Please make sure to load the Species List containing the column NumCells (from results folder)!")
-}
-
 # for loop
-foreach(sp = temp_species, 
+foreach(spID = temp_species, 
         .export = c("Taxon_name", "covarsNames"), 
         .packages = c("tidyverse")) %dopar% {
           
-          for(no_subset in c(5,10,50)){
+          for(no_subset in c(5,10,20,50)){
           
           try({
             
             # load background data (pseudo-absences) for each modeling approach
-            load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_PA_Env_", Taxon_name, "_", sp,"_", no_subset, ".RData")) #bg.list
-            
-            for(i in 1:(length(bg.list)-1)){ #exclude biomod data
-              
-              # for models with multiple background data runs
-              if(ncol(bg.list[[i]])>(length(names(Env_norm))+4)){
-                # define presence and absence as new colum
-                bg.list[[i]]$occ <- 1
-                
-                # split the datasets into the runs
-                bg.temp.list <- vector(mode="list", 
-                                       length=sum(str_detect(colnames(bg.list[[i]]), "PA")))
-                for(j in 1:sum(str_detect(colnames(bg.list[[i]]), "PA"))){
-                  temp.columns <- c(paste0("PA", j),c("x", "y", "SpeciesID", "occ"), 
-                                    covarsNames[covarsNames %in% colnames(bg.list[[i]])])
-                  bg.temp.list[[j]] <- bg.list[[i]][,temp.columns]
-                  
-                  bg.temp.list[[j]]$occ <- 0
-                  bg.temp.list[[j]][bg.temp.list[[j]][,1]==TRUE | is.na(bg.temp.list[[j]][,1]),]$occ <- 1
-                }
-                bg.list[[i]] <- bg.temp.list
-                
-                # for models with single background runs  
-              }else{
-                # rename column with presence-absence information
-                bg.list[[i]] <- rename(bg.list[[i]], "PA1"=colnames(bg.list[[i]])[stringr::str_detect(colnames(bg.list[[i]]), "data.species")])
-                
-                # define presence and absence as new column
-                bg.list[[i]]$occ <- 1
-                bg.list[[i]][is.na(bg.list[[i]]$PA1),]$occ <- 0
-              }
-            }  
-            
-            ## split all datasets into training, testing and validation data
-            # but first, copy bg.glm to choose to normalize/not normalize 
-            bg.list[["bg.maxent"]] <- bg.list[["bg.glm"]]
-            bg.list[["bg.lasso"]] <- bg.list[["bg.glm"]]
-            
-            # now we run the function for all data
-            for(k in 1:(length(bg.list))){
-              modelName <- names(bg.list)[k]
-              runningNumber <- 1
-              
-              # GLM/ GAM
-              if(modelName == "bg.glm"){ 
-                split.data(bg.list[[k]])
-              }
-              
-              # MaxEnt or Lasso/ Ridge     
-              if(modelName == "bg.maxent" | modelName == "bg.lasso"){
-                split.data(bg.list[[k]])
-              }
-              
-              # MARS/ RF/ BRT/ SVM
-              if(modelName == "bg.mars" | modelName == "bg.rf" | modelName == "bg.mda"){
-                # if we have only a dataframe in the current list element, its easy
-                if(class(bg.list[[k]])!="list"){
-                  runningNumber <- 1
-                  split.data(bg.list[[k]])
-                  
-                  # if we have a list of dataframes, we have to specify the right list layer
-                }else{ for(l in 1:length(bg.list[[k]])){
-                  runningNumber <- l
-                  split.data(bg.list[[k]][[l]])
-                }}
-              }
-              
-              ## For BIOMOD ####
-              if(modelName == "bg.biomod"){
-                
-                runningNumber <- 1
-                
-                ## re-create background data with bg.glm background data as evaluation data
-                # load testing background data
-                load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_ValidationData_bg.glm1_", Taxon_name,"_", sp,"_", no_subset, ".RData"))  #validation
-                
-                # tmp <- Sys.time()
-                # bg.biomod <- biomod2::BIOMOD_FormatingData(resp.var = bg.list[["bg.biomod"]][["myResp"]],
-                #                                            expl.var = myExpl,
-                #                                            resp.xy = bg.list[["bg.biomod"]][["myRespCoord"]],
-                #                                            resp.name = bg.list[["bg.biomod"]][["myRespName"]],
-                #                                            PA.nb.rep = bg.list[["bg.biomod"]][["temp.runs"]],
-                #                                            PA.nb.absences = bg.list[["bg.biomod"]][["temp.number"]],
-                #                                            PA.strategy = bg.list[["bg.biomod"]][["temp.strategy"]],
-                #                                            #eval.expl.var = validation_env,
-                #                                            #eval.resp.var = validation_pa[,"occ"], 
-                #                                            #eval.resp.xy = validation_pa[,c("x", "y")],
-                #                                            )
-                # temp.time <- Sys.time() - tmp
-                # 
-                
-                training <- bg.list[["bg.biomod"]]
-                
-                ## take validation data from bg.glm 
-                # NOTE: validation only needed if no evaluation data provided above (eval.expl etc. ...)!
-                
-                # save datasets for BIOMOD
-                save(training, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_TrainingData_", modelName, runningNumber, "_", Taxon_name,"_", sp,"_", no_subset, ".RData"))
-                save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_ValidationData_", modelName,runningNumber, "_", Taxon_name,"_", sp,"_", no_subset, ".RData"))
-              }   
-            }
+            load(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_data/BiomodData_", spID, "_", no_subset, ".RData")) #myBiomodData
+
+
+		myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
+ 
+	    # define weights of presence records based on sampling year
+ 	    temp_weights <- mySpeciesOcc %>% dplyr::select(x, y, year, spID) %>% unique()
+ 	    temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
+	    temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
+	    temp_weights$weight <- 0.1
+	    temp_weights[!is.na(temp_weights$status),]$weight <- 0.2 #includes NA in year
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1980 & !is.na(temp_weights$year),]$weight <- 0.3
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1990 & !is.na(temp_weights$year),]$weight <- 0.4
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2000 & !is.na(temp_weights$year),]$weight <- 0.5
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2010 & !is.na(temp_weights$year),]$weight <- 0.6
+	    temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2020 & !is.na(temp_weights$year),]$weight <- 0.7 
+         
+          # model fitting
+          #tmp <- proc.time()[3]
+          setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity"))
+          
+          set.seed(32639)
+          myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
+                                                       models = mymodels,
+                                                       models.options = myBiomodOption,
+                                                       NbRunEval = 10,   # 3-fold crossvalidation evaluation run
+                                                       DataSplit = 80, # use subset of the data for training
+                                                       Yweights = temp_weights$weight, # weight to observations, here based on year
+                                                       models.eval.meth = "TSS",
+                                                       SaveObj = TRUE, #save output on hard drive?
+                                                       rescal.all.models = FALSE, #scale all predictions with binomial GLM?
+                                                       do.full.models = FALSE, # do evaluation & calibration with whole dataset
+                                                       modeling.id = paste(spID,"_Modeling", sep = ""))
+          
+          # ensemble modeling using mean probability
+          myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
+                                                         chosen.models = "all",  # all algorithms
+                                                         em.by = "all",    #evaluated over evaluation data if given (it is not, see Prepare_input.R)
+                                                         # note: evaluation not that important as we will calculate measures on independent data
+                                                         eval.metric = "TSS", # 'all' would takes same as above in BIOMOD_Modelling
+                                                         eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
+                                                         prob.mean = FALSE, #estimate mean probabilities across predictions
+                                                         prob.cv = TRUE,   #estimate coefficient of variation across predictions
+                                                         prob.ci = FALSE,  #estimate confidence interval around the prob.mean
+                                                         prob.median = FALSE, #estimate the median of probabilities
+                                                         committee.averaging = TRUE, #estimate committee averaging across predictions
+                                                         prob.mean.weight = TRUE, #estimate weighted sum of predictions
+                                                         prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
+                                                         VarImport = 5)    #number of permutations to estimate variable importance
+          #temp_model_time <- proc.time()[3] - tmp
+          
+          setwd(here::here())
+
           }) # end of try loop
           
-          print(paste0("The model input data is now saved for ", Taxon_name, ": ", sp, " ", no_subset, "."))
+          print(paste0("The model input data is now saved for ", Taxon_name, ": ", spID, " ", no_subset, "."))
           
         }}
 
