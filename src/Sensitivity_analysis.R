@@ -184,7 +184,7 @@ get_PAtab <- function(bfd){
 
 #- - - - - - - - - - - - - - - - - - - - - -
 # Calculate the number of cores
-no.cores <- 3
+no.cores <- 5
 
 # Initiate cluster used in foreach function
 doParallel::registerDoParallel(no.cores)
@@ -218,7 +218,7 @@ foreach(spID = temp_species,
          
           # model fitting
           #tmp <- proc.time()[3]
-          setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity"))
+          setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/", no_subset, "/"))
           
           set.seed(32639)
           myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
@@ -231,7 +231,7 @@ foreach(spID = temp_species,
                                                        SaveObj = TRUE, #save output on hard drive?
                                                        rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                                        do.full.models = FALSE, # do evaluation & calibration with whole dataset
-                                                       modeling.id = paste(spID,"_Modeling", sep = ""))
+                                                       modeling.id = paste(spID, no_subset, sep = "_"))
           
           # ensemble modeling using mean probability
           myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
