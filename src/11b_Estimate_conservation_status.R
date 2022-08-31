@@ -55,7 +55,7 @@ cover_df <- rbind(cover_df,
                   cbind(cover_df %>% group_by(IUCNcat) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), "SpeciesID"="_Mean"))
 cover_df
 
-write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"))
+write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"), row.names=T)
 
 
 ## Plotting ####
@@ -87,13 +87,61 @@ dev.off()
 #- - - - - - - - - - - - - - - - - - - - 
 ## Calculate area BD high, PA high and BD low, PA high etc. ####
 
+protect_df$Protected <- round(rowSums(protect_df %>% dplyr::select(-x,-y,-Not.Reported, -Not.Assigned, -Not.Applicable), na.rm=T),2)
+protect_df[protect_df$Protected>=1 & !is.na(protect_df$Protected), "Protected"] <- 1
+
+biplot_df <- right_join(protect_df %>% dplyr::select(x,y,Protected), 
+                       species_stack %>% dplyr::select(x,y,Richness))
+
+biplot_df <- biplot_df %>% 
+  full_join(data.frame("Richness"=c(NA,0:19),
+                       "Richness_cont"=c(0,0,rep(1,4), rep(5,5), rep(10,5), rep(15,5)))) %>%
+  mutate("Earthworm_richness"=as.factor(Richness_cont)) %>%
+  filter(Richness>0)
+
+biplot_df$Protection <- "0"
+biplot_df[biplot_df$Protected>0 & !is.na(biplot_df$Protected), "Protection"] <- "1" 
+biplot_df[biplot_df$Protected>=0.5 & !is.na(biplot_df$Protected), "Protection"] <- "2"
+biplot_df[biplot_df$Protected>=0.75 & !is.na(biplot_df$Protected), "Protection"] <- "3"
+
+biplot_df$Protection <- factor(biplot_df$Protection, levels=c(0,1,2,3))
+biplot_df$Earthworm_richness <- factor(biplot_df$Earthworm_richness, levels=c(1,5,10,15))
+
+head(biplot_df)
+
+# define fill scale
+biplot_input <- biscale::bi_class(biplot_df, x=Protection, y=Earthworm_richness, dim=4)
+
+# load map
+world.inp <- map_data("world")
+
+biplot <- ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), col="grey90", fill="white") +
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  
+  geom_tile(data=biplot_input, aes(x=x, y=y, fill=bi_class))+
+  bi_scale_fill(pal = "BlueGold", dim=4, flip_axes = T)+
+  theme_gray()+
+  theme(legend.position="none", axis.text.x=element_text(angle=45, hjust=1),
+        panel.background = element_rect(fill="#e8e8e8"))
 
 
+legend <- bi_legend(pal = "BlueGold",
+                    dim = 4,
+                    xlab = "Protection",
+                    ylab = "Earthworm diversity",
+                    size = 12,
+                    flip_axes = T)
+#legend
 
+finalPlot <- cowplot::ggdraw(biplot) +
+  cowplot::draw_plot(legend, 0.03, 0.8, 0.28, 0.15)
 
-
-#- - - - - - - - - - - - - - - - - - - - 
-## OLD CODE: other solution... 
-#area_protected <- raster::crop(protect_stack[1], species_stack[3][species_stack[3]==1])
+png(paste0(here::here(), "/figures/Protection_vs_richness_", Taxon_name, ".png"), width=1500, height=1300)
+finalPlot +
+  annotate("text", -Inf, Inf, hjust = -0.5, vjust = 1.5, label = "A", size = 16/.pt,
+           fontface = "bold")
+dev.off()
 
   

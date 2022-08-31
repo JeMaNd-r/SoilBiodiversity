@@ -76,6 +76,7 @@ library(sdm) # to calculate kappa
 # plotting
 library(GGally) #for correlations with ggpairs
 library(gridExtra)
+library(biscale) #for bivariate fill to ggplot
 
 here::here()
 
