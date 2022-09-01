@@ -698,6 +698,36 @@ for(no_future in scenarioNames){
 }
   
 #- - - - - - - - - - - - - - - - - - - - -
+## Species-specific future predictions ####
+
+future_stack <- get(load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", scenarioNames[1], "_TP.RData"))) #species_stack
+
+for(no_future in scenarioNames[2:length(scenarioNames)]){
+  
+  load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_TP.RData")) #species_stack
+
+  # add layer to stack
+  future_stack <- full_join(future_stack, species_stack, suffix=c("", paste0(".", no_future)), by=c("x", "y"))
+  
+}
+colnames(future_stack)[3:22] <- paste0(colnames(future_stack)[3:22], ".", scenarioNames[1])
+colnames(future_stack)
+
+# calculate average future prediction per species
+for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){ try({
+  future_stack[,as.character(paste0(spID, ".future_mean"))] <- rowSums(future_stack[,stringr::str_detect(colnames(future_stack), spID)])
+})}
+colnames(future_stack)
+
+save(future_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData"))
+
+# plot species range decline
+
+
+
+
+
+#- - - - - - - - - - - - - - - - - - - - -
 ## Average future predictions ####
 world.inp <- map_data("world")
 average_stack <- Env_norm_df %>% dplyr::select(x, y)
@@ -730,7 +760,7 @@ average_stack$Change_f <- cut(average_stack$Change,
 
 
 save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
-
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData")) #average_stack
 
 # plot future mean distribution
 png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_future_", Taxon_name, ".png"),width=1000, height=1000)
