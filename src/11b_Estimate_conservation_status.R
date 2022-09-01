@@ -36,7 +36,13 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 	# calculate sum of all columns (will give you coverage)
 	temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))
 	temp_cover <- temp_cover %>%
-	  add_row("IUCNcat"="Unprotected", "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(-Presence), na.rm=T)))
+	  add_row("IUCNcat"="Unprotected", 
+	          "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T))) %>%
+	  add_row("IUCNcat"="Outside.PA", 
+	          "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI, Not.Assigned, Not.Reported, Not.Applicable), na.rm=T))) %>%
+	  add_row("IUCNcat"="Protected", 
+	          "sumCell"=sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T)))
+	
 	temp_cover$SpeciesID <- sp
 	temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"], na.rm=T),4)
 
@@ -60,26 +66,29 @@ write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxo
 
 ## Plotting ####
 cover_df <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"))
-cover_df$IUCNcat <- factor(cover_df$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected"))
+cover_df$IUCNcat <- factor(cover_df$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected", "Protected", "Outside.PA"))
 
 # bar chart of percent area covered by PA per species
 png(paste0(here::here(), "/figures/ProtectionStatus_", Taxon_name, ".png"))
-ggplot(data=cover_df %>% filter(IUCNcat!="Presence"), aes(y=coverage_km2, x=forcats::fct_reorder(.f=SpeciesID, .x=coverage_km2, .fun = mean), fill=IUCNcat))+
+ggplot(data=cover_df %>% filter(IUCNcat!="Presence" & IUCNcat!="Unprotected" & IUCNcat!="Protected"), aes(y=coverage_km2, x=forcats::fct_reorder(.f=SpeciesID, .x=coverage_km2, .fun = mean), fill=IUCNcat))+
 	geom_bar(position="stack", stat="identity")+
 	theme_bw()+
   coord_flip()+
-  scale_fill_viridis_d()+
+  #scale_fill_viridis_d()+
+  scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
+                              "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
   geom_vline(xintercept=9.5, lty=2)+ geom_vline(xintercept=10.5, lty=2)+
 	theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=1))
 dev.off()
 
 # bar chart of percent area covered by PA overall
 png(paste0(here::here(), "/figures/ProtectionStatus_total_", Taxon_name, ".png"))
-ggplot(data=cover_df %>% filter(IUCNcat!="Presence" & SpeciesID!="_Mean"), aes(x=reorder(IUCNcat, desc(IUCNcat)), y=coverage_km2, fill=IUCNcat))+
+ggplot(data=cover_df %>%  filter(IUCNcat!="Presence" & IUCNcat!="Unprotected" & IUCNcat!="Protected" & SpeciesID!="_Mean"), aes(x=reorder(IUCNcat, desc(IUCNcat)), y=coverage_km2, fill=IUCNcat))+
   geom_boxplot()+
   geom_jitter(alpha=0.6, height=0.2)+
   theme_bw()+ coord_flip()+
-  scale_fill_viridis_d()+
+  scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
+                             "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
   theme(legend.position="none", axis.text.x=element_text(angle=45, hjust=1))
 dev.off()
 
@@ -92,6 +101,11 @@ protect_df[protect_df$Protected>=1 & !is.na(protect_df$Protected), "Protected"] 
 
 biplot_df <- right_join(protect_df %>% dplyr::select(x,y,Protected), 
                        species_stack %>% dplyr::select(x,y,Richness))
+
+# area (of grid) that is currently protected
+sum(biplot_df$Protected)
+sum(biplot_df$Protected)*5
+sum(biplot_df$Protected) / nrow(biplot_df) * 100
 
 biplot_df <- biplot_df %>% 
   full_join(data.frame("Richness"=c(NA,0:19),
@@ -144,4 +158,14 @@ finalPlot +
            fontface = "bold")
 dev.off()
 
+
+## some numbers
+# protected area per species
+cover_df %>% filter(SpeciesID!="_Mean") %>% filter(IUCNcat=="Protected") %>% arrange(coverage)
+cover_df %>% filter(SpeciesID=="_Mean") %>% arrange(coverage_km2)
+
+# categories Ia and Ib coverage
+cover_df %>% filter(SpeciesID!="_Mean") %>% group_by(IUCNcat) %>% summarize_all(sd)
+max(cover_df[cover_df$IUCNcat=="Ia",]$coverage)
+max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
   
