@@ -277,6 +277,8 @@ foreach(spID = temp_species,
         .export = c("Env_norm", "Env_norm_df"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
+	    for(no_subset in c(5, 10, 20, 50)){
+
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/", no_subset, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
@@ -346,8 +348,9 @@ foreach(spID = temp_species,
           rm(biomod_list, temp_predict_time, temp_runs, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myBiomodModelOut, myBiomodEM)
           
           setwd(here::here())
+	    }
 
-        })}
+})}
 stopImplicitCluster()
 
 
