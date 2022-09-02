@@ -161,11 +161,11 @@ dev.off()
 
 ## some numbers
 # protected area per species
-cover_df %>% filter(SpeciesID!="_Mean") %>% filter(IUCNcat=="Protected") %>% arrange(coverage)
-cover_df %>% filter(SpeciesID=="_Mean") %>% arrange(coverage_km2)
+cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% filter(IUCNcat=="Protected") %>% arrange(coverage)
+cover_df %>% filter(SpeciesID=="_Mean") %>% dplyr::select(-SpeciesID) %>% arrange(coverage_km2)
 
 # categories Ia and Ib coverage
-cover_df %>% filter(SpeciesID!="_Mean") %>% group_by(IUCNcat) %>% summarize_all(sd)
+cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
 max(cover_df[cover_df$IUCNcat=="Ia",]$coverage)
 max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
   
