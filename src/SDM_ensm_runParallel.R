@@ -720,12 +720,81 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){ tr
 colnames(future_stack)
 
 save(future_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData")) #future_stack
+
+# calculate species ranges (area)
+range_df <- data.frame("scenario"=colnames(future_stack), 
+                       "cells"=colSums(future_stack, na.rm=T), 
+                       "area_km2"=colSums(future_stack, na.rm=T)*5) %>%
+  filter(scenario!="x" & scenario!="y") %>%
+  tidyr::separate(scenario, c("SpeciesID", "scenario"), "[.]")
+rownames(range_df) <- NULL
+head(range_df)
+
+range_sum <- range_df[range_df$SpeciesID %in% range_df$SpeciesID[stringr::str_detect(range_df$SpeciesID, "_future")],] %>% group_by(SpeciesID) %>% dplyr::select(-scenario) %>% 
+  summarise(across(everything(), list(min = min, max = max, mean = mean, sd = sd)))
+
+# add current ranges
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+range_df_current <- data.frame("scenario"=colnames(species_stack), 
+                       "cells"=colSums(species_stack, na.rm=T), 
+                       "area_km2"=colSums(species_stack, na.rm=T)*5) %>%
+  filter(scenario!="x" & scenario!="y")
+rownames(range_df_current) <- NULL
+head(range_df_current)  
+
+range_sum <- range_sum %>% cbind(range_df_current %>% filter(scenario!="Richness" & scenario!="Aporr_limi_current"))
+range_sum
+
+range_sum$area_km2_change <- range_sum$area_km2_mean - range_sum$area_km2
+range_sum$area_km2_change_p <- range_sum$area_km2_change / range_sum$area_km2
+range_sum %>% arrange(area_km2_change_p)
+mean(range_sum$area_km2_change_p); sd(range_sum$area_km2_change_p)
+
+write.csv(range_sum, file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"), row.names=F)
 
 # plot species range decline
+png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"))
+ggplot(range_sum) +
+  geom_segment( aes(x=reorder(SpeciesID, area_km2), xend=reorder(SpeciesID, area_km2), y=area_km2/1000, yend=area_km2_mean/1000), color="grey") +
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2/1000, color="area_km2"),  size=5)+
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2_mean/1000, color="area_km2_mean"), size=5)+
+  scale_color_manual(values = c("deepskyblue4", "orange"),
+                   guide  = guide_legend(), 
+                   name   = "Group",
+                   labels = c("Current", "Future (mean)")) +
+  coord_flip()+
+  theme_bw() +
+  theme(legend.position = c(0.8, 0.2)) +
+  xlab("") +
+  ylab("Range size in 1,000 km²")
+dev.off()
 
+# map binary species distributions: all futures per species
+world.inp <- map_data("world")
 
-
-
+for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){
+  temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(spID, "_future."))]
+  plots <- lapply(temp_cols, function(s) {try({
+    print(s)
+    ggplot()+
+      geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+      xlim(-23, 60) +
+      ylim(31, 75) +
+      
+      geom_tile(data=future_stack[!is.na(future_stack[,s]),], 
+                aes(x=x, y=y, fill=as.factor(future_stack[!is.na(future_stack[,s]),s])))+
+      ggtitle(s)+
+      scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+      theme_bw()+
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position = c(0.1,0.4))
+  })})
+  require(gridExtra)
+  png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_", spID, ".png"),width=3000, height=3000)
+  do.call(grid.arrange, plots)
+  dev.off()
+}
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Average future predictions ####
@@ -881,6 +950,9 @@ plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
 plotTopVI
 
 png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".png")); plotTopVI; dev.off()
+
+# mean varImp
+var_imp %>% group_by(Predictor) %>% dplyr::select(-Species, -Category) %>% summarize_all(mean)
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance for richness plot ####
