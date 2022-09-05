@@ -377,11 +377,11 @@ load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_
 
 no.cores <- 3
 registerDoParallel(no.cores)
-foreach(spID = speciesSub[c(2:3, 5:length(speciesSub))],
+foreach(spID = speciesSub,
         .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
 
-for(spID in speciesSub[10:15]){ try({ 
+for(spID in speciesSub){ try({ 
 
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
@@ -716,6 +716,8 @@ colnames(future_stack)
 # calculate average future prediction per species
 for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){ try({
   future_stack[,as.character(paste0(spID, ".future_mean"))] <- rowSums(future_stack[,stringr::str_detect(colnames(future_stack), spID)])
+  future_stack[,as.character(paste0(spID, ".future_max"))] <- matrixStats::rowMaxs(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]))
+  future_stack[,as.character(paste0(spID, ".future_min"))] <- matrixStats::rowMins(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]))
 })}
 colnames(future_stack)
 
@@ -743,7 +745,7 @@ range_df_current <- data.frame("scenario"=colnames(species_stack),
 rownames(range_df_current) <- NULL
 head(range_df_current)  
 
-range_sum <- range_sum %>% cbind(range_df_current %>% filter(scenario!="Richness" & scenario!="Aporr_limi_current"))
+range_sum <- range_sum %>% cbind(range_df_current %>% filter(scenario!="Richness"))
 range_sum
 
 range_sum$area_km2_change <- range_sum$area_km2_mean - range_sum$area_km2
@@ -770,10 +772,8 @@ ggplot(range_sum) +
   ylab("Range size in 1,000 km²")
 dev.off()
 
-# map binary species distributions: all futures per species
-world.inp <- map_data("world")
-
-for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){
+# plot both current and future range per species in one plot
+for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){ 
   temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(spID, "_future."))]
   plots <- lapply(temp_cols, function(s) {try({
     print(s)
@@ -795,6 +795,37 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){
   do.call(grid.arrange, plots)
   dev.off()
 }
+
+# plot max and min future distribution
+world.inp <- map_data("world")
+
+plots <- lapply(unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"]), function(s) {try({
+  print(s)
+  col_min <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(s, ".future_min"))]
+  col_max <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(s, ".future_max"))]
+
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=future_stack[!is.na(future_stack[,col_min]),], 
+             aes(x=x, y=y, fill=as.factor(future_stack[!is.na(future_stack[,col_min]),col_min])))+
+    
+    geom_tile(data=future_stack[!is.na(future_stack[,col_max]) & future_stack[,col_max]==1,], 
+              aes(x=x, y=y), fill="blue")+
+    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+    ggtitle(s)+
+ 
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4))
+})})
+require(gridExtra)
+png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_", Taxon_name, ".png"),width=3000, height=3000)
+do.call(grid.arrange, plots)
+dev.off()
+
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Average future predictions ####
@@ -984,6 +1015,11 @@ plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) 
 plotTopVI
 
 png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
+
+# save model summary
+sink(paste0(here::here(), "/results/Summary_lm1_Crassiclitellata_varImp.txt"))
+print(summary(lm1))
+sink()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## TRASH?
