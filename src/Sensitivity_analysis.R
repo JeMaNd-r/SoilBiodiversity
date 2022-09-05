@@ -22,6 +22,11 @@ raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create background data ####
 #- - - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+
+# load species list containing information on number of occurrence records
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
+
 # load environmental space
 Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 
@@ -353,6 +358,120 @@ foreach(spID = temp_species,
 })}
 stopImplicitCluster()
 
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Create maps and calculate richness ####
+#- - - - - - - - - - - - - - - - - - - - - -
+# load stack created with >=100 records
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+template_stack <- species_stack %>% dplyr::select(x,y)
+
+# for loop through all species
+for(no_subset in c(5,10,20,50)){
+species_stack <- template_stack
+
+for(spID in temp_species){ try({
+
+  ## Load probability maps 
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_sdm/SDM_biomod_", spID, "_", no_subset, ".RData")) #biomod_list
+  best_pred <- biomod_list$prediction
+  
+  print(paste0(spID, " ", no_subset, " successfully loaded."))
+  
+  ## Transform to binary maps ####
+  
+  # extract threshold to define presence/absence: TSS [row 2]
+  temp_thresh <- biomod_list$validation[2,str_detect(colnames(biomod_list$validation), "EMcaByTSS_mergedAlgo_mergedRun_mergedData.Cutoff")]/1000
+  if(is.na(temp_thresh)) temp_tresh <- 0.9
+  
+  # change to binary
+  best_pred[best_pred$layer>=temp_thresh & !is.na(best_pred$layer), "layer"] <- 1
+  best_pred[best_pred$layer<temp_thresh & !is.na(best_pred$layer), "layer"] <- 0
+  
+  best_pred[,paste0(spID,"_current")] <- best_pred$layer
+  best_pred <- best_pred[,c("x","y",paste0(spID,"_current"))]
+  
+  # save binary
+  save(best_pred, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_sdm/SDM_bestPrediction_binary_", Taxon_name, "_", spID, "_", no_subset,".RData"))
+  
+  print(paste0("Saved binary prediction of ", spID))
+  
+  #- - - - - - - - - - - - - - - - - - - - - -
+  ## Stack species binary maps ####
+
+  # add species dataframe to stacked dataframe
+  species_stack <- species_stack %>% full_join(best_pred)
+  
+  print(paste0("Added binary prediction of ", spID, " to the species stack"))
+  
+  rm(temp_thresh, best_pred)
+}, silent=T)} 
+
+	#- - - - - - - - - - - - - - - - - - - - - -
+	## Calculate richness ####
+	species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y, -no_subset), na.rm=T)
+
+
+	#- - - - - - - - - - - - - - - - - - - - - -
+	## Save species stack ####
+	save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData"))
+
+} 
+
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## View individual binary maps and species stack ####
+
+# extract most prominent species
+View(as.data.frame(colSums(species_stack %>% filter(no_subset==5), na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
+
+# species richness
+world.inp <- map_data("world")
+
+for(no_subset in c(5,10,20,50,100){
+temp_data <- species_stack %>% filter(no_subset==no_subset) %>% dplyr::select(x, y, Richness, no_subset) %>% unique()
+png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-23, 60) +
+  ylim(31, 75) +
+
+  geom_tile(data=temp_data, 
+		aes(x=x, y=y, fill=Richness))+
+  scale_fill_viridis_c()+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1, 0.8))
+dev.off()
+}
+while (!is.null(dev.list()))  dev.off()
+
+
+# map binary species distributions
+plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+  print(s-2)
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 60) +
+    ylim(31, 75) +
+    
+    geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
+              aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
+    ggtitle(colnames(species_stack)[s])+
+    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4))
+  })
+})
+
+require(gridExtra)
+#pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, ".pdf"))
+png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, ".png"),width=3000, height=3000)
+do.call(grid.arrange, plots)
+dev.off()
+
+while (!is.null(dev.list()))  dev.off()
 
 
 
