@@ -409,7 +409,7 @@ for(spID in temp_species){ try({
 
 	#- - - - - - - - - - - - - - - - - - - - - -
 	## Calculate richness ####
-	species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y, -no_subset), na.rm=T)
+	species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=T)
 
 
 	#- - - - - - - - - - - - - - - - - - - - - -
@@ -428,26 +428,34 @@ View(as.data.frame(colSums(species_stack %>% filter(no_subset==5), na.rm=T)) %>%
 # species richness
 world.inp <- map_data("world")
 
-for(no_subset in c(5,10,20,50,100){
-temp_data <- species_stack %>% filter(no_subset==no_subset) %>% dplyr::select(x, y, Richness, no_subset) %>% unique()
-png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
-ggplot()+
-  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-  xlim(-23, 60) +
-  ylim(31, 75) +
+for(no_subset in c(5,10,20,50,100)){ try({
+	if(no_subset!=100){
+		load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+	}else{
+		load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+	}
 
-  geom_tile(data=temp_data, 
-		aes(x=x, y=y, fill=Richness))+
-  scale_fill_viridis_c()+
-  theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1, 0.8))
-dev.off()
-}
+	png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
+	print({ggplot()+
+	  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+	  xlim(-23, 40) +
+	  ylim(31, 75) +
+
+ 	 geom_tile(data=species_stack %>% filter (Richness>0), 
+			aes(x=x, y=y, fill=Richness))+
+	 ggtitle(paste0(no_subset, " records"))+
+ 	 scale_fill_viridis_c()+
+ 	 theme_bw()+
+ 	 theme(axis.title = element_blank(), legend.title = element_blank(),
+  	      legend.position = c(0.1, 0.2))})
+	dev.off()
+})}
+
 while (!is.null(dev.list()))  dev.off()
 
 
 # map binary species distributions
+for(no_subset in c(5,10,20,50,100)){
 plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
   print(s-2)
   ggplot()+
@@ -470,6 +478,7 @@ require(gridExtra)
 png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, ".png"),width=3000, height=3000)
 do.call(grid.arrange, plots)
 dev.off()
+}
 
 while (!is.null(dev.list()))  dev.off()
 
