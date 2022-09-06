@@ -521,6 +521,10 @@ save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPred
 #load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 
 
+# Calculate area with 19 species
+species_stack %>% filter(Richness==19 & !is.na(Richness)) %>% count()
+3914*5
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
 
