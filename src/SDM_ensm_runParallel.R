@@ -514,16 +514,31 @@ head(species_stack)
 ## Calculate richness ####
 species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=T)
 
+
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save species stack ####
 save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData"))
 
 #load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 
-
+#- - - - - - - - - - - - - - - - - - - - - -
 # Calculate area with 19 species
 species_stack %>% filter(Richness==19 & !is.na(Richness)) %>% count()
 3914*5
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## Beta diversity ####
+# vegan::vegdist() cannot handle such big vectors
+# alternatively, we calculate clusters
+temp_matrix <- species_stack[species_stack$Richness>0 & !is.na(species_stack$Richness),colnames(species_stack)[stringr::str_detect("_current", string = colnames(species_stack))]]
+temp_matrix <- temp_matrix[complete.cases(temp_matrix),]
+
+temp_clust <- kmeans(temp_matrix, 10) 
+temp_clust <- cbind(species_stack[species_stack$Richness>0 & !is.na(species_stack$Richness),],
+                   "Cluster"=temp_clust$cluster)
+
+species_stack <- species_stack %>% full_join(temp_clust)
+
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
@@ -576,6 +591,24 @@ do.call(grid.arrange, plots)
 dev.off()
 
 while (!is.null(dev.list()))  dev.off()
+
+## View clusters
+world.inp <- map_data("world")
+
+png(file=paste0(here::here(), "/figures/Clusters_K10_", Taxon_name, ".png"), width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-23, 60) +
+  ylim(31, 75) +
+  
+  geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=as.factor(Cluster)))+
+  ggtitle("Clusters (k=10)")+
+  scale_fill_viridis_d()+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+dev.off()
+
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create future maps and calculate richness ####
