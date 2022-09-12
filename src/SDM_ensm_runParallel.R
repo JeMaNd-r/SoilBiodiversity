@@ -512,7 +512,7 @@ head(species_stack)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate richness ####
-species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=T)
+species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=F)
 
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -558,6 +558,7 @@ ggplot()+
   geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
   ggtitle("Species richness (number of species)")+
   scale_fill_viridis_c()+
+  geom_tile(data=species_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
@@ -667,7 +668,7 @@ for(no_future in scenarioNames){
     
     #- - - - - - - - - - - - - - - - - - - - - -
     ## Calculate richness ####
-    species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=T)
+    species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y), na.rm=F)
     
     #- - - - - - - - - - - - - - - - - - - - - -
     ## Save species stack ####
@@ -698,6 +699,7 @@ for(no_future in scenarioNames){
     geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
     ggtitle(paste0("Species richness (number of species) ",  no_future, "_", subclim))+
     scale_fill_viridis_c()+
+    geom_tile(data=species_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+ 
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
@@ -885,6 +887,16 @@ for(no_future in scenarioNames){
 
 average_stack$Mean <- rowMeans(average_stack %>% dplyr::select(-x, -y), na.rm=T)
 
+# calculate average per SSP
+for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
+    temp_cols <- colnames(average_stack)[stringr::str_detect(colnames(average_stack), temp_ssp)]
+    average_stack[,as.character(paste0(temp_ssp, "_mean"))] <- rowMeans(average_stack[,temp_cols])
+    average_stack[,as.character(paste0(temp_ssp, "_max"))] <- matrixStats::rowMaxs(as.matrix(average_stack[,temp_cols]))
+    average_stack[,as.character(paste0(temp_ssp, "_min"))] <- matrixStats::rowMins(as.matrix(average_stack[,temp_cols]))
+    average_stack[,as.character(paste0(temp_ssp, "_sd"))] <- matrixStats::rowSds(as.matrix(average_stack[,temp_cols]))
+}
+colnames(average_stack)
+
 # Calculate percent change in distribution
 load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 average_stack <- average_stack %>% dplyr::rename(FutureRichness=Mean) %>%
@@ -895,6 +907,18 @@ average_stack$Change_f <- cut(average_stack$Change,
 					breaks=c(-15, -10, -5, 0, 5, 10),
 					labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 
+average_stack$Change_ssp126 <- (average_stack$ssp126_mean - average_stack$Richness)
+average_stack$Change_f_ssp126 <- cut(average_stack$Change_ssp126, 
+                              breaks=c(-15, -10, -5, 0, 5, 10, 15),
+                              labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
+average_stack$Change_ssp370 <- (average_stack$ssp370_mean - average_stack$Richness)
+average_stack$Change_f_ssp370 <- cut(average_stack$Change_ssp370, 
+                                     breaks=c(-15, -10, -5, 0, 5, 10, 15),
+                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
+average_stack$Change_ssp585 <- (average_stack$ssp585_mean - average_stack$Richness)
+average_stack$Change_f_ssp585 <- cut(average_stack$Change_ssp585, 
+                                     breaks=c(-15, -10, -5, 0, 5, 10, 15),
+                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
 
 save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
 load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData")) #average_stack
@@ -910,6 +934,7 @@ print(ggplot()+
 		aes(x=x, y=y, fill=FutureRichness))+
     ggtitle(paste0("Future species richness (number of species)"))+
     scale_fill_viridis_c()+
+		geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
@@ -926,9 +951,64 @@ print(ggplot()+
 		aes(x=x, y=y, fill=Change_f))+
     ggtitle(paste0("Change in species richness (number of species)"))+
     scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
+		geom_tile(data=average_stack %>% filter(Change==0), aes(x=x, y=y), fill="lightblue")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
+dev.off()
+
+# ssp126 plot change in distribution
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp126_", Taxon_name, ".png"),width=1000, height=1000)
+print(ggplot()+
+        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+        xlim(-23, 60) +
+        ylim(31, 75) +
+        
+        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+                  aes(x=x, y=y, fill=Change_f_ssp126))+
+        ggtitle(paste0("Change in species richness (number of species) SSP126"))+
+        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
+        geom_tile(data=average_stack %>% filter(Change_ssp126==0), aes(x=x, y=y), fill="lightblue")+
+        theme_bw()+
+        theme(axis.title = element_blank(), legend.title = element_blank(),
+              legend.position = c(0.1,0.4)))
+dev.off()
+
+# ssp370 plot change in distribution
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
+print(ggplot()+
+        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+        xlim(-23, 60) +
+        ylim(31, 75) +
+        
+        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+                  aes(x=x, y=y, fill=Change_f_ssp370))+
+        ggtitle(paste0("Change in species richness (number of species) SSP370"))+
+        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
+        geom_tile(data=average_stack %>% filter(Change_ssp370==0), aes(x=x, y=y), fill="lightblue")+
+        theme_bw()+
+        theme(axis.title = element_blank(), legend.title = element_blank(),
+              legend.position = c(0.1,0.4)))
+dev.off()
+
+# ssp585 plot change in distribution
+png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
+print(ggplot()+
+        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+        xlim(-23, 60) +
+        ylim(31, 75) +
+        
+        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+                  aes(x=x, y=y, fill=Change_f_ssp585))+
+        ggtitle(paste0("Change in species richness (number of species) SSP585"))+
+        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
+        geom_tile(data=average_stack %>% filter(Change_ssp585==0), aes(x=x, y=y), fill="lightblue")+
+        theme_bw()+
+        theme(axis.title = element_blank(), legend.title = element_blank(),
+              legend.position = c(0.1,0.4)))
 dev.off()
 
 
