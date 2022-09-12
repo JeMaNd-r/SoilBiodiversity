@@ -543,22 +543,26 @@ species_stack <- species_stack %>% full_join(temp_clust)
 #- - - - - - - - - - - - - - - - - - - - - -
 ## View individual binary maps and species stack ####
 
+# load uncertainty extent for all maps
+load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData")) #extent_df
+
 # extract most prominent species
 View(as.data.frame(colSums(species_stack, na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
 
 # species richness
 world.inp <- map_data("world")
 
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", Taxon_name, ".png"), width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-  xlim(-23, 60) +
+  xlim(-23, 40) +
   ylim(31, 75) +
 
-  geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
+  geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness>0), by=c("x","y")), 
+            aes(x=x, y=y, fill=Richness))+
   ggtitle("Species richness (number of species)")+
   scale_fill_viridis_c()+
-  geom_tile(data=species_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
+  geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness==0), by=c("x","y")), aes(x=x, y=y), fill="grey60")+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
@@ -570,15 +574,16 @@ while (!is.null(dev.list()))  dev.off()
 # map binary species distributions
 plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
   print(s-2)
+  temp_data <- extent_df %>% inner_join(species_stack[!is.na(species_stack[,s]),])
   ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
+    xlim(-23, 40) +
     ylim(31, 75) +
     
-    geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
-              aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
+    geom_tile(data=temp_data, 
+              aes(x=x, y=y, fill=as.factor(temp_data[,s])))+
     ggtitle(colnames(species_stack)[s])+
-    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+    scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4))
@@ -587,7 +592,7 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_", Taxon_name, ".pdf"))
-png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_", Taxon_name, ".png"),width=3000, height=3000)
+png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_cert0.1_", Taxon_name, ".png"),width=3000, height=3000)
 do.call(grid.arrange, plots)
 dev.off()
 
@@ -924,88 +929,88 @@ save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_r
 load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData")) #average_stack
 
 # plot future mean distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_future_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_future_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
+    xlim(-23, 40) +
     ylim(31, 75) +
     
-    geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+    geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
 		aes(x=x, y=y, fill=FutureRichness))+
     ggtitle(paste0("Future species richness (number of species)"))+
     scale_fill_viridis_c()+
-		geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
+		geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
 dev.off()
 
 # plot change in distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
+    xlim(-23, 40) +
     ylim(31, 75) +
     
-    geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+    geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
 		aes(x=x, y=y, fill=Change_f))+
     ggtitle(paste0("Change in species richness (number of species)"))+
     scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-		geom_tile(data=average_stack %>% filter(Change==0), aes(x=x, y=y), fill="lightblue")+
+		geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change==0)), aes(x=x, y=y), fill="lightblue")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
 dev.off()
 
 # ssp126 plot change in distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp126_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp126_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 60) +
+        xlim(-23, 40) +
         ylim(31, 75) +
         
-        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
-        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp126))+
         ggtitle(paste0("Change in species richness (number of species) SSP126"))+
         scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=average_stack %>% filter(Change_ssp126==0), aes(x=x, y=y), fill="lightblue")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp126==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = c(0.1,0.4)))
 dev.off()
 
 # ssp370 plot change in distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 60) +
+        xlim(-23, 40) +
         ylim(31, 75) +
         
-        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
-        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp370))+
         ggtitle(paste0("Change in species richness (number of species) SSP370"))+
         scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=average_stack %>% filter(Change_ssp370==0), aes(x=x, y=y), fill="lightblue")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp370==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = c(0.1,0.4)))
 dev.off()
 
 # ssp585 plot change in distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp585_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 60) +
+        xlim(-23, 40) +
         ylim(31, 75) +
         
-        geom_tile(data=average_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
-        geom_tile(data=average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0), 
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp585))+
         ggtitle(paste0("Change in species richness (number of species) SSP585"))+
         scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=average_stack %>% filter(Change_ssp585==0), aes(x=x, y=y), fill="lightblue")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp585==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = c(0.1,0.4)))

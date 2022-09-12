@@ -56,7 +56,7 @@ world.inp <- map_data("world")
 png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
+    xlim(-23, 40) +
     ylim(31, 75) +
 
   geom_tile(data=uncertain_df %>% filter(Mean!=0), aes(x=x, y=y, fill=Mean))+
@@ -66,6 +66,29 @@ ggplot()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
         legend.position = c(0.1,0.4))
 dev.off()
+
+# extract area with uncertainty lower than threshold
+summary(uncertain_df$Mean)
+
+extent_df <- uncertain_df %>% filter(Mean<0.1 & !is.na(Mean)) %>% dplyr::select(x,y)
+save(extent_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData"))
+
+temp_thresh <- 0.10
+png(file=paste0(here::here(), "/figures/Uncertainty_", temp_thresh, "_", Taxon_name, ".png"), width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-23, 40) +
+  ylim(31, 75) +
+  
+  geom_tile(data=uncertain_df %>% filter(Mean<temp_thresh), aes(x=x, y=y, fill=Mean))+
+  ggtitle("Coefficient of variation averaged across SDMs")+
+  scale_fill_viridis_c(option="E")+
+  geom_tile(data=uncertain_df %>% filter(Mean>=temp_thresh), aes(x=x, y=y), fill="linen")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+dev.off()
+
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Map species uncertainty maps ####
