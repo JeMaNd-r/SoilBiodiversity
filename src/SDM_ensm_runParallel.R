@@ -759,9 +759,9 @@ colnames(future_stack)
 
 # calculate average future prediction per species
 for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){ try({
-  future_stack[,as.character(paste0(spID, ".future_mean"))] <- rowSums(future_stack[,stringr::str_detect(colnames(future_stack), spID)])
-  future_stack[,as.character(paste0(spID, ".future_max"))] <- matrixStats::rowMaxs(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]))
-  future_stack[,as.character(paste0(spID, ".future_min"))] <- matrixStats::rowMins(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]))
+  future_stack[,as.character(paste0(spID, ".future_mean"))] <- rowMeans(future_stack[,stringr::str_detect(colnames(future_stack), spID)], na.rm=T)
+  future_stack[,as.character(paste0(spID, ".future_max"))] <- matrixStats::rowMaxs(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]), na.rm=T)
+  future_stack[,as.character(paste0(spID, ".future_min"))] <- matrixStats::rowMins(as.matrix(future_stack[,stringr::str_detect(colnames(future_stack), spID)]), na.rm=T)
 })}
 colnames(future_stack)
 
@@ -816,7 +816,7 @@ ggplot(range_sum) +
   ylab("Range size in 1,000 km²")
 dev.off()
 
-# plot both current and future range per species in one plot
+# plot both future range per species in one plot
 for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){ 
   temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(spID, "_future."))]
   plots <- lapply(temp_cols, function(s) {try({
@@ -1016,6 +1016,87 @@ print(ggplot()+
               legend.position = c(0.1,0.4)))
 dev.off()
 
+## Estimate number of scenarios that follow same trends ####
+# (cf. Delgado-Baquerizo et al. 2020, Soil borne pathogens, Fig. 4b)
+average_stack$ssp126_gain <- 0; average_stack[average_stack$Change_ssp126>0 & !is.na(average_stack$Change_ssp126),]$ssp126_gain <- 1
+average_stack$ssp370_gain <- 0; average_stack[average_stack$Change_ssp370>0 & !is.na(average_stack$Change_ssp370),]$ssp370_gain <- 1
+average_stack$ssp585_gain <- 0; average_stack[average_stack$Change_ssp585>0 & !is.na(average_stack$Change_ssp585),]$ssp585_gain <- 1
+
+average_stack$ssp126_loss <- 0; try(average_stack[average_stack$Change_ssp126<0 & !is.na(average_stack$Change_ssp126),]$ssp126_loss <- -1)
+average_stack$ssp370_loss <- 0; average_stack[average_stack$Change_ssp370<0 & !is.na(average_stack$Change_ssp370),]$ssp370_loss <- -1
+average_stack$ssp585_loss <- 0; average_stack[average_stack$Change_ssp585<0 & !is.na(average_stack$Change_ssp585),]$ssp585_loss <- -1
+
+average_stack$ssp126_unchanged <- 0; try(average_stack[average_stack$Change_ssp126==0 & !is.na(average_stack$Change_ssp126),]$ssp126_unchanged <- 1)
+average_stack$ssp370_unchanged <- 0; average_stack[average_stack$Change_ssp370==0 & !is.na(average_stack$Change_ssp370),]$ssp370_unchanged <- 1
+average_stack$ssp585_unchanged <- 0; average_stack[average_stack$Change_ssp585==0 & !is.na(average_stack$Change_ssp585),]$ssp585_unchanged <- 1
+
+average_stack$Gain <- rowSums(average_stack[,c("ssp126_gain", "ssp370_gain", "ssp585_gain")])
+average_stack$Loss <- rowSums(average_stack[,c("ssp126_loss", "ssp370_loss", "ssp585_loss")])
+average_stack$Unchanged <- rowSums(average_stack[,c("ssp126_unchanged", "ssp370_unchanged", "ssp585_unchanged")])
+
+average_stack %>% filter(Loss==-3) %>% count()
+average_stack %>% filter(Gain==3) %>% count()
+average_stack %>% filter(Unchanged==3) %>% count()
+
+average_stack$No_change <- "mixed"
+average_stack[average_stack$Gain==1 & average_stack$Unchanged==2,]$No_change <- "1"
+average_stack[average_stack$Loss==-1 & average_stack$Unchanged==2,]$No_change <- "-1"
+average_stack[average_stack$Gain==2 & average_stack$Unchanged==1,]$No_change <- "2"
+average_stack[average_stack$Loss==-2 & average_stack$Unchanged==1,]$No_change <- "-2"
+average_stack[average_stack$Gain==3,]$No_change <- "3"
+average_stack[average_stack$Loss==-3,]$No_change <- "-3"
+average_stack[average_stack$Unchanged==3,]$No_change <- "no changes"
+
+average_stack %>% filter(No_change==-3) %>% count()
+average_stack %>% filter(No_change==3) %>% count()
+average_stack %>% filter(No_change==0) %>% count()
+
+average_stack$No_change <- factor(average_stack$No_change, levels = c("3", "2", "1", "mixed", "no changes", "-1", "-2", "-3"))
+
+# plot number scenarios that predict gain/loss/no change
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_noScenarios_", Taxon_name, ".png"), width=1000, height=1000)
+print(ggplot()+
+        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+        xlim(-23, 40) +
+        ylim(31, 75) +
+        
+        #geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change))), 
+                  aes(x=x, y=y, fill=No_change))+
+        ggtitle(paste0("Agreement between SSP scenarios"))+
+        scale_fill_manual(values=c("brown4", "brown2", "darksalmon", "sandybrown", "linen", "lightblue", "steelblue2", "steelblue4"))+
+        theme_bw()+
+        theme(axis.title = element_blank(), legend.title = element_blank(),
+              legend.position = c(0.1,0.4)))
+dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Which species are lost? ####
+
+temp_coords <- average_stack %>% filter(Change<0) %>% dplyr::select(x,y)
+temp_coords <- future_stack %>% inner_join(temp_coords)
+
+head(temp_coords)
+
+# add current distributions
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
+temp_coords <- temp_coords %>% left_join(species_stack)
+
+head(temp_coords)
+
+temp_species <- unique(substr(colnames(temp_coords %>% dplyr::select(-x, -y, -colnames(temp_coords)[str_detect(colnames(temp_coords),"Richness")])), 1, 10))
+for(spID in temp_species){
+  temp_coords[,paste0(temp_species, "_change")] <- temp_coords[,paste0(temp_species, ".future_mean")] - temp_coords[,paste0(temp_species, "_current")] 
+}
+
+head(temp_coords)
+summary(temp_coords$Allol_chlo_change)
+
+#colSums(temp_coords[, colnames(temp_coords)[str_detect(colnames(temp_coords), "_change")]], na.rm=T) %>% as.data.frame()
+temp_coords %>% count()
+colSums(temp_coords[, colnames(temp_coords)[str_detect(colnames(temp_coords), "_change")]] < 0 , na.rm=T)
+temp_coords %>% filter(Allol_chlo_change==1) %>% count()
+temp_coords %>% filter(Allol_chlo_change==-1) %>% count()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Variable importance ####
