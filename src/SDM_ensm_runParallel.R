@@ -799,47 +799,65 @@ range_sum %>% arrange(area_km2_change_p)
 mean(range_sum$area_km2_change_p); sd(range_sum$area_km2_change_p)
 
 write.csv(range_sum, file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"), row.names=F)
+range_sum <- read.csv(file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"))
 
 # plot species range decline
-png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"))
-ggplot(range_sum) +
+png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"), height=400, width=600)
+ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
+  geom_bar(aes(x=reorder(SpeciesID, area_km2), y=area_km2_change_p*1000), 
+           stat = "identity" ,alpha=0.4, fill="grey90", col="grey60")+
+  geom_text(aes(x=reorder(SpeciesID, area_km2), y=-290, label=reorder(SpeciesID, area_km2)))+
+  
   geom_segment( aes(x=reorder(SpeciesID, area_km2), xend=reorder(SpeciesID, area_km2), y=area_km2/1000, yend=area_km2_mean/1000), color="grey") +
-  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2/1000, color="area_km2"),  size=5)+
-  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2_mean/1000, color="area_km2_mean"), size=5)+
-  scale_color_manual(values = c("deepskyblue4", "orange"),
-                   guide  = guide_legend(), 
-                   name   = "Group",
-                   labels = c("Current", "Future (mean)")) +
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2_mean/1000, color="area_km2_mean"), size=4)+
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2/1000, color="area_km2"),  size=4)+
+  
+  scale_color_manual(values = c("deepskyblue4", "tan1"),
+                     guide  = guide_legend(), 
+                     name   = "Group",
+                     labels = c("Current", "Future (mean)")) +
+  scale_y_continuous(
+    # Features of the first axis
+    name = "Range size in 1,000 km²",
+    # Add a second axis and specify its features
+    sec.axis = sec_axis(~./1000, name="Proportion of area changed")) + 
   coord_flip()+
   theme_bw() +
-  theme(legend.position = c(0.8, 0.2)) +
-  xlab("") +
-  ylab("Range size in 1,000 km²")
+  theme(legend.position = c(0.8, 0.2), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+  xlab("")
 dev.off()
 
-# plot both future range per species in one plot
-for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"])){ 
-  temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(spID, "_future."))]
-  plots <- lapply(temp_cols, function(s) {try({
-    print(s)
-    ggplot()+
-      geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-      xlim(-23, 60) +
-      ylim(31, 75) +
-      
-      geom_tile(data=future_stack[!is.na(future_stack[,s]),], 
-                aes(x=x, y=y, fill=as.factor(future_stack[!is.na(future_stack[,s]),s])))+
-      ggtitle(s)+
-      scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
-      theme_bw()+
-      theme(axis.title = element_blank(), legend.title = element_blank(),
-            legend.position = c(0.1,0.4))
-  })})
-  require(gridExtra)
-  png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_", spID, ".png"),width=3000, height=3000)
-  do.call(grid.arrange, plots)
-  dev.off()
-}
+# plot both current and future range per species in one plot
+world.inp <- map_data("world")
+
+plots <- lapply(unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"]), function(s) {try({
+  print(s)
+  col_future <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(s, ".future_mean"))]
+  col_current <- colnames(species_stack)[stringr::str_detect(colnames(species_stack), paste0(s, "_current"))]
+  
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-23, 40) +
+    ylim(31, 75) +
+    annotate(geom="text", x=-10, y=72, label=s, color="black", size=15)+
+    
+    geom_tile(data=extent_df %>% inner_join(species_stack[!is.na(species_stack[,col_current]) & species_stack[,col_current]==1,]), 
+              aes(x=x, y=y, fill="Current"), alpha=0.6)+
+    
+    geom_tile(data=extent_df %>% inner_join(future_stack[!is.na(future_stack[,col_future]) & future_stack[,col_future]==1,]), 
+              aes(x=x, y=y, fill="Future (mean)"), alpha=0.6)+
+  
+    #ggtitle(s)+
+    scale_fill_manual(name="", breaks=c("Current", "Future (mean)"), values=c("deepskyblue4", "tan1"))+
+    
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1,0.4), legend.text = element_text(size = 15))
+})})
+require(gridExtra)
+png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_future+current_", Taxon_name, ".png"),width=3000, height=3000)
+do.call(grid.arrange, plots)
+dev.off()
 
 # plot max and min future distribution
 world.inp <- map_data("world")
