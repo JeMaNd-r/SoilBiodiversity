@@ -835,27 +835,30 @@ plots <- lapply(unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"]
   col_future <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), paste0(s, ".future_mean"))]
   col_current <- colnames(species_stack)[stringr::str_detect(colnames(species_stack), paste0(s, "_current"))]
   
+  temp_data <- extent_df %>% inner_join(future_stack[,c(col_future, "x", "y")] %>% 
+    full_join(species_stack[,c(col_current, "x", "y")]))
+  temp_data[,paste(s, "_change")] <- temp_data[,col_future] - temp_data[,col_current]
+  temp_data[,paste(s, "_change_f")] <- as.factor(round(temp_data[,paste(s, "_change")]))
+
   ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
     xlim(-23, 40) +
     ylim(31, 75) +
     annotate(geom="text", x=-10, y=72, label=s, color="black", size=15)+
     
-    geom_tile(data=extent_df %>% inner_join(species_stack[!is.na(species_stack[,col_current]) & species_stack[,col_current]==1,]), 
-              aes(x=x, y=y, fill="Current"), alpha=0.6)+
-    
-    geom_tile(data=extent_df %>% inner_join(future_stack[!is.na(future_stack[,col_future]) & future_stack[,col_future]==1,]), 
-              aes(x=x, y=y, fill="Future (mean)"), alpha=0.6)+
+    geom_tile(data=temp_data[!is.na(temp_data[,paste(s, "_change")]),], 
+              aes(x=x, y=y, fill=temp_data[!is.na(temp_data[,paste(s, "_change")]),paste(s, "_change")]))+
   
     #ggtitle(s)+
-    scale_fill_manual(name="", breaks=c("Current", "Future (mean)"), values=c("deepskyblue4", "tan1"))+
+   # scale_fill_manual(name="Change", breaks=c("-1", "0", "1"), values=c("brown2", "#440154", "gold2"))+
+    scale_fill_gradient2(low="tan1", high="deepskyblue2", mid="#440154")+
     
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4), legend.text = element_text(size = 15))
 })})
 require(gridExtra)
-png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_future+current_", Taxon_name, ".png"),width=3000, height=3000)
+png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_change_", Taxon_name, ".png"),width=3000, height=3000)
 do.call(grid.arrange, plots)
 dev.off()
 
