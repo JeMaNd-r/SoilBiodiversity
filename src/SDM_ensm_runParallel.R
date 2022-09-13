@@ -1203,9 +1203,10 @@ plotAllVI <- ggplot(var_imp, aes(fill=Predictor, alpha=Predictor, y=biomod, x=re
                               "Agriculture"=0.75, "Pop_Dens"=0.5, "CEC"=0.75,"Clay.Silt"=0.55, "P"=0.35, "pH"=0.15))+
   scale_fill_manual(values=c("MAP_Seas"="#F8766D", "MAT"="#F8766D", "Dist_Coast"="#00BFC4", "Elev"="#00BFC4",
                               "Agriculture"="#7CAE00", "Pop_Dens"="#7CAE00", "CEC"="#C77CFF","Clay.Silt"="#C77CFF", "P"="#C77CFF", "pH"="#C77CFF"))+
-  theme_bw()
+  theme_bw()+
+  theme(legend.position = "bottom")
 
-png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_name, ".png")); plotAllVI; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_name, ".png"), height=800, width=600); plotAllVI; dev.off()
 
 
 #- - - - - - - - - - - - - - - - - - - - -

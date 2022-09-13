@@ -394,6 +394,7 @@ png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_MaxEnt
 do.call(gridExtra::grid.arrange, plots)
 dev.off()
 
+
 #- - - - - - - - - - - - - - - - - -
 ## Estimate richness ####
 
@@ -645,6 +646,37 @@ plotTop10 <- top10 %>% filter(Species %in% unique(speciesNames[speciesNames$NumC
 plotTop10
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
+
+## stacked barplot all species
+var_imp$Predictor <- factor(var_imp$Predictor, levels=c("MAP", "MAP_Seas", "MAT",
+                                                        "Aspect", "Dist_Coast", "Elev", "Dist_River", "Slope",
+                                                        "Agriculture","Dist_Urban", "Forest_Coni", "Forest_Deci", "NDVI", "Pastures", "Pop_Dens", "Shrubland",
+                                                        "CEC", "Clay.Silt", "Cu", "Hg","Moisture", "N", "P", "pH", "SOC"))
+plotAllVI <- ggplot(var_imp %>% dplyr::select(-Run) %>% group_by(Species, Predictor, Category) %>% summarize_all(mean) %>%
+         full_join(var_imp %>% dplyr::select(-Run) %>%  filter(Category=="Climate") %>%
+                     group_by(Species, Predictor, Category) %>% summarize_all(mean) %>% ungroup() %>%
+                     dplyr::select(Species, Category, maxent)  %>%
+                     group_by(Species, Category) %>% summarize_all(sum) %>%
+                     group_by(Species) %>% top_n(1, maxent) %>% unique() %>% 
+                     dplyr::select(-Category) %>% rename("SumClimate"=maxent), by="Species"),
+       aes(fill=Predictor, alpha=Predictor, y=maxent, x=reorder(Species, SumClimate))) + 
+  geom_bar(position="stack", stat="identity")+
+  coord_flip()+
+  xlab("Species")+
+  scale_y_continuous(expand = c(0, 0))+
+  scale_alpha_manual(values=c("MAP"=0.75, "MAP_Seas"=0.55, "MAT"=0.35, 
+                              "Aspect"=0.85, "Dist_Coast"=0.65, "Elev"=0.55,"Dist_Coast"=0.45, "Elev"=0.35, "Dist_River"=0.25, "Slope"=0.15,
+                              "Agriculture"=0.85,"Dist_Urban"=0.65, "Forest_Coni"=0.45, "Forest_Deci"=0.25, "NDVI"=0.75, "Pastures"=0.55,  "Pop_Dens"=0.35, "Shrubland"=0.15, 
+                              "CEC"=0.75,"Clay.Silt"=0.65, "Cu"=0.55, "Hg"=0.45,"Moisture"=0.75, "N"=0.65, "P"=0.55, "pH"=0.45, "SOC"=0.35))+
+  scale_fill_manual(values=c("MAP"="#F8766D", "MAP_Seas"="#F8766D", "MAT"="#F8766D", 
+                             "Aspect"="#00BFC4", "Dist_Coast"="#00BFC4", "Elev"="#00BFC4","Dist_Coast"="#00BFC4", "Elev"="#00BFC4", "Dist_River"="#00BFC4", "Slope"="#00BFC4",
+                             "Agriculture"="#7CAE00","Dist_Urban"="#7CAE00", "Forest_Coni"="#7CAE00", "Forest_Deci"="#7CAE00", "NDVI"="#698B22", "Pastures"="#698B22",  "Pop_Dens"="#698B22", "Shrubland"="#698B22", 
+                             "CEC"="#C77CFF","Clay.Silt"="#C77CFF", "Cu"="#C77CFF", "Hg"="#C77CFF","Moisture"="#BF3EFF", "N"="#BF3EFF", "P"="#BF3EFF", "pH"="#BF3EFF", "SOC"="#BF3EFF"))+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+png(paste0(here::here(), "/figures/VariableImportance_maxent_species_", Taxon_name, ".png"), height=800, width=600); plotAllVI; dev.off()
 
 
 # select based on at least 15 times always used
