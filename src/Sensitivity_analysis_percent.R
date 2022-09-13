@@ -145,7 +145,7 @@ myBiomodOption <- BIOMOD_ModelingOptions(
               nprune = 1+length(covarsNames), # max. number of terms including intercept
               pmethod = "backward" ), #pruning method
   
-  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2"), # change it to maxent directory
+  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/"), # change it to maxent directory
                          memory_allocated = NULL, # use default from Java defined above
                          visible = FALSE, 	# don't make maxEnt user interface visible
                          linear = TRUE, 	# linear features allowed
@@ -261,7 +261,7 @@ foreach(spID = temp_species,
                                                        SaveObj = TRUE, #save output on hard drive?
                                                        rescal.all.models = FALSE, #scale all predictions with binomial GLM?
                                                        do.full.models = FALSE, # do evaluation & calibration with whole dataset
-                                                       modeling.id = paste(spID, no_subset, sep = "_"))
+                                                       modeling.id = paste(spID))
           
           # ensemble modeling using mean probability
           myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
