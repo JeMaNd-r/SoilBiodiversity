@@ -38,6 +38,7 @@ library(doParallel)
 # plotting
 library(GGally) #for correlations with ggpairs
 library(gridExtra)
+library(treemap)
 
 #write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 
@@ -1187,6 +1188,25 @@ png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name
 
 # mean varImp
 var_imp %>% group_by(Predictor) %>% dplyr::select(-Species, -Category) %>% summarize_all(mean)
+
+# plot varImp of each species
+var_imp$Predictor <- factor(var_imp$Predictor, levels=c("MAP_Seas", "MAT",
+                                                        "Dist_Coast", "Elev",
+                                                        "Agriculture", "Pop_Dens",
+                                                        "CEC", "Clay.Silt", "P", "pH"))
+plotAllVI <- ggplot(var_imp, aes(fill=Predictor, alpha=Predictor, y=biomod, x=reorder(Species, biomod))) + 
+  geom_bar(position="stack", stat="identity")+
+  coord_flip()+
+  xlab("Species")+
+  scale_y_continuous(expand = c(0, 0))+
+  scale_alpha_manual(values=c("MAP_Seas"=0.75, "MAT"=0.5, "Dist_Coast"=0.75, "Elev"=0.5,
+                              "Agriculture"=0.75, "Pop_Dens"=0.5, "CEC"=0.75,"Clay.Silt"=0.55, "P"=0.35, "pH"=0.15))+
+  scale_fill_manual(values=c("MAP_Seas"="#F8766D", "MAT"="#F8766D", "Dist_Coast"="#00BFC4", "Elev"="#00BFC4",
+                              "Agriculture"="#7CAE00", "Pop_Dens"="#7CAE00", "CEC"="#C77CFF","Clay.Silt"="#C77CFF", "P"="#C77CFF", "pH"="#C77CFF"))+
+  theme_bw()
+
+png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_name, ".png")); plotAllVI; dev.off()
+
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance for richness plot ####
