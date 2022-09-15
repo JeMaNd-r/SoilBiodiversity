@@ -56,15 +56,16 @@ world.inp <- map_data("world")
 png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
+  xlim(-10, 30) +
+  ylim(35, 70) +
 
   geom_tile(data=uncertain_df %>% filter(Mean!=0), aes(x=x, y=y, fill=Mean))+
   ggtitle("Coefficient of variation averaged across SDMs")+
   scale_fill_viridis_c(option="E")+
-  theme_bw()+
+  theme_bw()+  
+ 
   theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+        legend.position ="bottom",legend.direction = "horizontal")
 dev.off()
 
 # extract area with uncertainty lower than threshold
@@ -77,8 +78,8 @@ temp_thresh <- 0.10
 png(file=paste0(here::here(), "/figures/Uncertainty_", temp_thresh, "_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-  xlim(-23, 40) +
-  ylim(31, 75) +
+  xlim(-10, 30) +
+  ylim(35, 70) +
   
   geom_tile(data=uncertain_df %>% filter(Mean<temp_thresh), aes(x=x, y=y, fill=Mean))+
   ggtitle("Coefficient of variation averaged across SDMs")+
@@ -97,8 +98,8 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
   print(s-2)
   ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
-    ylim(31, 75) +
+    xlim(-10, 30) +
+    ylim(35, 70) +
     
     geom_tile(data=uncertain_df[!is.na(uncertain_df[,s]) & uncertain_df[,s]>0,], 
               aes(x=x, y=y, fill=uncertain_df[!is.na(uncertain_df[,s]),s]))+
