@@ -556,8 +556,8 @@ world.inp <- map_data("world")
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-  xlim(-23, 40) +
-  ylim(31, 75) +
+  xlim(-10, 30) +
+  ylim(35, 70) +
 
   geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness>0), by=c("x","y")), 
             aes(x=x, y=y, fill=Richness))+
@@ -565,8 +565,8 @@ ggplot()+
   scale_fill_viridis_c()+
   geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness==0), by=c("x","y")), aes(x=x, y=y), fill="grey60")+
   theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+  theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
+        legend.position = c(0.1,0.9), legend.direction = "horizontal")
 dev.off()
 
 while (!is.null(dev.list()))  dev.off()
@@ -578,22 +578,26 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
   temp_data <- extent_df %>% inner_join(species_stack[!is.na(species_stack[,s]),])
   ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
+    xlim(-10, 30) +
+    ylim(35, 70) +
     
     geom_tile(data=temp_data, 
               aes(x=x, y=y, fill=as.factor(temp_data[,s])))+
     ggtitle(colnames(species_stack)[s])+
     scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
     theme_bw()+
+    guides(fill = guide_legend(# title.hjust = 1, # adjust title if needed
+      label.position = "bottom",
+      label.hjust = 0.5))+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4))
+          legend.position = c(0.1,0.9), legend.direction = "horizontal",
+          legend.text = element_text(size=20))
   })
 })
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_", Taxon_name, ".pdf"))
-png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_cert0.1_", Taxon_name, ".png"),width=3000, height=3000)
+png(file=paste0(here::here(), "/figures/DistributionMap_bestBinary_cert0.1_", Taxon_name, ".png"),width=3000, height=3300)
 do.call(grid.arrange, plots)
 dev.off()
 
@@ -699,8 +703,8 @@ for(no_future in scenarioNames){
   png(file=paste0(here::here(), "/figures/SpeciesRichness_", "2041-2070_", no_future, "_", subclim, "_", Taxon_name, ".png"),width=1000, height=1000)
   print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 60) +
-    ylim(31, 75) +
+      xlim(-10, 30) +
+      ylim(35, 70) +
     
     geom_tile(data=species_stack %>% filter(Richness>0), aes(x=x, y=y, fill=Richness))+
     ggtitle(paste0("Species richness (number of species) ",  no_future, "_", subclim))+
@@ -719,8 +723,8 @@ for(no_future in scenarioNames){
     print(s-2)
     ggplot()+
       geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-      xlim(-23, 60) +
-      ylim(31, 75) +
+      xlim(-10, 30) +
+      ylim(35, 70) +
       
       geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
                 aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
@@ -802,28 +806,36 @@ write.csv(range_sum, file=paste0(here::here(), "/results/Range_shift_", Taxon_na
 range_sum <- read.csv(file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"))
 
 # plot species range decline
-png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"), height=400, width=600)
+png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"), height=600, width=800)
 ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
-  geom_bar(aes(x=reorder(SpeciesID, area_km2), y=area_km2_change_p*1000), 
-           stat = "identity" ,alpha=0.4, fill="grey90", col="grey60")+
-  geom_text(aes(x=reorder(SpeciesID, area_km2), y=-290, label=reorder(SpeciesID, area_km2)))+
+  geom_bar(aes(x=reorder(SpeciesID, area_km2), y=area_km2_change_p*1000,  fill="[-0.5, 0.75]",), 
+           stat = "identity" ,alpha=0.4, col="grey60")+
+  #geom_text(aes(x=reorder(SpeciesID, area_km2), y=-290, label=reorder(SpeciesID, area_km2)), size=7)+
   
   geom_segment( aes(x=reorder(SpeciesID, area_km2), xend=reorder(SpeciesID, area_km2), y=area_km2/1000, yend=area_km2_mean/1000), color="grey") +
-  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2_mean/1000, color="area_km2_mean"), size=4)+
-  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2/1000, color="area_km2"),  size=4)+
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2_mean/1000, color="area_km2_mean"), size=7)+
+  geom_point( aes(x=reorder(SpeciesID, area_km2), y=area_km2/1000, color="area_km2"),  size=7)+
   
-  scale_color_manual(values = c("deepskyblue4", "tan1"),
+  scale_color_manual(values = c("black", "grey60"),
                      guide  = guide_legend(), 
-                     name   = "Group",
+                     name   = "Range size in 1,000 km²",
                      labels = c("Current", "Future (mean)")) +
+  scale_fill_manual(values = c("grey90"), 
+                    labels = c("[-0.5, 0.75]"),
+                    name = "Proportional change in range size")+
   scale_y_continuous(
     # Features of the first axis
-    name = "Range size in 1,000 km²",
+    name = "",
     # Add a second axis and specify its features
-    sec.axis = sec_axis(~./1000, name="Proportion of area changed")) + 
+    sec.axis = sec_axis(~./1000)) + 
   coord_flip()+
   theme_bw() +
-  theme(legend.position = c(0.8, 0.2), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+  theme(legend.position = "top", #axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(),
+        axis.title = element_blank(),
+        legend.text = element_text(size=20), legend.title = element_text(size=25),
+        axis.text = element_text(size=15),
+        legend.direction = "vertical", legend.box = "horizontal") +
   xlab("")
 dev.off()
 
@@ -954,8 +966,8 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_future_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
+      xlim(-10, 30) +
+      ylim(35, 70) +
     
     geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
 		aes(x=x, y=y, fill=FutureRichness))+
@@ -971,8 +983,8 @@ dev.off()
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
+      xlim(-10, 30) +
+      ylim(35, 70) +
     
     geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
 		aes(x=x, y=y, fill=Change_f))+
@@ -988,8 +1000,8 @@ dev.off()
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp126_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 40) +
-        ylim(31, 75) +
+        xlim(-10, 30) +
+        ylim(35, 70) +
         
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
@@ -998,16 +1010,17 @@ print(ggplot()+
         scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp126==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
+        guides(fill = guide_legend(label.position = "left", label.hjust = 1))+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4)))
+              legend.position = "right"))
 dev.off()
 
 # ssp370 plot change in distribution
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp370_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 40) +
-        ylim(31, 75) +
+        xlim(-10, 30) +
+        ylim(35, 70) +
         
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
@@ -1017,15 +1030,15 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp370==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4)))
+              legend.position = "right"))
 dev.off()
 
 # ssp585 plot change in distribution
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_ssp585_", Taxon_name, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 40) +
-        ylim(31, 75) +
+        xlim(-10, 30) +
+        ylim(35, 70) +
         
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
@@ -1035,10 +1048,10 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp585==0)), aes(x=x, y=y), fill="lightblue")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4)))
+              legend.position = "right"))
 dev.off()
 
-## Estimate number of scenarios that follow same trends ####
+## Agreement: Estimate number of scenarios that follow same trends ####
 # (cf. Delgado-Baquerizo et al. 2020, Soil borne pathogens, Fig. 4b)
 average_stack$ssp126_gain <- 0; average_stack[average_stack$Change_ssp126>0 & !is.na(average_stack$Change_ssp126),]$ssp126_gain <- 1
 average_stack$ssp370_gain <- 0; average_stack[average_stack$Change_ssp370>0 & !is.na(average_stack$Change_ssp370),]$ssp370_gain <- 1
@@ -1076,11 +1089,11 @@ average_stack %>% filter(No_change==0) %>% count()
 average_stack$No_change <- factor(average_stack$No_change, levels = c("3", "2", "1", "mixed", "no changes", "-1", "-2", "-3"))
 
 # plot number scenarios that predict gain/loss/no change
-png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_noScenarios_", Taxon_name, ".png"), width=1000, height=1000)
+png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_noScenarios_", Taxon_name, ".png"), width=1100, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-23, 40) +
-        ylim(31, 75) +
+        xlim(-10, 30) +
+        ylim(35, 70) +
         
         #geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change))), 
@@ -1089,7 +1102,7 @@ print(ggplot()+
         scale_fill_manual(values=c("brown4", "brown2", "darksalmon", "sandybrown", "linen", "lightblue", "steelblue2", "steelblue4"))+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4)))
+              legend.position = "right"))
 dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1186,13 +1199,13 @@ var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Predictor, biomod), fill=Category))+
   geom_boxplot(cex=0.2, outlier.size=1.5)+
   geom_jitter(height=0.2, alpha=0.3)+
-  xlab("Variable importance")+
-  ylab("Predictor")+
+  ylab("")+
   theme_bw()+
-  theme(axis.text.y = element_text(size = 10))
+  theme(axis.text.y = element_text(size = 25), axis.title = element_blank(), axis.text.x = element_text(size=15),
+        legend.position="bottom", legend.text = element_text(size=20), legend.title = element_blank())
 plotVarImp
 
-png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png")); plotVarImp; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png"), height=600, width=600); plotVarImp; dev.off()
 
 # plot barplot with top 10
 plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
