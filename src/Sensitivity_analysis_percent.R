@@ -66,8 +66,8 @@ doParallel::registerDoParallel(no.cores)
 ## Create data subsets ####
 data_sens <- mySpeciesOcc %>% dplyr::select(x,y)
 
-for(no_replicate in c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10")){
-  for(no_subset in c(10, 20, 30, 40, 50)){
+for(no_replicate in c("01")){ #, "02", "03", "04", "05", "06", "07", "08", "09", "10"
+  for(no_subset in c(75, 90)){ # 50,
     for(spID in temp_species) {
       temp_records <- mySpeciesOcc[!is.na(mySpeciesOcc[,spID]),] %>%
         dplyr::select(x,y,spID) %>%
@@ -216,7 +216,7 @@ get_PAtab <- function(bfd){
 
 #- - - - - - - - - - - - - - - - - - - - - -
 # Calculate the number of cores
-no.cores <- 3
+no.cores <- 10
 
 # Initiate cluster used in foreach function
 doParallel::registerDoParallel(no.cores)
@@ -307,10 +307,8 @@ foreach(spID = temp_species,
         .export = c("Env_norm", "Env_norm_df"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
-	    for(no_subset in c(5, 10, 20, 50)){
-
           # list files in species-specific BIOMOD folder
-          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/", stringr::str_replace_all(spID, "_", ".")), full.names = TRUE)
           
   	    setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/"))
 
@@ -373,12 +371,11 @@ foreach(spID = temp_species,
           temp_runs <- 1
           
           biomod_list <- list(time_predict=temp_predict_time, validation=myBiomodModelEval, prediction=temp_prediction, varImp=temp_varImp)
-          save(biomod_list, file=paste0("../_SensAna_output/SDM_biomod_", spID, "_", no_subset,".RData"))
+          save(biomod_list, file=paste0("../_SensAna_output/SDM_biomod_", spID, ".RData"))
           
           rm(biomod_list, temp_predict_time, temp_runs, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myBiomodModelOut, myBiomodEM)
           
           setwd(here::here())
-	    }
 
 })}
 stopImplicitCluster()
