@@ -95,8 +95,8 @@ a <- ggplot(data=cover_sr_current %>%  filter(IUCNcat!="Presence" & IUCNcat!="Pr
   #geom_jitter(alpha=0.6, width=0.2)+
   theme_bw()+ 
   xlab("Type of protected area (IUCN categories)")+ ylab("Number of species")+
-  scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
-                             "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
+  scale_fill_manual(values=c("olivedrab1","olivedrab3", "olivedrab4", "darkolivegreen", "goldenrod3","goldenrod1", "gold1",
+                             "lightgoldenrod1","lemonchiffon2", "gainsboro","grey" ))+
   scale_y_continuous(expand=c(0,0))+
   theme(legend.position="none", axis.text.x=element_text(angle=30, hjust=1))
 
@@ -107,8 +107,8 @@ b <- ggplot(data=cover_df %>% filter(IUCNcat!="Presence" & IUCNcat!="Unprotected
   xlab("Species")+ ylab("Proportion of range covered by protected area network")+
   coord_flip()+
   #scale_fill_viridis_d()+
-  scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
-                              "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
+  scale_fill_manual(values=c("olivedrab1","olivedrab3", "olivedrab4", "darkolivegreen", "goldenrod3","goldenrod1", "gold1",
+                             "lightgoldenrod1","lemonchiffon2", "gainsboro","grey" ))+
   scale_y_continuous(expand=c(0,0), limits=c(0,0.65))+
   geom_vline(xintercept=1.5, lty=2)+
 	theme(legend.position=c(0.9, 0.75),legend.text = element_text(size=5), legend.title = element_text(size=5),
@@ -242,17 +242,17 @@ boxplot_template <- function(data, col_name){
     geom_violin(width=1.4, alpha=0.7)+
     ggtitle(col_name)+
     # geom_boxplot(width=0.1, color="black", fill="white", alpha=1)+
-    stat_summary(fun = "mean",geom = "point",color = "black", size=3.5)+
+    stat_summary(fun = "mean",geom = "point",color = "black", size=3.5, show.legend = FALSE)+
     geom_errorbar(stat = "summary", fun.data = "mean_sdl", 
                   fun.args = list(mult = 1),
                   position =  position_dodge(width = 0.9),
                   width=0.1) +#geom_jitter(alpha=0.6, width=0.2)+
     theme_bw()+ 
     xlab("Type of protected area (IUCN categories)")+ ylab("Number of species")+
-    scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
-                               "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
+    scale_fill_manual(values=c("olivedrab1","olivedrab3", "forestgreen", "darkolivegreen", "goldenrod3","goldenrod1", "gold1",
+                               "lightgoldenrod1","lemonchiffon2", "gainsboro","grey" ))+
     scale_y_continuous(expand=c(0,0))+
-    theme(legend.position="none", axis.text.x=element_text(angle=30, hjust=1))
+    theme(legend.position="right", axis.text.x=element_text(angle=30, hjust=1))
 }
 
 a <- boxplot_template(cover_sr, "current")
@@ -260,6 +260,19 @@ c <- boxplot_template(cover_sr, "ssp126")
 d <- boxplot_template(cover_sr, "ssp370")
 e <- boxplot_template(cover_sr, "ssp585")
 
+# bar chart of percent area covered by PA per species
+b <- ggplot(data=cover_df %>% filter(SSP=="current" & IUCNcat!="Presence" & IUCNcat!="Unprotected" & IUCNcat!="Outside.PA" & IUCNcat!="Protected"), aes(y=coverage, x=SpeciesID, fill=IUCNcat))+
+  geom_bar(position="stack", stat="identity")+
+  theme_bw()+
+  xlab("Species")+ ylab("Proportion of range covered by protected area network")+
+  coord_flip()+
+  #scale_fill_viridis_d()+
+  scale_fill_manual(values=c("olivedrab1","olivedrab3", "forestgreen", "darkolivegreen", "goldenrod3","goldenrod1", "gold1",
+                             "lightgoldenrod1","lemonchiffon2", "gainsboro" ))+
+  scale_y_continuous(expand=c(0,0), limits=c(0,0.65))+
+  geom_vline(xintercept=1.5, lty=2)+
+  theme(legend.position="none",legend.text = element_text(size=5), legend.title = element_text(size=5),
+        axis.text.y = element_text(size=15))
 
 # calculate change in protection
 cover_matrix <- cover_df %>% full_join(cover_df %>% filter(SSP=="current") %>% dplyr::select(-SSP), by=c("SpeciesID", "IUCNcat"),
@@ -276,17 +289,24 @@ cover_matrix$IUCNcat <- factor(cover_matrix$IUCNcat, level=c("Presence", "Protec
 
 f <- ggplot(cover_matrix %>% filter(IUCNcat!="Unprotected" & SSP!="current"), aes(x=IUCNcat, y=SpeciesID))+
   geom_tile(aes(fill=coverage_change*100))+
-  scale_fill_gradient2(low="dodgerblue3", high="brown3", mid="white", name="Coverage [%]")+
+  scale_fill_gradient2(high="dodgerblue3", low="brown3", mid="white", name="Change in coverage [%]    ")+
   theme_bw()+
+  ylab("")+
   facet_wrap(vars(SSP), ncol=1)+
   theme(axis.text.x = element_text(angle=30, hjust=1),
-        legend.position=c(0.1, 0.85), legend.text = element_text(size=5), legend.title = element_text(size=5),
-        axis.text.y = element_text(size=5))
+        legend.position="top", legend.text = element_text(size=10), legend.title = element_text(size=15),
+        axis.text.y = element_text(size=10))
 
 require(gridExtra)
-png(paste0(here::here(), "/figures/ProtectionStatus_heatmap_", Taxon_name, ".png"), height=800, width=800)
+png(paste0(here::here(), "/figures/ProtectionStatus_heatmap_", Taxon_name, ".png"), height=1000, width=1000)
 grid.arrange(a, b, f, 
-             layout_matrix = rbind(c(1,1,1,1,1),
+             layout_matrix = rbind(c(1,1,1,3,3),
+                                   c(1,1,1,3,3),
+                                   #c(1,1,1,3,3),
+                                   c(2,2,2,3,3),
+                                   c(2,2,2,3,3),
+                                   c(2,2,2,3,3),
+                                   c(2,2,2,3,3),
                                    c(2,2,2,3,3),
                                    c(2,2,2,3,3)))
 dev.off()
