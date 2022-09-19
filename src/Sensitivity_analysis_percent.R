@@ -67,7 +67,7 @@ doParallel::registerDoParallel(no.cores)
 data_sens <- mySpeciesOcc %>% dplyr::select(x,y)
 
 for(no_replicate in c("01")){ #, "02", "03", "04", "05", "06", "07", "08", "09", "10"
-  for(no_subset in c(75, 90)){ # 50,
+  for(no_subset in c(50, 75, 90)){ # 50,
     for(spID in temp_species) {
       temp_records <- mySpeciesOcc[!is.na(mySpeciesOcc[,spID]),] %>%
         dplyr::select(x,y,spID) %>%
@@ -87,6 +87,7 @@ write.csv(data_sens, paste0(here::here(), "/results/", Taxon_name, "/_Sensitivit
 data_sens <- read.csv(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_data/SensAna_records.csv"))
 
 temp_species <- colnames(data_sens %>% dplyr::select(-x, -y))
+#temp_species <- temp_species[str_detect(temp_species, "50")]
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all selected species ####
@@ -727,8 +728,13 @@ load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/SDM_sta
 
 full_stack <- full_stack %>% filter(subset<100)
 
+no_subset <- 90
+
+# load uncertainty extent
+load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
+
 # plot change in distribution
-png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, ".png"),width=500, height=1000)
+png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)
 print(ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
         xlim(-10, 30) +
@@ -736,11 +742,10 @@ print(ggplot()+
         
         geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change)) %>% filter(Richness!=0 & Richness_full!=0)), 
                   aes(x=x, y=y, fill=Change_f))+
-        ggtitle(paste0("Change in species richness (number of species)"))+
+        ggtitle(paste0("Change in species richness (number of species)"), subtitle=no_subset)+
         scale_fill_manual(breaks=c("[10,20]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"), 
                           values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
         geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(Change==0)), aes(x=x, y=y), fill="linen")+
-        facet_grid(vars(subset))+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = c(0.1,0.95)))
