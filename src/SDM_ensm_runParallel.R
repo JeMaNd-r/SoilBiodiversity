@@ -989,8 +989,9 @@ print(ggplot()+
     geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
 		aes(x=x, y=y, fill=Change_f))+
     ggtitle(paste0("Change in species richness (number of species)"))+
-    scale_fill_viridis_d(breaks=c("[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-		geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change==0)), aes(x=x, y=y), fill="lightblue")+
+		scale_fill_manual(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), 
+		                    values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
+		geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change==0)), aes(x=x, y=y), fill="linen")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.4)))
@@ -1007,8 +1008,9 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp126))+
         ggtitle(paste0("Change in species richness (number of species) SSP126"))+
-        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp126==0)), aes(x=x, y=y), fill="lightblue")+
+        scale_fill_manual(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), 
+                          values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp126==0)), aes(x=x, y=y), fill="linen")+
         theme_bw()+
         guides(fill = guide_legend(label.position = "left", label.hjust = 1))+
         theme(axis.title = element_blank(), legend.title = element_blank(),
@@ -1026,8 +1028,9 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp370))+
         ggtitle(paste0("Change in species richness (number of species) SSP370"))+
-        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp370==0)), aes(x=x, y=y), fill="lightblue")+
+        scale_fill_manual(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), 
+                          values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp370==0)), aes(x=x, y=y), fill="linen")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = "right"))
@@ -1044,8 +1047,9 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
                   aes(x=x, y=y, fill=Change_f_ssp585))+
         ggtitle(paste0("Change in species richness (number of species) SSP585"))+
-        scale_fill_viridis_d(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), option="B")+
-        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp585==0)), aes(x=x, y=y), fill="lightblue")+
+        scale_fill_manual(breaks=c("[10,15]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-15,-10]"), 
+                          values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
+        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp585==0)), aes(x=x, y=y), fill= "linen")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = "right"))
@@ -1086,7 +1090,7 @@ average_stack %>% filter(No_change==-3) %>% count()
 average_stack %>% filter(No_change==3) %>% count()
 average_stack %>% filter(No_change==0) %>% count()
 
-average_stack$No_change <- factor(average_stack$No_change, levels = c("3", "2", "1", "mixed", "no changes", "-1", "-2", "-3"))
+average_stack$No_change <- factor(average_stack$No_change, levels = c("3", "2", "1", "no changes", "mixed", "-1", "-2", "-3"))
 
 # plot number scenarios that predict gain/loss/no change
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_noScenarios_", Taxon_name, ".png"), width=1100, height=1000)
@@ -1099,7 +1103,7 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change))), 
                   aes(x=x, y=y, fill=No_change))+
         ggtitle(paste0("Agreement between SSP scenarios"))+
-        scale_fill_manual(values=c("brown4", "brown2", "darksalmon", "sandybrown", "linen", "lightblue", "steelblue2", "steelblue4"))+
+        scale_fill_manual(values=c("steelblue4", "steelblue2", "lightblue", "linen", "sandybrown", "darksalmon", "brown2", "brown4"))+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
               legend.position = "right"))
