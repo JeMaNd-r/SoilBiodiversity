@@ -1,0 +1,70 @@
+RStudioGD 
+        2 
+ contrast estimate      SE     df t.ratio p.value
+ P - T      0.1911 0.00615 997241  31.080  <.0001
+ P - TP     0.2645 0.00615 997241  43.028  <.0001
+ T - TP     0.0735 0.00615 997241  11.948  <.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates 
+ contrast estimate      SE     df t.ratio p.value
+ P - T      0.1911 0.00615 997241  31.080  <.0001
+ P - TP     0.2645 0.00615 997241  43.028  <.0001
+ T - TP     0.0735 0.00615 997241  11.948  <.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates 
+ contrast estimate      SE     df t.ratio p.value
+ P - T      0.1911 0.00758 997243  25.199  <.0001
+ P - TP     0.2645 0.00758 997243  34.886  <.0001
+ T - TP     0.0735 0.00758 997243   9.687  <.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates 
+uals 997251 24717272    24.8                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+[1] "###################################################"
+
+Call:
+lm(formula = Mean ~ Dist_Coast + CEC + Elev + P + Pop_Dens + 
+    Agriculture + pH + Clay.Silt + climate, data = full_stack)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-52.663  -2.087  -0.333   1.844  14.883 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  4.552153   0.005469  832.33   <2e-16 ***
+Dist_Coast  -0.359333   0.003260 -110.24   <2e-16 ***
+CEC         -0.429947   0.003860 -111.38   <2e-16 ***
+Elev        -1.137501   0.005017 -226.74   <2e-16 ***
+P            3.009476   0.003586  839.23   <2e-16 ***
+Pop_Dens     0.901757   0.003467  260.06   <2e-16 ***
+Agriculture -2.441082   0.004987 -489.52   <2e-16 ***
+pH           0.468904   0.005773   81.22   <2e-16 ***
+Clay.Silt    2.728906   0.004494  607.17   <2e-16 ***
+climateT    -0.191068   0.007582  -25.20   <2e-16 ***
+climateTP   -0.264518   0.007582  -34.89   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 3.091 on 997243 degrees of freedom
+  (11059230 observations deleted due to missingness)
+Multiple R-squared:  0.6146,	Adjusted R-squared:  0.6146 
+F-statistic: 1.591e+05 on 10 and 997243 DF,  p-value: < 2.2e-16
+
+Analysis of Variance Table
+
+Response: Mean
+                Df  Sum Sq Mean Sq  F value    Pr(>F)    
+Dist_Coast       1   77391   77391   8098.8 < 2.2e-16 ***
+CEC              1   16928   16928   1771.5 < 2.2e-16 ***
+Elev             1  744402  744402  77899.4 < 2.2e-16 ***
+P                1 7078498 7078498 740742.9 < 2.2e-16 ***
+Pop_Dens         1 1641898 1641898 171819.6 < 2.2e-16 ***
+Agriculture      1  834563  834563  87334.4 < 2.2e-16 ***
+pH               1 1271088 1271088 133015.5 < 2.2e-16 ***
+Clay.Silt        1 3522903 3522903 368660.8 < 2.2e-16 ***
+climate          2   12396    6198    648.6 < 2.2e-16 ***
+Residuals   997243 9529599      10                       
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
