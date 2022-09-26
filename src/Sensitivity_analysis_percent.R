@@ -285,7 +285,7 @@ foreach(spID = temp_species,
 
           }) # end of try loop
           
-          print(paste0("The model input data is now saved for ", Taxon_name, ": ", spID, "."))
+          print(paste0("The model was now built for ", Taxon_name, ": ", spID, "."))
           
         }
 
@@ -428,6 +428,10 @@ species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(su
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save species stack ####
 species_stack_full <- species_stack
+
+species_stack <- species_stack_full %>% filter(no_subset==50)
+save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_50.RData"))
+
 species_stack <- species_stack_full %>% filter(no_subset==75)
 save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_75.RData"))
 
@@ -442,7 +446,7 @@ rm(species_stack_full, species_stack)
 # load environmental space as data frame
 load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
 
-for(no_subset in c(75, 90)){
+for(no_subset in c(50, 75, 90)){
   uncertain_df <- Env_norm_df %>% dplyr::select(x, y)
   
   for(spID in temp_species[str_detect(temp_species, as.character(no_subset))]){try({
@@ -487,7 +491,7 @@ for(no_subset in c(75, 90)){
 
 ## Plotting
 
-for(no_subset in c(75, 90)){
+for(no_subset in c(50, 75, 90)){
   load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_", Taxon_name,"_", no_subset,  ".RData")) #uncertain_df
   
   # view uncertainty in map 
@@ -521,7 +525,7 @@ for(no_subset in c(75, 90)){
 # species richness
 world.inp <- map_data("world")
 
-for(no_subset in c(75, 90)){ try({
+for(no_subset in c(50, 75, 90)){ try({
   # load uncertainty extent
   load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
   
@@ -548,7 +552,7 @@ while (!is.null(dev.list()))  dev.off()
 
 
 # map binary species distributions
-for(no_subset in c(75, 90)){
+for(no_subset in c(50,75, 90)){
 load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
 species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
@@ -592,7 +596,7 @@ full_stack <- get(load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestP
 full_stack <- full_stack %>% dplyr::select(x,y,Richness)
 full_stack$subset <- 100
 
-for(no_subset in c(75, 90)){		
+for(no_subset in c(50, 75, 90)){		
 	load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 	
 	species_stack$subset <- no_subset
@@ -666,6 +670,8 @@ rownames(temp_df) <- NULL
 temp_df$subset <- no_subset
 head(temp_df)
 
+range_df <- range_df %>% full_join(temp_df)
+
 no_subset <- 90
 load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
@@ -697,7 +703,7 @@ range_sum$area_km2_change_p <- range_sum$area_km2_change / range_sum$area_km2_fu
 
 range_sum %>% left_join(speciesNames %>% dplyr::select(SpeciesID, NumCells_2km, Species_final)) %>% arrange(subset, area_km2_change_p)
 
-range_sum %>% dplyr::select(-subset) %>% group_by(SpeciesID) %>% summarize_all(mean)
+range_sum %>% dplyr::select(-subset) %>% group_by(SpeciesID) %>% summarize_all(mean) %>% arrange(area_km2_change_p)
 range_sum %>% dplyr::select(-subset) %>% group_by(SpeciesID) %>% summarize_all(sd)
 
 range_sum %>% arrange(subset, area_km2_change_p)
@@ -728,30 +734,31 @@ load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/SDM_sta
 
 full_stack <- full_stack %>% filter(subset<100)
 
-no_subset <- 90
 
-# load uncertainty extent
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
+for(no_subset in c(50, 75, 90)){
+  
+  # load uncertainty extent
+  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
+  
+  # plot change in distribution
+  png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)
+  print(ggplot()+
+          geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+          xlim(-10, 30) +
+          ylim(35, 70) +
+          
+          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change)) %>% filter(Richness!=0 & Richness_full!=0)), 
+                    aes(x=x, y=y, fill=Change_f))+
+          ggtitle(paste0("Change in species richness (number of species)"), subtitle=no_subset)+
+          scale_fill_manual(breaks=c("[10,20]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"), 
+                            values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
+          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(Change==0)), aes(x=x, y=y), fill="linen")+
+          theme_bw()+
+          theme(axis.title = element_blank(), legend.title = element_blank(),
+                legend.position = c(0.1,0.95)))
+  dev.off()
 
-# plot change in distribution
-png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)
-print(ggplot()+
-        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-10, 30) +
-        ylim(35, 70) +
-        
-        geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change)) %>% filter(Richness!=0 & Richness_full!=0)), 
-                  aes(x=x, y=y, fill=Change_f))+
-        ggtitle(paste0("Change in species richness (number of species)"), subtitle=no_subset)+
-        scale_fill_manual(breaks=c("[10,20]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"), 
-                          values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
-        geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(Change==0)), aes(x=x, y=y), fill="linen")+
-        theme_bw()+
-        theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.95)))
-dev.off()
-
-
+}
 
 
 

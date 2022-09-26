@@ -6,27 +6,27 @@ lm(formula = Richness ~ subset + MAT + Dist_Coast + MAP_Seas +
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--49.086  -1.938  -0.183   1.800  12.691 
+-49.027  -1.922  -0.197   1.783  12.745 
 
 Coefficients:
-              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  2.5903219  0.0248205  104.36   <2e-16 ***
-subset       0.0150599  0.0002773   54.30   <2e-16 ***
-MAT          3.5750593  0.0071870  497.43   <2e-16 ***
-Dist_Coast  -0.5097209  0.0030342 -167.99   <2e-16 ***
-MAP_Seas    -3.3855352  0.0060072 -563.58   <2e-16 ***
-CEC         -0.4671165  0.0036258 -128.83   <2e-16 ***
-Elev        -0.3954098  0.0049081  -80.56   <2e-16 ***
-P            2.6649490  0.0037459  711.43   <2e-16 ***
-Pop_Dens     0.7624677  0.0032007  238.22   <2e-16 ***
-Agriculture -2.7409327  0.0046290 -592.12   <2e-16 ***
-pH          -0.3967803  0.0059902  -66.24   <2e-16 ***
-Clay.Silt    2.2643581  0.0042599  531.56   <2e-16 ***
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.871835   0.010797  265.98   <2e-16 ***
+subset       0.011976   0.000130   92.11   <2e-16 ***
+MAT          3.501310   0.006176  566.88   <2e-16 ***
+Dist_Coast  -0.443393   0.002608 -170.04   <2e-16 ***
+MAP_Seas    -3.323344   0.005163 -643.74   <2e-16 ***
+CEC         -0.465097   0.003116 -149.26   <2e-16 ***
+Elev        -0.418718   0.004218  -99.27   <2e-16 ***
+P            2.665607   0.003219  828.04   <2e-16 ***
+Pop_Dens     0.750836   0.002751  272.96   <2e-16 ***
+Agriculture -2.736370   0.003978 -687.86   <2e-16 ***
+pH          -0.353049   0.005148  -68.58   <2e-16 ***
+Clay.Silt    2.228528   0.003661  608.74   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.845 on 997242 degrees of freedom
-  (1669773 observations deleted due to missingness)
-Multiple R-squared:  0.7288,	Adjusted R-squared:  0.7288 
-F-statistic: 2.437e+05 on 11 and 997242 DF,  p-value: < 2.2e-16
+Residual standard error: 2.824 on 1329660 degrees of freedom
+  (2226364 observations deleted due to missingness)
+Multiple R-squared:  0.728,	Adjusted R-squared:  0.728 
+F-statistic: 3.235e+05 on 11 and 1329660 DF,  p-value: < 2.2e-16
 
