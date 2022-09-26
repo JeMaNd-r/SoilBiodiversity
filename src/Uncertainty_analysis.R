@@ -65,7 +65,12 @@ ggplot()+
   theme_bw()+  
  
   theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position ="bottom",legend.direction = "horizontal")
+        legend.position ="bottom",legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
 dev.off()
 
 # extract area with uncertainty lower than threshold
@@ -87,7 +92,12 @@ ggplot()+
   geom_tile(data=uncertain_df %>% filter(Mean>=temp_thresh), aes(x=x, y=y), fill="linen")+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4))
+        legend.position = c(0.1,0.4),
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
 dev.off()
 
 
@@ -107,7 +117,12 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
     scale_fill_viridis_c(option="E")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4))
+          legend.position = c(0.1,0.4),
+          axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank())
   })
 })
 

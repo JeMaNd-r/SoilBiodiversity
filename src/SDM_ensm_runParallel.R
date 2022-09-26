@@ -566,7 +566,12 @@ ggplot()+
   geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness==0), by=c("x","y")), aes(x=x, y=y), fill="grey60")+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
-        legend.position = c(0.1,0.9), legend.direction = "horizontal")
+        legend.position = c(0.1,0.9), legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
 dev.off()
 
 while (!is.null(dev.list()))  dev.off()
@@ -591,7 +596,12 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
       label.hjust = 0.5))+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = c(0.1,0.9), legend.direction = "horizontal",
-          legend.text = element_text(size=20))
+          legend.text = element_text(size=20),
+          axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank())
   })
 })
 
@@ -773,7 +783,7 @@ colnames(future_stack)
 save(future_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData"))
 load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData")) #future_stack
 
-# calculate species ranges (area)
+## Calculate species ranges (area) ####
 range_df <- data.frame("scenario"=colnames(future_stack), 
                        "cells"=colSums(future_stack, na.rm=T), 
                        "area_km2"=colSums(future_stack, na.rm=T)*5) %>%
@@ -835,7 +845,8 @@ ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
         axis.title = element_blank(),
         legend.text = element_text(size=20), legend.title = element_text(size=25),
         axis.text = element_text(size=15),
-        legend.direction = "vertical", legend.box = "horizontal") +
+        legend.direction = "vertical", legend.box = "horizontal",
+        panel.grid.major.y = element_blank(),  panel.grid.minor.y = element_blank()) +
   xlab("")
 dev.off()
 
@@ -1014,7 +1025,12 @@ print(ggplot()+
         theme_bw()+
         guides(fill = guide_legend(label.position = "left", label.hjust = 1))+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = "right"))
+              legend.position = "right",
+      axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      panel.background = element_blank()))
 dev.off()
 
 # ssp370 plot change in distribution
@@ -1033,7 +1049,12 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp370==0)), aes(x=x, y=y), fill="linen")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = "right"))
+              legend.position = "right",
+      axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      panel.background = element_blank()))
 dev.off()
 
 # ssp585 plot change in distribution
@@ -1052,7 +1073,12 @@ print(ggplot()+
         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Change_ssp585==0)), aes(x=x, y=y), fill= "linen")+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = "right"))
+              legend.position = "right",
+      axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      panel.background = element_blank()))
 dev.off()
 
 ## Agreement: Estimate number of scenarios that follow same trends ####
@@ -1092,9 +1118,12 @@ average_stack %>% filter(No_change==0) %>% count()
 
 average_stack$No_change <- factor(average_stack$No_change, levels = c("3", "2", "1", "no changes", "mixed", "-1", "-2", "-3"))
 
+save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_agreement_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_agreement_", Taxon_name, ".RData")) #average_stack
+
 # plot number scenarios that predict gain/loss/no change
 png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_change_noScenarios_", Taxon_name, ".png"), width=1100, height=1000)
-print(ggplot()+
+print({ggplot()+
         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
         xlim(-10, 30) +
         ylim(35, 70) +
@@ -1106,7 +1135,12 @@ print(ggplot()+
         scale_fill_manual(values=c("steelblue4", "steelblue2", "lightblue", "linen", "sandybrown", "darksalmon", "brown2", "brown4"))+
         theme_bw()+
         theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = "right"))
+              legend.position = "right",
+              axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_blank())})
 dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - -
@@ -1193,22 +1227,27 @@ pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table
 
 # transform to long format and add variable categories
 var_imp <- var_imp %>%
-  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+  left_join(pred_tab %>% dplyr::select(Predictor, Category, Long_name) %>%
+              mutate("Long_name"=str_replace_all(Long_name, "_", " ")), by="Predictor")
 
 # add category for clay.silt
 var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
+var_imp[var_imp$Predictor=="Clay.Silt","Long_name"] <- "Clay and silt content"
 
 # plot VIF
-plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Predictor, biomod), fill=Category))+
-  geom_boxplot(cex=0.2, outlier.size=1.5)+
-  geom_jitter(height=0.2, alpha=0.3)+
+plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Long_name, biomod), fill=Category))+
+  geom_boxplot(cex=0.2, outlier.size=1.5, show.legend = F)+
+  guides(fill=(guide_legend(override.aes=list(alpha = 1))))+
+  geom_point(alpha = 0, shape=21, show.legend = T)+
+  geom_jitter(height=0.2, alpha=0.3, show.legend = F)+
   ylab("")+
   theme_bw()+
   theme(axis.text.y = element_text(size = 25), axis.title = element_blank(), axis.text.x = element_text(size=15),
-        legend.position="bottom", legend.text = element_text(size=20), legend.title = element_blank())
+        legend.position=c(0.75, 0.15), legend.text = element_text(size=20), legend.title = element_blank(),
+        panel.grid.minor.y = element_blank(),panel.grid.major.y = element_blank())
 plotVarImp
 
-png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png"), height=600, width=600); plotVarImp; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png"), height=600, width=700); plotVarImp; dev.off()
 
 # plot barplot with top 10
 plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
