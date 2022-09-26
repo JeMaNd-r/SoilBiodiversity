@@ -1337,7 +1337,10 @@ library(emmeans)
 em1 <- emmeans::emmeans(lm1, "climate", data=full_stack)
 pairs(em1, adjust="tukey")
 
+png(paste0(here::here(), "/figures/Emmeans_lm1_climate_", Taxon_name, ".png"))
 plot(em1, comparison=T)
+dev.off()
+
 ggplot(data=full_stack, aes(x=climate, y=Mean))+
   geom_violin(width=1.4, alpha=0.7)+
   # geom_boxplot(width=0.1, color="black", fill="white", alpha=1)+
@@ -1354,7 +1357,10 @@ anova(lm2)
 
 em2 <- emmeans::emmeans(lm2, "climate", data=full_stack)
 pairs(em2, adjust="tukey")
+
+png(paste0(here::here(), "/figures/Emmeans_lm2_climate_", Taxon_name, ".png"))
 plot(em2, comparison=T)
+dev.off()
 
 lm_varImp <- data.frame("F_value"=anova(lm2)[,"F value"])
 lm_varImp$Predictor <- rownames(anova(lm2))
@@ -1389,9 +1395,11 @@ emmip(lm2, ~ climate, CIs = TRUE)
 sink(paste0(here::here(), "/results/Summary_lm2_Crassiclitellata_climate.txt"))
 print(summary(lm1))
 print(anova(lm1))
+print(em1)
 print("###################################################")
 print(summary(lm2))
 print(anova(lm2))
+print(em2)
 sink()
 
 
