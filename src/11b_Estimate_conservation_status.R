@@ -403,9 +403,16 @@ cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% filter
 cover_df %>% filter(SpeciesID=="_Mean") %>% dplyr::select(-SpeciesID) %>% arrange(coverage_km2)
 
 # categories Ia and Ib coverage
+cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
 cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
 max(cover_df[cover_df$IUCNcat=="Ia",]$coverage)
 max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
+
+cover_sr %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_sr %>% group_by(IUCNcat) %>% summarize_all(sd)
+
+cover_matrix %>% group_by(IUCNcat) %>% 
 
 # save mean coverage in km2 per IUCN protected area type
 write.csv(cover_df %>% 
