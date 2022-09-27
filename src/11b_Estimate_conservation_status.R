@@ -271,6 +271,12 @@ cover_matrix <- cover_sr %>% pivot_longer(cols=ssp126_mean:ssp585_mean, names_to
   mutate("name"="Species richness")
 cover_matrix$SR_change <- cover_matrix$current_mean - cover_matrix$SR
 
+cover_matrix %>% dplyr::select(-x, -y, -name) %>% filter(SSP!="current") %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_matrix %>% dplyr::select(-x, -y, -name)%>% filter(SSP!="current") %>% group_by(IUCNcat) %>% summarize_all(sd)
+cover_matrix %>% dplyr::select(-x, -y, -name) %>% filter(SSP!="current") %>% group_by(IUCNcat) %>% summarize_all(max)
+cover_matrix %>% dplyr::select(-x, -y, -name) %>% filter(SSP!="current") %>% group_by(IUCNcat) %>% summarize_all(min)
+
+
 # change in protection in species richness
 c <- ggplot(cover_matrix %>% filter(IUCNcat!="Outside.PA" & SSP!="current" & IUCNcat!="Presence" & IUCNcat!="Protected"), aes(x=SSP, y=name))+
   geom_tile(aes(fill=SR_change))+
@@ -412,7 +418,10 @@ max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
 cover_sr %>% group_by(IUCNcat) %>% summarize_all(mean)
 cover_sr %>% group_by(IUCNcat) %>% summarize_all(sd)
 
-cover_matrix %>% group_by(IUCNcat) %>% 
+cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
+
+
 
 # save mean coverage in km2 per IUCN protected area type
 write.csv(cover_df %>% 
