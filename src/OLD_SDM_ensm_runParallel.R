@@ -13,32 +13,18 @@ gc()
 library(tidyverse)
 library(here)
 
-# read functions for ensemble of small moels (ESM)
-#devtools::source_url("https://raw.githubusercontent.com/cran/ecospat/master/R/ecospat.ESM.R")
-library(ecospat)
-source("ecospat_function_fixed.R")
-
 library(raster)
 
 library(biomod2) # also to create pseudo-absences
 
-library(usdm) # for variable inflation factor calculation
-
-# for model performance:
-library(precrec)
 library(ggplot2) # for plotting the curves
-# devtools::install_github("meeliskull/prg/R_package/prg")
-library(prg)
 library(ggpubr)
-library (ROCR)
-library(sdm) # to calculate kappa
+
 library(parallel)
 library(doParallel)
 
 # plotting
-library(GGally) #for correlations with ggpairs
 library(gridExtra)
-library(treemap)
 
 #write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 
@@ -48,8 +34,8 @@ library(treemap)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-#speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
-speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
+speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+#speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)

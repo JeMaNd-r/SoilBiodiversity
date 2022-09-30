@@ -5,6 +5,23 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(raster)
+
+#write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+
+# change temporary directory for files
+#raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+
 # Note: to run the other grid, you have to comment & un-comment 4 lines
 
 ## load grid

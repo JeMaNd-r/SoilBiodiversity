@@ -5,6 +5,17 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+#library(CoordinateCleaner)
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+
 ## Load data ####
 
 # use data downloaded via R script
@@ -95,22 +106,22 @@ print(round((as.numeric(df_cleaning[2,2]) - nrow(dat_cl)) / as.numeric(df_cleani
 # 
 # # remove flagged records from the clean data (i.e., only keep non-flagged ones)
 # dat_cl <- dat_cl[flags$.summary, ]
-
-## Plot flagged records
-world.inp <- map_data("world")
-
-pdf(paste0(here::here(), "/figures/CoordinateCleaner_flagged_records_Crassiclitellata_1970.pdf"), width=18, height=6)
-  ggplot() +
-    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(min(dat$decimalLongitude, na.rm = T), max(dat$decimalLongitude, na.rm = T)) +
-    ylim(min(dat$decimalLatitude, na.rm = T), max(dat$decimalLatitude, na.rm = T)) +
-    geom_point(data = dat, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkred", size = 1, show.legend = T) +
-    geom_point(data = dat_cl, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkgreen", size = 1, show.legend = T) +
-    coord_fixed() +
-    scale_color_manual(name='ManualCleaning',
-                       values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+
-    theme_bw() + theme(axis.title = element_blank())
-dev.off()
+# 
+# ## Plot flagged records
+# world.inp <- map_data("world")
+# 
+# pdf(paste0(here::here(), "/figures/CoordinateCleaner_flagged_records_Crassiclitellata_1970.pdf"), width=18, height=6)
+#   ggplot() +
+#     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#     xlim(min(dat$decimalLongitude, na.rm = T), max(dat$decimalLongitude, na.rm = T)) +
+#     ylim(min(dat$decimalLatitude, na.rm = T), max(dat$decimalLatitude, na.rm = T)) +
+#     geom_point(data = dat, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkred", size = 1, show.legend = T) +
+#     geom_point(data = dat_cl, aes(x = decimalLongitude, y = decimalLatitude), colour = "darkgreen", size = 1, show.legend = T) +
+#     coord_fixed() +
+#     scale_color_manual(name='ManualCleaning',
+#                        values=c('RawRecords = red'='darkred', 'CleanRecords = green'='darkgreen'))+
+#     theme_bw() + theme(axis.title = element_blank())
+# dev.off()
 
 
 # filter data columns

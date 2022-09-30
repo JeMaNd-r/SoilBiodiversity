@@ -5,6 +5,25 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(raster)
+
+library(usdm)
+library(caret)
+
+#write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+
+# change temporary directory for files
+#raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+
+#- - - - - - - - - - - - - - - - - - - - -
+# note: we will load the datasets before each individual model
+
 # load environmental space
 Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 

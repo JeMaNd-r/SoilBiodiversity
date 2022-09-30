@@ -1,0 +1,81 @@
+#- - - - - - - - - - - - - - - - - - - - - -#
+#                                           #
+#         Extract uncertainty               #
+#          author: Romy Zeiss               #
+#                                           #
+#- - - - - - - - - - - - - - - - - - - - - -#
+
+
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(raster)
+
+#write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
+
+# change temporary directory for files
+#raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+#speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
+speciesSub <- c(speciesSub$SpeciesID)
+
+# load environmental space as data frame
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+
+uncertain_df <- Env_norm_df %>% dplyr::select(x, y)
+
+for(spID in unique(speciesNames$SpeciesID)){try({
+  
+  print(paste0("Species: ", spID))
+
+  # list files in species-specific BIOMOD folder
+  temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", "."), "/proj_modeling"), full.names = TRUE)
+          
+  #setwd(paste0(here::here(), "/results/", Taxon_name))
+
+  myBiomodEnProj <- get(load(temp_files[stringr::str_detect(temp_files,"ensemble.RData")]))
+       
+  # save predictions as raster file
+  temp_prediction <- myBiomodEnProj[,1]
+  temp_prediction <- as.numeric(temp_prediction)
+  # add names of grid cell (only for those that have no NA in any layer)
+  names(temp_prediction) <- rownames(Env_norm_df)
+  temp_prediction <- as.data.frame(temp_prediction)
+  temp_prediction$x <- Env_norm_df$x
+  temp_prediction$y <- Env_norm_df$y
+  temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+     rename("layer" = temp_prediction)
+  temp_prediction$layer <- temp_prediction$layer / 1000
+  temp_prediction[,spID] <- temp_prediction$layer
+          
+  # add layer to stack
+  uncertain_df <- full_join(uncertain_df, temp_prediction %>% dplyr::select(x,y, spID))
+ 
+})}
+
+uncertain_df$Mean <- rowMeans(uncertain_df %>% dplyr::select(-x, -y), na.rm=T)
+
+# calculate sd of predictions
+uncertain_df$SD <- apply(uncertain_df %>% dplyr::select(-x, -y, -Mean), 1, sd, na.rm = TRUE)
+
+head(uncertain_df)
+
+# save species' uncertainty map
+save(uncertain_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, ".RData")) #uncertain_df
+
+
+# extract area with uncertainty lower than threshold
+summary(uncertain_df$Mean)
+
+extent_df <- uncertain_df %>% filter(Mean<0.1 & !is.na(Mean)) %>% dplyr::select(x,y)
+save(extent_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData"))
+
+

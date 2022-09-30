@@ -5,6 +5,17 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(rgbif)
+#library(taxize)
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
 #taxize::get_ids("Lumbricus terrestris")
 
 # get style of taxon name(s) in GBIF database

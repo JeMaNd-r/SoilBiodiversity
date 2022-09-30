@@ -5,10 +5,9 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
-#setwd("~/share/groups/eie/==PERSONAL/RZ_SoilBON/SoilBiodiversity_RStudio")
+#setwd("D:/_students/Romy/SoilBiodiversity")
 
 options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx8g")) # expand Java memory
-#Sys.setenv(JAVA_HOME='\\home\\idivrz90seqi\\share\\groups\\eie\\==PERSONAL\\RZ_SoilBON\\SoilBiodiversity_RStudio')
 
 gc()
 library(tidyverse)
@@ -26,17 +25,6 @@ library(dismo) # for MaxEnt and BRT
 #         "/maxent.jar"), mode = "wb")  ## wb for binary file, otherwise maxent.jar can not execute
 
 library(rJava)
-
-# for model performance:
-library(precrec)
-# devtools::install_github("meeliskull/prg/R_package/prg")
-library(prg)
-library(ggpubr)
-library (ROCR)
-library(sdm) # to calculate kappa
-
-library(gridExtra) #to plot multiple panels
-
 
 #write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 

@@ -5,6 +5,19 @@
 #       date: 18.08.2021          #
 #- - - - - - - - - - - - - - - - -#
 
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(CoordinateCleaner)
+
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+
 # - - - - - - - - - - - - - - - - - - -
 ## Data from sWorm ####
 sworm_occ <- readr::read_csv(file=paste0(here::here(), "/data/SppOccData_sWorm_v2.csv"))
