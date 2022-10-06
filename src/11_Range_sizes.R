@@ -63,6 +63,8 @@ range_sum
 
 range_sum$area_km2_change <- range_sum$area_km2_mean - range_sum$area_km2
 range_sum$area_km2_change_p <- range_sum$area_km2_change / range_sum$area_km2
+range_sum$area_km2_p_sd <- range_sum$area_km2_sd / range_sum$area_km2
+
 range_sum %>% arrange(area_km2_change_p)
 mean(range_sum$area_km2_change_p); sd(range_sum$area_km2_change_p)
 
