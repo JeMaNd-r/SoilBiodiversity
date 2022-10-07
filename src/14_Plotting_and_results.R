@@ -196,7 +196,7 @@ ggplot()+
 dev.off()
 
 
-temp_thresh <- 0.10
+temp_thresh <- 0.1
 png(file=paste0(here::here(), "/figures/Uncertainty_", temp_thresh, "_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
@@ -450,13 +450,14 @@ plots <- lapply(unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"]
   temp_data <- extent_df %>% inner_join(future_stack[,c(col_future, "x", "y")] %>% 
                                           full_join(species_stack[,c(col_current, "x", "y")]))
   temp_data[,paste(s, "_change")] <- temp_data[,col_future] - temp_data[,col_current]
+  temp_data[temp_data[,col_future]==0 & temp_data[,col_current]==0,paste(s, "_change")] <- NA
   temp_data[,paste(s, "_change_f")] <- as.factor(round(temp_data[,paste(s, "_change")]))
   
   ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
-    annotate(geom="text", x=-10, y=72, label=s, color="black", size=15)+
+    xlim(-10, 30) +
+    ylim(35, 70) +
+    annotate(geom="text", x=-3, y=68, label=s, color="black", size=15)+
     
     geom_tile(data=temp_data[!is.na(temp_data[,paste(s, "_change")]),], 
               aes(x=x, y=y, fill=temp_data[!is.na(temp_data[,paste(s, "_change")]),paste(s, "_change")]))+
@@ -467,7 +468,12 @@ plots <- lapply(unique(speciesNames[speciesNames$NumCells_2km>=100, "SpeciesID"]
     
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4), legend.text = element_text(size = 15))
+          legend.position = c(0.1,0.8), legend.text = element_text(size = 15), legend.direction = "horizontal",
+          axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank())
 })})
 require(gridExtra)
 png(file=paste0(here::here(), "/figures/DistributionMap_2041-2070_change_", Taxon_name, ".png"),width=3000, height=3000)
