@@ -109,5 +109,77 @@ cover_sr <- cover_sr %>% full_join(cover_sr_current %>% mutate("current_mean"=Ri
 
 save(cover_sr, file=paste0(here::here(), "/results/ProtectionStatus_SR_SSPs_", Taxon_name, ".csv"))
 
+# merge protected and species stack
+species_stack <- future_stack %>% dplyr::select(x,y)
+# calculate average per SSP
+for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
+  for(temp_species in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){try({
+    print(paste0(temp_ssp, " and ", temp_species))
+    temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), temp_ssp)]
+    temp_cols <- temp_cols[stringr::str_detect(temp_cols, temp_species)]
+    species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_mean"))] <- rowMeans(future_stack[,temp_cols])
+    #species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_max"))] <- matrixStats::rowMaxs(as.matrix(future_stack[,temp_cols]))
+    #species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_min"))] <- matrixStats::rowMins(as.matrix(future_stack[,temp_cols]))
+    species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_sd"))] <- matrixStats::rowSds(as.matrix(future_stack[,temp_cols]))
+  })}}
+colnames(species_stack)
 
+save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_meanSSP_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_meanSSP_", Taxon_name, ".RData")) #species_stack
+
+df <- dplyr::full_join(protect_df, species_stack[,c("x", "y", colnames(species_stack)[str_detect(colnames(species_stack), "_ssp[:digit:]{3}_mean")])], by=c("x", "y"))
+head(df)
+
+rm(species_stack); gc()
+
+# create empty dataframe
+cover_df <- data.frame("IUCNcat" = "I", "sumCell"=1, "SpeciesID"="species", "coverage"=1, "SSP"="ssp000")[0,]
+
+for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
+  
+  # calculate percent of coverage per species and IUCN category
+  for(sp in unique(paste0(speciesNames$SpeciesID, "_", temp_ssp, "_mean"))){ try({
+    temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), sp)])]
+    temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), sp)]]
+    temp_df <- temp_df[,c(names(protect_df %>% dplyr::select(-x, -y)), "Presence")]
+    
+    # keep only presence rows
+    temp_df <- temp_df[temp_df[,"Presence"]==1 & !is.na(temp_df[,"Presence"]),]
+    
+    # calculate sum of all columns (will give you coverage)
+    temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))
+    temp_cover <- temp_cover %>%
+      add_row("IUCNcat"="Unprotected", 
+              "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T))) %>%
+      add_row("IUCNcat"="Outside.PA", 
+              "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI, Not.Assigned, Not.Reported, Not.Applicable), na.rm=T))) %>%
+      add_row("IUCNcat"="Protected", 
+              "sumCell"=sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T)))
+    
+    temp_cover$SpeciesID <- sp
+    temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"], na.rm=T),4)
+    
+    temp_cover$SSP <- c(rep(temp_ssp, nrow(temp_cover)))
+    
+    cover_df <- rbind(cover_df, temp_cover)
+    rm(temp_cover, temp_df)
+    
+    print(paste0("Species ", sp, " is ready."))
+    
+  }, silent=TRUE)}
+  
+  #cover_sr$layer <- as.numeric(cover_sr[,paste0(temp_ssp, "_mean")] %>% unlist())
+  #cover_sr$layer_sd <- as.numeric(cover_sr[,paste0(temp_ssp, "_mean")] %>% unlist())
+}
+
+cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
+cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage))
+
+cover_df <- full_join(cover_df, 
+                      cbind(cover_df %>% group_by(IUCNcat, SSP) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), 
+                            "SpeciesID"=paste0("_Mean")))
+
+cover_df
+
+write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_SSPs_", Taxon_name, ".csv"), row.names=F)
   

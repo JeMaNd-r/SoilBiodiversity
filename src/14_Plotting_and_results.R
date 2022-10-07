@@ -655,6 +655,50 @@ print({ggplot()+
           panel.background = element_blank())})
 dev.off()
 
+
+# where do scenarios disagree?
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Gain==3)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Loss==-3)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & No_change=="mixed")))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & No_change=="mixed")))*5
+
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Unchanged==1)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp126_unchanged==1)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp370_unchanged==1)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp585_unchanged==1)))/nrow(extent_df)
+
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Change_ssp126==0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Change_ssp370==0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Change_ssp585==0)))/nrow(extent_df)
+
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp126_loss!=0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp370_loss!=0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp585_loss!=0)))/nrow(extent_df)
+
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp126_gain!=0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp370_gain!=0)))/nrow(extent_df)
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp585_gain!=0)))/nrow(extent_df)
+
+# where are all species lost?
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0)))*5
+summary(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0)) %>% dplyr::select(Richness))
+
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  
+  geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0)), 
+            aes(x=x, y=y, fill=Richness))+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = "right",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
 #- - - - - - - - - - - - - - - - - - - - -
 ## Which species are lost? ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -744,79 +788,7 @@ png(paste0(here::here(), "/figures/ProtectionStatus_current_", Taxon_name, ".png
 grid.arrange(a, b, heights=c(1,1))
 dev.off()
 
-# merge protected and species stack
-species_stack <- future_stack %>% dplyr::select(x,y)
-# calculate average per SSP
-for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
-  for(temp_species in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){try({
-    print(paste0(temp_ssp, " and ", temp_species))
-    temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), temp_ssp)]
-    temp_cols <- temp_cols[stringr::str_detect(temp_cols, temp_species)]
-    species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_mean"))] <- rowMeans(future_stack[,temp_cols])
-    #species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_max"))] <- matrixStats::rowMaxs(as.matrix(future_stack[,temp_cols]))
-    #species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_min"))] <- matrixStats::rowMins(as.matrix(future_stack[,temp_cols]))
-    species_stack[,as.character(paste0(temp_species, "_", temp_ssp, "_sd"))] <- matrixStats::rowSds(as.matrix(future_stack[,temp_cols]))
-  })}}
-colnames(species_stack)
-
-save(species_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_meanSSP_", Taxon_name, ".RData"))
-load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_meanSSP_", Taxon_name, ".RData")) #species_stack
-
-df <- dplyr::full_join(protect_df, species_stack[,c("x", "y", colnames(species_stack)[str_detect(colnames(species_stack), "_ssp[:digit:]{3}_mean")])], by=c("x", "y"))
-head(df)
-
-rm(species_stack); gc()
-
-# create empty dataframe
-cover_df <- data.frame("IUCNcat" = "I", "sumCell"=1, "SpeciesID"="species", "coverage"=1, "SSP"="ssp000")[0,]
-
-for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
-  
-  # calculate percent of coverage per species and IUCN category
-  for(sp in unique(paste0(speciesNames$SpeciesID, "_", temp_ssp, "_mean"))){ try({
-    temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), sp)])]
-    temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), sp)]]
-    temp_df <- temp_df[,c(names(protect_df %>% dplyr::select(-x, -y)), "Presence")]
-    
-    # keep only presence rows
-    temp_df <- temp_df[temp_df[,"Presence"]==1 & !is.na(temp_df[,"Presence"]),]
-    
-    # calculate sum of all columns (will give you coverage)
-    temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))
-    temp_cover <- temp_cover %>%
-      add_row("IUCNcat"="Unprotected", 
-              "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T))) %>%
-      add_row("IUCNcat"="Outside.PA", 
-              "sumCell"=temp_cover[temp_cover$IUCNcat=="Presence","sumCell"]-sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI, Not.Assigned, Not.Reported, Not.Applicable), na.rm=T))) %>%
-      add_row("IUCNcat"="Protected", 
-              "sumCell"=sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T)))
-    
-    temp_cover$SpeciesID <- sp
-    temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"], na.rm=T),4)
-    
-    temp_cover$SSP <- c(rep(temp_ssp, nrow(temp_cover)))
-    
-    cover_df <- rbind(cover_df, temp_cover)
-    rm(temp_cover, temp_df)
-    
-    print(paste0("Species ", sp, " is ready."))
-    
-  }, silent=TRUE)}
-  
-  #cover_sr$layer <- as.numeric(cover_sr[,paste0(temp_ssp, "_mean")] %>% unlist())
-  #cover_sr$layer_sd <- as.numeric(cover_sr[,paste0(temp_ssp, "_mean")] %>% unlist())
-}
-
-cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
-cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage))
-
-cover_df <- full_join(cover_df, 
-                      cbind(cover_df %>% group_by(IUCNcat, SSP) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), 
-                            "SpeciesID"=paste0("_Mean")))
-
-cover_df
-
-write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_SSPs_", Taxon_name, ".csv"), row.names=F)
+## Load future protection
 cover_df <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_SSPs_", Taxon_name, ".csv"))
 cover_df_current <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"))
 
@@ -924,9 +896,44 @@ grid.arrange(a, b, c, f,
 dev.off()
 
 
+#- - - - - - - - - - - - - - - - - - - - 
+## Protection: some numbers ####
+#- - - - - - - - - - - - - - - - - - - -
+
+# protected area per species
+cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% filter(IUCNcat=="Protected") %>% arrange(coverage)
+cover_df %>% filter(SpeciesID=="_Mean") %>% dplyr::select(-SpeciesID) %>% arrange(coverage_km2)
+
+# categories Ia and Ib coverage
+cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
+cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
+max(cover_df[cover_df$IUCNcat=="Ia",]$coverage)
+max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
+
+cover_sr %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_sr %>% group_by(IUCNcat) %>% summarize_all(sd)
+
+cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
+cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
+
+cover_matrix %>% filter(IUCNcat!="Presence") %>% dplyr::select(-SpeciesID, -IUCNcat) %>% summarize_all(mean)
+cover_matrix %>% filter(IUCNcat!="Presence") %>% dplyr::select(-SpeciesID, -IUCNcat) %>% summarize_all(sd)
+cover_matrix %>% filter(IUCNcat!="Presence") %>% dplyr::select(-SpeciesID, -IUCNcat) %>% summarize_all(median)
+
+# save mean coverage in km2 per IUCN protected area type
+write.csv(cover_df %>% 
+            group_by(SpeciesID, IUCNcat) %>% 
+            dplyr::select(SpeciesID, IUCNcat, coverage_km2) %>% 
+            pivot_wider(names_from=IUCNcat, values_from=coverage_km2), 
+          file=paste0(here::here(), "/results/ProtectionStatus_coveragePerCategory_", Taxon_name, ".csv"), row.names=F)
+
+
+
 
 #- - - - - - - - - - - - - - - - - - - - 
-## Map: Calculate area BD high, PA high and BD low, PA high etc. ####
+## Map: BD high, PA high and BD low, PA high etc. ####
+#- - - - - - - - - - - - - - - - - - - - 
 
 protect_df$Protected <- round(rowSums(protect_df %>% dplyr::select(-x,-y,-Not.Reported, -Not.Assigned, -Not.Applicable), na.rm=T),2)
 protect_df[protect_df$Protected>=1 & !is.na(protect_df$Protected), "Protected"] <- 1
@@ -991,51 +998,25 @@ finalPlot +
 dev.off()
 
 
-## some numbers
-# protected area per species
-cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% filter(IUCNcat=="Protected") %>% arrange(coverage)
-cover_df %>% filter(SpeciesID=="_Mean") %>% dplyr::select(-SpeciesID) %>% arrange(coverage_km2)
-
-# categories Ia and Ib coverage
-cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
-cover_df %>% filter(SpeciesID!="_Mean" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
-cover_df %>% filter(SpeciesID!="_Mean") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
-max(cover_df[cover_df$IUCNcat=="Ia",]$coverage)
-max(cover_df[cover_df$IUCNcat=="Ib",]$coverage)
-
-cover_sr %>% group_by(IUCNcat) %>% summarize_all(mean)
-cover_sr %>% group_by(IUCNcat) %>% summarize_all(sd)
-
-cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)
-cover_matrix %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(sd)
-
-
-
-# save mean coverage in km2 per IUCN protected area type
-write.csv(cover_df %>% 
-            group_by(SpeciesID, IUCNcat) %>% 
-            dplyr::select(SpeciesID, IUCNcat, coverage_km2) %>% 
-            pivot_wider(names_from=IUCNcat, values_from=coverage_km2), 
-          file=paste0(here::here(), "/results/ProtectionStatus_coveragePerCategory_", Taxon_name, ".csv"), row.names=F)
-
-
+#- - - - - - - - - - - - - - - - - - - -
 ### DRAFT Plots ####
-
-# bar chart of percent area covered by PA per species
-f <- ggplot(data=cover_df %>% filter(IUCNcat!="Presence" & IUCNcat!="Unprotected" & IUCNcat!="Outside.PA" & IUCNcat!="Protected"), 
-            aes(y=coverage, x=SSP, fill=IUCNcat))+
-  geom_bar(position="stack", stat="identity")+
-  theme_bw()+
-  xlab("Species")+ ylab("Proportion of range covered by protected area network")+
-  coord_flip()+
-  facet_wrap(vars(SpeciesID))+
-  #scale_fill_viridis_d()+
-  scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
-                             "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
-  scale_y_continuous(expand=c(0,0), limits=c(0,0.65))+
-  #scale_x_discrete(labels=SpeciesID)+
-  geom_vline(xintercept=1.5, lty=2)+
-  theme(legend.position="none")
+#- - - - - - - - - - - - - - - - - - - -
+# 
+# # bar chart of percent area covered by PA per species
+# f <- ggplot(data=cover_df %>% filter(IUCNcat!="Presence" & IUCNcat!="Unprotected" & IUCNcat!="Outside.PA" & IUCNcat!="Protected"), 
+#             aes(y=coverage, x=SSP, fill=IUCNcat))+
+#   geom_bar(position="stack", stat="identity")+
+#   theme_bw()+
+#   xlab("Species")+ ylab("Proportion of range covered by protected area network")+
+#   coord_flip()+
+#   facet_wrap(vars(SpeciesID))+
+#   #scale_fill_viridis_d()+
+#   scale_fill_manual(values=c("darkgoldenrod4","darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "goldenrod2","goldenrod1", "gold1",
+#                              "lightgoldenrod1","palegoldenrod", "lemonchiffon2","gainsboro" ))+
+#   scale_y_continuous(expand=c(0,0), limits=c(0,0.65))+
+#   #scale_x_discrete(labels=SpeciesID)+
+#   geom_vline(xintercept=1.5, lty=2)+
+#   theme(legend.position="none")
 
 
 
