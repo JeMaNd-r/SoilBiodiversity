@@ -54,8 +54,10 @@ vif_cor <- usdm::vifcor(Env_norm, th=0.8)  #th = threshold vif for exclusion
 # procedure is repeated untill no variable with a high corrrelation coefficient 
 # (grater than threshold) with other variables remains.
 
+vif_step <- usdm::vifstep(Env_norm, th=10)
+
 # merge both data.frames
-env_vif <- env_vif %>% rename("VIF_raw" = VIF) %>% full_join(vif_cor@results) %>%
+env_vif <- env_vif %>% rename("VIF_raw" = VIF) %>% full_join(vif_step@results) %>%
   full_join(as.data.frame(vif_cor@corMatrix) %>% mutate("Variables"=rownames(vif_cor@corMatrix)))
 
 env_vif
