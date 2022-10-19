@@ -50,7 +50,7 @@ mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasteriz
 
 registerDoParallel(no.cores)
 foreach(spID = speciesSub, 
-        .export = c("Env_norm", "form", "mySpeciesOcc"),
+        .export = c("Env_norm", "mySpeciesOcc"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
           myResp <- as.numeric(mySpeciesOcc[,spID])

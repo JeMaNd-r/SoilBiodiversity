@@ -105,6 +105,15 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 }, silent=T)}
 print("Error messages are fine. They relate to species without records.")
 
+#- - - - - - - - - - - - - - - - - - - - - - -
+# Fix species names Aporr_cali and Aporr_rose
+occ_points$Aporr_rose <- rowSums(cbind(occ_points$Aporr_rose, occ_points$Allol_rose), na.rm=T) 
+occ_points$Aporr_cali <- rowSums(cbind(occ_points$Aporr_cali, occ_points$Nicod_cali), na.rm=T)
+occ_points <- occ_points %>% dplyr::select(-Allol_rose, -Nicod_cali)
+occ_points[occ_points==0] <- NA
+
+head(occ_points)
+
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## Save ####
 # # save raster stack

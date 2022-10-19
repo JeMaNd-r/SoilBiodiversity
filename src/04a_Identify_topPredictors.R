@@ -53,6 +53,8 @@ setdiff(env_vif$Variables, covarsNames)
 print("=== And we kept the following, final predictor variables: ===")
 covarsNames
 
+speciesSub <- unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)
+
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
 
@@ -70,13 +72,13 @@ form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
 
-- - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - -
 ## Prepare model input ####
 
 mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_5km_", Taxon_name, ".csv"))
 mySpeciesOcc <- mySpeciesOcc %>% dplyr::select(-year) %>% unique() 
- 
-for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)) { try({
+
+for(spID in speciesSub) { try({
  
   myResp <- as.numeric(mySpeciesOcc[,spID])
   
@@ -124,7 +126,7 @@ modelName <- "MaxentData"
 files <- list.files(path = paste0(here::here(), "/results/",Taxon_name, "/_TopPredictor"), 
                     pattern = paste0(modelName), full.name = T)
 
-for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
+for(spID in speciesSub){ try({
   
   # identify and load all relevant data files
   temp.files <- files[stringr::str_detect(files, spID)]
