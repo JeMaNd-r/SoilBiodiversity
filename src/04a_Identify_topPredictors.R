@@ -53,17 +53,17 @@ setdiff(env_vif$Variables, covarsNames)
 print("=== And we kept the following, final predictor variables: ===")
 covarsNames
 
-speciesSub <- unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)
+speciesSub <- unique(speciesNames[speciesNames$NumCells_2km >= 10,]$SpeciesID)
 
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
+Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
 #Env_norm <- stack(Env_norm)
 
 # as dataframe
-load(paste0(here::here(), "/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -75,31 +75,36 @@ no.cores <-  parallel::detectCores()/2
 #- - - - - - - - - - - - - - - - - - - - -
 ## Prepare model input ####
 
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_5km_", Taxon_name, ".csv"))
+mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 mySpeciesOcc <- mySpeciesOcc %>% dplyr::select(-year) %>% unique() 
 
 for(spID in speciesSub) { try({
  
-  myResp <- as.numeric(mySpeciesOcc[,spID])
-  
-  # get NAs id
-  na.id <- which(is.na(myResp))
-  # remove NAs to enforce PA sampling to be done on explanatory rasters
-  myResp <- myResp[-na.id]
-  
-  myRespCoord <- mySpeciesOcc[-na.id,c('x','y')]
-  
-  myData <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
-                                                expl.var = Env_norm,
-                                                resp.xy = myRespCoord,
-                                                resp.name = spID,
-                                                PA.nb.rep = 1,
-                                                PA.nb.absences = 10000,
-                                                PA.strategy = "random")
-  
-  myData <- cbind(myData@data.species, myData@coord, myData@data.env.var)
+#   myResp <- as.numeric(mySpeciesOcc[,spID])
+#   
+#   # get NAs id
+#   na.id <- which(is.na(myResp))
+#   # remove NAs to enforce PA sampling to be done on explanatory rasters
+#   myResp <- myResp[-na.id]
+#   
+#   myRespCoord <- mySpeciesOcc[-na.id,c('x','y')]
+#   
+#   myData <- biomod2::BIOMOD_FormatingData(resp.var = myResp,
+#                                                 expl.var = Env_norm,
+#                                                 resp.xy = myRespCoord,
+#                                                 resp.name = spID,
+#                                                 PA.nb.rep = 1,
+#                                                 PA.nb.absences = 10000,
+#                                                 PA.strategy = "random")
+ 
+  load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+          
+  # subset covarsNames
+  myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
+          
+  myData <- cbind(myBiomodData@data.species, myBiomodData@coord, myBiomodData@data.env.var)
   myData$SpeciesID <- spID
-  myData <- myData %>% rename("occ" = "myData@data.species")
+  myData <- myData %>% rename("occ" = "myBiomodData@data.species")
   myData[is.na(myData$occ),"occ"] <- 0
   
   random.rows <- sample(1:nrow(myData), nrow(myData))
@@ -116,6 +121,8 @@ for(spID in speciesSub) { try({
   save(training, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
   save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
   
+  rm(myBiomodData, myData, training, validation)
+
 })}
 
 
@@ -271,7 +278,7 @@ var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT",
                                               "Moisture", "N", "P", "pH", "SOC", "SoilT"),
                       "maxent"=NA, "Species"=NA)
 
-for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
+for(spID in speciesSub){ try({
   
   print("=====================================")
   print(spID)
@@ -358,6 +365,42 @@ plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
 plotTopVI
 
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+
+## count number of times that predictors are in top10 per species ####
+top10 <- c()
+
+for(spID in unique(var_imp$Species)){
+    temp_top10 <- var_imp %>% filter(Species==spID) %>% 
+      filter(maxent > 0 & !is.na(maxent)) %>%
+      top_n(n = 10, wt = maxent) %>% dplyr::select(Predictor, Species)
+    top10 <- rbind(top10, temp_top10)
+}
+
+top10 <- top10 %>% count(Predictor, Species)
+
+# transform to long format and add variable categories
+top10 <- top10 %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+top10[top10$Predictor=="Clay.Silt","Category"] <- "Soil"
+
+# plot barplot with top 10 (based on top10 counts) for species n>=100 records
+plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=100,"SpeciesID"]) %>%
+  dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
+  ylim(0, 20)+
+  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
+  coord_flip() +
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
 
 # plot maps
 temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
