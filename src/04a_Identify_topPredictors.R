@@ -402,6 +402,23 @@ plotTop10
 pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
 
 
+# plot barplot with top 10 (based on top10 counts) for species 10<n<100 records
+plotTop10 <- top10 %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"])) %>%
+  dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
+  ylim(0, 20)+
+  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
+  coord_flip() +
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
+
 # plot maps
 temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
 temp_files <- temp_files[stringr::str_detect(temp_files, "SDM_maxent_[:graph:]*.RData")]
