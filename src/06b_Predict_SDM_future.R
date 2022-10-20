@@ -34,6 +34,12 @@ speciesSub <- c(speciesSub$SpeciesID)
 covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
                  "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
 
+# define future scenarios
+scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
+                               "mri-esm2-0", "ukesm1-0-ll"), "_",
+                             rep(c("ssp126", "ssp370", "ssp585"),5)))
+
+
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
 
