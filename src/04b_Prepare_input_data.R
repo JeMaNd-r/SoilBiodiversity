@@ -31,8 +31,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
-                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
+                 "pH", "MAP", "Clay.Silt", "CEC","P" )
 
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
@@ -71,7 +71,7 @@ foreach(spID = speciesSub,
                                                         PA.strategy = "random")
           
           # save data
-          save(myBiomodData, file=paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData"))
+          save(myBiomodData, file=paste0(here::here(), "/data_processed/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData"))
           
           rm(myBiomodData, myResp, myRespCoord, spID, na.id)
         })}

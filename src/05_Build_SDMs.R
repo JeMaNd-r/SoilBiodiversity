@@ -26,13 +26,13 @@ library(doParallel)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
-                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
+                 "pH", "MAP", "Clay.Silt", "CEC","P" )
 
 # load data with sampling year information
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
@@ -150,11 +150,11 @@ mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Ph
 #- - - - - - - - - - - - - - - - - - - - -
 # if more than 100 occurrences   
 registerDoParallel(no.cores)
-foreach(spID = unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID), 
+foreach(spID = speciesSub, 
         .export = c("Env_norm", "Env_norm_df", "form"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
-          load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+          load(paste0(here::here(), "/data_processed/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
           
           # subset covarsNames
           myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]

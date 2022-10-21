@@ -27,8 +27,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
-                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
+                 "pH", "MAP", "Clay.Silt", "CEC","P" )
 
 # load environmental data 5km
 load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df

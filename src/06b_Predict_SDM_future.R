@@ -31,8 +31,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
-                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
+                 "pH", "MAP", "Clay.Silt", "CEC","P" )
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
@@ -88,12 +88,13 @@ for(spID in speciesSub){ try({
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                 }
                 
-                if(subclim=="T"){
+                if(subclim=="P"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                   temp_Env_sub$MAP_Seas <- Env_norm_df$MAP_Seas
+                  temp_Env_sub$MAP <- Env_norm_df$MAP
                 }
                 
-                if(subclim=="P"){
+                if(subclim=="T"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
                   temp_Env_sub$MAT <- Env_norm_df$MAT
                 }

@@ -44,8 +44,8 @@ temp_species <- unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID
 mySpeciesOcc <- mySpeciesOcc[,c("x", "y", temp_species)]
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "CEC", "Elev",
-                 "P", "Pop_Dens", "Agriculture", "pH", "Clay.Silt")
+covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
+                 "pH", "MAP", "Clay.Silt", "CEC","P" )
 
 ## parallelize
 # Calculate the number of cores

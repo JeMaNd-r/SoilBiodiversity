@@ -183,22 +183,6 @@ data_raw #nrow = 108,027 (1990: 101,190)
 write.csv(data_raw, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
           row.names = F)
 
-# plot occurrences colored by year
-pdf(paste0(here::here(), "/figures/OccurrenceRaw_perYear.pdf"), width=10)
-ggplot()+
-  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
-  geom_point(data=data_raw, aes(x=longitude, y=latitude, col=year),cex=0.3)+ theme_bw()+
-  xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
-  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
-  scale_color_steps2(breaks=c(1970, 1980, 1990, 2000, 2010), midpoint=1995, 
-                     high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")+
-  theme(panel.background = element_rect(fill = "grey80",
-                                        colour = "grey80",
-                                        size = 0.5, linetype = "solid"),
-        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
-                                        colour = "grey80"))
-dev.off()
-
 # - - - - - - - - - - - - - - - - - - -
 ## Cleaning ####
 
