@@ -97,7 +97,7 @@ for(spID in speciesSub) { try({
 #                                                 PA.nb.absences = 10000,
 #                                                 PA.strategy = "random")
  
-  load(paste0(here::here(), "/results/", Taxon_name, "/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+  load(paste0(here::here(), "/intermediates/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
           
   # subset covarsNames
   myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
@@ -385,6 +385,23 @@ top10 <- top10 %>%
 # add category for clay.silt
 top10[top10$Predictor=="Clay.Silt","Category"] <- "Soil"
 
+# plot barplot with top 10 (based on top10 counts) for all species
+plotTop10 <- top10 %>%
+  dplyr::select(n, Predictor, Category) %>%
+  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+  arrange(desc(sum)) %>%
+  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
+  ylim(0, 50)+
+  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+  geom_point(aes(color=Category), size=4, alpha=1) +
+  geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
+  scale_y_continuous(expand=c(0,0))+
+  coord_flip() +
+  theme_bw()
+plotTop10
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_", Taxon_name, ".pdf")); plotTop10; dev.off()
+
 # plot barplot with top 10 (based on top10 counts) for species n>=100 records
 plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=100,"SpeciesID"]) %>%
   dplyr::select(n, Predictor, Category) %>%
@@ -395,28 +412,28 @@ plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2k
   geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
   geom_point(aes(color=Category), size=4, alpha=1) +
   geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
+  scale_y_continuous(expand=c(0,0))+
   coord_flip() +
   theme_bw()
 plotTop10
 
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
 
-
-# plot barplot with top 10 (based on top10 counts) for species 10<n<100 records
+# plot barplot with top 10 (based on top10 counts) for species n>=100 records
 plotTop10 <- top10 %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"])) %>%
   dplyr::select(n, Predictor, Category) %>%
   group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
   arrange(desc(sum)) %>%
   ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
-  ylim(0, 20)+
   geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
   geom_point(aes(color=Category), size=4, alpha=1) +
-  geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
+  geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
+  scale_y_continuous(limits=c(0,30), expand=c(0,0))+
   coord_flip() +
   theme_bw()
 plotTop10
 
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_10runs_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
 
 
 # plot maps
