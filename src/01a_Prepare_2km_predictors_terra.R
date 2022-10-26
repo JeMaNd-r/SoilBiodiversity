@@ -104,8 +104,6 @@ makeTo2kmGrid <- function(raster_grid, temp_path, temp_file=NULL, file_name=NULL
   
 }
 
-#parallel::stopCluster(cluster)
-
 for(i in 1:length(folders)){ try({
   makeTo2kmGrid(temp_path=folders[i], raster_grid=grid2k)
 })}
@@ -136,6 +134,14 @@ raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+S
 ## Fix land cover proportions
 # Agriculture is fine
 # Forest
+temp_raster <- terra::rast(paste0(folders[22], "/Forest_2012_noGrid.tif"))
+temp_raster <- terra::catalyze(temp_raster)
+reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
+temp_raster <- terra::classify(temp_raster, reclass_m)
+terra::writeRaster(temp_raster, paste0(folders[22], "/Forest_2012_noGrid_reclassified.tif"), overwrite=T)
+
+makeTo2kmGrid(temp_path = folders[22], temp_file="Forest_2012_noGrid_reclassified.tif")
+
 temp_raster <- terra::rast(paste0(folders[40], "/Forest_Coni_2012_noGrid.tif"))
 temp_raster <- terra::catalyze(temp_raster)
 reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
@@ -144,23 +150,31 @@ terra::writeRaster(temp_raster, paste0(folders[40], "/Forest_Coni_2012_noGrid_re
 
 makeTo2kmGrid(temp_path = folders[40], temp_file="Forest_Coni_2012_noGrid_reclassified.tif")
 
-# Pasture
-temp_raster <- terra::rast(paste0(folders[44], "/Pasture_2012_noGrid_WGS84.tif"))
+temp_raster <- terra::rast(paste0(folders[41], "/Forest_Deci_2012_noGrid.tif"))
 temp_raster <- terra::catalyze(temp_raster)
 reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
 temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[44], "/Pasture_2012_noGrid_WGS84.tif"), overwrite=T)
+terra::writeRaster(temp_raster, paste0(folders[41], "/Forest_Deci_2012_noGrid_reclassified.tif"), overwrite=T)
 
-makeTo2kmGrid(temp_path = folders[44])
+makeTo2kmGrid(temp_path = folders[41], temp_file="Forest_Deci_2012_noGrid_reclassified.tif")
+
+# Pasture
+temp_raster <- terra::rast(paste0(folders[44], "/Pasture_2012_noGrid.tif"))
+temp_raster <- terra::catalyze(temp_raster)
+reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
+temp_raster <- terra::classify(temp_raster, reclass_m)
+terra::writeRaster(temp_raster, paste0(folders[44], "/Pasture_2012_noGrid_reclassified.tif"), overwrite=T)
+
+makeTo2kmGrid(temp_path = folders[44], temp_file="Pasture_2012_noGrid_reclassified.tif")
 
 # Shrubland
 temp_raster <- terra::rast(paste0(folders[46], "/Shrubland_2012_noGrid_WGS84.tif"))
 temp_raster <- terra::catalyze(temp_raster)
 reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
 temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[46], "/Shrubland_2012_noGrid_WGS84.tif"), overwrite=T)
+terra::writeRaster(temp_raster, paste0(folders[46], "/Shrubland_2012_noGrid_reclassified.tif"), overwrite=T)
 
-makeTo2kmGrid(temp_path = folders[46])
+makeTo2kmGrid(temp_path = folders[46], temp_file="Shrubland_2012_noGrid_reclassified.tif")
 ## land cover done
 
 # Snow (MODIS) for 2000-2009
@@ -175,66 +189,13 @@ makeTo2kmGrid(temp_path="D:/00_datasets/Climate/Snow_MODIS", raster_grid = grid2
 makeTo2kmGrid(temp_path = "D:/00_datasets/Soil/V070_SoilT", raster_grid = grid2k, temp_file = "SBIO1_Annual_Mean_Temperature_5_15cm.tif", 
               file_name="SoilT_5-15cm_2km_mean.tif")
 
-# # SOC_OCTOP #not fixed yet...
-# temp_raster <- raster::raster("D:/00_datasets/Soil/SOC_OCTOP/octop_V121.asc")
-# temp_raster_mean <- raster::resample(temp_raster, grid2k)
-# temp_raster_mean
-
-# # future climate
-# makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V002_MAP/Future", raster_grid = grid2k, temp_file = "CHELSA_bio12_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
-#               file_name="MAP_Future_2km_mean.tif")
-# makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V003_MAP_Seas/Future", raster_grid = grid2k, temp_file = "CHELSA_bio15_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
-#               file_name="MAP_Seas_Future_2km_mean.tif")
-# makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V004_MAT/Future", raster_grid = grid2k, temp_file = "CHELSA_bio1_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
-#               file_name="MAT_Future_2km_mean.tif")
-# makeTo2kmGrid(temp_path = "D:/00_datasets/Climate/V005_MAT_Seas/Future", raster_grid = grid2k, temp_file = "CHELSA_bio4_2011-2040_gfdl-esm4_ssp126_V.2.1.tif", 
-#               file_name="MAT_Seas_Future_2km_mean.tif")
-
 # OCTOP (OC in topsoil from FAO): missing reference system
 temp_raster <- terra::rast(paste0("D:/00_datasets/Soil/SOC_OCTOP", "/", "octop_V121.asc")) # we assume WGS84
 crs(temp_raster) <- crs(grid2k)
-terra::writeRaster(temp_raster, paste0("D:/00_datasets/Soil/SOC_OCTOP", "/octop_V121_WGS84.tif"))
+terra::writeRaster(temp_raster, paste0("D:/00_datasets/Soil/SOC_OCTOP", "/octop_V121_WGS84.tif"), overwrite=T)
 
 makeTo2kmGrid(temp_path = "D:/00_datasets/Soil/SOC_OCTOP", raster_grid = grid2k, temp_file = "octop_V121_WGS84.tif", 
               file_name="SOC_OCTOP_2km_mean.tif")
-
-#- - - - - - - - - - - - - - - - - - - - - 
-## Mask selected 2km grids ####
-# 
-# # load mask file (one of CORINE land cover files)
-# temp_mask <- terra::rast("D:/00_datasets/LandCover/V021_Agriculture/Agriculture_2km_mean.tif")
-# 
-# # Aspect: no data for Ukraine
-# temp_raster <- terra::rast("D:/00_datasets/Location/V041_Aspect/Aspect_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/Location/V041_Aspect/Aspect_2km_mean.tif", overwrite=T)
-# 
-# # Dist_Urban: no (CORINE) data for Ukraine
-# temp_raster <- terra::rast("D:/00_datasets/LandCover/V022_Dist_Urban/Dist_Urban_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/LandCover/V022_Dist_Urban/Dist_Urban_2km_mean.tif", overwrite=T)
-# 
-# # Dist_River
-# temp_raster <- terra::rast("D:/00_datasets/Location/V043_Dist_River/Dist_River_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/Location/V043_Dist_River/Dist_River_2km_mean.tif", overwrite=T)
-# 
-# # Dist_Coast
-# temp_raster <- terra::rast("D:/00_datasets/Location/V042_Dist_Coast/Dist_Coast_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/Location/V042_Dist_Coast/Dist_Coast_2km_mean.tif", overwrite=T)
-# 
-# # Dist_Roads
-# temp_raster <- terra::rast("D:/00_datasets/LandCover/Dist_Roads/Dist_Roads_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/LandCover/Dist_Roads/Dist_Roads_2km_mean.tif", overwrite=T)
-# 
-# # Impervious
-# temp_raster <- terra::rast("D:/00_datasets/LandCover/Impervious/Impervious_2km_mean.tif")
-# temp_raster <- terra::mask(temp_raster, temp_mask)
-# terra::writeRaster(temp_raster, file="D:/00_datasets/LandCover/Impervious/Impervious_2km_mean.tif", overwrite=T)
-# 
-# rm(temp_raster, temp_mask)
 
 #- - - - - - - - - - - - - - - - - -
 ## Copy files into one folder
@@ -259,5 +220,11 @@ stack_files
 stack_files <- stack_files[!stringr::str_detect(stack_files, "Lat_")]
 
 # copy files in folder
-
+for(i in 1:length(stack_files)){
+  temp_raster <- terra::rast(stack_files[i])
+  temp_name <- basename(stack_files[i])
+  
+  terra::writeRaster(temp_raster, paste0("D:/_students/Romy/SoilBiodiversity/data_environment/", temp_name),
+                     overwrite=TRUE)
+}
 
