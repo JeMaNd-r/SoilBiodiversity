@@ -66,7 +66,7 @@ data/Shapefiles/
 *_Full_ANN
 *_Full_CTA
 *_Full_FDA
-
+/results_trash
 *_Full_GBM
 *_Full_GLM
 *_Full_MARS
