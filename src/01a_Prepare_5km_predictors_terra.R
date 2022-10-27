@@ -250,7 +250,10 @@ setdiff(sort(check_files), sort(files))
 ## Move files to one folder
 
 # create folder
-dir.create("D:/_students/Romy/SoilBiodiversity/data_environment/future_climate")
+#dir.create("D:/_students/Romy/SoilBiodiversity/data_environment/future_climate")
+
+files <- files[str_detect(files, "2041-2070")]
+files
 
 # copy files in folder
 for(i in 1:length(files)){
