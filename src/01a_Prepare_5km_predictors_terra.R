@@ -120,7 +120,7 @@ files[stringr::str_detect(files, "_5km_mean.tif$")]
 # Latitude
 temp_raster <- as.data.frame(grid5k, xy=TRUE, row.names = FALSE)
 temp_raster$Latitude <- temp_raster$y
-temp_raster_mean <- terra::rast(temp_raster %>% dplyr::select(-grid_2k_0p016), type="xyz")
+temp_raster_mean <- terra::rast(temp_raster %>% dplyr::select(-grid_5k_0p041), type="xyz")
 raster::writeRaster(temp_raster_mean, file="D:/00_datasets/Location/V045_Lat/Lat_5km_mean.tif", overwrite=T)
 
 # Clay+Silt
@@ -134,46 +134,17 @@ raster::writeRaster(temp_raster, file="D:/00_datasets/Soil/V062_Clay+Silt/Clay+S
 ## Fix land cover proportions
 # Agriculture is fine
 # Forest
-temp_raster <- terra::rast(paste0(folders[22], "/Forest_2012_noGrid.tif"))
-temp_raster <- terra::catalyze(temp_raster)
-reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
-temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[22], "/Forest_2012_noGrid_reclassified.tif"), overwrite=T)
 
 makeTo5kmGrid(temp_path = folders[22], temp_file="Forest_2012_noGrid_reclassified.tif")
 
-temp_raster <- terra::rast(paste0(folders[40], "/Forest_Coni_2012_noGrid.tif"))
-temp_raster <- terra::catalyze(temp_raster)
-reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
-temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[40], "/Forest_Coni_2012_noGrid_reclassified.tif"), overwrite=T)
-
 makeTo5kmGrid(temp_path = folders[40], temp_file="Forest_Coni_2012_noGrid_reclassified.tif")
-
-temp_raster <- terra::rast(paste0(folders[41], "/Forest_Deci_2012_noGrid.tif"))
-temp_raster <- terra::catalyze(temp_raster)
-reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
-temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[41], "/Forest_Deci_2012_noGrid_reclassified.tif"), overwrite=T)
 
 makeTo5kmGrid(temp_path = folders[41], temp_file="Forest_Deci_2012_noGrid_reclassified.tif")
 
 # Pasture
-temp_raster <- terra::rast(paste0(folders[44], "/Pasture_2012_noGrid.tif"))
-temp_raster <- terra::catalyze(temp_raster)
-reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
-temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[44], "/Pasture_2012_noGrid_reclassified.tif"), overwrite=T)
-
 makeTo5kmGrid(temp_path = folders[44], temp_file="Pasture_2012_noGrid_reclassified.tif")
 
 # Shrubland
-temp_raster <- terra::rast(paste0(folders[46], "/Shrubland_2012_noGrid_WGS84.tif"))
-temp_raster <- terra::catalyze(temp_raster)
-reclass_m <- as.matrix(data.frame(from = c(1,2) , to = c(0,1)))
-temp_raster <- terra::classify(temp_raster, reclass_m)
-terra::writeRaster(temp_raster, paste0(folders[46], "/Shrubland_2012_noGrid_reclassified.tif"), overwrite=T)
-
 makeTo5kmGrid(temp_path = folders[46], temp_file="Shrubland_2012_noGrid_reclassified.tif")
 ## land cover done
 
@@ -190,10 +161,6 @@ makeTo5kmGrid(temp_path = "D:/00_datasets/Soil/V070_SoilT", raster_grid = grid5k
               file_name="SoilT_5-15cm_5km_mean.tif")
 
 # OCTOP (OC in topsoil from FAO): missing reference system
-temp_raster <- terra::rast(paste0("D:/00_datasets/Soil/SOC_OCTOP", "/", "octop_V121.asc")) # we assume WGS84
-crs(temp_raster) <- crs(grid5k)
-terra::writeRaster(temp_raster, paste0("D:/00_datasets/Soil/SOC_OCTOP", "/octop_V121_WGS84.tif"), overwrite=T)
-
 makeTo5kmGrid(temp_path = "D:/00_datasets/Soil/SOC_OCTOP", raster_grid = grid5k, temp_file = "octop_V121_WGS84.tif", 
               file_name="SOC_OCTOP_5km_mean.tif")
 
@@ -279,4 +246,18 @@ check_files <- paste0("D:/00_datasets/Climate/", check_files, "_5km_mean.tif")
 check_files
 
 setdiff(sort(check_files), sort(files))
+
+## Move files to one folder
+
+# create folder
+dir.create("D:/_students/Romy/SoilBiodiversity/data_environment/future_climate")
+
+# copy files in folder
+for(i in 1:length(files)){
+  temp_raster <- terra::rast(files[i])
+  temp_name <- basename(files[i])
+  
+  terra::writeRaster(temp_raster, paste0("D:/_students/Romy/SoilBiodiversity/data_environment/future_climate/", temp_name),
+                     overwrite=TRUE)
+}
 
