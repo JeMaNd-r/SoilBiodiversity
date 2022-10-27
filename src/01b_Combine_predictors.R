@@ -55,7 +55,7 @@ raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_2km.gr
 
 # as dataframe
 Env <- terra::rast(paste0(here::here(), "/results/EnvPredictor_2km.grd"))
-Env_df <- as.data.frame(Env, xyz=TRUE, row.names=FALSE)
+Env_df <- as.data.frame(Env, xy=TRUE, row.names=FALSE)
 save(Env_df, file=paste0(here::here(), "/results/EnvPredictor_2km_df.RData"))
 rm(Env_df)
 
@@ -84,7 +84,7 @@ raster::writeRaster(Env_norm, file=paste0(here::here(), "/results/EnvPredictor_2
 
 # same for dataframe
 Env_norm <- terra::rast(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
-Env_norm_df <- as.data.frame(Env_norm, xyz=TRUE, row.names=FALSE)
+Env_norm_df <- as.data.frame(Env_norm, xy=TRUE, row.names=FALSE)
 save(Env_norm_df, file=paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData"))
 rm(Env, Env_norm, Env_norm_df)
 
@@ -126,7 +126,7 @@ raster::writeRaster(Env, file=paste0(here::here(), "/results/EnvPredictor_5km.gr
 
 # as dataframe
 Env <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km.grd"))
-Env_df <- as.data.frame(Env, xyz=TRUE, row.names=FALSE)
+Env_df <- as.data.frame(Env, xy=TRUE, row.names=FALSE)
 save(Env_df, file=paste0(here::here(), "/results/EnvPredictor_5km_df.RData"))
 rm(Env_df)
 
@@ -146,7 +146,7 @@ raster::writeRaster(Env_norm, file=paste0(here::here(), "/results/EnvPredictor_5
 
 # same for dataframe
 Env_norm <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
-Env_norm_df <- as.data.frame(Env_norm, xyz=TRUE, row.names=FALSE)
+Env_norm_df <- as.data.frame(Env_norm, xy=TRUE, row.names=FALSE)
 save(Env_norm_df, file=paste0(here::here(), "/results/EnvPredictor_5km_df_normalized.RData"))
 rm(Env, Env_norm, Env_norm_df)
 
