@@ -1,0 +1,17 @@
+Shapefiles as base maps:
+
+Shapefile_Germany
+...
+
+World_Countries_Boundaries
+Downloaded from ArcGIS
+
+Europe_coastline
+Downloaded from EEA
+
+Europe_Coastline_Polygon
+Downloaded from EEA
+https://www.eea.europa.eu/data-and-maps/data/eea-coastline-for-analysis-2/gis-data/eea-coastline-polygon
+
+WDPA_WDOECM_Dec2021_Public_EU_ship.zip
+Protected Areas in Europe with categorization (effectivity). Download 22.12.2021, 17:34.
