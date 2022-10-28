@@ -96,4 +96,5 @@ data_raw/GBIF_Crassiclitellata/citations.txt
 data_raw/GBIF_Crassiclitellata/rights.txt
 data_raw/GBIF_Crassiclitellata/occurrence.txt
 data_raw/GBIF_Crassiclitellata/verbatim.txt
-results/_TopPredictor/maxent_files/species.lambdas
+results/_TopPredictor/maxent_files
+results/maxent_files
