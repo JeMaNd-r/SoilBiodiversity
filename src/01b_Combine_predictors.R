@@ -82,12 +82,6 @@ Env_norm <- raster::stack(Env_norm)
 # save Env_norm
 raster::writeRaster(Env_norm, file=paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"), overwrite=T)
 
-# same for dataframe
-Env_norm <- terra::rast(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
-Env_norm_df <- as.data.frame(Env_norm, xy=TRUE, row.names=FALSE)
-save(Env_norm_df, file=paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData"))
-rm(Env, Env_norm, Env_norm_df)
-
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Merge raster files, 5km ####
 #- - - - - - - - - - - - - - - - - - - - -
@@ -143,13 +137,6 @@ Env_norm <- raster::stack(Env_norm)
 
 # save Env_norm
 raster::writeRaster(Env_norm, file=paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"), overwrite=T)
-
-# same for dataframe
-Env_norm <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
-Env_norm_df <- as.data.frame(Env_norm, xy=TRUE, row.names=FALSE)
-save(Env_norm_df, file=paste0(here::here(), "/results/EnvPredictor_5km_df_normalized.RData"))
-rm(Env, Env_norm, Env_norm_df)
-
 
 
 ## NOT NEEDED ####
