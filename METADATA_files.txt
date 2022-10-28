@@ -1,0 +1,80 @@
+/data_raw ------------------------
+
+~/GBIF_Crassiclitellata
+Species occurrence data downloaded from GBIF, search term "Crassiclitellata". Date 2022-03-05. Folder content: metadata, and occurrence records (occurrence.txt).
+
+Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv
+Species occurrence data downloaded from Edaphobase, search term "Lumbricidae". Date 2022-01-25. After download but before data processing, we manually changed ö/ä/ü/ß into oe/ae/ue/ss.
+
+grid_2k_0p016.tif
+Raster file containing the ~2km grid across Europe.
+
+grid_5k_0p041.tif
+Raster file containing the ~5km grid across Europe.
+
+SiteData_sWorm_v2.csv
+Coordinates associated with sites in species occurrence data from global sWorm project. Download: 2021-06-14. Publication: Phillips et al. (2021). Global data on earthworm abundance, biomass, diversity and corresponding environmental properties. Scientific Data, 8(1), 1-12.
+
+SppOccData_sWorm_v2.csv
+Species occurrence data from global sWorm project with site names. Download: 2021-06-14. Publication: Phillips et al. (2021). Global data on earthworm abundance, biomass, diversity and corresponding environmental properties. Scientific Data, 8(1), 1-12.
+
+SoilReCon_earthworms_clean.csv
+Species occurrence data from SoilReCon project in Portugal. Version date: 2022-05-20. Data creator: Carlos A. Guerra and Concha Cano Diaz.
+
+Species_list_Crassiclitellata.csv
+Table with raw species names, their accepted taxon names, ecological grouping, and abbreviations.
+
+Species_list_Crassiclitellata_short.csv
+Table with accepted species names and abbreviations.
+
+worm_spd_europe_jerome.csv
+Species occurrence data compiled by Jérome Mathieu. Version date: 2022-05-20.
+
+
+/data_processed ------------------------
+
+EnvPredictor_1km.grd/.gri
+Raster stack where each layer represents one environmental variable at ~1km² resolution within the European raster grid. 
+
+EnvPredictor_2km.grd/.gri
+Raster stack where each layer represents one environmental variable at ~2km² resolution within the European raster grid.
+
+EnvPredictor_2km_df_normalized.RData
+Dataframe where each column represents one scaled environmental variable at ~2km² resolution within the European raster grid.
+
+EnvPredictor_2km_normalized.grd/.gri
+Raster stack where each layer represents one scaled environmental variable at ~2km² resolution within the European raster grid.
+
+EnvPredictor_5km.grd/.gri
+Raster stack where each layer represents one environmental variable at ~5km² resolution within the European raster grid.
+
+EnvPredictor_5km_normalized.grd/.gri
+Raster stack where each layer represents one scaled environmental variable at ~5km² resolution within the European raster grid.
+
+EnvPredictor_5km_df_normalized.RData
+Dataframe where each column represents one scaled environmental variable at ~5km² resolution within the European raster grid.
+
+
+
+/doc ------------------------
+
+
+
+/intermediates ------------------------
+
+~/BIOMOD_data
+Folder containing the species-specific input data (as .RData) structured by the function biomod2::BIOMOD_FormattingData().
+
+Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv
+Species occurrence data cleaned and compiled from single datasets.
+
+
+/results ------------------------
+
+corMatPearson_predictors.csv
+Correlation matrix showing Pearson correlations among the predictors (i.e., environmental variables) at 2km resolution.
+
+corMatSpearman_predictors.csv
+Correlation matrix showing Spearman correlations among the predictors (i.e., environmental variables) at 2km resolution.
+
+

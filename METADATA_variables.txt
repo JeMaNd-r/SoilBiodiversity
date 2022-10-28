@@ -1,0 +1,70 @@
+Information about the environmental variables are stored in the table EnvPredictor_table.csv. 
+
+Species occurrence data ------------------------
+Variable name,Description,Data type,Unit of measurement,Notes
+Group_name,Name of taxonomic group,character,-,-
+Species,Name of earthworm species as provided in raw datasets,character,-,-
+SpeciesID,Unique identifier for earthworm species,character,-,-
+Fct_group,Ecological group provided by raw data,character,-,Groups can be one of three (endogeic, anecic, epigeic) or combination of these
+Comment,Comment to the species created by Romy Zeiss,character,-,-
+Ecogroup_Phillips,Ecological group from Phillips et al. 2019 dataset,character,-,-
+Acc_name,Name of earthworm species based on ITIS backbone,character,-,Identified using taxize package in R
+Percent_Epigeic,Proportional grouping into epigeic based on Bottinelli et al.,integer,-,-
+Percent_Anecic,Proportional grouping into anecic based on Bottinelli et al.,integer,-,-
+Percent_Endogeic,Proportional grouping into endogeic based on Bottinelli et al.,integer,-,-
+Ecogroup_Bottinelli,Textual grouping according to Bottinelli et al.,character,-,-
+Ecogroup,Ecological group selected based on information availability and reliability,character,-,If available take Briones else Bottinelli else Phillips
+kingdom,Name of kingdom,character,-,According to taxize::classification() using Genus and ITIS database
+subkingdom,Name of subkingdom,character,-,According to taxize::classification() using Genus and ITIS database
+infrakingdom,Name of infrakingdom,character,-,According to taxize::classification() using Genus and ITIS database
+superphylum,Name of superphylum,character,-,According to taxize::classification() using Genus and ITIS database
+phylum,Name of phylum,character,-,According to taxize::classification() using Genus and ITIS database
+class,Name of class,character,-,According to taxize::classification() using Genus and ITIS database
+superorder,Name of superorder,character,-,According to taxize::classification() using Genus and ITIS database
+order,Name of order,character,-,According to taxize::classification() using Genus and ITIS database
+suborder,Name of suborder,character,-,According to taxize::classification() using Genus and ITIS database
+superfamily,Name of superfamily,character,-,According to taxize::classification() using Genus and ITIS database
+family,Name of family,character,-,According to taxize::classification() using Genus and ITIS database
+genus,Name of genus,character,-,According to taxize::classification() using Genus and ITIS database
+subspecies,Name of subspecies,character,-,Assigned by Maria Briones
+subgenus,Name of subgenus,character,-,Assigned by Maria Briones
+Records,Number of raw occurrence records for the Species_ID taxon,numeric,-,-
+NumCells_2km,Number of gridded occurrences (2km grid) for the Species_ID taxon,numeric,-,-
+NumCells_1km,Number of gridded occurrences (1km grid) for the Species_ID taxon,numeric,-,The 1km grid was used during data exploration but is not used in the final analysis
+
+Predictor METADATA table ---------------------------
+Column name,Description,Data type,Unit of measurement,Notes
+Predictor,Short name of the predictor variable,character,-,-
+ID,Unique identifier (V0XX) for each dataset,character,-,-
+Long_name,Long (full) name of the predictor variable,character,-,-
+Category,One of pre-defined categories that can be used later on to classify the predictors,character,-,-
+Original_name,Name of the variable in the original data set,character,-,-
+File_name,Name of the file downloaded,character,-,-
+File_name_processed,Name of the processed file as input for R script (to project into 2km grid),character,-,-
+Unit,Unit of the original data set,logical,presence/absence (0/1),-
+Missing_Values,Value that indicates missing values e.g. NA or 255 or -1000,character/numeric,-,-
+Range,Range of the values overall,character,-,-
+Range_EU_1km,Range of the values in Europe (1km grid),character,-,-
+Range_EU_2km,Range of the values in Europe (2km grid),character,-,-
+Resolution,Resolution of the original data set"decimal degree (0.00833 = 30arc seconds = 1km² = scale 1:1Mio),character,-,-
+Resolution_temporal,Temporal resolution of the original data set (e.g. weekly or monthly or yearly data),character,-,-
+Projection,Projection or geographic coordinate reference system of the original data set,character,-,-
+Reference,Author and year of the publication or data set,character,-,-
+Reference_DOI,DOI of the reference,character,-,-
+Temporal_period,Time period,character,-,-
+Time,Future (F) or current (C) time period,character,-,-
+Spatial_scale,Spatial scale of the original dataset (Global or Europe),character,-,-
+Aggregation method,Method to aggregate values during projection into 2 and 5km grid system,character,-,-
+Link,Link to the data set to download,character,-,-
+DOI_data,DOI number of the downloaded dataset,character,-,-
+Downloaded_by,Abbreviation of the person who downloaded the data,character,-,-
+Download_date,Date when original files have been downloaded,date,d/m/yyyy,-
+Transformation,how was the original data transformed (combination of datasets, log-transformation, reprojected etc.),character,-,-
+Reprojected_to_WGS84,Was the original file re-projected to WGS1984 before it has been converted into the grid?,character,Yes or No,-
+Comment,Comment,character,-,-
+Comment_citation,Comment regarding the proper citation of the dataset,character,-,-
+
+
+
+
+
