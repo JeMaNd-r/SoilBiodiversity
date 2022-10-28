@@ -1,4 +1,36 @@
-Information about the environmental variables are stored in the table EnvPredictor_table.csv. 
+﻿Information about the environmental variables are stored in the table METADATA_Predictors.csv. 
+
+METADATA_Predictors.csv ---------------------------
+Column name,Description,Data type,Unit of measurement,Notes
+Predictor,Short name of the predictor variable,character,-,-
+ID,Unique identifier (V0XX) for each dataset,character,-,-
+Long_name,Long (full) name of the predictor variable,character,-,-
+Category,One of pre-defined categories that can be used later on to classify the predictors,character,-,-
+Original_name,Name of the variable in the original data set,character,-,-
+File_name,Name of the file downloaded,character,-,-
+File_name_processed,Name of the processed file as input for R script (to project into 2km grid),character,-,-
+Unit,Unit of the original data set,logical,presence/absence (0/1),-
+Missing_Values,Value that indicates missing values e.g. NA or 255 or -1000,character/numeric,-,-
+Range,Range of the values overall,character,-,-
+Range_EU_1km,Range of the values in Europe (1km grid),character,-,-
+Range_EU_2km,Range of the values in Europe (2km grid),character,-,-
+Resolution,Resolution of the original data set"decimal degree (0.00833 = 30arc seconds = 1km² = scale 1:1Mio),character,-,-
+Resolution_temporal,Temporal resolution of the original data set (e.g. weekly or monthly or yearly data),character,-,-
+Projection,Projection or geographic coordinate reference system of the original data set,character,-,-
+Reference,Author and year of the publication or data set,character,-,-
+Reference_DOI,DOI of the reference,character,-,-
+Temporal_period,Time period,character,-,-
+Time,Future (F) or current (C) time period,character,-,-
+Spatial_scale,Spatial scale of the original dataset (Global or Europe),character,-,-
+Aggregation method,Method to aggregate values during projection into 2 and 5km grid system,character,-,-
+Link,Link to the data set to download,character,-,-
+DOI_data,DOI number of the downloaded dataset,character,-,-
+Downloaded_by,Abbreviation of the person who downloaded the data,character,-,-
+Download_date,Date when original files have been downloaded,date,d/m/yyyy,-
+Transformation,how was the original data transformed (combination of datasets, log-transformation, reprojected etc.),character,-,-
+Reprojected_to_WGS84,Was the original file re-projected to WGS1984 before it has been converted into the grid?,character,Yes or No,-
+Comment,Comment,character,-,-
+Comment_citation,Comment regarding the proper citation of the dataset,character,-,-
 
 Species occurrence data ------------------------
 Variable name,Description,Data type,Unit of measurement,Notes
@@ -32,37 +64,12 @@ Records,Number of raw occurrence records for the Species_ID taxon,numeric,-,-
 NumCells_2km,Number of gridded occurrences (2km grid) for the Species_ID taxon,numeric,-,-
 NumCells_1km,Number of gridded occurrences (1km grid) for the Species_ID taxon,numeric,-,The 1km grid was used during data exploration but is not used in the final analysis
 
-Predictor METADATA table ---------------------------
-Column name,Description,Data type,Unit of measurement,Notes
-Predictor,Short name of the predictor variable,character,-,-
-ID,Unique identifier (V0XX) for each dataset,character,-,-
-Long_name,Long (full) name of the predictor variable,character,-,-
-Category,One of pre-defined categories that can be used later on to classify the predictors,character,-,-
-Original_name,Name of the variable in the original data set,character,-,-
-File_name,Name of the file downloaded,character,-,-
-File_name_processed,Name of the processed file as input for R script (to project into 2km grid),character,-,-
-Unit,Unit of the original data set,logical,presence/absence (0/1),-
-Missing_Values,Value that indicates missing values e.g. NA or 255 or -1000,character/numeric,-,-
-Range,Range of the values overall,character,-,-
-Range_EU_1km,Range of the values in Europe (1km grid),character,-,-
-Range_EU_2km,Range of the values in Europe (2km grid),character,-,-
-Resolution,Resolution of the original data set"decimal degree (0.00833 = 30arc seconds = 1km² = scale 1:1Mio),character,-,-
-Resolution_temporal,Temporal resolution of the original data set (e.g. weekly or monthly or yearly data),character,-,-
-Projection,Projection or geographic coordinate reference system of the original data set,character,-,-
-Reference,Author and year of the publication or data set,character,-,-
-Reference_DOI,DOI of the reference,character,-,-
-Temporal_period,Time period,character,-,-
-Time,Future (F) or current (C) time period,character,-,-
-Spatial_scale,Spatial scale of the original dataset (Global or Europe),character,-,-
-Aggregation method,Method to aggregate values during projection into 2 and 5km grid system,character,-,-
-Link,Link to the data set to download,character,-,-
-DOI_data,DOI number of the downloaded dataset,character,-,-
-Downloaded_by,Abbreviation of the person who downloaded the data,character,-,-
-Download_date,Date when original files have been downloaded,date,d/m/yyyy,-
-Transformation,how was the original data transformed (combination of datasets, log-transformation, reprojected etc.),character,-,-
-Reprojected_to_WGS84,Was the original file re-projected to WGS1984 before it has been converted into the grid?,character,Yes or No,-
-Comment,Comment,character,-,-
-Comment_citation,Comment regarding the proper citation of the dataset,character,-,-
+Processed species occurrence data ------------------------
+species
+latitude
+longitude
+datasource
+year
 
 
 
