@@ -149,3 +149,4 @@ This code is based on Valavi et al. 2021 [1]
 * EnvPredictor_5km_df_normalized.RData
   * Dataframe where each column represents one scaled environmental variable at ~5km² resolution within the European raster grid.
 
+* 

@@ -65,37 +65,11 @@ ODMAP protocol summarizing settings and input data of Species Distribution Model
 
 
 PROCESSED_BIOMOD_data.zip
-Folder containing the species-specific input data (as .RData) structured by the function biomod2::BIOMOD_FormattingData().
+Folder containing the species-specific input data (as .RData) for each earthworm species structured by the function biomod2::BIOMOD_FormattingData().
 
 PROCESSED_Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon.csv
-Species occurrence data cleaned and compiled from single datasets. Please note that the dataset compiled by Jérome Mathieu (JM) had to be excluded. The full processed dataset is avaiable upon request.
+Species occurrence data compiled from single datasets. Please note that the dataset compiled by Jérome Mathieu (JM) had to be excluded. The full processed dataset is avaiable upon request.
 
 PROCESSED_WDPA_WDOECM_IUCNcat_df.RData
 Table containing information about protection status in each 5km grid cell. Protection status is based on percentage of coverage of each IUCN category.
 
-
-~/results ------------------------
-
-corMatPearson_predictors.csv
-Correlation matrix showing Pearson correlations among the predictors (i.e., environmental variables) at 2km resolution.
-
-corMatSpearman_predictors.csv
-Correlation matrix showing Spearman correlations among the predictors (i.e., environmental variables) at 2km resolution.
-
-EnvPredictor_2km.grd/.gri
-Raster stack where each layer represents one environmental variable at ~2km² resolution within the European raster grid.
-
-EnvPredictor_2km_df_normalized.RData
-Dataframe where each column represents one scaled environmental variable at ~2km² resolution within the European raster grid.
-
-EnvPredictor_2km_normalized.grd/.gri
-Raster stack where each layer represents one scaled environmental variable at ~2km² resolution within the European raster grid.
-
-EnvPredictor_5km.grd/.gri
-Raster stack where each layer represents one environmental variable at ~5km² resolution within the European raster grid.
-
-EnvPredictor_5km_normalized.grd/.gri
-Raster stack where each layer represents one scaled environmental variable at ~5km² resolution within the European raster grid.
-
-EnvPredictor_5km_df_normalized.RData
-Dataframe where each column represents one scaled environmental variable at ~5km² resolution within the European raster grid.
