@@ -185,7 +185,22 @@ write.csv(data_raw, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-s
 
 # - - - - - - - - - - - - - - - - - - -
 ## Cleaning ####
+# - - - - - - - - - - - - - - - - - - -
 
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+library(CoordinateCleaner)
+
+Taxon_name <- "Crassiclitellata"
+speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+
+data_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
+
+# - - - - - - - - - - - - - - - - - - -
 # create a table to see how many records get removed.
 df_cleaning <- tibble::tibble(CleaningStep="merged_RawData", NumberRecords=nrow(data_raw))
 
