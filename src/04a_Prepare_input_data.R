@@ -25,13 +25,30 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
+# covariates
+corMatPearson <- as.matrix(read.csv(file=paste0(here::here(), "/results/corMatPearson_predictors.csv")))
+dimnames(corMatPearson)[[1]] <- dimnames(corMatPearson)[[2]]
+# based on Valavi et al. 2021: Pearson 0.8
+env_exclude <- caret::findCorrelation(corMatPearson, cutoff = 0.8, names=TRUE)
+covarsNames <- dimnames(corMatPearson)[[1]][!(dimnames(corMatPearson)[[1]] %in% env_exclude)]
+covarsNames <- covarsNames[covarsNames != "x" & covarsNames != "y"]
+# exclude based on VIF
+env_vif <- read.csv(file=paste0(here::here(), "/results/VIF_predictors.csv"))
+env_exclude <- env_vif %>% filter(is.na(VIF)) %>% dplyr::select(Variables) %>% as.character()
+covarsNames <- covarsNames[!(covarsNames %in% env_exclude)]
+# excluded:
+print("=== We excluded the following variables based on VIF and Pearson correlation: ===")
+setdiff(env_vif$Variables, covarsNames)
+
+# final predictor variables
+print("=== And we kept the following, final predictor variables: ===")
+covarsNames
+
 #- - - - - - - - - - - - - - - - - - - - -
 # note: we will load the datasets before each individual model
 
 # load environmental variables
 Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
-
-load(paste0(here::here(), "/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
 
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
@@ -40,7 +57,7 @@ no.cores <-  parallel::detectCores()/2
 ## Prepare data ####
 mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
-registerDoParallel(no.cores)
+registerDoParallel(3)
 number_records <- foreach(spID = speciesSub, 
         .combine = rbind,
         .export = c("Env_norm", "mySpeciesOcc"),
@@ -71,21 +88,7 @@ number_records <- foreach(spID = speciesSub,
           
           print(myData[,c("x", "y","occ", "SpeciesID")])
           
-          random.rows <- sample(1:nrow(myData), nrow(myData))
-          
-          validation <- myData[random.rows[1:round(0.2*nrow(myData))], 
-                               c("x","y", "SpeciesID", "occ", covarsNames[covarsNames %in% colnames(myData)])]
-          
-          training <- myData[random.rows[round(0.2*nrow(myData)):nrow(myData)],]
-          
-          # subset uncorrelated covariates
-          training <- training[, c("occ", covarsNames[covarsNames %in% colnames(myData)])]
-          
-          # save all datasets
-          save(training, file=paste0(here::here(), "/intermediates/MaxEnt_data/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
-          save(validation, file=paste0(here::here(), "/intermediates/MaxEnt_data/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
-          
-          rm(myBiomodData, myResp, myRespCoord, spID, na.id, myData, training, validation)
+          rm(myBiomodData, myResp, spID, myData)
         })}
 
 stopImplicitCluster()

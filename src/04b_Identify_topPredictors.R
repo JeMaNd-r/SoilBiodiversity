@@ -118,8 +118,8 @@ for(spID in speciesSub) { try({
   training <- training[, c("occ", covarsNames[covarsNames %in% colnames(myData)])]
   
   # save all datasets
-  save(training, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
-  save(validation, file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
+  save(training, file=paste0(here::here(), "/results/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
+  save(validation, file=paste0(here::here(), "/results/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
   
   rm(myBiomodData, myData, training, validation)
 
