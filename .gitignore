@@ -98,3 +98,4 @@ data_raw/GBIF_Crassiclitellata/occurrence.txt
 data_raw/GBIF_Crassiclitellata/verbatim.txt
 /results/_TopPredictor/maxent_files
 /results/maxent_files
+/results/maxent_files_withValidation
