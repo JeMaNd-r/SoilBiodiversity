@@ -79,6 +79,8 @@ for(spID in speciesSub) { try({
   save(training, file=paste0(here::here(), "/results/_TopPredictor/MaxentData_train_", Taxon_name,"_", spID, ".RData"))
   save(validation, file=paste0(here::here(), "/results/_TopPredictor/MaxentData_valid_", Taxon_name,"_", spID, ".RData"))
   
+  save(myData, file=paste0(here::here(), "/results/_TopPredictor/MaxentData_noValid_", Taxon_name,"_", spID, ".RData"))
+
   rm(myBiomodData, myData, training, validation)
 
 })}
@@ -88,21 +90,7 @@ for(spID in speciesSub) { try({
 ## Modeling ####
 # NOTE: This part might only work in R but not in RStudio.
 
-modelName <- "MaxentData"
-files <- list.files(path = paste0(here::here(), "/results/_TopPredictor"), 
-                    pattern = paste0(modelName), full.name = T)
-
-for(spID in speciesSub){ try({
-  
-  # identify and load all relevant data files
-  temp.files <- files[stringr::str_detect(files, spID)]
-  lapply(temp.files, load, .GlobalEnv)
-  
-  # "We used five different regularization multipliers (0.5, 1, 2, 3 and 4)
-  # in combination with different features (L, LQ, H, LQH, LQHP) to find the 
-  # best parameters that maximizes the average AUC-ROC in CV."
-  
-  # function for simultaneous tuning of MaxEnt regularization multiplier and features
+# function for simultaneous tuning of MaxEnt regularization multiplier and features
   maxent_param <- function(data, y = "occ", k = 5, folds = NULL, filepath){
     require(dismo)
     require(caret)
@@ -152,6 +140,20 @@ for(spID in speciesSub){ try({
     best_param <- as.character(unlist(grid[which.max(AUCs), ]))
     return(best_param)
   }
+
+modelName <- "MaxentData"
+files <- list.files(path = paste0(here::here(), "/results/_TopPredictor"), 
+                    pattern = paste0(modelName), full.name = T)
+
+for(spID in speciesSub){ try({
+  
+  # identify and load all relevant data files
+  temp.files <- files[stringr::str_detect(files, spID)]
+  lapply(temp.files, load, .GlobalEnv)
+  
+  # "We used five different regularization multipliers (0.5, 1, 2, 3 and 4)
+  # in combination with different features (L, LQ, H, LQH, LQHP) to find the 
+  # best parameters that maximizes the average AUC-ROC in CV."
   
   ## now use the function to tune MaxEnt
   # number of folds
@@ -223,6 +225,84 @@ for(spID in speciesSub){ try({
 
 })}
 
+#- - - - - - - - - - - - - - - - - - - - -
+## Modeling (no validation data) ####
+# NOTE: This part might only work in R but not in RStudio.
+
+modelName <- "MaxentData_noValid"
+
+for(spID in speciesSub){ try({
+  
+  # load data
+  load(paste0(here::here(), "/results/_TopPredictor/MaxentData_noValid_", Taxon_name,"_", spID, ".RData")) #myData
+ 
+  # "We used five different regularization multipliers (0.5, 1, 2, 3 and 4)
+  # in combination with different features (L, LQ, H, LQH, LQHP) to find the 
+  # best parameters that maximizes the average AUC-ROC in CV."
+  
+  ## now use the function to tune MaxEnt
+  # number of folds
+  nfolds <- ifelse(sum(as.numeric(myData$occ)) < 10, 2, 5)
+  
+  tmp <- proc.time()[3]
+  set.seed(32639)
+  
+  # tune MaxEnt parameters
+  param_optim <- maxent_param(data = myData,
+                              k = nfolds,
+                              filepath = paste0(here::here(), "/results/_TopPredictor/maxent_files"))
+  
+  ## fit a maxent model with the tuned parameters
+  maxent <- dismo::maxent(x = myData[, covarsNames],
+                          p = myData$occ,
+                          removeDuplicates = FALSE, #remove occurrences that fall into same grid cell (not necessary)
+                          path = paste0("results/maxent_files/", spID), #wanna save files?
+                          args = param_optim)
+  
+  temp_model_time <- proc.time()[3] - tmp
+  
+  
+  tmp <- proc.time()[3]
+  # create raster layer of predictions for whole environmental space
+  #temp_prediction <- raster::predict(Env_clip, maxent)
+  #temp_prediction <- data.frame(raster::rasterToPoints(temp_prediction))
+  gc()
+  #temp_prediction <- dismo::predict(maxent, Env_clip_df %>% dplyr::select(-x, -y)) # Java out of memory
+  temp_prediction <- dismo::predict(maxent, Env_clip_df[,colnames(Env_clip_df) %in% covarsNames], type = c("cloglog"))
+  temp_prediction <- as.numeric(temp_prediction)
+  names(temp_prediction) <- rownames(Env_clip_df[complete.cases(Env_clip_df[,colnames(Env_clip_df) %in% covarsNames]),]) #add site names
+  temp_prediction <- as.data.frame(temp_prediction)
+  temp_prediction$x <- Env_clip_df[complete.cases(Env_clip_df[,colnames(Env_clip_df) %in% covarsNames]),]$x
+  temp_prediction$y <- Env_clip_df[complete.cases(Env_clip_df[,colnames(Env_clip_df) %in% covarsNames]),]$y
+  colnames(temp_prediction)[1] <- "layer"
+  
+  temp_runs <- 1
+  
+  temp_predict_time <- proc.time()[3] - tmp
+  
+  # varImp
+  temp_varImp <- as.data.frame(maxent@results[str_detect(rownames(maxent@results),"permutation.importance"),])
+  # Note: permutation importance = determine the importance of predictors 
+  # calculated by permuting values of each predictor &  resulting reduction
+  # in training AUC: large reduction = model is influenced by that predictor. 
+  
+  # extract predictor names
+  temp_varImp$Predictor <- stringr::str_split_fixed(rownames(temp_varImp), "[.]perm", 2)[,1]
+  colnames(temp_varImp) <- c("maxent", "Predictor")  
+  # plot variable importance
+  #plot(maxent)   
+  # plot response curve
+  #response(maxent)  
+  
+  maxent_list <- list(bg_data=modelName, time_model=temp_model_time, time_predict=temp_predict_time, runs=temp_runs, prediction=temp_prediction, varImp=temp_varImp)
+  save(maxent_list, file=paste0(here::here(), "/results/_TopPredictor/SDM_maxent_noValid_", spID, ".RData"))
+  
+  rm(maxent, maxent_list, param_optim, temp_model_time, temp_predict_time, temp_runs, temp_prediction, temp_varImp)
+  gc()
+  
+  rm(myData)
+
+})}
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate variable importance (VI) ####
