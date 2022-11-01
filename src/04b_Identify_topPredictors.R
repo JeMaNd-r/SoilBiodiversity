@@ -322,7 +322,7 @@ for(spID in speciesSub){ try({
   print("=====================================")
   print(spID)
   
-  temp_sdm <- get(load(file=paste0(here::here(), "/results/_TopPredictor/SDM_maxent_", spID, ".RData")))
+  temp_sdm <- get(load(file=paste0(here::here(), "/results/_TopPredictor/SDM_maxent_noValid_", spID, ".RData")))
 
   temp_vi <- temp_sdm[["varImp"]]
   
@@ -350,17 +350,17 @@ var_imp
 str(var_imp)
 
 ## Save ####
-write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
+write_csv(var_imp, file=paste0(here::here(), "/results/Variable_importance_MaxEnt_noValid_", Taxon_name, ".csv"))
  
 
 #- - - - - - - - - - - - - - - - - -
 ## Vizualize and get top 10 ####
-var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_MaxEnt_", Taxon_name, ".csv"))
+var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_MaxEnt_noValid_", Taxon_name, ".csv"))
 var_imp
 
 # load predictor table to get classification of variables
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
 
 # transform to long format and add variable categories
 var_imp <- var_imp %>%
@@ -369,113 +369,159 @@ var_imp <- var_imp %>%
 # add category for clay.silt
 var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 
-# plot VIF
-plotVarImp <- ggplot(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent), fill=Category))+
-  geom_boxplot(cex=0.2, outlier.size=0.2)+
+# plot Permutation importance
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent,median), fill=Category),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp %>% group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+		 aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="black",
+     		 size=3, alpha=1) +
   xlab("Variable importance (Permutation importance)")+
   ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
   theme_bw()+
   theme(axis.text.y = element_text(size = 5))
 plotVarImp
 
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_", Taxon_name, ".pdf")); plotVarImp; dev.off()
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_", Taxon_name, ".pdf")); plotVarImp; dev.off()
 
-# plot barplot with top 10
-plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
-  group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(maxent)) %>%
-  ggplot(aes(x=maxent, y=reorder(Predictor, maxent), fill=Category)) + 
-  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
-  geom_text(aes(label=round(maxent,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=1.1, cex=3)+
-  theme_bw()
-plotTopVI
+# plot Importance of species with n>=100 records
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])), 
+               aes(x=maxent, y=reorder(Predictor, maxent, median), fill=Category),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="black",
+             size=3, alpha=1) +
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 5), legend.position = c(0.7, 0.2))
+plotVarImp
 
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+plotVarImp_mean <- ggplot()+
+  geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])), 
+               aes(x=maxent, y=reorder(Predictor, maxent, mean), fill=Category),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, mean)), color="black", fill="black",
+             size=3, alpha=1) +
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 5), legend.position = c(0.7, 0.2))
+plotVarImp_mean
 
-# plot barplot with top 10 (based on 75% quartile)
-plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
-  group_by(Predictor, Category) %>% 
-	summarize(q75 = quantile(maxent, probs = .75)) %>% 
-	arrange(desc(q75)) %>%
-  ggplot(aes(x=q75, y=reorder(Predictor, q75), fill=Category)) + 
-  xlim(0, 20)+
-  geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
-  geom_text(aes(label=round(q75,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
-  theme_bw()
-plotTopVI
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_n100_", Taxon_name, ".pdf"), width=12)
+ggpubr::ggarrange(plotVarImp, plotVarImp_mean)
+dev.off()
 
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+# plot Importance of species with n>=10 but n<100 records
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=10 & speciesNames$NumCells_2km_biomod<100,"SpeciesID"])), 
+               aes(x=maxent, y=reorder(Predictor, maxent, median), fill=Category),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=10 & speciesNames$NumCells_2km_biomod<100,"SpeciesID"])) %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="black",
+             size=3, alpha=1) +
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text.y = element_text(size = 5))
+plotVarImp
 
-## count number of times that predictors are in top10 per species ####
-top10 <- c()
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_n10-99_", Taxon_name, ".pdf")); plotVarImp; dev.off()
 
-for(spID in unique(var_imp$Species)){
-    temp_top10 <- var_imp %>% filter(Species==spID) %>% 
-      filter(maxent > 0 & !is.na(maxent)) %>%
-      top_n(n = 10, wt = maxent) %>% dplyr::select(Predictor, Species)
-    top10 <- rbind(top10, temp_top10)
-}
+## More plots with different selection criteria for top 10 ####
+# # plot barplot with top 10 (based on 75% quartile)
+# plotTopVI <- var_imp %>% dplyr::select(maxent, Predictor, Category) %>%
+#   group_by(Predictor, Category) %>% 
+# 	summarize(q75 = quantile(maxent, probs = .75)) %>% 
+# 	arrange(desc(q75)) %>%
+#   ggplot(aes(x=q75, y=reorder(Predictor, q75), fill=Category)) + 
+#   xlim(0, 20)+
+#   geom_bar(stat="identity") + geom_line(y=length(covarsNames)-9.5)+
+#   geom_text(aes(label=round(q75,3)), position=position_dodge(width=0.5), vjust=0.5, hjust=-0.1, cex=3)+
+#   theme_bw()
+# plotTopVI
+# 
+# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_q75_", Taxon_name, ".pdf")); plotTopVI; dev.off()
+# 
+# ## count number of times that predictors are in top10 per species ####
+# top10 <- c()
+# 
+# for(spID in unique(var_imp$Species)){
+#     temp_top10 <- var_imp %>% filter(Species==spID) %>%
+#       filter(maxent > 0 & !is.na(maxent)) %>%
+#       top_n(n = 10, wt = maxent) %>% dplyr::select(Predictor, Species)
+#     top10 <- rbind(top10, temp_top10)
+# }
+# 
+# top10 <- top10 %>% count(Predictor, Species)
+# 
+# # transform to long format and add variable categories
+# top10 <- top10 %>%
+#   left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+# 
+# # add category for clay.silt
+# top10[top10$Predictor=="Clay.Silt","Category"] <- "Soil"
+# 
+# # plot barplot with top 10 (based on top10 counts) for all species
+# plotTop10 <- top10 %>%
+#   dplyr::select(n, Predictor, Category) %>%
+#   group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+#   arrange(desc(sum)) %>%
+#   ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) +
+#   ylim(0, 50)+
+#   geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+#   geom_point(aes(color=Category), size=4, alpha=1) +
+#   geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
+#   scale_y_continuous(expand=c(0,0))+
+#   coord_flip() +
+#   theme_bw()
+# plotTop10
+# 
+# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_", Taxon_name, ".pdf")); plotTop10; dev.off()
+# 
+# # plot barplot with top 10 (based on top10 counts) for species n>=100 records
+# plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=100,"SpeciesID"]) %>%
+#   dplyr::select(n, Predictor, Category) %>%
+#   group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+#   arrange(desc(sum)) %>%
+#   ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) +
+#   ylim(0, 20)+
+#   geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+#   geom_point(aes(color=Category), size=4, alpha=1) +
+#   geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
+#   scale_y_continuous(expand=c(0,0))+
+#   coord_flip() +
+#   theme_bw()
+# plotTop10
+# 
+# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
+# 
+# # plot barplot with top 10 (based on top10 counts) for species n>=100 records
+# plotTop10 <- top10 %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"])) %>%
+#   dplyr::select(n, Predictor, Category) %>%
+#   group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
+#   arrange(desc(sum)) %>%
+#   ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) +
+#   geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
+#   geom_point(aes(color=Category), size=4, alpha=1) +
+#   geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
+#   scale_y_continuous(limits=c(0,30), expand=c(0,0))+
+#   coord_flip() +
+#   theme_bw()
+# plotTop10
+# 
+# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
 
-top10 <- top10 %>% count(Predictor, Species)
+#- - - - - - - - - - - - - - - - - -
+## Estimate richness ####
 
-# transform to long format and add variable categories
-top10 <- top10 %>%
-  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
-
-# add category for clay.silt
-top10[top10$Predictor=="Clay.Silt","Category"] <- "Soil"
-
-# plot barplot with top 10 (based on top10 counts) for all species
-plotTop10 <- top10 %>%
-  dplyr::select(n, Predictor, Category) %>%
-  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
-  arrange(desc(sum)) %>%
-  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
-  ylim(0, 50)+
-  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
-  geom_point(aes(color=Category), size=4, alpha=1) +
-  geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
-  scale_y_continuous(expand=c(0,0))+
-  coord_flip() +
-  theme_bw()
-plotTop10
-
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_", Taxon_name, ".pdf")); plotTop10; dev.off()
-
-# plot barplot with top 10 (based on top10 counts) for species n>=100 records
-plotTop10 <- top10 %>% filter(Species %in% speciesNames[speciesNames$NumCells_2km >=100,"SpeciesID"]) %>%
-  dplyr::select(n, Predictor, Category) %>%
-  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
-  arrange(desc(sum)) %>%
-  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
-  ylim(0, 20)+
-  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
-  geom_point(aes(color=Category), size=4, alpha=1) +
-  geom_vline(xintercept=length(covarsNames)-11.5, lty=2)+
-  scale_y_continuous(expand=c(0,0))+
-  coord_flip() +
-  theme_bw()
-plotTop10
-
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n100_", Taxon_name, ".pdf")); plotTop10; dev.off()
-
-# plot barplot with top 10 (based on top10 counts) for species n>=100 records
-plotTop10 <- top10 %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km >=10 & speciesNames$NumCells_2km <100,"SpeciesID"])) %>%
-  dplyr::select(n, Predictor, Category) %>%
-  group_by(Predictor, Category) %>%  summarize(sum=sum(n)) %>%
-  arrange(desc(sum)) %>%
-  ggplot(aes(y=sum, x=reorder(Predictor, sum), fill=Category)) + 
-  geom_segment(aes(x=reorder(Predictor, sum), xend=reorder(Predictor, sum), y=0, yend=sum), color="black") +
-  geom_point(aes(color=Category), size=4, alpha=1) +
-  geom_vline(xintercept=length(covarsNames)-9.5, lty=2)+
-  scale_y_continuous(limits=c(0,30), expand=c(0,0))+
-  coord_flip() +
-  theme_bw()
-plotTop10
-
-pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_top10_count10_n10-99_", Taxon_name, ".pdf")); plotTop10; dev.off()
-
-
-# plot maps
+## plot maps
 temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
 temp_files <- temp_files[stringr::str_detect(temp_files, "SDM_maxent_[:graph:]*.RData")]
 
@@ -500,11 +546,8 @@ png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_MaxEnt
 do.call(gridExtra::grid.arrange, plots)
 dev.off()
 
-
-#- - - - - - - - - - - - - - - - - -
-## Estimate richness ####
-
-# create empty data frame
+#- - - - - - - - - - - - - - - - - - - - - -
+## create empty data frame
 species_stack <- Env_norm_df %>% dplyr::select(x, y)
 
 # for loop through all species
@@ -551,7 +594,7 @@ save(species_stack, file=paste0(here::here(), "/results/_TopPredictor/SDM_stack_
 
 
 #- - - - - - - - - - - - - - - - - - - - - -
-## View individual binary maps and species stack ####
+## View species stack ####
 
 species_stack$Richness[species_stack$Richness == 0] <- NA
 
