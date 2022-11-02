@@ -156,6 +156,12 @@ Figures where all created using provided R scripts.
 * ~/SDMs
   * Folder containing species-specific Species Distribution Model output (.RData files) from BIOMOD analysis.
 
+* ~/_Sensitivity
+  * Analysis of sensitivity against number of occurrences (numeric). Run with 5, 10, 20, and 50 occurrences per focal species (n>=100 records).
+  
+* ~/_Sensitivity_2
+  * Analysis of sensitivity against number of occurrences (percent). Run with 50%, 75%, and 90% of all occurrences per focal species (n>=100 records).
+
 * ~/_TopPredictor
   * Folder containing the MaxEnt analysis to identify the top 10 important predictors based on species with more than or equal to 10 presence records
   * Training data: MaxentData_train_... .RData
@@ -163,6 +169,16 @@ Figures where all created using provided R scripts.
   * Species Distribution Model output: SDM_maxent_... .RData
   * Stacked species distributions: SDM_stack_MaxEnt_binary0.8_Crassiclitellata.RData
   * ~/maxent_files: Folder containing temporary files from MaxEnt analysis.
+
+* ~/biomod_files
+  * Folder containing preliminary and the BIOMOD output for each species (i.e., one folder per species). 
+  * ~/_Run_all_Algorithms: Individual model predictions such as GLM, MaxEnt, SVM and many more. 
+  * ~/_Run_occFilter1990: Only occurrences after 1990. 
+  * ~/_Run_wrongBiomodData: Most recent (old) version with BIOMOD data containing not 10,000 pseudo-absences but less.
+  * ~/_Run_wrongPredictors: Different predictor selection criterium (old).
+
+* ~/maxent_files
+  * Folder containing MaxEnt output with one folder per species.
 
 * corMatPearson_predictors.csv
   * Correlation matrix showing Pearson correlations among the predictors (i.e., environmental variables) at 2km resolution.
@@ -258,43 +274,43 @@ Figures where all created using provided R scripts.
   * R code to clip spatial extent of environmental stack. Grid cells with NA values in 1+ layers are removed.
 
 * 02a_OPTIONAL_Download_GBIF_occurrences.R
-  * R code to 
+  * R code to download GBIF in R using rgif package. Output is saved with different name than manually (DOI-linked) dataset.
 
 * 02b_Clean_GBIF_occurrences.R
-  * R code to 
+  * R code to clean GBIF occurrence records based on GBIF metadata.
 
 * 03a_Prepare_biodiversity_data.R
-  * R code to 
+  * R code to harmonize, merge and clean occurrence data from different sources using CoordinateCleaner package among others.
 
 * 03b_Occurrences_to_10km_grid.R
-  * R code to 
+  * OPTIONAL R code to rasterize occurrence point records into German 10km² grid system from project Faktencheck.
 
 * 03b_Occurrences_to_2km_grid.R
-  * R code to 
+  * R code to rasterize occurrence point records into European 2km² grid system. 
 
 * 03b_Occurrences_to_5km_grid.R
-  * R code to 
+  * OPTIONAL R code to rasterize occurrence point records into European 5km² grid system. Only used during preanalysis.
 
 * 04a_Prepare_input_data.R
-  * R code to 
+  * R code to prepare input using biomod2 package. Output is used for both, MaxEnt and BIOMOD analysis.
 
 * 04b_Identify_topPredictors.R
-  * R code to 
+  * R code to select top 10 important predictors by running MaxEnt analysis and identified variables with highest median permuttation importance.
 
 * 05_Build_SDMs.R
-  * R code to 
+  * R code to build Species Distribution Models (SDMs) using BIOMOD. Output is saved in folders per species.
 
 * 06a_Predict_SDM_current.R
-  * R code to 
+  * R code to predict species' presence into whole environment under current climate conditions. 
 
 * 06b_Predict_SDM_future.R
-  * R code to 
+  * R code to predict species' presence into whole environment under 15 future climate conditions. 
 
 * 07_Variable_importance.R
-  * R code to 
+  * R code to extract and combine variable importances from BIOMOD output.
 
 * 08_Uncertainty_analysis.R
-  * R code to 
+  * R code to extract uncertainty (coefficient of variance) from BIOMOD output.
 
 * 09_Model_performance.R
   * R code to 
