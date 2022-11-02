@@ -11,7 +11,7 @@
 
 * LICENSE.txt
   * License for code: MIT Copyright (c) 2021 Romy Zeiss 
-  * License for code: CC0 Copyright (c) 2022 Romy Zeiss
+  * License for data: CC0 Copyright (c) 2022 Romy Zeiss
 
 * README.Rmd
   * README file containing general information about the analysis and associated data.
@@ -310,40 +310,42 @@ Figures where all created using provided R scripts.
   * R code to extract and combine variable importances from BIOMOD output.
 
 * 08_Uncertainty_analysis.R
-  * R code to extract uncertainty (coefficient of variance) from BIOMOD output.
+  * R code to extract uncertainty (coefficient of variance) from BIOMOD output and create dataframe containing proper spatial extent for mapping (uncertainty<0.1).
 
 * 09_Model_performance.R
-  * R code to 
+  * R code to extract model performance measures (AUC(ROC), TSS and Kappa) from BIOMOD output.
 
 * 10a_Calculate_richness_current.R
-  * R code to 
+  * R code to calculate species richness under current climatic conditions (i.e., using projections with current climate). Includes prelimiary beta diversity and cluster analysis.
 
 * 10b_Calculate_richness_future.R
-  * R code to 
+  * R code to calculate species richness under future climatic conditions (i.e., using projections with 15 future climate scenarios).
 
 * 11_Range_sizes.R
-  * R code to 
+  * R code to estimate range sizes of earthworm species under current and future climate conditions.
 
 * 12a_Prepare_protection.R
-  * R code to 
+  * R code to extract protection status of each 5km² grid cell based on WDPA and WDOEC networks in Europe. Protection status is estimated as percentage of cover of each protected area falling into one of the IUCN categories.
 
 * 12b_Estimate_conservation_status.R
-  * R code to 
+  * R code to calculate protection status of each earthworm species by counting presence grid cells covered by certain protected area categories.
 
 * 13_Climate_impact_analysis.R
-  * R code to 
+  * R code to test the effect of mean annual temperature and precipitation seasonality on future prediction by using both, only temperature, or only precipitation predicted into the future. Other variables are kept as they were under current climate condictions.
 
 * 14_Plotting_and_results.R
-  * R code to 
+  * R code to create and save figures, and extract some values.
 
 * 15a_Sensitivity_analysis_number.R
-  * R code to 
+  * R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 5, 10, 20, and 50 presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity
 
 * 15b_Sensitivity_analysis_percent.R
-  * R code to 
+  * R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 50, 75, and 95% of the original number of presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity_2
 
 * 16_Results_for_Faktencheck.R
-  * R code to 
+  * R code to extract results used for the project Faktencheck.
+
+Remaining scripts are outdates but contain helpful lines of code to run diverse algorithms separately, prepare predictors at different resoltions and using raster instead of terra package, and unfinished scripts to estimate landscape fragmentation layer, and build Ensembles of Small Models. 
 
 * OLD_00_SoilBiodiversity_SDMs.Rmd
 * OLD_01_Prepare_1km_predictors.R
@@ -363,4 +365,3 @@ Figures where all created using provided R scripts.
 * OLD_ecospat_function_fixed.R
 * OLD_SDM_ensm_ESM_runParallel.R
 * OLD_SDM_ensm_runParallel.R              
-
