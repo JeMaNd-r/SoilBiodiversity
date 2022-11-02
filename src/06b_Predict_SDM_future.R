@@ -31,8 +31,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
-                 "pH", "MAP", "Clay.Silt", "CEC","P" )
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
+                 "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 
@@ -63,7 +63,7 @@ registerDoParallel(no.cores)
 for(spID in speciesSub){ try({ 
             
             # list files in species-specific BIOMOD folder
-            temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+            temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
             
             temp_files
             
@@ -78,14 +78,20 @@ for(spID in speciesSub){ try({
             
             for(no_future in scenarioNames){
               
-              # load env. data with future climate (MAP, MAT, MAP_Seas)
-              load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_normalized.RData")) #temp_Env_df
+              ## load env. data with future climate (MAP, MAT, MAP_Seas)
+              #load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_normalized.RData")) #temp_Env_df
               
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
               for(subclim in c("TP", "T", "P")){
                 
                 if(subclim=="TP"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
+                  
+                  temp_MAT <- raster::raster(paste(here::here(), "/data_environment/", temp_name))
+                  temp_raster <- raster::scale(temp_raster)
+                  
+                  temp_Env_norm[[temp_name]] <- temp_raster
+                  
                 }
                 
                 if(subclim=="P"){

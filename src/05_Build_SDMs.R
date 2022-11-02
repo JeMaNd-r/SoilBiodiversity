@@ -26,24 +26,24 @@ library(doParallel)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
-                 "pH", "MAP", "Clay.Silt", "CEC","P" )
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
+                 "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
 
 # load data with sampling year information
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 str(occ_points)
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
-#Env_norm <- stack(Env_norm)
+Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_clipped.grd"))
+#Env_clip <- stack(Env_norm)
 
 # as dataframe
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 # define formula for GLM (and biomod)
 form <- paste0("occ ~ ", paste0(paste0("s(", covarsNames, ")"), collapse=" + "))
@@ -149,18 +149,18 @@ mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Ph
 
 #- - - - - - - - - - - - - - - - - - - - -
 # if more than 100 occurrences   
-registerDoParallel(no.cores)
+registerDoParallel(19)
 foreach(spID = speciesSub, 
-        .export = c("Env_norm", "Env_norm_df", "form"),
+        .export = c("Env_clip", "Env_clip_df", "form", "occ_points"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
           
-          load(paste0(here::here(), "/data_processed/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+          load(paste0(here::here(), "/intermediates/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
           
           # subset covarsNames
           myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
           
           # define weights of presence records based on sampling year
-          temp_weights <- mySpeciesOcc %>% dplyr::select(x, y, year, spID) %>% unique()
+          temp_weights <- occ_points %>% dplyr::select(x, y, year, spID) %>% unique()
           temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
           temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
           temp_weights$weight <- 0.1
@@ -173,7 +173,7 @@ foreach(spID = speciesSub,
           
           # model fitting
           #tmp <- proc.time()[3]
-          setwd(paste0(here::here(), "/results/", Taxon_name))
+          setwd(paste0(here::here(), "/results/biomod_files"))
           
           set.seed(32639)
           myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,

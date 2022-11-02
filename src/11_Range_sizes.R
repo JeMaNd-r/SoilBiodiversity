@@ -26,8 +26,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
-                 "pH", "MAP", "Clay.Silt", "CEC","P" )
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
+                 "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
 
 # define future scenarios
 scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr", 

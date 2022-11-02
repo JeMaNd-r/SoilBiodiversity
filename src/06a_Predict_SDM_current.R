@@ -31,8 +31,8 @@ speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(Speci
 speciesSub <- c(speciesSub$SpeciesID)
 
 # covariates in order of importance (top 10 important)
-covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
-                 "pH", "MAP", "Clay.Silt", "CEC","P" )
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
+                 "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
 
 # Calculate the number of cores
 no.cores <-  parallel::detectCores()/2 
@@ -53,7 +53,7 @@ foreach(spID = speciesSub,
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
           # list files in species-specific BIOMOD folder
-          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+          temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
           setwd(paste0(here::here(), "/results/", Taxon_name))
           
