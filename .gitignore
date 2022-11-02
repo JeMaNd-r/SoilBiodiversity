@@ -99,3 +99,5 @@ data_raw/GBIF_Crassiclitellata/verbatim.txt
 /results/_TopPredictor/maxent_files
 /results/maxent_files
 /results/maxent_files_withValidation
+/results/_Sensitivity
+/results/_Sensitivity_2
