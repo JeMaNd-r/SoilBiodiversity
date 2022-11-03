@@ -53,7 +53,7 @@ data_raw/WDPA_WDOECM_Dec2021_Public_EU_shp
 data_raw/Faktencheck*
 data_raw/worm_spd_europe_jerome.csv
 
-doc/Species_list_Crassiclitellata_Europe_MariaBriones.csv
+/doc/Species_list_Crassiclitellata_Europe_MariaBriones.csv
 
 /figures
 
@@ -73,6 +73,7 @@ results/Crassiclitellata
 results/maxent_files
 
 results/Faktencheck*
+
 results/Occurrence_rasterized_1km_Crassiclitellata.csv
 results/Occurrence_rasterized_2km_Crassiclitellata.csv
 results/Occurrence_rasterized_2km_BIOMOD_Crassiclitellata.csv
