@@ -58,7 +58,8 @@ data_raw/worm_spd_europe_jerome.csv
 /figures
 
 intermediates/BIOMOD_data
-intermediates/Earthworm_occurrences_GBIF-sWorm-Edapho-SoilReCon-JM.csv
+intermediates/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv
+
 intermediates/Occurrences_Crassiclitellata.csv
 
 results/_FutureEnvironment
