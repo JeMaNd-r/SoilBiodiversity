@@ -33,20 +33,20 @@ sessionInfo()
 * Code is available at GitHub.
 * Data can be downloaded according to Zeiss et al. 2023.
 
-Folder structure should be maintained. Additionally, please start with loading the SoilBiodiversity.Rproj file, and load individual R scripts from there. Working directory should be the SoilBiodiversity folder containing the .Rproj file. This is necessary to access all data files that will be called with `here::here()`.
+Folder structure should be maintained. Additionally, please download maxent.jar according to description from dismo package. Working directory during analysis should be the main folder. This is necessary to access all data files that will be called with `here::here()`.
 
 
 ### Executing program
 
-* Open the RMarkdown document called *SoilBiodiversity_SDMs.Rmd*.
-* Follow its written workflow and load the attached R scripts.
+* Open the R scripts following the numbering.
+* To perform Species Distribution Models (SDMs), you need to create the raster stack(s) of environmental variables (*EnvPredictor_2km...*) in the *results* subfolder. This is done in "01b_Combine_predictors.R".
 
-If any of the individual R scripts doesn't run when using `load()`, please run the whole scripts manually. Open the respective R file (.R), select all lines, and run them in the console. 
+Note: The R script "04b_Identify_topPredictors.R" might only run in R but not in RStudio.
 
 
 ## Help
 
-You may need to download the spatial grid (*grid_2k_0p016.tif*) into the *data* subfolder, as well as the raster stack(s) of environmental variables (*EnvPredictor_2km...*) into the *results* subfolder.
+You may need to create subfolders (results, docs, figures) to run each line of code and save results and figures. 
 
 
 ## Authors
@@ -56,13 +56,6 @@ Contributors names and contact info
 Romy Zeiss  
 [@RomyZeiss](https://twitter.com/romyzeiss)
 
-## Version History
-
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
 
 ## License
 
@@ -70,21 +63,28 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 
 ## Acknowledgments
 
-This code is based on Valavi et al. 2021 [1]
-
+Pieces of SDM code are based on Valavi et al. 2021 [1]
 
 
 ## References
 
 [1] Valavi et al. (2021) Predictive performance of presence-only species distribution models: a benchmark study with reproducible code. Ecological Mponographs.
 
-[2]
+[2] Zeiss et al. (in prep.)
 
 
 
 ## Folder structure
 
-#### data
+#### data_environment
+Environmental data to predict species dsitributions.
+
+* METADATA_Predictors.csv
+  * Information about predictors such as source, resolution and processing.
+
+
+#### data_raw
+Species occurrence data
 
 *Note* Species occurrence data downloaded from diverse sources. GBIF data with search term "Crassiclitellata" is available at [https://doi.org/10.15468/dl.ghtngj]. Date 2022-03-05. GBIF Download content: metadata, and occurrence records (occurrence.txt). Data compiled by Jérome Mathieu is available upon request and will be published separately. Version date: 2022-05-20.
 
@@ -108,7 +108,7 @@ This code is based on Valavi et al. 2021 [1]
 
 
 #### doc
-
+Documentation: taxonomic backbone used in this study, and ODMAP protocol on SDM procedure.
 * Add_Bottinelli_ecogroups.R
   * R script to identify accepted taxonomic names (based on taxize package & ITIS database) and ecological groups (based on Bottinelli and Bouché).
 
@@ -118,12 +118,35 @@ This code is based on Valavi et al. 2021 [1]
 * ODMAP_Zeiss_et_al_2022-09-15.csv
   * ODMAP protocol summarizing settings and input data of Species Distribution Modeling. Version: 2022-09-15.
 
+
 #### intermediates
 
 * Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon.csv
   * Species occurrence data cleaned and compiled from single datasets. Please note that the dataset compiled by Jérome Mathieu (JM) had to be excluded. The full processed dataset is avaiable upon request.
 
+
 #### results
+
+* ~/Maps
+  * Folder with raster stacks containing species distributions (.RData files) under current and future climatic conditions.
+
+* ~/SDMs
+  * Folder containing species-specific Species Distribution Model output (.RData files) from BIOMOD analysis.
+
+* ~/_Sensitivity
+  * Analysis of sensitivity against number of occurrences (numeric). Run with 5, 10, 20, and 50 occurrences per focal species (n>=100 records).
+  
+* ~/_Sensitivity_2
+  * Analysis of sensitivity against number of occurrences (percent). Run with 50%, 75%, and 90% of all occurrences per focal species (n>=100 records).
+
+* ~/_TopPredictor
+  * Folder containing the MaxEnt analysis to identify the top 10 important predictors based on species with more than or equal to 10 presence records
+
+* ~/biomod_files
+  * Folder containing preliminary and the BIOMOD output for each species (i.e., one folder per species). 
+
+* ~/maxent_files
+  * Folder containing MaxEnt output with one folder per species.
 
 * corMatPearson_predictors.csv
   * Correlation matrix showing Pearson correlations among the predictors (i.e., environmental variables) at 2km resolution.
@@ -131,22 +154,143 @@ This code is based on Valavi et al. 2021 [1]
 * corMatSpearman_predictors.csv
   * Correlation matrix showing Spearman correlations among the predictors (i.e., environmental variables) at 2km resolution.
 
-* EnvPredictor_2km.grd/.gri
-  * Raster stack where each layer represents one environmental variable at ~2km² resolution within the European raster grid.
+* FlaggedRecords_Crassiclitellata.csv
+  * Table containing flagged records based on issues in coordinates as identified by CoordinateCleaner package.
 
-* EnvPredictor_2km_df_normalized.RData
-  * Dataframe where each column represents one scaled environmental variable at ~2km² resolution within the European raster grid.
+* GBIF_issues_Crassiclitellata.txt
+  * List of unique issues (column "issue") in raw GBIF occurrence data. 
 
-* EnvPredictor_2km_normalized.grd/.gri
-  * Raster stack where each layer represents one scaled environmental variable at ~2km² resolution within the European raster grid.
+* NoRecords_cleaning_Crassiclitellata.csv
+  * Table with number of records after each cleaning step for GBIF dataset and total occurrence dataset.
 
-* EnvPredictor_5km.grd/.gri
-  * Raster stack where each layer represents one environmental variable at ~5km² resolution within the European raster grid.
+* NoRecords_perSpecies_full_Crassiclitellata.csv
+  * Table with number of records per species and datasource before (raw) and after data cleaning (clean).
 
-* EnvPredictor_5km_normalized.grd/.gri
-  * Raster stack where each layer represents one scaled environmental variable at ~5km² resolution within the European raster grid.
+* NumSpecies_perOcc.csv
+  * Table containing the number of species per number of occurrence (i.e., number of 2km² cells, records, or records used in BIOMOD).
 
-* EnvPredictor_5km_df_normalized.RData
-  * Dataframe where each column represents one scaled environmental variable at ~5km² resolution within the European raster grid.
+* Occurrence_rasterized_2km_Crassiclitellata.csv
+  * Species occurrence records summarized for each 2km² grid cell and species based on the respective grid .tif file.
 
-* 
+* Occurrence_rasterized_2km_BIOMOD_Crassiclitellata.csv
+  * Species occurrence records summarized for each 2km² grid cell and species based on the respective grid .tif file and subsetted to the minimum extent of the envrionmental variables (i.e., excluding grid cells with NAs in 1+ layers). In addition, this file contains 10,000 pseudo-absences per species created with biomod2::BIOMOD_FormattingData() function.
+
+* Species_list_Crassiclitellata.csv
+  * Table with raw species names, their accepted taxon names, ecological grouping, abbreviations, and summary statistics (i.e., Number of records, presence cells at 2km and presences in BIOMOD data).
+
+* Variable_importance_MaxEnt_Crassiclitellata.csv
+  * Permuttation importance values for all 29 predictor variables from species-specific MaxEnt analysis.
+
+* VIF_predictors.csv
+  * Variable inflation factor before (column VIF_raw) and after removing variables with VIF>10 (VIF), and Pearson correlations calculated by usdm::vifcor() function.
+
+
+#### src
+
+* 01a_Prepare_2km_predictors_terra.R
+  * R code to prepare predictors at 2km resolution using terra package.
+
+* 01a_Prepare_5km_predictors_terra.R
+  * R code to prepare predictors at 5km resolution using terra package.
+
+* 01b_Combine_predictors.R
+  * R code to combine predictors into one raster stack and to normalize all variables (scale with mean of 0).
+
+* 01c_Colinearity_predictors.R
+  * R code to identify multicolinearity between predictors. Predictors are only excluded during the next step.
+
+* 01d_Clip_predictors.R
+  * R code to clip spatial extent of environmental stack. Grid cells with NA values in 1+ layers are removed.
+
+* 02a_OPTIONAL_Download_GBIF_occurrences.R
+  * R code to download GBIF in R using rgif package. Output is saved with different name than manually (DOI-linked) dataset.
+
+* 02b_Clean_GBIF_occurrences.R
+  * R code to clean GBIF occurrence records based on GBIF metadata.
+
+* 03a_Prepare_biodiversity_data.R
+  * R code to harmonize, merge and clean occurrence data from different sources using CoordinateCleaner package among others.
+
+* 03b_Occurrences_to_10km_grid.R
+  * OPTIONAL R code to rasterize occurrence point records into German 10km² grid system from project Faktencheck.
+
+* 03b_Occurrences_to_2km_grid.R
+  * R code to rasterize occurrence point records into European 2km² grid system. 
+
+* 03b_Occurrences_to_5km_grid.R
+  * OPTIONAL R code to rasterize occurrence point records into European 5km² grid system. Only used during preanalysis.
+
+* 04a_Prepare_input_data.R
+  * R code to prepare input using biomod2 package. Output is used for both, MaxEnt and BIOMOD analysis.
+
+* 04b_Identify_topPredictors.R
+  * R code to select top 10 important predictors by running MaxEnt analysis and identified variables with highest median permuttation importance.
+
+* 05_Build_SDMs.R
+  * R code to build Species Distribution Models (SDMs) using BIOMOD. Output is saved in folders per species.
+
+* 06a_Predict_SDM_current.R
+  * R code to predict species' presence into whole environment under current climate conditions. 
+
+* 06b_Predict_SDM_future.R
+  * R code to predict species' presence into whole environment under 15 future climate conditions. 
+
+* 07_Variable_importance.R
+  * R code to extract and combine variable importances from BIOMOD output.
+
+* 08_Uncertainty_analysis.R
+  * R code to extract uncertainty (coefficient of variance) from BIOMOD output and create dataframe containing proper spatial extent for mapping (uncertainty<0.1).
+
+* 09_Model_performance.R
+  * R code to extract model performance measures (AUC(ROC), TSS and Kappa) from BIOMOD output.
+
+* 10a_Calculate_richness_current.R
+  * R code to calculate species richness under current climatic conditions (i.e., using projections with current climate). Includes prelimiary beta diversity and cluster analysis.
+
+* 10b_Calculate_richness_future.R
+  * R code to calculate species richness under future climatic conditions (i.e., using projections with 15 future climate scenarios).
+
+* 11_Range_sizes.R
+  * R code to estimate range sizes of earthworm species under current and future climate conditions.
+
+* 12a_Prepare_protection.R
+  * R code to extract protection status of each 5km² grid cell based on WDPA and WDOEC networks in Europe. Protection status is estimated as percentage of cover of each protected area falling into one of the IUCN categories.
+
+* 12b_Estimate_conservation_status.R
+  * R code to calculate protection status of each earthworm species by counting presence grid cells covered by certain protected area categories.
+
+* 13_Climate_impact_analysis.R
+  * R code to test the effect of mean annual temperature and precipitation seasonality on future prediction by using both, only temperature, or only precipitation predicted into the future. Other variables are kept as they were under current climate condictions.
+
+* 14_Plotting_and_results.R
+  * R code to create and save figures, and extract some values.
+
+* 15a_Sensitivity_analysis_number.R
+  * R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 5, 10, 20, and 50 presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity
+
+* 15b_Sensitivity_analysis_percent.R
+  * R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 50, 75, and 95% of the original number of presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity_2
+
+* 16_Results_for_Faktencheck.R
+  * R code to extract results used for the project Faktencheck.
+
+Remaining scripts are outdates but contain helpful lines of code to run diverse algorithms separately, prepare predictors at different resoltions and using raster instead of terra package, and unfinished scripts to estimate landscape fragmentation layer, and build Ensembles of Small Models. 
+
+* OLD_00_SoilBiodiversity_SDMs.Rmd
+* OLD_01_Prepare_1km_predictors.R
+* OLD_01a_Prepare_2km_predictors.R
+* OLD_01a_Prepare_5km_predictors.R
+* OLD_03b_Occurrences_to_1km_grid.R
+* OLD_04_Create_backgroundData.R
+* OLD_05_Prepare_input.R
+* OLD_06_SDM_Valavi.R
+* OLD_06_SDM_Valavi_runParallel.R
+* OLD_07_Model_performance.R
+* OLD_08_Predict_SDMs.R
+* OLD_09_Variable_importance.R
+* OLD_10_Estimate_richness.R
+* OLD_Background_drivers.Rmd
+* OLD_Calculate_LandscapeFragmentation.Rmd
+* OLD_ecospat_function_fixed.R
+* OLD_SDM_ensm_ESM_runParallel.R
+* OLD_SDM_ensm_runParallel.R  

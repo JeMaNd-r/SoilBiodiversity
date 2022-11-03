@@ -28,7 +28,7 @@ DATA_Predictors_5km.zip
 Environmental variables (n=29) used to project Species Distribution Models at ~5km resolution. Information on each variable can be found in METADATA_Predictors.
 
 DATA_Species_occurrences_raw.zip ------------------------
-Species occurrence data downloaded from diverse sources. GBIF data with search term "Crassiclitellata" is available at [https://doi.org/10.15468/dl.ghtngj]. Date 2022-03-05. GBIF Download content: metadata, and occurrence records (occurrence.txt). Data compiled by Jérome Mathieu is available upon request and will be published separately. Version date: 2022-05-20.
+Species occurrence data downloaded from diverse sources. GBIF data with search term "Crassiclitellata" is available at [https://doi.org/10.15468/dl.ghtngj]. Date 2022-03-05. GBIF Download content: metadata, and occurrence records (occurrence.txt). Please note that the dataset compiled by Jérome Mathieu (version date: 2022-05-20) is available upon request and will be published separately.
 
 ~/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv
 Species occurrence data downloaded from Edaphobase, search term "Lumbricidae". Date 2022-01-25. After download but before data processing, we manually changed ö/ä/ü/ß into oe/ae/ue/ss.

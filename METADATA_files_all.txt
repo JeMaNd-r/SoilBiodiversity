@@ -22,7 +22,6 @@
 
 #### data_environment
 
-
 * grid_2k_0p016.tif
   * Raster file containing the ~2km grid across Europe.
 
