@@ -55,15 +55,17 @@ load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_cli
 
 no.cores <- 3
 registerDoParallel(no.cores)
-# foreach(spID = speciesSub,
-#         .export = c("Env_norm", "Env_norm_df", "form", "Taxon_name"),
-#         .packages = c("tidyverse","biomod2")) %dopar% { try({ 
-#   
+foreach(spID = speciesSub,
+        .export = c("Env_clip_df", "Taxon_name"),
+        .packages = c("tidyverse","biomod2")) %dopar% { try({
 
-for(spID in speciesSub){ try({ 
+
+# for(spID in speciesSub[1:10]){ try({ 
             
+            setwd(here::here())
+          
             # list files in species-specific BIOMOD folder
-            temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+            temp_files <- list.files(paste0("./results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
             
             temp_files
             
@@ -79,7 +81,7 @@ for(spID in speciesSub){ try({
             for(no_future in scenarioNames){
               
               # load env. data with future climate (MAP, MAT, MAP_Seas)
-              load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
+              load(paste0("./results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
               
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
               for(subclim in c("TP", "T", "P")){
@@ -103,12 +105,13 @@ for(spID in speciesSub){ try({
                   temp_Env_sub$MAT <- Env_clip_df$MAT
                 }
                 
+                setwd(paste0(here::here(), "/results/biomod_files"))
                 
                 ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
                 # project single models (also needed for ensemble model)
                 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
                                                            new.env = temp_Env_sub[,colnames(temp_Env_sub) %in% covarsNames],        #column/variable names have to perfectly match with training
-                                                           proj.name = "modeling",  #name of the new folder being created
+                                                           proj.name = "modeling_future",  #name of the new folder being created
                                                            selected.models = "all", #use all models
                                                            binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
                                                            compress = TRUE,         #compression format of objects stored on hard drive
@@ -137,12 +140,15 @@ for(spID in speciesSub){ try({
                 colnames(temp_prediction)[1] <- "layer"
                 temp_prediction$layer <- temp_prediction$layer / 1000
                 
-                save(temp_prediction, file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
+                save(temp_prediction, file=paste0("../_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) 
                 rm(temp_prediction, temp_Env_sub, myBiomodEnProj, myBiomodProj)
+                
+                setwd(here::here())
+                
               }
             }
             
           })}
           
- stopImplicitCluster()
+stopImplicitCluster()
           
