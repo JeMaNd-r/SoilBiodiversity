@@ -131,7 +131,7 @@ for(no_future in futureNames){
   }
   
   # same for dataframe
-  temp_Env_df <- as.data.frame(temp_Env)
+  temp_Env_df <- as.data.frame(temp_Env, xy=TRUE)
   save(temp_Env_df, file=paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_", no_future, "_5km_df_clipped.RData"))
   
 }
