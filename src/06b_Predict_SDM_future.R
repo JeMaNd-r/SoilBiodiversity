@@ -26,7 +26,7 @@ library(doParallel)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -48,10 +48,10 @@ no.cores <-  parallel::detectCores()/2
 ## Predict in future climate ####
 
 setwd(here::here())
-setwd(paste0(here::here(), "/results/", Taxon_name))
+setwd(paste0(here::here(), "/results/biomod_files"))
 
 # load current environmental variables (for projections)
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 no.cores <- 3
 registerDoParallel(no.cores)
@@ -78,31 +78,29 @@ for(spID in speciesSub){ try({
             
             for(no_future in scenarioNames){
               
-              ## load env. data with future climate (MAP, MAT, MAP_Seas)
-              #load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_normalized.RData")) #temp_Env_df
+              # load env. data with future climate (MAP, MAT, MAP_Seas)
+              load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
               
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
               for(subclim in c("TP", "T", "P")){
                 
                 if(subclim=="TP"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-                  
-                  temp_MAT <- raster::raster(paste(here::here(), "/data_environment/", temp_name))
-                  temp_raster <- raster::scale(temp_raster)
-                  
-                  temp_Env_norm[[temp_name]] <- temp_raster
-                  
-                }
-                
-                if(subclim=="P"){
-                  temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-                  temp_Env_sub$MAP_Seas <- Env_norm_df$MAP_Seas
-                  temp_Env_sub$MAP <- Env_norm_df$MAP
                 }
                 
                 if(subclim=="T"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
-                  temp_Env_sub$MAT <- Env_norm_df$MAT
+                  
+                  # T from future, P replaced by current
+                  temp_Env_sub$MAP_Seas <- Env_clip_df$MAP_Seas
+                  temp_Env_sub$MAP <- Env_clip_df$MAP
+                }
+                
+                if(subclim=="P"){
+                  temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
+                  
+                  # P from future, T replaced by current
+                  temp_Env_sub$MAT <- Env_clip_df$MAT
                 }
                 
                 

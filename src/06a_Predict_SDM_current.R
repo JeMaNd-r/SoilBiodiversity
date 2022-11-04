@@ -26,7 +26,7 @@ library(doParallel)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -41,21 +41,21 @@ no.cores <-  parallel::detectCores()/2
 ## Predict in current climate at 5km ####
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
-#Env_norm <- stack(Env_norm)
+Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
+#Env_clip <- stack(Env_clip)
 
 # as dataframe
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 registerDoParallel(3)
 foreach(spID = speciesSub,
-        .export = c("Env_norm", "Env_norm_df", "form"),
+        .export = c("Env_clip", "Env_clip_df"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
           # list files in species-specific BIOMOD folder
           temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
           
-          setwd(paste0(here::here(), "/results/", Taxon_name))
+          setwd(paste0(here::here(), "/results/biomod_files"))
           
           # load model output
           myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"Modeling.models.out")]
@@ -70,7 +70,7 @@ foreach(spID = speciesSub,
           ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
           # project single models (also needed for ensemble model)
           myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                                     new.env = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],        #column/variable names have to perfectly match with training
+                                                     new.env = Env_clip_df[,colnames(Env_clip_df) %in% covarsNames],        #column/variable names have to perfectly match with training
                                                      proj.name = "modeling",  #name of the new folder being created
                                                      selected.models = "all", #use all models
                                                      binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
@@ -112,18 +112,18 @@ foreach(spID = speciesSub,
           temp_prediction <- myBiomodEnProj@proj@val[,2]
           temp_prediction <- as.numeric(temp_prediction)
           # add names of grid cell (only for those that have no NA in any layer)
-          names(temp_prediction) <- rownames(Env_norm_df)
+          names(temp_prediction) <- rownames(Env_clip_df)
           temp_prediction <- as.data.frame(temp_prediction)
-          temp_prediction$x <- Env_norm_df$x
-          temp_prediction$y <- Env_norm_df$y
-          temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+          temp_prediction$x <- Env_clip_df$x
+          temp_prediction$y <- Env_clip_df$y
+          temp_prediction <- temp_prediction %>% full_join(Env_clip_df %>% dplyr::select(x,y)) %>%
             rename("layer" = temp_prediction)
           temp_prediction$layer <- temp_prediction$layer / 1000
           
           temp_runs <- 1
           
           biomod_list <- list(time_predict=temp_predict_time, validation=myBiomodModelEval, prediction=temp_prediction, varImp=temp_varImp)
-          save(biomod_list, file=paste0("./_SDMs/SDM_biomod_", spID, ".RData"))
+          save(biomod_list, file=paste0("../_SDMs/SDM_biomod_", spID, ".RData"))
           
           rm(biomod_list, temp_predict_time, temp_runs, temp_prediction, temp_varImp, myBiomodEnProj, myBiomodProj, myBiomodModelEval, myEnProjDF, myBiomodModelOut, myBiomodEM)
           
