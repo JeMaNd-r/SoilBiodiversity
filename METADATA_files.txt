@@ -70,6 +70,9 @@ Folder containing the species-specific input data (as .RData) for each earthworm
 PROCESSED_Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon.csv
 Species occurrence data compiled from single datasets. Please note that the dataset compiled by Jérome Mathieu (JM) had to be excluded. The full processed dataset is avaiable upon request.
 
+PROCESSED_Occurrence_rasterized_2km_Crassiclitellata.csv
+Species occurrence records summarized for each 2km² grid cell and species based on the respective grid .tif file. Here, all datasets are included.
+
 PROCESSED_WDPA_WDOECM_IUCNcat_df.RData
 Table containing information about protection status in each 5km grid cell. Protection status is based on percentage of coverage of each IUCN category.
 

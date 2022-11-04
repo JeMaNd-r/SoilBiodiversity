@@ -64,7 +64,7 @@ Records,Number of raw occurrence records for the Species_ID taxon,numeric,-,-
 NumCells_2km,Number of gridded occurrences (2km grid) for the Species_ID taxon,numeric,-,-
 NumCells_1km,Number of gridded occurrences (1km grid) for the Species_ID taxon,numeric,-,The 1km grid was used during data exploration but is not used in the final analysis
 
-PROCESSED_Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv ------------------------
+PROCESSED_Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv ----------------
 Variable name,Description,Data type,Unit of measurement,Notes
 species,Name of the earthworm species,character,-
 latitude,Latitude,numeric,-,CRS WGS84

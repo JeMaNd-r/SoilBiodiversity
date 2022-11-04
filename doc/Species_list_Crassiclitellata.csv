@@ -1,4 +1,4 @@
-Group_name,Kingdom,Phylum,Class,Order,Family,Genus,Species,SpeciesID,Fct_group,Comment
+﻿Group_name,Kingdom,Phylum,Class,Order,Family,Genus,Species,SpeciesID,Fct_group,Comment
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Acanthodrilidae,Microscolex,Microscolex dubius,Micr_dubi,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Acanthodrilidae,Microscolex,Microscolex phosphoreus,Micr_phos,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Hormogastridae,Hemigastrodrilus,Hemigastrodrilus monicae,Hemi_moni,,
@@ -84,7 +84,7 @@ Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octodrilus,Octodrilus transpadanus,Octo_trans,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion cyaneum,Octo_cyan,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion lacteum,Octo_lact,,
-Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion �rley,Octo_orle,,
+Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion Örley,Octo_orle,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Octolasion,Octolasion tyrtaeum,Octo_tyrt,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Perelia,Perelia gestroi,Pere_gest,,
 Earthworms,Animalia,Annelida,Clitellata,Crassiclitellata,Lumbricidae,Perelia,Perelia tuberosa,Pere_tube,,

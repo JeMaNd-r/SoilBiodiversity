@@ -1,4 +1,4 @@
-# - - - - - - - - - - - - - - - - - - #
+﻿# - - - - - - - - - - - - - - - - - - #
 #                                     #
 #   Assign ecogroups of Bottinelli    #
 #       author: Romy Zeiss            #
@@ -30,7 +30,7 @@ Edapho <- read.csv(file=paste0(here::here(),"/data/Edaphobase_download_24-Feb-20
 # read data from SoilReCon project (Portugal)
 recon <- read.csv(file=paste0(here::here(), "/data/SoilReCon_earthworms_clean.csv"))
 
-# read data from J�rome Matthieu
+# read data from Jérome Matthieu
 jema <- read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
 
 #- - - - - - - - - - - - - - - - - - - - -
