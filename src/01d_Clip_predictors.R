@@ -12,6 +12,7 @@ library(tidyverse)
 library(here)
 
 library(raster)
+library(terra) #faster as raster but can't handle big stacks (memmory issue)
 
 #- - - - - - - - - - - - - - - - - - - - - 
 ## Select uncorrelated variables ####
@@ -78,4 +79,61 @@ Env_clip <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km_clipped.
 Env_clip_df <- as.data.frame(Env_clip, xy=TRUE, row.names=FALSE)
 save(Env_clip_df, file=paste0(here::here(), "/results/EnvPredictor_5km_df_clipped.RData"))
 rm(Env_clip, Env_norm, Env_clip_df)
+
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Create future climate stacks ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+# define future scenarios
+scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr",
+                               "mri-esm2-0", "ukesm1-0-ll"), "_",
+                             rep(c("ssp126", "ssp370", "ssp585"),5)))
+
+# same stack but MAT and MAP (MAT_Seas and MAP_Seas as well) from scenarios
+futureNames <- sort(paste0(rep("2041-2070",each=length(scenarioNames)), "_", scenarioNames))
+futureNames
+
+files <- list.files(paste0(here::here(), "/data_environment/future_climate/"), full.names = T)
+files <- files[stringr::str_detect(files, "ssp[:digit:]*_5km_mean.tif$")]
+files
+
+
+# load env. stack
+Env_clip <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
+
+for(no_future in futureNames){
+  
+  print("====================================")
+  print(paste0("Processing of future scenario ", no_future))
+  
+  temp_files <- files[stringr::str_detect(files, no_future)]
+  
+  temp_Env <- Env_clip
+  
+  if(length(temp_files)!=4) print("Please check... there are not 4 climate variables")
+  
+  for(i in 1:length(temp_files)){
+    
+    # define name of variable
+    temp_name <- stringr::str_extract(basename(temp_files[i]), "[:graph:]*_2")
+    temp_name <- substr(temp_name, 1, nchar(temp_name)-2)
+    
+    temp_raster <- terra::rast(temp_files[i])
+    names(temp_raster) <- temp_name
+    
+    temp_raster <- terra::mask(temp_raster, Env_clip[[1]])
+    temp_raster <- terra::scale(temp_raster)
+    
+    temp_Env[[temp_name]] <- temp_raster
+    
+    print(paste0("Stacked file ", names(temp_raster)))
+  }
+  
+  # same for dataframe
+  temp_Env_df <- as.data.frame(temp_Env)
+  save(temp_Env_df, file=paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_", no_future, "_5km_df_clipped.RData"))
+  
+}
+
 
