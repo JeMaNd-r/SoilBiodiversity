@@ -1,0 +1,29 @@
+
+Call:
+lm(formula = Richness ~ MAT + Dist_Coast + MAP_Seas + CEC + Elev + 
+    P + Pop_Dens + Agriculture + pH + Clay.Silt, data = data_stack)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-38.476  -2.006  -0.159   1.939  11.607 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  3.977087   0.009959  399.36   <2e-16 ***
+MAT          3.654539   0.014719  248.28   <2e-16 ***
+Dist_Coast  -1.076102   0.011284  -95.37   <2e-16 ***
+MAP_Seas    -3.454594   0.011578 -298.37   <2e-16 ***
+CEC         -0.470960   0.006805  -69.21   <2e-16 ***
+Elev        -0.288390   0.009663  -29.84   <2e-16 ***
+P            2.666682   0.007115  374.81   <2e-16 ***
+Pop_Dens     1.011957   0.007376  137.21   <2e-16 ***
+Agriculture -2.569319   0.009082 -282.89   <2e-16 ***
+pH          -0.770518   0.011649  -66.14   <2e-16 ***
+Clay.Silt    2.578151   0.007853  328.32   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.858 on 288705 degrees of freedom
+Multiple R-squared:  0.7341,	Adjusted R-squared:  0.7341 
+F-statistic: 7.972e+04 on 10 and 288705 DF,  p-value: < 2.2e-16
+

@@ -32,7 +32,7 @@ library(gridExtra)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -307,7 +307,7 @@ var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_biom
 var_imp
 
 # load predictor table to get classification of variables
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
 
 # transform to long format and add variable categories
 var_imp <- var_imp %>%
@@ -318,6 +318,9 @@ var_imp <- var_imp %>%
 var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
 var_imp[var_imp$Predictor=="Clay.Silt","Long_name"] <- "Clay and silt content"
 
+# summarize mean and sd 
+View(var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+       dplyr::select(-Species, -Category, -Long_name) %>% group_by(Predictor) %>% summarize_all(c(mean, sd)))
 
 # plot VIF
 plotVarImp <- ggplot(data=var_imp, aes(x=biomod, y=reorder(Long_name, biomod), fill=Category))+
@@ -334,21 +337,21 @@ plotVarImp
 
 png(paste0(here::here(), "/figures/VariableImportance_biomod_", Taxon_name, ".png"), height=600, width=700); plotVarImp; dev.off()
 
-# plot barplot with top 10
-plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
-  group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(biomod)) %>%
-  ggplot(aes(x=reorder(Predictor, biomod), y=biomod, fill=Category)) + 
-  geom_segment(aes(x=reorder(Predictor, biomod), xend=reorder(Predictor, biomod), y=0, yend=biomod), color="black") +
-  geom_point(aes(color=Category), size=4, alpha=1) +
-  coord_flip() +
-  xlab("Predictors")+ylab("Mean variable importance")+
-  theme_bw()+theme(aspect.ratio=1/1)
-plotTopVI
-
-png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".png")); plotTopVI; dev.off()
+# # plot barplot with top 10
+# plotTopVI <- var_imp %>% dplyr::select(biomod, Predictor, Category) %>%
+#   group_by(Predictor, Category) %>% summarize_all(mean, na.rm=T) %>% arrange(desc(biomod)) %>%
+#   ggplot(aes(x=reorder(Predictor, biomod), y=biomod, fill=Category)) + 
+#   geom_segment(aes(x=reorder(Predictor, biomod), xend=reorder(Predictor, biomod), y=0, yend=biomod), color="black") +
+#   geom_point(aes(color=Category), size=4, alpha=1) +
+#   coord_flip() +
+#   xlab("Predictors")+ylab("Mean variable importance")+
+#   theme_bw()+theme(aspect.ratio=1/1)
+# plotTopVI
+# 
+# png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 # mean varImp
-var_imp %>% group_by(Predictor) %>% dplyr::select(-Species, -Category) %>% summarize_all(mean)
+var_imp %>% group_by(Predictor) %>% dplyr::select(-Species, -Category, -Long_name) %>% summarize_all(mean)
 
 # plot varImp of each species
 var_imp$Predictor <- factor(var_imp$Predictor, levels=c("MAP_Seas", "MAT",
@@ -365,7 +368,9 @@ plotAllVI <- ggplot(var_imp, aes(fill=Predictor, alpha=Predictor, y=biomod, x=re
   scale_fill_manual(values=c("MAP_Seas"="#F8766D", "MAT"="#F8766D", "Dist_Coast"="#00BFC4", "Elev"="#00BFC4",
                              "Agriculture"="#7CAE00", "Pop_Dens"="#7CAE00", "CEC"="#C77CFF","Clay.Silt"="#C77CFF", "P"="#C77CFF", "pH"="#C77CFF"))+
   theme_bw()+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", axis.text = element_text(size=15), axis.title = element_text(size=15),
+        legend.text = element_text(size=15), legend.title = element_blank())
+plotAllVI
 
 png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_name, ".png"), height=800, width=600); plotAllVI; dev.off()
 
@@ -374,7 +379,10 @@ png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_na
 ## Calculate variable importance for richness (lm) ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-data_stack <- average_stack %>% full_join(Env_norm_df)
+# load environmental variables (for projections) as dataframe
+load(paste0(here::here(), "/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
+
+data_stack <- species_stack %>% full_join(Env_clip_df)
 
 lm1 <- lm(data=data_stack, Richness~MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
 summary(lm1)
@@ -401,7 +409,7 @@ plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) 
   theme_bw()+theme(aspect.ratio=1/1)
 plotTopVI
 
-png(paste0(here::here(), "/figures/VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
+png(paste0(here::here(), "/figures/VariableImportance_biomod_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 # save model summary
 sink(paste0(here::here(), "/results/Summary_lm1_Crassiclitellata_varImp.txt"))
@@ -440,14 +448,14 @@ ggplot()+
   theme_bw()+  
   
   theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position ="bottom",legend.direction = "horizontal",
+        legend.position =c(0.2, 0.85),legend.direction = "horizontal",
         axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())
 dev.off()
-
 
 temp_thresh <- 0.1
 png(file=paste0(here::here(), "/figures/Uncertainty_", temp_thresh, "_", Taxon_name, ".png"), width=1000, height=1000)
@@ -462,8 +470,9 @@ ggplot()+
   geom_tile(data=uncertain_df %>% filter(Mean>=temp_thresh), aes(x=x, y=y), fill="linen")+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(),
-        legend.position = c(0.1,0.4),
+        legend.position =c(0.2, 0.85),legend.direction = "horizontal",
         axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
@@ -485,10 +494,10 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
               aes(x=x, y=y, fill=uncertain_df[!is.na(uncertain_df[,s]),s]))+
     #ggtitle(colnames(uncertain_df)[s])+
     annotate(geom="text", x=-3, y=68, label=colnames(uncertain_df)[s], color="black", size=15)+
-    scale_fill_viridis_c(option="E")+
+    scale_fill_viridis_c(option="E", limits = c(0,0.5))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.8), legend.direction = "horizontal",
+          legend.position = "none", legend.direction = "horizontal",
           axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
@@ -497,11 +506,35 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
 })
 })
 
+## Function to extract legend
+g_legend <- function(a.gplot){ 
+  tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+  legend <- tmp$grobs[[leg]] 
+  legend
+} 
+
+legend <- g_legend(ggplot(data=uncertain_df[!is.na(uncertain_df[,3]) & uncertain_df[,3]>0,], 
+                          aes(x=x, y=y, fill=uncertain_df[!is.na(uncertain_df[,3]),3]))+
+                     geom_tile()+
+                     scale_fill_viridis_c(option="E", limits = c(0,0.5))+
+                     theme_bw()+
+                     theme(axis.title = element_blank(), legend.title = element_blank(),
+                           legend.position = c(0.5, 0.5), legend.direction = "horizontal",
+                           legend.text = element_text(size=50), legend.key.size = unit(4, 'cm'),
+                           axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+                           panel.grid.major = element_blank(),
+                           panel.grid.minor = element_blank(),
+                           panel.border = element_blank(),
+                           panel.background = element_blank())) 
+
+plots2 <- c(plots, list(legend))
+
 
 require(gridExtra)
 #pdf(file=paste0(here::here(), "/figures/Uncertainty_allSpecies_", Taxon_name, ".pdf"))
 png(file=paste0(here::here(), "/figures/Uncertainty_allSpecies_", Taxon_name, ".png"),width=3000, height=3000)
-do.call(grid.arrange, plots)
+do.call(grid.arrange, plots2)
 dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -512,6 +545,12 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_"
 
 # Calculate area with 19 species
 species_stack %>% filter(Richness==19 & !is.na(Richness)) %>% count()
+species_stack %>% filter(Richness==18 & !is.na(Richness)) %>% count()
+(species_stack %>% filter(Richness>=10 & !is.na(Richness)) %>% count())/nrow(species_stack)
+(species_stack %>% filter(Richness>=15 & !is.na(Richness)) %>% count())/nrow(species_stack)
+
+summary(species_stack$Richness)
+sd(species_stack$Richness)
 
 # extract most prominent species
 View(as.data.frame(colSums(species_stack, na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
@@ -531,9 +570,10 @@ ggplot()+
   scale_fill_viridis_c()+
   geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness==0), by=c("x","y")), aes(x=x, y=y), fill="grey60")+
   theme_bw()+
-  theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
-        legend.position = c(0.1,0.9), legend.direction = "horizontal",
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.2, 0.85),legend.direction = "horizontal",
         axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
@@ -564,8 +604,10 @@ plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
       label.position = "bottom",
       label.hjust = 0.5))+
     theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.9), legend.direction = "horizontal",
-          legend.text = element_text(size=20),
+          legend.position = c(0.15,0.9), legend.direction = "horizontal",
+          legend.key.size = unit(2, 'cm'),
+          legend.text = element_text(size=40),
+          title = element_text(size=50),
           axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),

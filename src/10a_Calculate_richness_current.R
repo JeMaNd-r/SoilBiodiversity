@@ -22,7 +22,7 @@ library(raster)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -31,19 +31,19 @@ covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH",
                  "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
 
 # load environmental data 5km
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create maps and calculate richness ####
 #- - - - - - - - - - - - - - - - - - - - - -
 # create empty data frame
-species_stack <- Env_norm_df %>% dplyr::select(x, y)
+species_stack <- Env_clip_df %>% dplyr::select(x, y)
 
 # for loop through all species
 for(spID in speciesSub){ try({
   
   ## Load probability maps 
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
+  load(file=paste0(here::here(), "/results/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
   best_pred <- biomod_list$prediction
   
   print(paste0(spID, " successfully loaded."))
@@ -62,7 +62,7 @@ for(spID in speciesSub){ try({
   best_pred <- best_pred[,c("x","y",paste0(spID,"_current"))]
   
   # save binary
-  save(best_pred, file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_bestPrediction_binary_", Taxon_name, "_", spID, ".RData"))
+  save(best_pred, file=paste0(here::here(), "/results/_SDMs/SDM_bestPrediction_binary_", Taxon_name, "_", spID, ".RData"))
   
   print(paste0("Saved binary prediction of ", spID))
   

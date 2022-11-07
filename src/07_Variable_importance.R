@@ -16,7 +16,7 @@ library(biomod2) # also to create pseudo-absences
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -45,12 +45,12 @@ var_imp <- data.frame("Predictor"= c("Aridity", "MAP", "MAP_Seas", "MAT",
                                      "Moisture", "N", "P", "pH", "SOC", "SoilT"),
                       "biomod"=NA, "Species"=NA)
 
-for(spID in unique(speciesNames[speciesNames$NumCells_5km >= 10,]$SpeciesID)){ try({
+for(spID in unique(speciesNames[speciesNames$NumCells_2km_biomod >= 100,]$SpeciesID)){ try({
   
   print("=====================================")
   print(spID)
   
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
+  load(file=paste0(here::here(), "/results/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
   temp_vi <- biomod_list$varImp
   
   # round variable importance to 3 decimals
