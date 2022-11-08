@@ -65,10 +65,10 @@ intermediates/Occurrences_Crassiclitellata.csv
 results/_FutureEnvironment
 results/_SDMs
 results/_Maps
-results/_Sensitivity
-results/_Sensitivity_2/_SensAna_data
-results/_Sensitivity_2/_SensAna_output
-results/_Sensitivity_2/_SensAna_sdm
+results/_Sensitivity_number
+results/_Sensitivity_percent/_SensAna_data
+results/_Sensitivity_percent/_SensAna_output
+results/_Sensitivity_percent/_SensAna_sdm
 results/_TopPredictor
 results/biomod_files
 results/maxent_files

@@ -48,7 +48,7 @@ if(is.null(speciesNames$NumCells_2km_biomod)) print("Please use the species list
 speciesSub <- unique(speciesNames[speciesNames$NumCells_2km_biomod >= 100,]$SpeciesID)
 
 # subset species' records
-occ_points <- occ_points[,c("x", "y", speciesSub)]
+occ_points <- occ_points[,c("x", "y", "year", speciesSub)]
 
 # covariates in order of importance (top 10 important)
 covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
