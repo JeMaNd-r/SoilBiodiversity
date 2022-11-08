@@ -10,7 +10,7 @@
 # same species made with only a subset of available records (i.e., with only 50, 
 # 10, and 5 records).
 
-setwd("D:/_students/Romy/SoilBiodiversity")
+#setwd("D:/_students/Romy/SoilBiodiversity")
 
 library(here)
 library(tidyverse)
@@ -35,20 +35,20 @@ Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
 
 # load environmental space
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_normalized.grd"))
+Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_clipped.grd"))
 
 # as dataframe
-load(paste0(here::here(),"/results/EnvPredictor_2km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_2km_df_clipped.RData")) #Env_clip_df
 
 # response variable (i.e., species occurrences) in wide format
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 # get species with more than equal to 200 records:
-if(is.null(speciesNames$NumCells_2km)) print("Please use the species list in the results folder!")
-temp_species <- unique(speciesNames[speciesNames$NumCells_2km >= 100,]$SpeciesID)
+if(is.null(speciesNames$NumCells_2km_biomod)) print("Please use the species list in the results folder!")
+speciesSub <- unique(speciesNames[speciesNames$NumCells_2km_biomod >= 100,]$SpeciesID)
 
 # subset species' records
-mySpeciesOcc <- mySpeciesOcc[,c("x", "y", temp_species)]
+occ_points <- occ_points[,c("x", "y", speciesSub)]
 
 # covariates in order of importance (top 10 important)
 covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
@@ -56,7 +56,7 @@ covarsNames <- c("MAT", "Dist_Coast", "MAP_Seas", "Elev", "Agriculture",
 
 ## parallelize
 # Calculate the number of cores
-#no.cores <- length(temp_species)/2; no.cores
+#no.cores <- length(speciesSub)/2; no.cores
 no.cores <- 10
 
 # Initiate cluster used in foreach function
@@ -64,12 +64,12 @@ doParallel::registerDoParallel(no.cores)
 
 #- - - - - - - - - - - - - - - - - - - - - - -
 ## Create data subsets ####
-data_sens <- mySpeciesOcc %>% dplyr::select(x,y)
+data_sens <- occ_points %>% dplyr::select(x,y)
 
 for(no_replicate in c("01")){ #, "02", "03", "04", "05", "06", "07", "08", "09", "10"
   for(no_subset in c(50, 75, 90)){ # 50,
-    for(spID in temp_species) {
-      temp_records <- mySpeciesOcc[!is.na(mySpeciesOcc[,spID]),] %>%
+    for(spID in speciesSub) {
+      temp_records <- occ_points[!is.na(occ_points[,spID]),] %>%
         dplyr::select(x,y,spID) %>%
         dplyr::slice_sample(prop = no_subset/100) %>%
         filter(!is.na(spID)) 
@@ -81,24 +81,26 @@ for(no_replicate in c("01")){ #, "02", "03", "04", "05", "06", "07", "08", "09",
   }
 }
 
-write.csv(data_sens, paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_data/SensAna_records.csv"),
+write.csv(data_sens, paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_data/SensAna_records.csv"),
           row.names = FALSE)
 
-data_sens <- read.csv(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_data/SensAna_records.csv"))
+data_sens <- read.csv(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_data/SensAna_records.csv"))
 
-temp_species <- colnames(data_sens %>% dplyr::select(-x, -y))
-#temp_species <- temp_species[str_detect(temp_species, "50")]
+speciesSub <- colnames(data_sens %>% dplyr::select(-x, -y))
+#speciesSub <- speciesSub[str_detect(speciesSub, "50")]
 
 #- - - - - - - - - - - - - - - - - - - - - - - 
 ## For loop through all selected species ####
-foreach(spID = temp_species, .export = c("data_sens"), 
+foreach(spID = speciesSub, .export = c("data_sens"), 
         .packages = c("biomod2", "tidyverse")) %dopar% {
    
+  setwd(paste0(here::here(), "/results/_Sensitivity_percent"))         
+          
   # subset occurrence records
   myResp <- data_sens[!is.na(data_sens[,spID]),]
  
   myBiomodData <- biomod2::BIOMOD_FormatingData(resp.var = as.numeric(myResp[,spID]),
-                                                expl.var = Env_norm,
+                                                expl.var = Env_clip,
                                                 resp.xy = myResp[,c("x","y")],
                                                 resp.name = spID,
                                                 PA.nb.rep = 1,
@@ -106,7 +108,7 @@ foreach(spID = temp_species, .export = c("data_sens"),
                                                 PA.strategy = "random")
   
   # save data
-  save(myBiomodData, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_data/BiomodData_", spID, ".RData"))
+  save(myBiomodData, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_data/BiomodData_", spID, ".RData"))
 
   rm(myBiomodData, myResp, myRespCoord, na.id)
 
@@ -146,7 +148,7 @@ myBiomodOption <- BIOMOD_ModelingOptions(
               nprune = 1+length(covarsNames), # max. number of terms including intercept
               pmethod = "backward" ), #pruning method
   
-  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/"), # change it to maxent directory
+  MAXENT.Phillips = list(path_to_maxent.jar = paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_sdm/"), # change it to maxent directory
                          memory_allocated = NULL, # use default from Java defined above
                          visible = FALSE, 	# don't make maxEnt user interface visible
                          linear = TRUE, 	# linear features allowed
@@ -203,7 +205,7 @@ myBiomodOption <- BIOMOD_ModelingOptions(
 mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Phillips")
        
 # load sampling year information
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))  
+occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))  
 
 ## function to get Pseudo-absence dataset
 get_PAtab <- function(bfd){
@@ -223,20 +225,20 @@ no.cores <- 10
 doParallel::registerDoParallel(no.cores)
 
 # for loop
-foreach(spID = temp_species, 
+foreach(spID = speciesSub, 
         .export = c("Taxon_name", "covarsNames"), 
         .packages = c("tidyverse")) %dopar% {
          
           try({
             
             # load background data (pseudo-absences) for each modeling approach
-            load(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_data/BiomodData_", spID, ".RData")) #myBiomodData
+            load(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_data/BiomodData_", spID, ".RData")) #myBiomodData
 
 
 		myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
  
 	    # define weights of presence records based on sampling year
- 	    temp_weights <- mySpeciesOcc %>% dplyr::select(x, y, year, substr(spID, 1, 10)) %>% unique()
+ 	    temp_weights <- occ_points %>% dplyr::select(x, y, year, substr(spID, 1, 10)) %>% unique()
  	    temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
 	    temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
 	    temp_weights$weight <- 0.1
@@ -249,7 +251,7 @@ foreach(spID = temp_species,
          
           # model fitting
           #tmp <- proc.time()[3]
-          setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/"))
+          setwd(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_sdm/"))
           
           set.seed(32639)
           myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
@@ -297,21 +299,21 @@ stopImplicitCluster()
 ## Predict in current climate at 5km ####
 
 # load environmental variables (for projections)
-Env_norm <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_normalized.grd"))
-#Env_norm <- stack(Env_norm)
+Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
+#Env_clip <- stack(Env_clip)
 
 # as dataframe
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 registerDoParallel(3)
-foreach(spID = temp_species,
-        .export = c("Env_norm", "Env_norm_df"),
+foreach(spID = speciesSub,
+        .export = c("Env_clip", "Env_clip_df"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({   
           
           # list files in species-specific BIOMOD folder
-          temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/", stringr::str_replace_all(spID, "_", ".")), full.names = TRUE)
+          temp_files <- list.files(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_sdm/", stringr::str_replace_all(spID, "_", ".")), full.names = TRUE)
           
-  	    setwd(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/"))
+  	    setwd(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_sdm/"))
 
           # load model output
           myBiomodModelOut <- temp_files[stringr::str_detect(temp_files,"[:digit:].models.out")]
@@ -326,7 +328,7 @@ foreach(spID = temp_species,
           ## NOTE: because biomod output can hardly be stored in list file, we will do calculations based on model output now
           # project single models (also needed for ensemble model)
           myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                                     new.env = Env_norm_df[,colnames(Env_norm_df) %in% covarsNames],        #column/variable names have to perfectly match with training
+                                                     new.env = Env_clip_df[,colnames(Env_clip_df) %in% covarsNames],        #column/variable names have to perfectly match with training
                                                      proj.name = "modeling",  #name of the new folder being created
                                                      selected.models = "all", #use all models
                                                      binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
@@ -351,11 +353,11 @@ foreach(spID = temp_species,
           temp_prediction <- myBiomodEnProj@proj@val[,2]
           temp_prediction <- as.numeric(temp_prediction)
           # add names of grid cell (only for those that have no NA in any layer)
-          names(temp_prediction) <- rownames(Env_norm_df)
+          names(temp_prediction) <- rownames(Env_clip_df)
           temp_prediction <- as.data.frame(temp_prediction)
-          temp_prediction$x <- Env_norm_df$x
-          temp_prediction$y <- Env_norm_df$y
-          temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+          temp_prediction$x <- Env_clip_df$x
+          temp_prediction$y <- Env_clip_df$y
+          temp_prediction <- temp_prediction %>% full_join(Env_clip_df %>% dplyr::select(x,y)) %>%
             rename("layer" = temp_prediction)
           temp_prediction$layer <- temp_prediction$layer / 1000
           
@@ -382,10 +384,10 @@ colnames(species_stack) <- substr(colnames(species_stack), 1, 10)
 species_stack$no_subset <- 100
 
 # for loop through all species
-for(spID in temp_species){ try({
+for(spID in speciesSub){ try({
 
   ## Load probability maps 
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_biomod_", spID, ".RData")) #biomod_list
+  load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_biomod_", spID, ".RData")) #biomod_list
   best_pred <- biomod_list$prediction
   
   print(paste0(spID, " successfully loaded."))
@@ -404,7 +406,7 @@ for(spID in temp_species){ try({
   best_pred <- best_pred[,c("x","y",substr(spID, 1,10))]%>% mutate("no_subset"=as.numeric(str_split(spID, "_")[[1]][3]))
   
   # save binary
-  save(best_pred, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_bestPrediction_binary_", Taxon_name, "_", spID, ".RData"))
+  save(best_pred, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_bestPrediction_binary_", Taxon_name, "_", spID, ".RData"))
   
   print(paste0("Saved binary prediction of ", spID))
   
@@ -430,13 +432,13 @@ species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(su
 species_stack_full <- species_stack
 
 species_stack <- species_stack_full %>% filter(no_subset==50)
-save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_50.RData"))
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_50.RData"))
 
 species_stack <- species_stack_full %>% filter(no_subset==75)
-save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_75.RData"))
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_75.RData"))
 
 species_stack <- species_stack_full %>% filter(no_subset==90)
-save(species_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_90.RData"))
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_90.RData"))
 
 rm(species_stack_full, species_stack)
 
@@ -444,17 +446,17 @@ rm(species_stack_full, species_stack)
 ## Uncertainty ####
 
 # load environmental space as data frame
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 for(no_subset in c(50, 75, 90)){
-  uncertain_df <- Env_norm_df %>% dplyr::select(x, y)
+  uncertain_df <- Env_clip_df %>% dplyr::select(x, y)
   
-  for(spID in temp_species[str_detect(temp_species, as.character(no_subset))]){try({
+  for(spID in speciesSub[str_detect(speciesSub, as.character(no_subset))]){try({
     
     print(paste0("Species: ", spID))
     
     # list files in species-specific BIOMOD folder
-    temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_sdm/", stringr::str_replace_all(spID, "_", "."), "/proj_modeling"), full.names = TRUE)
+    temp_files <- list.files(paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_sdm/", stringr::str_replace_all(spID, "_", "."), "/proj_modeling"), full.names = TRUE)
     
     #setwd(paste0(here::here(), "/results/", Taxon_name))
     
@@ -464,11 +466,11 @@ for(no_subset in c(50, 75, 90)){
     temp_prediction <- myBiomodEnProj[,1]
     temp_prediction <- as.numeric(temp_prediction)
     # add names of grid cell (only for those that have no NA in any layer)
-    names(temp_prediction) <- rownames(Env_norm_df)
+    names(temp_prediction) <- rownames(Env_clip_df)
     temp_prediction <- as.data.frame(temp_prediction)
-    temp_prediction$x <- Env_norm_df$x
-    temp_prediction$y <- Env_norm_df$y
-    temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+    temp_prediction$x <- Env_clip_df$x
+    temp_prediction$y <- Env_clip_df$y
+    temp_prediction <- temp_prediction %>% full_join(Env_clip_df %>% dplyr::select(x,y)) %>%
       rename("layer" = temp_prediction)
     temp_prediction$layer <- temp_prediction$layer / 1000
     temp_prediction[,substr(spID, 1, 10)] <- temp_prediction$layer
@@ -486,13 +488,13 @@ for(no_subset in c(50, 75, 90)){
   head(uncertain_df)
   
   # save species' uncertainty map
-  save(uncertain_df, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_", Taxon_name, "_", no_subset,  ".RData"))
+  save(uncertain_df, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_", Taxon_name, "_", no_subset,  ".RData"))
 }
 
 ## Plotting
 
 for(no_subset in c(50, 75, 90)){
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_", Taxon_name,"_", no_subset,  ".RData")) #uncertain_df
+  load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_", Taxon_name,"_", no_subset,  ".RData")) #uncertain_df
   
   # view uncertainty in map 
   world.inp <- map_data("world")
@@ -516,7 +518,7 @@ for(no_subset in c(50, 75, 90)){
   summary(uncertain_df$Mean)
   
   extent_df <- uncertain_df %>% filter(Mean<0.1 & !is.na(Mean)) %>% dplyr::select(x,y)
-  save(extent_df, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData"))
+  save(extent_df, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData"))
 }
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -527,9 +529,9 @@ world.inp <- map_data("world")
 
 for(no_subset in c(50, 75, 90)){ try({
   # load uncertainty extent
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
+  load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
   
-	load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+	load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 	
 	png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
 	print({ggplot()+
@@ -553,7 +555,7 @@ while (!is.null(dev.list()))  dev.off()
 
 # map binary species distributions
 for(no_subset in c(50,75, 90)){
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
 species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
   plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
@@ -597,7 +599,7 @@ full_stack <- full_stack %>% dplyr::select(x,y,Richness)
 full_stack$subset <- 100
 
 for(no_subset in c(50, 75, 90)){		
-	load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+	load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 	
 	species_stack$subset <- no_subset
 
@@ -606,9 +608,9 @@ for(no_subset in c(50, 75, 90)){
 colnames(full_stack)
 nrow(full_stack)
 
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
-data_stack <- full_stack %>% full_join(Env_norm_df)
+data_stack <- full_stack %>% full_join(Env_clip_df)
 
 lm1 <- lm(data=data_stack, Richness~subset+MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
 summary(lm1)
@@ -649,7 +651,7 @@ sink()
 
 # calculate species ranges (area)
 no_subset <- 75
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
 range_df <- data.frame("SpeciesID"=colnames(species_stack), 
                        "cells"=colSums(species_stack, na.rm=T), 
@@ -660,7 +662,7 @@ range_df$subset <- no_subset
 head(range_df)
 
 no_subset <- 50
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
 temp_df <- data.frame("SpeciesID"=colnames(species_stack), 
                       "cells"=colSums(species_stack, na.rm=T), 
@@ -673,7 +675,7 @@ head(temp_df)
 range_df <- range_df %>% full_join(temp_df)
 
 no_subset <- 90
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 species_stack <- species_stack %>% dplyr::select(-no_subset)
 temp_df <- data.frame("SpeciesID"=colnames(species_stack), 
                        "cells"=colSums(species_stack, na.rm=T), 
@@ -709,8 +711,8 @@ range_sum %>% dplyr::select(-subset) %>% group_by(SpeciesID) %>% summarize_all(s
 range_sum %>% arrange(subset, area_km2_change_p)
 mean(range_sum$area_km2_change_p); sd(range_sum$area_km2_change_p)
 
-write.csv(range_sum, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/Range_shift_", Taxon_name, ".csv"), row.names=F)
-range_sum <- read.csv(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/Range_shift_", Taxon_name, ".csv"))
+write.csv(range_sum, file=paste0(here::here(), "/results/_Sensitivity_percent/Range_shift_", Taxon_name, ".csv"), row.names=F)
+range_sum <- read.csv(file=paste0(here::here(), "/results/_Sensitivity_percent/Range_shift_", Taxon_name, ".csv"))
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Sensitive area ####
@@ -729,8 +731,8 @@ full_stack$Change_f <- cut(full_stack$Change,
                               labels=c("[-20,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,20]"))
 
 
-save(full_stack, file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
-load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/SDM_stack_future_richness_change_", Taxon_name, ".RData")) #full_stack
+save(full_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/SDM_stack_future_richness_change_", Taxon_name, ".RData")) #full_stack
 
 full_stack <- full_stack %>% filter(subset<100)
 
@@ -738,7 +740,7 @@ full_stack <- full_stack %>% filter(subset<100)
 for(no_subset in c(50, 75, 90)){
   
   # load uncertainty extent
-  load(file=paste0(here::here(), "/results/", Taxon_name, "/_Sensitivity_2/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
+  load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
   
   # plot change in distribution
   png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)

@@ -1082,7 +1082,7 @@ a <- ggplot(data=cover_sr %>%  filter(IUCNcat!="Presence" & IUCNcat!="Protected"
         panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank())
 
 # bar chart of percent area covered by PA per species
-b <- ggplot(data=data_barplot, 
+b <- ggplot(data=cover_sr, 
             aes(y=coverage, x=reorder(SpeciesID, desc(SpeciesID)), fill=reorder(IUCNcat, desc(IUCNcat))))+
   geom_bar(position="stack", stat="identity")+
   theme_bw()+

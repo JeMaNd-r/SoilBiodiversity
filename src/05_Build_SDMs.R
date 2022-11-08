@@ -36,6 +36,7 @@ covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH",
 
 # load data with sampling year information
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+occ_points <- occ_points %>% rename("x"="ï..x")
 str(occ_points)
 
 # load environmental variables (for projections)

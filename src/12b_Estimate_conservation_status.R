@@ -6,8 +6,27 @@
 #                                           #
 #- - - - - - - - - - - - - - - - - - - - - -#
 
+#setwd("D:/_students/Romy/SoilBiodiversity")
+
+gc()
+library(tidyverse)
+library(here)
+
+#- - - - - - - - - - - - - - - - - - - - -
+Taxon_name <- "Crassiclitellata"
+speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+#speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
+speciesSub <- c(speciesSub$SpeciesID)
+
+# covariates in order of importance (top 10 important)
+covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
+                 "P", "CEC", "Elev", "Clay.Silt", "Pop_Dens")
+
+#- - - - - - - - - - - - - - - - -
+
 # load stack of IUCN category coverage
-load(file=paste0(here::here(), "/data/Shapefiles/WDPA_WDOECM_Dec2021_Public_EU_shp/WDPA_WDOECM_IUCNcat_df.RData")) #protect_df
+load(file=paste0(here::here(), "/intermediates/WDPA_WDOECM_IUCNcat_df.RData")) #protect_df
 head(protect_df)
 
 # load species names
@@ -25,9 +44,9 @@ head(df)
 cover_df <- data.frame("IUCNcat" = "I", "sumCell"=1, "SpeciesID"="species", "coverage"=1)[0,]
 
 # calculate percent of coverage per species and IUCN category
-for(sp in unique(speciesNames$SpeciesID)){ try({
-	temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), sp)])]
-	temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), sp)]]
+for(spID in speciesSub){ try({
+	temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), spID)])]
+	temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), spID)]]
 	temp_df <- temp_df[,c(names(protect_df %>% dplyr::select(-x, -y)), "Presence")]
 
 	# keep only presence rows
@@ -43,13 +62,13 @@ for(sp in unique(speciesNames$SpeciesID)){ try({
 	  add_row("IUCNcat"="Protected", 
 	          "sumCell"=sum(colSums(temp_df %>% dplyr::select(Ia, Ib, II, III, IV, V, VI), na.rm=T)))
 	
-	temp_cover$SpeciesID <- sp
+	temp_cover$SpeciesID <- spID
 	temp_cover$coverage <- round(temp_cover$sumCell / sum(temp_df[,"Presence"], na.rm=T),4)
 
 	cover_df <- rbind(cover_df, temp_cover)
 	rm(temp_cover, temp_df)
 	
-	print(paste0("Species ", sp, " is ready."))
+	print(paste0("Species ", spID, " is ready."))
 	
 }, silent=TRUE)}
 
@@ -59,7 +78,7 @@ cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage)
 
 cover_df <- rbind(cover_df, 
                   cbind(cover_df %>% group_by(IUCNcat) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), "SpeciesID"="_Mean"))
-cover_df
+head(cover_df)
 
 write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"), row.names=T)
 
