@@ -175,16 +175,16 @@ average_stack$Change_f <- cut(average_stack$Change,
 
 average_stack$Change_ssp126 <- (average_stack$ssp126_mean - average_stack$Richness)
 average_stack$Change_f_ssp126 <- cut(average_stack$Change_ssp126, 
-                                     breaks=c(-15, -10, -5, 0, 5, 10, 15),
-                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
+                                     breaks=c(-15, -10, -5, 0, 5, 10),
+                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 average_stack$Change_ssp370 <- (average_stack$ssp370_mean - average_stack$Richness)
 average_stack$Change_f_ssp370 <- cut(average_stack$Change_ssp370, 
-                                     breaks=c(-15, -10, -5, 0, 5, 10, 15),
-                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
+                                     breaks=c(-15, -10, -5, 0, 5, 10),
+                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 average_stack$Change_ssp585 <- (average_stack$ssp585_mean - average_stack$Richness)
 average_stack$Change_f_ssp585 <- cut(average_stack$Change_ssp585, 
-                                     breaks=c(-15, -10, -5, 0, 5, 10, 15),
-                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]", "[10,15]"))
+                                     breaks=c(-15, -10, -5, 0, 5, 10),
+                                     labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 
 save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
 
