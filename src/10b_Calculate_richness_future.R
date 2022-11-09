@@ -22,7 +22,7 @@ library(raster)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -35,7 +35,7 @@ scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr",
                              rep(c("ssp126", "ssp370", "ssp585"),5)))
 
 # load environmental data 5km
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -47,17 +47,17 @@ for(no_future in scenarioNames){
     
     #- - - - - - - - - - - - - - - - - - - - - -
     # create empty data frame
-    species_stack <- Env_norm_df %>% dplyr::select(x, y)
+    species_stack <- Env_clip_df %>% dplyr::select(x, y)
     
     # for loop through all species
     for(spID in speciesSub){ try({
       
       ## Load probability maps 
-      load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) #biomod_list
+      load(file=paste0(here::here(), "/results/_SDMs/SDM_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData")) #biomod_list
       best_pred <- temp_prediction
       
       # load model information 
-      load(file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
+      load(file=paste0(here::here(), "/results/_SDMs/SDM_biomod_", spID, ".RData")) #biomod_list
       
       print(paste0(spID, " successfully loaded."))
       
@@ -75,7 +75,7 @@ for(no_future in scenarioNames){
       best_pred <- best_pred[,c("x","y",paste0(spID,"_future"))]
       
       # save binary
-      save(best_pred, file=paste0(here::here(), "/results/", Taxon_name, "/_SDMs/SDM_bestPrediction_binary_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData"))
+      save(best_pred, file=paste0(here::here(), "/results/_SDMs/SDM_bestPrediction_binary_2041-2070_", no_future, "_", subclim, "_biomod_", spID,  ".RData"))
       
       print(paste0("Saved binary prediction of ", spID))
       
@@ -135,7 +135,7 @@ save(future_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_sp
 #- - - - - - - - - - - - - - - - - - - - -
 ## Average future predictions ####
 world.inp <- map_data("world")
-average_stack <- Env_norm_df %>% dplyr::select(x, y)
+average_stack <- Env_clip_df %>% dplyr::select(x, y)
 
 for(no_future in scenarioNames){
   
