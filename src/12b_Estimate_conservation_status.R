@@ -15,7 +15,7 @@ library(here)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -132,7 +132,7 @@ save(cover_sr, file=paste0(here::here(), "/results/ProtectionStatus_SR_SSPs_", T
 species_stack <- future_stack %>% dplyr::select(x,y)
 # calculate average per SSP
 for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
-  for(temp_species in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){try({
+  for(temp_species in speciesSub){try({
     print(paste0(temp_ssp, " and ", temp_species))
     temp_cols <- colnames(future_stack)[stringr::str_detect(colnames(future_stack), temp_ssp)]
     temp_cols <- temp_cols[stringr::str_detect(temp_cols, temp_species)]
@@ -157,7 +157,7 @@ cover_df <- data.frame("IUCNcat" = "I", "sumCell"=1, "SpeciesID"="species", "cov
 for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
   
   # calculate percent of coverage per species and IUCN category
-  for(sp in unique(paste0(speciesNames$SpeciesID, "_", temp_ssp, "_mean"))){ try({
+  for(sp in unique(paste0(speciesSub, "_", temp_ssp, "_mean"))){ try({
     temp_df <- df[,c(names(protect_df %>% dplyr::select(-x, -y)), colnames(df)[stringr::str_detect(colnames(df), sp)])]
     temp_df$Presence <- temp_df[,colnames(temp_df)[stringr::str_detect(colnames(temp_df), sp)]]
     temp_df <- temp_df[,c(names(protect_df %>% dplyr::select(-x, -y)), "Presence")]
