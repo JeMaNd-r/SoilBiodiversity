@@ -52,11 +52,11 @@ scenarioNames <- sort(paste0(c("gfdl-esm4", "ipsl-cm6a-lr", "mpi-esm1-2-hr",
 world.inp <- map_data("world")
 
 # load current environmental variables (for projections)
-load(paste0(here::here(),"/results/EnvPredictor_5km_df_normalized.RData")) #Env_norm_df
+load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 for(subclim in c("T", "P", "TP")){
   
-  average_stack <- Env_norm_df %>% dplyr::select(x, y)
+  average_stack <- Env_clip_df %>% dplyr::select(x, y)
   
   for(no_future in scenarioNames){
     
@@ -75,7 +75,7 @@ for(subclim in c("T", "P", "TP")){
 }
 
 # merge into one dataframe
-full_stack <- Env_norm_df %>% dplyr::select(x, y)
+full_stack <- Env_clip_df %>% dplyr::select(x, y)
 
 for(subclim in c("T", "P", "TP")){
   
@@ -89,7 +89,7 @@ for(subclim in c("T", "P", "TP")){
 
 head(full_stack)
 
-full_stack <- full_stack %>% full_join(Env_norm_df, by=c("x", "y"))
+full_stack <- full_stack %>% full_join(Env_clip_df, by=c("x", "y"))
 
 # ANOVA 
 lm1 <- lm(data=full_stack, Mean~climate)
@@ -99,9 +99,9 @@ library(emmeans)
 em1 <- emmeans::emmeans(lm1, "climate", data=full_stack)
 pairs(em1, adjust="tukey")
 
-png(paste0(here::here(), "/figures/Emmeans_lm1_climate_", Taxon_name, ".png"))
+#png(paste0(here::here(), "/figures/Emmeans_lm1_climate_", Taxon_name, ".png"))
 plot(em1, comparison=T)
-dev.off()
+#dev.off()
 
 ggplot(data=full_stack, aes(x=climate, y=Mean))+
   geom_violin(width=1.4, alpha=0.7)+
@@ -120,9 +120,9 @@ anova(lm2)
 em2 <- emmeans::emmeans(lm2, "climate", data=full_stack)
 pairs(em2, adjust="tukey")
 
-png(paste0(here::here(), "/figures/Emmeans_lm2_climate_", Taxon_name, ".png"))
+#png(paste0(here::here(), "/figures/Emmeans_lm2_climate_", Taxon_name, ".png"))
 plot(em2, comparison=T)
-dev.off()
+#dev.off()
 
 lm_varImp <- data.frame("F_value"=anova(lm2)[,"F value"])
 lm_varImp$Predictor <- rownames(anova(lm2))
@@ -131,7 +131,7 @@ lm_varImp$F_abs <- abs(lm_varImp$F_value)
 lm_varImp$Direction <- factor(sign(lm_varImp$F_value), 1:(-1), c("positive", "neutral", "negative"))
 
 # load predictor table to get classification of variables
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
 
 # transform to long format and add variable categories
 lm_varImp <- lm_varImp%>%
@@ -164,40 +164,39 @@ print(anova(lm2))
 print(em2)
 sink()
 
-
-## Paired T test
-
-a <- ggplot(data=full_stack %>%
-              pivot_wider(id_cols=c(x,y), names_from = climate, values_from = Mean), aes(x=TP, y=P))+
-  geom_point()+
-  geom_abline(intercept = 0, slope = 1, color="red")+
-  theme_bw()
-
-b <- ggplot(data=full_stack %>%
-              pivot_wider(id_cols=c(x,y), names_from = climate, values_from = Mean), aes(x=TP, y=T))+
-  geom_point()+
-  geom_abline(intercept = 0, slope = 1, color="red")+
-  theme_bw()
-
-require(grid)
-pdf(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_TP_xy_", Taxon_name, ".pdf"),width=10, height=10)
-gridExtra::grid.arrange(a,b)
-dev.off()
-
-# plot future mean distribution
-png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_TP_", Taxon_name, ".png"),width=1000, height=1000)
-print(ggplot()+
-        geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-        xlim(-10, 30) +
-        ylim(35, 70) +
-        
-        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
-                  aes(x=x, y=y, fill=FutureRichness))+
-        ggtitle(paste0("Future species richness (number of species)"))+
-        scale_fill_viridis_c()+
-        geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
-        theme_bw()+
-        theme(axis.title = element_blank(), legend.title = element_blank(),
-              legend.position = c(0.1,0.4)))
-dev.off()
+# ## Paired T test
+# 
+# a <- ggplot(data=full_stack %>%
+#               pivot_wider(id_cols=c(x,y), names_from = climate, values_from = Mean), aes(x=TP, y=P))+
+#   geom_point()+
+#   geom_abline(intercept = 0, slope = 1, color="red")+
+#   theme_bw()
+# 
+# b <- ggplot(data=full_stack %>%
+#               pivot_wider(id_cols=c(x,y), names_from = climate, values_from = Mean), aes(x=TP, y=T))+
+#   geom_point()+
+#   geom_abline(intercept = 0, slope = 1, color="red")+
+#   theme_bw()
+# 
+# require(grid)
+# pdf(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_TP_xy_", Taxon_name, ".pdf"),width=10, height=10)
+# gridExtra::grid.arrange(a,b)
+# dev.off()
+# 
+# # plot future mean distribution
+# png(file=paste0(here::here(), "/figures/SpeciesRichness_cert0.1_", "2041-2070_TP_", Taxon_name, ".png"),width=1000, height=1000)
+# print(ggplot()+
+#         geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#         xlim(-10, 30) +
+#         ylim(35, 70) +
+#         
+#         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change)) %>% filter(FutureRichness!=0 & Richness!=0)), 
+#                   aes(x=x, y=y, fill=FutureRichness))+
+#         ggtitle(paste0("Future species richness (number of species)"))+
+#         scale_fill_viridis_c()+
+#         geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
+#         theme_bw()+
+#         theme(axis.title = element_blank(), legend.title = element_blank(),
+#               legend.position = c(0.1,0.4)))
+# dev.off()
 
