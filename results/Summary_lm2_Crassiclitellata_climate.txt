@@ -88,3 +88,9 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
  TP       4.281 0.005188 866135    4.271    4.291
 
 Confidence level used: 0.95 
+ contrast estimate      SE     df t.ratio p.value
+ P - T     -0.0228 0.00734 866135  -3.111  0.0053
+ P - TP     0.4227 0.00734 866135  57.620  <.0001
+ T - TP     0.4455 0.00734 866135  60.732  <.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates 

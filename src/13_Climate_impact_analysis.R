@@ -32,7 +32,7 @@ library(gridExtra)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
+speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
 
@@ -119,6 +119,7 @@ anova(lm2)
 
 em2 <- emmeans::emmeans(lm2, "climate", data=full_stack)
 pairs(em2, adjust="tukey")
+eff_size(em2, sigma = sigma(lm2), edf=866135)
 
 #png(paste0(here::here(), "/figures/Emmeans_lm2_climate_", Taxon_name, ".png"))
 plot(em2, comparison=T)
@@ -162,6 +163,7 @@ print("###################################################")
 print(summary(lm2))
 print(anova(lm2))
 print(em2)
+print(pairs(em2, adjust="tukey"))
 sink()
 
 # ## Paired T test
