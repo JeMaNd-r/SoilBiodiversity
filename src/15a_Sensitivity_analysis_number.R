@@ -349,7 +349,7 @@ foreach(spID = speciesSub,
           temp_prediction <- as.data.frame(temp_prediction)
           temp_prediction$x <- Env_clip_df$x
           temp_prediction$y <- Env_clip_df$y
-          temp_prediction <- temp_prediction %>% full_join(Env_norm_df %>% dplyr::select(x,y)) %>%
+          temp_prediction <- temp_prediction %>% full_join(Env_clip_df %>% dplyr::select(x,y)) %>%
             rename("layer" = temp_prediction)
           temp_prediction$layer <- temp_prediction$layer / 1000
           
@@ -431,7 +431,7 @@ for(spID in speciesSub){ try({
 ## View individual binary maps and species stack ####
 
 # extract most prominent species
-View(as.data.frame(colSums(species_stack %>% filter(no_subset==5), na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
+View(as.data.frame(colSums(species_stack, na.rm=T)) %>% arrange(colSums(species_stack, na.rm=T)))
 
 # species richness
 world.inp <- map_data("world")
@@ -439,7 +439,7 @@ world.inp <- map_data("world")
 for(no_subset in c(5,10,20,50, 100)){ try({
 	load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 	
-	png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
+	png(file=paste0(here::here(), "/figures/SensAna_number_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
 	print({ggplot()+
 	  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
 	  xlim(-23, 40) +
@@ -458,32 +458,32 @@ for(no_subset in c(5,10,20,50, 100)){ try({
 while (!is.null(dev.list()))  dev.off()
 
 
-# map binary species distributions
-for(no_subset in c(5,10,20,50, 100)){
-load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
-plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
-  print(s-2)
-  ggplot()+
-    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-23, 40) +
-    ylim(31, 75) +
-    
-    geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
-              aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
-    ggtitle(colnames(species_stack)[s])+
-    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
-    theme_bw()+
-    theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.4))
-  })
-})
-
-require(gridExtra)
-#pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
-print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
-do.call(grid.arrange, plots)
-dev.off()
-}
+# # map binary species distributions
+# for(no_subset in c(5,10,20,50, 100)){
+# load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+# plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+#   print(s-2)
+#   ggplot()+
+#     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#     xlim(-23, 40) +
+#     ylim(31, 75) +
+#     
+#     geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
+#               aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
+#     ggtitle(colnames(species_stack)[s])+
+#     scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+#     theme_bw()+
+#     theme(axis.title = element_blank(), legend.title = element_blank(),
+#           legend.position = c(0.1,0.4))
+#   })
+# })
+# 
+# require(gridExtra)
+# #pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
+# print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
+# do.call(grid.arrange, plots)
+# dev.off()
+# }
 
 while (!is.null(dev.list()))  dev.off()
 
@@ -495,7 +495,7 @@ while (!is.null(dev.list()))  dev.off()
 
 # check how strong no_subset influences lm output
 full_stack <- get(load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData"))) #species_stack
-full_stack$subset <- 100
+full_stack$subset <- 1000
 
 for(no_subset in c(5,10,20,50, 100)){		
 	load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
@@ -511,7 +511,7 @@ load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_cli
 
 data_stack <- full_stack %>% full_join(Env_clip_df)
 
-lm1 <- lm(data=data_stack, Richness~subset+MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
+lm1 <- lm(data=data_stack %>% filter(subset!=1000), Richness~subset+MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
 summary(lm1)
 
 lm_varImp <- data.frame("t_value"=summary(lm1)[["coefficients"]][,"t value"])
@@ -521,7 +521,7 @@ lm_varImp$t_abs <- abs(lm_varImp$t_value)
 lm_varImp$Direction <- factor(sign(lm_varImp$t_value), 1:(-1), c("positive", "neutral", "negative"))
 
 # transform to long format and add variable categories
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
 
 lm_varImp <- lm_varImp%>%
   left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
@@ -538,10 +538,10 @@ plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) 
   theme_bw()+theme(aspect.ratio=1/1)
 plotTopVI
 
-png(paste0(here::here(), "/figures/SensAna_VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
+png(paste0(here::here(), "/figures/SensAna_number_VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 # save model summary
-sink(paste0(here::here(), "/results/SensAna_Summary_lm1_Crassiclitellata_varImp.txt"))
+sink(paste0(here::here(), "/results/SensAna_number_Summary_lm1_Crassiclitellata_varImp.txt"))
 print(summary(lm1))
 sink()
 
