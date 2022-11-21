@@ -76,11 +76,16 @@ cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
 
 cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage))
 
-cover_df <- rbind(cover_df, 
-                  cbind(cover_df %>% group_by(IUCNcat) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), "SpeciesID"="_Mean"))
+cover_df <- rbind(cbind(cover_df %>% group_by(IUCNcat) %>% 
+                          dplyr::select(-SpeciesID) %>% 
+                          summarize_all(mean), "SpeciesID"="_Mean"),
+                  cover_df) %>%
+  rbind(cbind(cover_df %>% group_by(IUCNcat) %>% 
+                dplyr::select(-SpeciesID) %>% 
+                summarize_all(sd), "SpeciesID"="_SD"))
 head(cover_df)
 
-write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_", Taxon_name, ".csv"), row.names=T)
+write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_current_", Taxon_name, ".csv"), row.names=F)
 
 
 ## Calculate number of species per IUCN category ####
@@ -126,7 +131,8 @@ cover_sr <- cover_sr %>% dplyr::select(x,y,ssp126_mean, ssp370_mean, ssp585_mean
 
 cover_sr <- cover_sr %>% full_join(cover_sr_current %>% mutate("current_mean"=Richness) %>% dplyr::select(x,y,IUCNcat,current_mean))
 
-save(cover_sr, file=paste0(here::here(), "/results/ProtectionStatus_SR_SSPs_", Taxon_name, ".csv"))
+write.csv(cover_sr, file=paste0(here::here(), "/results/ProtectionStatus_SR_future_", Taxon_name, ".csv"),
+          row.names = F)
 
 # merge protected and species stack
 species_stack <- future_stack %>% dplyr::select(x,y)
@@ -194,11 +200,16 @@ for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
 cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
 cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage))
 
-cover_df <- full_join(cover_df, 
-                      cbind(cover_df %>% group_by(IUCNcat, SSP) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), 
-                            "SpeciesID"=paste0("_Mean")))
+cover_df <- full_join(cbind(cover_df %>% group_by(IUCNcat, SSP) %>% dplyr::select(-SpeciesID) %>% summarize_all(mean), 
+                            "SpeciesID"=paste0("_Mean")), 
+                      cover_df) %>%
+  full_join(cbind(cover_df %>% group_by(IUCNcat, SSP) %>% filter(SpeciesID!="_Mean") %>%
+                     dplyr::select(-SpeciesID) %>% 
+                     summarize_all(sd), 
+                   "SpeciesID"=paste0("_SD"))
+            )
 
 cover_df
 
-write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_SSPs_", Taxon_name, ".csv"), row.names=F)
+write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_future_", Taxon_name, ".csv"), row.names=F)
   
