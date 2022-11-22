@@ -1260,7 +1260,8 @@ f <- ggplot(cover_matrix %>%
               filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & IUCNcat!="Protected" & SpeciesID!="_SD"), 
               aes(x=SSP, y=reorder(SpeciesID, desc(SpeciesID))))+
   geom_tile(aes(fill=coverage_change*100))+
-  scale_fill_gradient2(high="dodgerblue3", low="brown3", mid="white", name="Change in coverage [%]    ")+
+  scale_fill_gradient2(high="dodgerblue3", low="brown3", mid="white", name="Change in coverage [%]    ",
+                       na.value="white")+
   theme_bw()+
   ylab("")+
   xlab("")+
