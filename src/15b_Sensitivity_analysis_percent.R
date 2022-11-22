@@ -20,12 +20,6 @@ library(biomod2)
 # change temporary directory for files
 raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
-# We will test this for RF, GAM and biomod only.
-# This script is based on the following scripts:
-# "Create_backgroundData.R"
-# "SDMs_Valavi.R"
-# ...
-
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Create background data ####
 #- - - - - - - - - - - - - - - - - - - - - -
@@ -42,6 +36,7 @@ load(paste0(here::here(),"/results/EnvPredictor_2km_df_clipped.RData")) #Env_cli
 
 # response variable (i.e., species occurrences) in wide format
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+occ_points <- occ_points %>% rename("x"="ï..x")
 
 # get species with more than equal to 200 records:
 if(is.null(speciesNames$NumCells_2km_biomod)) print("Please use the species list in the results folder!")
@@ -66,7 +61,7 @@ doParallel::registerDoParallel(no.cores)
 ## Create data subsets ####
 data_sens <- occ_points %>% dplyr::select(x,y)
 
-for(no_replicate in c("01")){ #, "02", "03", "04", "05", "06", "07", "08", "09", "10"
+for(no_replicate in c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10")){ 
   for(no_subset in c(50, 75, 90)){ # 50,
     for(spID in speciesSub) {
       temp_records <- occ_points[!is.na(occ_points[,spID]),] %>%
@@ -203,10 +198,7 @@ myBiomodOption <- BIOMOD_ModelingOptions(
 
 # models to predict with
 mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Phillips")
-       
-# load sampling year information
-occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))  
-
+ 
 ## function to get Pseudo-absence dataset
 get_PAtab <- function(bfd){
   dplyr::bind_cols(
@@ -423,9 +415,9 @@ for(spID in speciesSub){ try({
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate richness ####
-species_stack$Richness <- rowSums(species_stack %>% dplyr::select(-x, -y, -no_subset), na.rm=T)
+species_stack$Richness <- rowSums(species_stack %>% dplyr::select(Allol_chlo:Satch_mamm), na.rm=T)
 
-species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(sum, na.rm=T)
+#species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(sum, na.rm=T)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save species stack ####
@@ -439,6 +431,9 @@ save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_Se
 
 species_stack <- species_stack_full %>% filter(no_subset==90)
 save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_90.RData"))
+
+species_stack <- species_stack_full %>% filter(no_subset==100)
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_100.RData"))
 
 rm(species_stack_full, species_stack)
 
