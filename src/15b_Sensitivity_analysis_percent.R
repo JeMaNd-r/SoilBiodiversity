@@ -38,7 +38,7 @@ load(paste0(here::here(),"/results/EnvPredictor_2km_df_clipped.RData")) #Env_cli
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 occ_points <- occ_points %>% rename("x"="ï..x")
 
-# get species with more than equal to 200 records:
+# get species with more than equal to 100 records:
 if(is.null(speciesNames$NumCells_2km_biomod)) print("Please use the species list in the results folder!")
 speciesSub <- unique(speciesNames[speciesNames$NumCells_2km_biomod >= 100,]$SpeciesID)
 
@@ -416,8 +416,9 @@ for(spID in speciesSub){ try({
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate richness ####
 species_stack$Richness <- rowSums(species_stack %>% dplyr::select(Allol_chlo:Satch_mamm), na.rm=T)
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData"))
 
-#species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(sum, na.rm=T)
+species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(median, na.rm=T)
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save species stack ####
@@ -431,9 +432,6 @@ save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_Se
 
 species_stack <- species_stack_full %>% filter(no_subset==90)
 save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_90.RData"))
-
-species_stack <- species_stack_full %>% filter(no_subset==100)
-save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_100.RData"))
 
 rm(species_stack_full, species_stack)
 
@@ -528,17 +526,17 @@ for(no_subset in c(50, 75, 90)){ try({
   
 	load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
 	
-	png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
+	png(file=paste0(here::here(), "/figures/SensAna_percent_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
 	print({ggplot()+
 	  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
 	    xlim(-10, 30) +
 	    ylim(35, 70) +
 
- 	 geom_tile(data=extent_df %>% inner_join(species_stack %>% filter (Richness>0), by=c("x","y")), 
+ 	 geom_tile(data=species_stack %>% filter(Richness>0) %>% filter(x %in% unique(extent_df$x) & y %in% unique(extent_df$y)), 
 			aes(x=x, y=y, fill=Richness))+
 	 ggtitle(paste0(no_subset, "% of records"))+
  	 scale_fill_viridis_c()+
-	    geom_tile(data=extent_df %>% inner_join(species_stack %>% filter(Richness==0), by=c("x","y")), aes(x=x, y=y), fill="grey60")+
+	    geom_tile(data=species_stack %>% filter(Richness==0) %>% filter(x %in% unique(extent_df$x) & y %in% unique(extent_df$y)), aes(x=x, y=y), fill="grey60")+
  	 theme_bw()+
 	   theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
 	          legend.position = c(0.1,0.9), legend.direction = "horizontal")})
@@ -548,40 +546,40 @@ for(no_subset in c(50, 75, 90)){ try({
 while (!is.null(dev.list()))  dev.off()
 
 
-# map binary species distributions
-for(no_subset in c(50,75, 90)){
-load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
-species_stack <- species_stack %>% dplyr::select(-no_subset)
-species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
-  plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
-  print(s-2)
-  ggplot()+
-    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-10, 30) +
-    ylim(35, 70) +
-    
-    geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
-              aes(x=x, y=y, fill=factor(as.numeric(unlist(species_stack[,s])), levels=c("0", "1", "NA"))))+
-    ggtitle(colnames(species_stack)[s])+
-    scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
-    theme_bw()+
-    guides(fill = guide_legend(# title.hjust = 1, # adjust title if needed
-      label.position = "bottom",
-      label.hjust = 0.5))+
-    theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.9), legend.direction = "horizontal",
-          legend.text = element_text(size=20))
-})
-})
-
-require(gridExtra)
-#pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
-print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
-do.call(grid.arrange, plots)
-dev.off()
-}
-
-while (!is.null(dev.list()))  dev.off()
+# # map binary species distributions
+# for(no_subset in c(50,75, 90)){
+# load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+# species_stack <- species_stack %>% dplyr::select(-no_subset)
+# species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
+#   plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+#   print(s-2)
+#   ggplot()+
+#     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#     xlim(-10, 30) +
+#     ylim(35, 70) +
+#     
+#     geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
+#               aes(x=x, y=y, fill=factor(as.numeric(unlist(species_stack[,s])), levels=c("0", "1", "NA"))))+
+#     ggtitle(colnames(species_stack)[s])+
+#     scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
+#     theme_bw()+
+#     guides(fill = guide_legend(# title.hjust = 1, # adjust title if needed
+#       label.position = "bottom",
+#       label.hjust = 0.5))+
+#     theme(axis.title = element_blank(), legend.title = element_blank(),
+#           legend.position = c(0.1,0.9), legend.direction = "horizontal",
+#           legend.text = element_text(size=20))
+# })
+# })
+# 
+# require(gridExtra)
+# #pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
+# print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
+# do.call(grid.arrange, plots)
+# dev.off()
+# }
+# 
+# while (!is.null(dev.list()))  dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Difference between no_subset results ####
@@ -617,7 +615,7 @@ lm_varImp$t_abs <- abs(lm_varImp$t_value)
 lm_varImp$Direction <- factor(sign(lm_varImp$t_value), 1:(-1), c("positive", "neutral", "negative"))
 
 # transform to long format and add variable categories
-pred_tab <- readr::read_csv(file=paste0(here::here(), "/doc/Env_Predictors_table.csv"))
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
 
 lm_varImp <- lm_varImp%>%
   left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
@@ -637,7 +635,7 @@ plotTopVI
 png(paste0(here::here(), "/figures/SensAna2_VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 # save model summary
-sink(paste0(here::here(), "/results/SensAna2_Summary_lm1_Crassiclitellata_varImp.txt"))
+sink(paste0(here::here(), "/results/SensAna_percent_Summary_lm1_Crassiclitellata_varImp.txt"))
 print(summary(lm1))
 sink()
 
@@ -731,7 +729,7 @@ load(file=paste0(here::here(), "/results/_Sensitivity_percent/SDM_stack_future_r
 
 full_stack <- full_stack %>% filter(subset<100)
 
-
+world.inp <- map_data("world")
 for(no_subset in c(50, 75, 90)){
   
   # load uncertainty extent
@@ -744,7 +742,7 @@ for(no_subset in c(50, 75, 90)){
           xlim(-10, 30) +
           ylim(35, 70) +
           
-          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change)) %>% filter(Richness!=0 & Richness_full!=0)), 
+          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change) & subset==no_subset) %>% filter(Richness!=0 & Richness_full!=0)), 
                     aes(x=x, y=y, fill=Change_f))+
           ggtitle(paste0("Change in species richness (number of species)"), subtitle=no_subset)+
           scale_fill_manual(breaks=c("[10,20]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"), 
