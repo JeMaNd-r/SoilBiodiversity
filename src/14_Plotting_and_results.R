@@ -70,6 +70,7 @@ g_legend <- function(a.gplot){
 
 # load raw data
 occ_raw <- read.csv(file=paste0(here::here(), "/intermediates/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
+occ_raw <- occ_raw %>% rename("species"=ï..species)
 
 # load summary number of records during processing
 occ_process <- read.csv(file=paste0(here::here(), "/results/NoRecords_summary_Crassiclitellata.csv"))
@@ -88,30 +89,45 @@ ggplot(data=occ_process,
   xlab("")+ ylab("Number of occurrence records")+
   scale_y_continuous(expand=c(0,0), limits=c(0,65000))+
   coord_flip()+
-  theme_bw()
-dev.off()
-
-## plot raw occurrences colored by year
-pdf(paste0(here::here(), "/figures/OccurrenceRaw_perYear.pdf"), width=10)
-ggplot()+
-  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
-  geom_point(data=occ_raw, aes(x=longitude, y=latitude, col=year),cex=0.3)+ theme_bw()+
-  xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
-  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
-  scale_color_steps2(breaks=c(1970, 1980, 1990, 2000, 2010), midpoint=1995, 
-                     high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")+
-  theme(panel.background = element_rect(fill = "grey80",
-                                        colour = "grey80",
-                                        size = 0.5, linetype = "solid"),
-        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
-                                        colour = "grey80"))
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.1,0.8),legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=10), legend.key.size = unit(1, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), strip.text = element_text(size=5),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill="grey95"))
 dev.off()
 
 # load cleaned occurrence records 
-occ_clean <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
+occ_clean <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_", Taxon_name, ".csv"))
 
 # load matrix containing information on number of occurrence records in grid
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+occ_points <- occ_points %>% rename("x"=ï..x)
+
+## plot raw occurrences colored by year
+png(paste0(here::here(), "/figures/OccurrencesGridded_", Taxon_name, "_perYear.png"), height=4000, width=4000, res=400)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
+  
+  geom_point(data=occ_points %>% arrange(year), 
+             aes(x=x, y=y, col=year),cex=0.3)+ theme_bw()+
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  scale_color_steps2(breaks=c(1970, 1980, 1990, 2000, 2010), midpoint=1995, 
+                     high="#10a53dFF", mid="#ffcf20FF", low="#541352FF")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.15,0.85),legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=10), legend.key.size = unit(1, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), strip.text = element_text(size=5),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill="grey95"))
+dev.off()
 
 # calculate number of records per datasource
 full_join(occ_raw %>% group_by(datasource) %>% count(name="raw"), 
@@ -166,28 +182,31 @@ count_data2
 ggplot(count_data2 %>% filter(!is.na(SpeciesID), Included=TRUE), aes(x=RawOcc-CleanOcc, y=SpeciesID, fill=Ecogroup))+
   geom_bar(stat = "identity")
 
-## plot total species' occurrences
-plotOccRaw <- ggplot()+ 
-  geom_map(data = world.inp, map = world.inp, 
-           aes(map_id = region), fill = "white")+
-  xlim(min(extent_Europe[1], na.rm = T), 40) +
-  ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
-  geom_point(data=occ_clean, 
+## plot total species' occurrences per data source
+plotOccClean <- ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white")+
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  
+  geom_point(data=occ_clean %>% mutate(datasource=ifelse(datasource=="jean", "jerome", datasource)), 
              aes(x=longitude, y=latitude, color=datasource), 
-             cex=0.3, shape=".")+
+             cex=0.5, shape=19)+
+  scale_color_manual(values=c("#824351", "#C18746", "#FFCF20", "#BAC22F", "#65B039"))+ 
   theme_bw()+
-  theme(legend.position = "bottom")+
-  theme(panel.background = element_rect(fill = "grey80",
-                                        colour = "grey80",
-                                        size = 0.5, 
-                                        linetype = "solid"))+
-  guides(color = guide_legend(override.aes = list(size = 3))) #makes legend icons bigger
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.28,0.95), legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=10), #legend.key.size = unit(3, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), strip.text = element_text(size=5),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill="grey95"))+
+  guides(color = guide_legend(override.aes = list(size = 5))) #makes legend icons bigger
 
-plotOccRaw
+plotOccClean
 
-# pdf(paste0(here::here(), "/figures/CleanOccurrences_", Taxon_name, "_perDatasource.pdf")); plotOccRaw; dev.off()
-
-rm(plotOccRaw)
+#png(paste0(here::here(), "/figures/OccurrencesClean_", Taxon_name, "_perDatasource.png"),height=4000, width=4000, res=400); plotOccClean; dev.off()
+rm(plotOccClean)
 
 occ_clean %>% group_by(datasource) %>% count() 
 # edapho 13054, gbif 54883, jean 24860, jerome 732, soilrecon 175, sworm 5028
@@ -195,13 +214,13 @@ occ_clean %>% group_by(datasource) %>% count()
 ## plot in Germany
 german.inp <- map_data("world", "Germany")
 
-# plot total species' occurrences
+# plot total species' occurrences in Germany
 plotOccRawGER <- ggplot()+ #, alpha=`Number of Records`
   #geom_polygon(data=bg.map)+
   geom_map(data=world.inp, map = world.inp, aes(map_id = region), fill="grey90") +
   geom_map(data=german.inp, map = german.inp, aes(map_id = region), fill="white")+
-  xlim(5, 17) +
-  ylim(46,57) +
+  xlim(-10, 30) +
+  ylim(35, 70) +
   
   geom_point(data=occ_clean, aes(x=longitude, y=latitude, color=datasource, shape="."), cex=0.4)+
   #scale_x_continuous(limits=c(5, 17))+ 
@@ -216,76 +235,71 @@ plotOccRawGER <- ggplot()+ #, alpha=`Number of Records`
 
 plotOccRawGER
 
-# pdf(paste0(here::here(), "/figures/RawOccurrences_", Taxon_name, "_perDatasource_GER.pdf")); plotOccRawGER; dev.off()
+# pdf(paste0(here::here(), "/figures/OccurrencesRaw_", Taxon_name, "_perDatasource_GER.pdf")); plotOccRawGER; dev.off()
 
 rm(plotOccRawGER, occ_clean)
 
-# 
-# # calculate raw species richness
-# #### needs to be fixed ######
-# occ_rich <- occ_points %>% 
-#   group_by(Latitude = round(x,0), Longitude=round(y,0)) %>%
-#   summarise_at(vars(colnames(occ_points %>% dplyr::select(-x, -y))), mean, na.rm=T)
-# occ_rich$Richness <- apply(occ_rich > 0, 1, sum, na.rm=T)
-# 
-# # plot total species' occurrences
-# plotOcc <- ggplot()+ 
-#   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-#   xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
-#   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
-#   
-#   geom_point(data=occ_rich %>%
-#                dplyr::select(c(Latitude, Longitude, Richness)),
-#              aes(x=Latitude, y=Longitude, color=Richness))+ #, alpha=`Number of Species`
-#   
-#   scale_color_gradient2(5,    # provide any number of colors
-#                         low = "black", high="orange", mid= "blue",
-#                         midpoint = 10,
-#                         #values = scales::rescale(c(1, 2, 3, 5, 10, 30)), 
-#                         breaks = c(1, 2, 5, 10, 20, 30), limits=c(0,30))+
-#   theme_bw()+
-#   theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
-# 
-# plotOcc
+# Calculate individuals species' occurrence based on BIOMOD input
+occ_points_species <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_BIOMOD_", Taxon_name, ".csv"))
+head(occ_points_species)
 
-# calculate individual species' occurrences
-occ_points_species <- occ_points %>% 
-  pivot_longer(cols=speciesNames$SpeciesID[speciesNames$SpeciesID %in% colnames(occ_points)], 
-               names_to = "SpeciesID") %>% 
+# number of (true) records per species
+View(occ_points_species %>% group_by(SpeciesID) %>% filter(occ>=1) %>% count())
+View(occ_points_species %>% group_by(SpeciesID) %>% filter(occ>=1 & SpeciesID %in% species100) %>% count())
+occ_points_species %>% group_by(SpeciesID) %>% filter(occ>=1 & SpeciesID %in% species100) %>% count() %>%
+  ungroup() %>% summarize(across(everything(), list(mean, median, sd)))
+
+# summarize individual species occurrence
+occ_points_species <- occ_points_species %>%
   mutate("Latitude"=round(x,0), "Longitude"=round(y,0)) %>%
   group_by(Latitude, Longitude, SpeciesID) %>%
-  filter(!is.na(value)) %>%
-  summarize("Number of Records"= n(), .groups="keep") %>%
-  filter("Number of Records" > 0) 
+  summarize( "Records"= sum(occ), .groups="keep") %>%
+  filter(Records > 0)
 
-# only keep species that will be analyzed (i.e., present in at least 5 grid cells)
-occ_points_species <- occ_points_species[occ_points_species$SpeciesID %in%
-                                           speciesNames[speciesNames$NumCells_2km >=5, "SpeciesID"],]
-occ_points_species
+# occ_points_species <- occ_points %>%
+#   pivot_longer(cols=speciesNames$SpeciesID[speciesNames$SpeciesID %in% colnames(occ_points)],
+#                names_to = "SpeciesID") %>%
+#   mutate("Latitude"=round(x,0), "Longitude"=round(y,0)) %>%
+#   group_by(Latitude, Longitude, SpeciesID) %>%
+#   filter(!is.na(value)) %>%
+#   summarize("Number of Records"= n(), .groups="keep") %>%
+#   filter("Number of Records" > 0)
+# 
+# # only keep species that will be analyzed (i.e., present in at least 5 grid cells)
+# occ_points_species <- occ_points_species[occ_points_species$SpeciesID %in%
+#                                            speciesNames[speciesNames$NumCells_2km >=5, "SpeciesID"],]
 
 ## plot some of the individual species' occurrences
-plotOccSpecies <- ggplot(occ_points_species, 
-                         aes(x=Latitude, y=Longitude, color=`Number of Records`, group=SpeciesID))+
-  #geom_polygon(data=bg.map)
-  geom_point(cex=0.015, pch=15)+
+plotOccSpecies <- ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "white") +
+  xlim(-10, 30) +
+  ylim(35, 70) +
+
+  geom_point(data=occ_points_species,
+             aes(x=Latitude, y=Longitude, color=Records, group=SpeciesID),
+             cex=0.07, pch=15)+
   facet_wrap(vars(SpeciesID))+
   scale_color_gradientn(    # provide any number of colors
     colors = c("black", "blue", "orange"),
-    values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)), 
+    values = scales::rescale(c(1, 5, 20, 30, 50, 100, 300)),
     breaks = c(5, 20, 50, 100, 200))+
-  
+
   # add number of grid cells in which the species is present
-  geom_text(data=occ_points_species %>% group_by(SpeciesID) %>% summarize("n"=sum(`Number of Records`)), 
-            aes(x=30, y=33, label=paste0("n=", n)), color="black", 
-            inherit.aes=FALSE, parse=FALSE, cex=0.7)+
+  geom_text(data=occ_points_species %>% group_by(SpeciesID) %>% summarize("n"=sum(Records)),
+            aes(x=-5, y=68, label=paste0("n=", n)), color="black",
+            inherit.aes=FALSE, parse=FALSE, cex=2, hjust=0)+
   theme_bw()+
-  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), 
-        axis.title.x = element_blank(), axis.title.y = element_blank(),
-        axis.ticks.length = unit(0, "cm"),
-        legend.position = "bottom", legend.text = element_text(size=5))
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.6, 0.05),legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=10), legend.key.size = unit(1, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill="grey95"))
 plotOccSpecies
 
-# pdf(paste0(here::here(), "/figures/GriddedOccurrences_", Taxon_name, "_perSpecies.pdf")); plotOccSpecies; dev.off()
+# png(paste0(here::here(), "/figures/OccurrencesGridded_", Taxon_name, "_perSpecies.png"), height=4000, width=4000, res=400); plotOccSpecies; dev.off()
 
 rm(plotOccSpecies, occ_points_species)
 
@@ -508,6 +522,8 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
     #ggtitle(colnames(uncertain_df)[s])+
     annotate(geom="text", x=-3, y=68, label=colnames(uncertain_df)[s], color="black", size=15)+
     scale_fill_viridis_c(option="E", limits = c(0,0.5))+
+    geom_tile(data=uncertain_df[!is.na(uncertain_df[,s]) & uncertain_df[,s]>0.15,], 
+              aes(x=x, y=y), fill="#FDE725FF")+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = "none", legend.direction = "horizontal",
@@ -522,7 +538,7 @@ plots <- lapply(3:(ncol(uncertain_df)-2), function(s) {try({
 legend <- g_legend(ggplot(data=uncertain_df[!is.na(uncertain_df[,3]) & uncertain_df[,3]>0,], 
                           aes(x=x, y=y, fill=uncertain_df[!is.na(uncertain_df[,3]),3]))+
                      geom_tile()+
-                     scale_fill_viridis_c(option="E", limits = c(0,0.5))+
+                     scale_fill_viridis_c(option="E", limits = c(0,0.15))+
                      theme_bw()+
                      theme(axis.title = element_blank(), legend.title = element_blank(),
                            legend.position = c(0.5, 0.5), legend.direction = "horizontal",
@@ -1288,6 +1304,30 @@ grid.arrange(a, b, c, f,
                                    c(2,2,2,4,4)))
 dev.off()
 
+cover_matrix %>%
+  filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & 
+           IUCNcat!="Protected" & SpeciesID!="_SD" & SpeciesID!="_Mean") %>% group_by(IUCNcat) %>% 
+  summarize(across(everything(), mean, na.rm=T))
+cover_matrix %>%
+  filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & 
+           IUCNcat!="Protected" & SpeciesID!="_SD" & SpeciesID!="_Mean") %>% group_by(IUCNcat) %>% 
+  summarize(across(everything(), sd, na.rm=T))
+
+cover_matrix %>%
+  filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & 
+           IUCNcat!="Protected" & SpeciesID!="_SD" & SpeciesID!="_Mean") %>%
+  dplyr::select(coverage_change) %>%
+  summarize(across(everything(), mean, na.rm=T))
+cover_matrix %>%
+  filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & 
+           IUCNcat!="Protected" & SpeciesID!="_SD" & SpeciesID!="_Mean") %>%
+  dplyr::select(coverage_change) %>%
+  summarize(across(everything(), median, na.rm=T))
+cover_matrix %>%
+  filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & 
+           IUCNcat!="Protected" & SpeciesID!="_SD" & SpeciesID!="_Mean") %>%
+  dplyr::select(coverage_change) %>%
+  summarize(across(everything(), sd, na.rm=T))
 
 #- - - - - - - - - - - - - - - - - - - - 
 ## Protection: some numbers ####
@@ -1304,6 +1344,15 @@ cover_df <- cover_df %>% full_join(cover_df_current %>% mutate("SSP"="current"))
 
 cover_df$IUCNcat <- factor(cover_df$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected", "Protected", "Outside.PA"))
 cover_sr$IUCNcat <- factor(cover_sr$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected", "Protected", "Outside.PA"))
+
+# total protected area
+load(file=paste0(here::here(), "/intermediates/WDPA_WDOECM_IUCNcat_df.RData")) #protect_df
+protect_df$protected <- rowSums(protect_df %>% dplyr::select(II:Ia, VI))
+head(protect_df)
+
+protect_df <- extent_df %>% inner_join(protect_df)
+sum(protect_df$protected); sum(protect_df$protected) / nrow(extent_df) 
+
 
 # protected area per species
 cover_df %>% filter(SpeciesID!="_Mean" & SpeciesID!="_SD") %>% filter(IUCNcat=="Protected" & SSP=="current") %>% arrange(coverage)
@@ -1459,5 +1508,32 @@ dev.off()
 #   geom_vline(xintercept=1.5, lty=2)+
 #   theme(legend.position="none")
 
+# # calculate raw species richness
+# #### needs to be fixed ######
+# occ_rich <- occ_points %>% 
+#   group_by(Latitude = round(x,0), Longitude=round(y,0)) %>%
+#   summarise_at(vars(colnames(occ_points %>% dplyr::select(-x, -y))), mean, na.rm=T)
+# occ_rich$Richness <- apply(occ_rich > 0, 1, sum, na.rm=T)
+# 
+# # plot total species' occurrences
+# plotOcc <- ggplot()+ 
+#   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#   xlim(min(extent_Europe[1], na.rm = T), max(extent_Europe[2], na.rm = T)) +
+#   ylim(min(extent_Europe[3], na.rm = T), max(extent_Europe[4], na.rm = T)) +
+#   
+#   geom_point(data=occ_rich %>%
+#                dplyr::select(c(Latitude, Longitude, Richness)),
+#              aes(x=Latitude, y=Longitude, color=Richness))+ #, alpha=`Number of Species`
+#   
+#   scale_color_gradient2(5,    # provide any number of colors
+#                         low = "black", high="orange", mid= "blue",
+#                         midpoint = 10,
+#                         #values = scales::rescale(c(1, 2, 3, 5, 10, 30)), 
+#                         breaks = c(1, 2, 5, 10, 20, 30), limits=c(0,30))+
+#   theme_bw()+
+#   theme(legend.position = "bottom", legend.text = element_text(size=8), legend.key.width = unit(2, "cm"))
+# 
+# plotOcc
+# 
 
 
