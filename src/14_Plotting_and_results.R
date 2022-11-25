@@ -1487,9 +1487,16 @@ finalPlot +
            fontface = "bold")
 dev.off()
 
+#- - - - - - - - - - - - - - - - - - - -
+## Extract GBIF taxon keys ####
+#- - - - - - - - - - - - - - - - - - - -
+
+dat <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_GBIF_Crassiclitellata.csv")) #dat
+dat %>% dplyr::select(species, speciesKey) %>% unique() %>% arrange(species)
+
 
 #- - - - - - - - - - - - - - - - - - - -
-### DRAFT Plots ####
+## DRAFT (old) plots ####
 #- - - - - - - - - - - - - - - - - - - -
 # 
 # # bar chart of percent area covered by PA per species
