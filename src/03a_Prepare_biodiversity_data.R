@@ -20,8 +20,8 @@ speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".cs
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from sWorm ####
-sworm_occ <- readr::read_csv(file=paste0(here::here(), "/data/SppOccData_sWorm_v2.csv"))
-sworm_site <- readr::read_csv(file=paste0(here::here(), "/data/SiteData_sWorm_v2.csv"))
+sworm_occ <- readr::read_csv(file=paste0(here::here(), "/data_raw/SppOccData_sWorm_v2.csv"))
+sworm_site <- readr::read_csv(file=paste0(here::here(), "/data_raw/SiteData_sWorm_v2.csv"))
 
 sworm <- dplyr::full_join(sworm_occ, sworm_site)
 
@@ -45,7 +45,7 @@ rm(sworm_occ, sworm_site)
 # - - - - - - - - - - - - - - - - - - -
 ## Data from GBIF ####
 
-dat <- read.csv(file=paste0(here::here(), "/results/Occurrences_GBIF_Crassiclitellata.csv")) #dat
+dat <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_GBIF_Crassiclitellata.csv")) #dat
 
 gbif <- dat[,c("species", "decimalLatitude", "decimalLongitude", "year")] %>%
   mutate(datasource = "GBIF")
@@ -55,7 +55,7 @@ rm(dat)
 # - - - - - - - - - - - - - - - - - - -
 ## Data from Edaphobase ####
 
-edapho <- readr::read_csv(file=paste0(here::here(), "/data/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv"))
+edapho <- readr::read_csv(file=paste0(here::here(), "/data_raw/Edaphobase_download_24-Feb-2021_Lumbricidae_Europe.csv"))
 
 #!!! Manually: We already added one missing "Valid taxon" for Helodrilus sp.
 
@@ -81,7 +81,7 @@ edapho
 # - - - - - - - - - - - - - - - - - - -
 ## Data from SoilReCon project (Portugal) ####
   
-recon <- readr::read_csv(file=paste0(here::here(), "/data/SoilReCon_earthworms_clean.csv"))
+recon <- readr::read_csv(file=paste0(here::here(), "/data_raw/SoilReCon_earthworms_clean.csv"))
 
 # remove non-species level and NA species
 recon <- recon[recon$Species!="Octolasion sp." & !is.na(recon$Species),]
@@ -93,7 +93,7 @@ recon <- recon %>% dplyr::select(Species, POINT_X, POINT_Y) %>%
 # - - - - - - - - - - - - - - - - - - -
 ## Data from Jerome Matthieu (Jema) ####
 
-jema <-  read.csv(file=paste0(here::here(),"/data/worm_spd_europe_jerome.csv"), sep=";")
+jema <-  read.csv(file=paste0(here::here(),"/data_raw/worm_spd_europe_jerome.csv"), sep=";")
 # nrow=27800
 
 jema$Species <- jema$species_name
@@ -180,7 +180,7 @@ data_raw #nrow = 108,027 (1990: 101,190)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save data ####
-write.csv(data_raw, file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
+write.csv(data_raw, file=paste0(here::here(), "/intermediates/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"),
           row.names = F)
 
 # - - - - - - - - - - - - - - - - - - -
@@ -198,7 +198,7 @@ library(CoordinateCleaner)
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
 
-data_raw <- read.csv(file=paste0(here::here(), "/data/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
+data_raw <- read.csv(file=paste0(here::here(), "/intermediates/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
 
 # - - - - - - - - - - - - - - - - - - -
 # create a table to see how many records get removed.
@@ -275,7 +275,7 @@ dat_cl <- dat_cl[complete.cases(dat_cl$y),]
 
 # - - - - - - - - - - - - - - - - - - -
 ## Save clean data ####
-write.csv(dat_cl, file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"),
+write.csv(dat_cl, file=paste0(here::here(), "/intermediates/Occurrences_", Taxon_name, ".csv"),
           row.names = F)
 
 # load number of records during cleaning process
