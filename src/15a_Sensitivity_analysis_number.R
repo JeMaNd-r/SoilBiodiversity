@@ -42,7 +42,7 @@ load(paste0(here::here(),"/results/EnvPredictor_2km_df_clipped.RData")) #Env_cli
 
 # response variable (i.e., species occurrences) in wide format
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
-occ_points <- occ_points %>% rename("x"="ï..x")
+occ_points <- occ_points %>% rename("x"="?..x")
 
 # get species with more than equal to 200 records:
 if(is.null(speciesNames$NumCells_2km_biomod)) print("Please use the species list in the results folder!")
@@ -442,48 +442,58 @@ for(no_subset in c(5,10,20,50, 100)){ try({
 	png(file=paste0(here::here(), "/figures/SensAna_number_SpeciesRichness_", Taxon_name, "_", no_subset, ".png"), width=1000, height=1000)
 	print({ggplot()+
 	  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-	  xlim(-23, 40) +
-	  ylim(31, 75) +
-
+	  xlim(-10, 30) +
+	  ylim(35, 70) +
+	    
  	 geom_tile(data=species_stack %>% filter (Richness>0), 
 			aes(x=x, y=y, fill=Richness))+
 	 ggtitle(paste0(no_subset, " records"))+
  	 scale_fill_viridis_c()+
  	 theme_bw()+
  	 theme(axis.title = element_blank(), legend.title = element_blank(),
-  	      legend.position = c(0.1, 0.2))})
+	        legend.position = c(0.2, 0.85), legend.direction = "horizontal",
+ 	        legend.key.size = unit(2, "cm"), legend.text = element_text(size=20),
+	        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+	        panel.grid.major = element_blank(),
+	        panel.grid.minor = element_blank(),
+	        panel.border = element_blank(),
+	        panel.background = element_blank())})
 	dev.off()
 })}
 
 while (!is.null(dev.list()))  dev.off()
 
 
-# # map binary species distributions
-# for(no_subset in c(5,10,20,50, 100)){
-# load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
-# plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
-#   print(s-2)
-#   ggplot()+
-#     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-#     xlim(-23, 40) +
-#     ylim(31, 75) +
-#     
-#     geom_tile(data=species_stack[!is.na(species_stack[,s]),], 
-#               aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
-#     ggtitle(colnames(species_stack)[s])+
-#     scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
-#     theme_bw()+
-#     theme(axis.title = element_blank(), legend.title = element_blank(),
-#           legend.position = c(0.1,0.4))
-#   })
-# })
-# 
-# require(gridExtra)
-# #pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
-# print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
-# do.call(grid.arrange, plots)
-# dev.off()
-# }
+# map binary species distributions
+for(no_subset in c(5,10,20,50,100)){
+load(file=paste0(here::here(), "/results/_Sensitivity_number/SensAna_sdm/SDM_stack_bestPrediction_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+  print(s-2)
+  ggplot()+
+    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+    xlim(-10, 30) +
+    ylim(35, 70) +
+    
+    geom_tile(data=species_stack[!is.na(species_stack[,s]),],
+              aes(x=x, y=y, fill=as.factor(species_stack[!is.na(species_stack[,s]),s])))+
+    ggtitle(colnames(species_stack)[s])+
+    scale_fill_manual(values=c("1"="#440154","0"="grey","NA"="lightgrey"))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = c(0.1, 0.4),
+          axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank())})
+})
+
+require(gridExtra)
+#pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
+png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000)
+do.call(grid.arrange, plots)
+dev.off()
+}
 
 while (!is.null(dev.list()))  dev.off()
 
