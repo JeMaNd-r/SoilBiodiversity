@@ -18,6 +18,9 @@ library(biomod2) # also to create pseudo-absences
 library(ggplot2) # for plotting the curves
 library(ggpubr)
 
+library(sf)
+library(ggsn) #for scale and north arrow
+
 library(parallel)
 library(doParallel)
 
@@ -70,7 +73,7 @@ g_legend <- function(a.gplot){
 
 # load raw data
 occ_raw <- read.csv(file=paste0(here::here(), "/intermediates/Earthworm_occurrence_GBIF-sWorm-Edapho-SoilReCon-JM.csv"))
-occ_raw <- occ_raw %>% rename("species"=ï..species)
+occ_raw <- occ_raw %>% rename("species"=?..species)
 
 # load summary number of records during processing
 occ_process <- read.csv(file=paste0(here::here(), "/results/NoRecords_summary_Crassiclitellata.csv"))
@@ -105,7 +108,7 @@ occ_clean <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_", T
 
 # load matrix containing information on number of occurrence records in grid
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
-occ_points <- occ_points %>% rename("x"=ï..x)
+occ_points <- occ_points %>% rename("x"=?..x)
 
 ## plot raw occurrences colored by year
 png(paste0(here::here(), "/figures/OccurrencesGridded_", Taxon_name, "_perYear.png"), height=4000, width=4000, res=400)
@@ -406,13 +409,15 @@ png(paste0(here::here(), "/figures/VariableImportance_biomod_species_", Taxon_na
 ## Calculate variable importance for richness (lm) ####
 #- - - - - - - - - - - - - - - - - - - - -
 
-# load environmental variables (for projections) as dataframe
+# load environmental variables (for projections) and species stack as dataframe
 load(paste0(here::here(), "/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 
 data_stack <- species_stack %>% full_join(Env_clip_df)
 
 lm1 <- lm(data=data_stack, Richness~MAT+Dist_Coast+MAP_Seas+CEC+Elev+P+Pop_Dens+Agriculture+pH+Clay.Silt)
 summary(lm1)
+confint(lm1)
 
 lm_varImp <- data.frame("t_value"=summary(lm1)[["coefficients"]][,"t value"])
 lm_varImp$Predictor <- rownames(lm_varImp)
@@ -483,6 +488,43 @@ ggplot()+
         panel.border = element_blank(),
         panel.background = element_blank())
 dev.off()
+
+
+# # While scalebar in WGS84 makes no sence:
+# #https://stackoverflow.com/questions/41371170/ggsn-global-map-scale-bar-looks-wrong/41373569#41373569
+# 
+# uncertain_st <- sf::st_multipoint(uncertain_df %>% dplyr::select(x,y,Mean) %>% as.matrix(), dim="XYZ")
+# uncertain_st <- raster::rasterFromXYZ(uncertain_df %>% dplyr::select(x,y,Mean))
+# uncertain_st <- raster::rasterToPolygons(uncertain_st)
+# uncertain_st <- sf::st_as_sf(uncertain_st)
+
+# png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"), width=1000, height=1000)
+# ggplot()+
+#   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#   xlim(-10, 30) +
+#   ylim(35, 70) +
+# 
+#   geom_sf(data=uncertain_st, aes(color=Mean))+
+#   scale_color_viridis_c(option="E")+
+#   north(x.min=-10, x.max=30, y.min=35, y.max=70, symbol=10, 
+#         location = "topleft")+
+#   scalebar(x.min=-10, x.max=30, y.min=35, y.max=70, 
+#            dist=500, dist_unit="km", st.bottom = TRUE,
+#           height=0.05,location = "bottomleft",
+#            transform = TRUE, model="WGS84")+
+#   ggtitle("Coefficient of variation averaged across SDMs")+
+# 
+#   
+#   theme_bw()+  
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position =c(0.2, 0.95), legend.direction = "horizontal",
+#         axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+#         legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.border = element_blank(),
+#         panel.background = element_blank())
+# dev.off()
 
 temp_thresh <- 0.1
 png(file=paste0(here::here(), "/figures/Uncertainty_", temp_thresh, "_", Taxon_name, ".png"), width=1000, height=1000)
@@ -750,7 +792,7 @@ ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
   
   scale_color_manual(values = c("black", "grey60"),
                      guide  = guide_legend(), 
-                     name   = "Range size in 1,000 km²",
+                     name   = "Range size in 1,000 km?",
                      labels = c("Current", "Future (mean)")) +
   scale_fill_manual(values = c("grey90"), 
                     labels = c("[-0.5, 0.75]"),
