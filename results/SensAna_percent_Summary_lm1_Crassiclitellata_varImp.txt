@@ -5,27 +5,27 @@ lm(formula = Richness ~ subset + MAT + Dist_Coast + MAP_Seas +
     data = data_stack)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--2.0472 -0.3480 -0.1235  0.1909 17.3345 
+     Min       1Q   Median       3Q      Max 
+-18.0954  -1.8217  -0.1106   1.7182  11.7025 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -2.681e-01  1.013e-03 -264.61   <2e-16 ***
-subset       7.379e-03  1.291e-05  571.57   <2e-16 ***
-MAT          2.338e-01  6.057e-04  385.93   <2e-16 ***
-Dist_Coast  -4.871e-02  4.552e-04 -106.99   <2e-16 ***
-MAP_Seas    -2.185e-01  4.726e-04 -462.31   <2e-16 ***
-CEC         -2.502e-02  2.744e-04  -91.18   <2e-16 ***
-Elev        -3.337e-02  3.918e-04  -85.18   <2e-16 ***
-P            1.494e-01  2.869e-04  520.82   <2e-16 ***
-Pop_Dens     2.518e-02  2.955e-04   85.22   <2e-16 ***
-Agriculture -1.702e-01  3.671e-04 -463.64   <2e-16 ***
-pH          -1.653e-02  4.708e-04  -35.12   <2e-16 ***
-Clay.Silt    1.405e-01  3.149e-04  446.27   <2e-16 ***
+(Intercept)  2.5525121  0.0111874  228.16   <2e-16 ***
+subset       0.0131610  0.0001297  101.51   <2e-16 ***
+MAT          3.4997711  0.0067583  517.85   <2e-16 ***
+Dist_Coast  -0.7887121  0.0051810 -152.23   <2e-16 ***
+MAP_Seas    -3.3388202  0.0053162 -628.05   <2e-16 ***
+CEC         -0.4970406  0.0031246 -159.07   <2e-16 ***
+Elev        -0.6181853  0.0044369 -139.33   <2e-16 ***
+P            2.4420226  0.0032667  747.54   <2e-16 ***
+Pop_Dens     0.4245090  0.0033865  125.35   <2e-16 ***
+Agriculture -2.7524367  0.0041702 -660.02   <2e-16 ***
+pH          -0.1928885  0.0053487  -36.06   <2e-16 ***
+Clay.Silt    2.2692344  0.0036055  629.38   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 0.9575 on 19541288 degrees of freedom
-Multiple R-squared:  0.08832,	Adjusted R-squared:  0.08832 
-F-statistic: 1.721e+05 on 11 and 19541288 DF,  p-value: < 2.2e-16
+Residual standard error: 2.624 on 1154852 degrees of freedom
+Multiple R-squared:  0.7359,	Adjusted R-squared:  0.7359 
+F-statistic: 2.925e+05 on 11 and 1154852 DF,  p-value: < 2.2e-16
 

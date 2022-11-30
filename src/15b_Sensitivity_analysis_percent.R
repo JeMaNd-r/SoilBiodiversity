@@ -472,30 +472,36 @@ for(no_subset in c(50, 75, 90)){
     temp_prediction[,substr(spID, 1, 10)] <- temp_prediction$layer
     
     # add layer to stack
-    uncertain_df <- full_join(uncertain_df, temp_prediction %>% dplyr::select(x,y, substr(spID, 1, 10)))
+    uncertain_df <- full_join(uncertain_df, 
+                              temp_prediction %>% 
+                                dplyr::select(x,y, substr(spID, 1, 10)) %>%
+                                mutate("subset"=substr(spID, 14, 15)))
   
   })}
   
-  uncertain_df$Mean <- rowMeans(uncertain_df %>% dplyr::select(-x, -y), na.rm=T)
+  uncertain_df$Mean <- rowMeans(uncertain_df %>% dplyr::select(-x, -y, -subset), na.rm=T)
   
   # calculate sd of predictions
-  uncertain_df$SD <- apply(uncertain_df %>% dplyr::select(-x, -y, -Mean), 1, sd, na.rm = TRUE)
+  uncertain_df$SD <- apply(uncertain_df %>% dplyr::select(-x, -y, -subset, -Mean), 1, sd, na.rm = TRUE)
   
   head(uncertain_df)
   
   # save species' uncertainty map
   save(uncertain_df, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_", Taxon_name, "_", no_subset,  ".RData"))
+  rm(uncertain_df)
+  gc()
 }
 
 ## Plotting
 
 for(no_subset in c(50, 75, 90)){
   load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_", Taxon_name,"_", no_subset,  ".RData")) #uncertain_df
+  uncertain_df <- uncertain_df %>% dplyr::select(x,y,Mean)
   
   # view uncertainty in map 
   world.inp <- map_data("world")
   
-  png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name,"_", no_subset, ".png"), width=1000, height=1000)
+  png(file=paste0(here::here(), "/figures/SensAna_percent_Uncertainty_", Taxon_name,"_", no_subset, ".png"), width=1000, height=1000)
   print({ggplot()+
     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
     xlim(-10, 30) +
@@ -503,16 +509,21 @@ for(no_subset in c(50, 75, 90)){
     
     geom_tile(data=uncertain_df %>% filter(Mean!=0), aes(x=x, y=y, fill=Mean))+
     ggtitle("Coefficient of variation averaged across SDMs", subtitle=paste(no_subset, "% of records"))+
-    scale_fill_viridis_c(option="E")+
+    scale_fill_viridis_c(option="E", limits = c(0,0.2))+
     theme_bw()+  
     
-    theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position ="bottom",legend.direction = "horizontal")})
+      theme(axis.title = element_blank(), legend.title = element_blank(),
+            legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+            axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+            legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.border = element_blank(),
+            panel.background = element_blank())})
   dev.off()
   
   # extract area with uncertainty lower than threshold
-  summary(uncertain_df$Mean)
-  
+  #summary(uncertain_df$Mean)
   extent_df <- uncertain_df %>% filter(Mean<0.1 & !is.na(Mean)) %>% dplyr::select(x,y)
   save(extent_df, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData"))
 }
@@ -547,10 +558,14 @@ for(no_subset in c(50, 75, 90)){ try({
  	 scale_fill_viridis_c()+
 	    geom_tile(data=species_stack %>% filter(Richness==0), aes(x=x, y=y), fill="grey60")+
  	 theme_bw()+
-	   theme(axis.title = element_blank(), legend.title = element_blank(),
-	          legend.position = c(0.1,0.9), legend.direction = "horizontal",
-	         legend.key = element_rect(size=unit(3, "cm")), legend.text = element_text(size=20),
-	         #ADD remove grid and same scale & legend in plot not bottom(also in uncertainty)  )})
+	    theme(axis.title = element_blank(), legend.title = element_blank(),
+	          legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+	          axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+	          legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+	          panel.grid.major = element_blank(),
+	          panel.grid.minor = element_blank(),
+	          panel.border = element_blank(),
+	          panel.background = element_blank())})
 	dev.off()
 	
 	print(paste0("Subset ",no_subset, " ready."))
@@ -559,40 +574,45 @@ for(no_subset in c(50, 75, 90)){ try({
 while (!is.null(dev.list()))  dev.off()
 
 
-# map binary species distributions
-for(no_subset in c(50,75, 90)){
-load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
-species_stack <- species_stack %>% dplyr::select(-no_subset)
-species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
-  plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
-  print(s-2)
-  ggplot()+
-    geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
-    xlim(-10, 30) +
-    ylim(35, 70) +
-
-    geom_tile(data=species_stack[!is.na(species_stack[,s]),],
-              aes(x=x, y=y, fill=factor(as.numeric(unlist(species_stack[,s])), levels=c("0", "1", "NA"))))+
-    ggtitle(colnames(species_stack)[s])+
-    scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
-    theme_bw()+
-    guides(fill = guide_legend(# title.hjust = 1, # adjust title if needed
-      label.position = "bottom",
-      label.hjust = 0.5))+
-    theme(axis.title = element_blank(), legend.title = element_blank(),
-          legend.position = c(0.1,0.9), legend.direction = "horizontal",
-          legend.text = element_text(size=20))
-})
-})
-
-require(gridExtra)
-#pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
-print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
-do.call(grid.arrange, plots)
-dev.off()
-}
-
-while (!is.null(dev.list()))  dev.off()
+# # map binary species distributions
+# for(no_subset in c(50,75, 90)){
+# load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
+# species_stack <- species_stack %>% dplyr::select(-no_subset)
+# species_stack <- extent_df %>% inner_join(species_stack, by=c("x","y"))
+#   plots <- lapply(3:(ncol(species_stack)-1), function(s) {try({
+#   print(s-2)
+#   ggplot()+
+#     geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#     xlim(-10, 30) +
+#     ylim(35, 70) +
+# 
+#     geom_tile(data=species_stack[!is.na(species_stack[,s]),],
+#               aes(x=x, y=y, fill=factor(as.numeric(unlist(species_stack[,s])), levels=c("0", "1", "NA"))))+
+#     ggtitle(colnames(species_stack)[s])+
+#     scale_fill_manual(values=c("1"="#440154","0"="grey60","NA"="lightgrey"))+
+#     theme_bw()+
+#     guides(fill = guide_legend(# title.hjust = 1, # adjust title if needed
+#       label.position = "bottom",
+#       label.hjust = 0.5))+
+#     theme(axis.title = element_blank(), legend.title = element_blank(),
+#           legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+#           axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+#           legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+#           panel.grid.major = element_blank(),
+#           panel.grid.minor = element_blank(),
+#           panel.border = element_blank(),
+#           panel.background = element_blank())
+# })
+# })
+# 
+# require(gridExtra)
+# #pdf(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".pdf"))
+# print(png(file=paste0(here::here(), "/figures/SensAna_DistributionMap_bestBinary_", Taxon_name, "_", no_subset, ".png"),width=3000, height=3000))
+# do.call(grid.arrange, plots)
+# dev.off()
+# }
+# 
+# while (!is.null(dev.list()))  dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Difference between no_subset results ####
@@ -645,7 +665,7 @@ plotTopVI <- lm_varImp %>% dplyr::select(t_abs, Predictor, Category, Direction) 
   theme_bw()+theme(aspect.ratio=1/1)
 plotTopVI
 
-png(paste0(here::here(), "/figures/SensAna2_VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
+png(paste0(here::here(), "/figures/SensAna_percent_VariableImportance_biomod_top10_lm_", Taxon_name, ".png")); plotTopVI; dev.off()
 
 # save model summary
 sink(paste0(here::here(), "/results/SensAna_percent_Summary_lm1_Crassiclitellata_varImp.txt"))
@@ -748,22 +768,35 @@ for(no_subset in c(50, 75, 90)){
   # load uncertainty extent
   load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_Uncertainty_extent_", Taxon_name, "_", no_subset, ".RData")) #extent_df
   
+  extent_x <- unique(extent_df$x)
+  extent_y <- unique(extent_df$y)
+  
+  temp_full_stack <- full_stack %>% filter(x %in% extent_x & y %in% extent_y) %>%
+    filter(!is.na(Change) & subset==no_subset)  %>%
+    dplyr::select(Change, Change_f, Richness, Richness_full, x, y) %>% arrange(Richness)
+  
   # plot change in distribution
-  png(file=paste0(here::here(), "/figures/SensAna_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)
+  png(file=paste0(here::here(), "/figures/SensAna_percent_SpeciesRichness_cert0.1_change_", Taxon_name, "_", no_subset, ".png"),width=1000, height=1000)
   print(ggplot()+
           geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
           xlim(-10, 30) +
           ylim(35, 70) +
           
-          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(!is.na(Change) & subset==no_subset) %>% filter(Richness!=0 & Richness_full!=0)), 
+          geom_tile(data=temp_full_stack %>% filter(Richness!=0 & Richness_full!=0), 
                     aes(x=x, y=y, fill=Change_f))+
           ggtitle(paste0("Change in species richness (number of species)"), subtitle=no_subset)+
           scale_fill_manual(breaks=c("[10,20]", "[5,10]", "[0,5]", "[-5,0]", "[-10,-5]", "[-20,-10]"), 
                             values=c("steelblue4", "steelblue2", "lightblue","darksalmon", "brown2", "brown4"))+
-          geom_tile(data=extent_df %>% inner_join(full_stack %>% filter(Change==0)), aes(x=x, y=y), fill="linen")+
+          geom_tile(data=temp_full_stack %>% filter(Change==0), aes(x=x, y=y), fill="linen")+
           theme_bw()+
           theme(axis.title = element_blank(), legend.title = element_blank(),
-                legend.position = c(0.1,0.95)))
+                legend.position ="right",
+                axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+                legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.border = element_blank(),
+                panel.background = element_blank()))
   dev.off()
 
 }
