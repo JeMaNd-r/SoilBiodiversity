@@ -416,12 +416,13 @@ for(spID in speciesSub){ try({
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Calculate richness ####
 species_stack$Richness <- rowSums(species_stack %>% dplyr::select(Allol_chlo:Satch_mamm), na.rm=T)
-save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData"))
-
-load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData")) #species_stack
 
 species_stack <- species_stack %>% group_by(x,y, no_subset) %>% summarize_all(median, na.rm=T)
 species_stack$Richness <- rowSums(species_stack[,colnames(species_stack %>% ungroup() %>% dplyr::select(-x, -y, -no_subset, -Richness))], na.rm=T) #median might take 1 as Richness value...
+
+save(species_stack, file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData"))
+
+load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData")) #species_stack
 
 #- - - - - - - - - - - - - - - - - - - - - -
 ## Save species stack ####
@@ -620,17 +621,9 @@ while (!is.null(dev.list()))  dev.off()
 # calculate difference between subsets and full model output
 
 # check how strong no_subset influences lm output
-full_stack <- get(load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData"))) #species_stack
-full_stack <- full_stack %>% dplyr::select(x,y,Richness)
-full_stack$subset <- 100
+full_stack <- get(load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_full.RData"))) #species_stack
+full_stack <- full_stack %>% dplyr::select(x,y,Richness, no_subset) %>% rename("subset"=no_subset)
 
-for(no_subset in c(50, 75, 90)){		
-	load(file=paste0(here::here(), "/results/_Sensitivity_percent/_SensAna_output/SDM_stack_binary_", Taxon_name, "_", no_subset, ".RData")) #species_stack
-	
-	species_stack$subset <- no_subset
-
-	full_stack <- full_stack %>% full_join(species_stack)
-}
 colnames(full_stack)
 nrow(full_stack)
 
@@ -799,6 +792,8 @@ for(no_subset in c(50, 75, 90)){
                 panel.background = element_blank()))
   dev.off()
 
+  print(no_subset)
+  
 }
 
 
