@@ -76,3 +76,89 @@ Species occurrence records summarized for each 2km² grid cell and species based
 PROCESSED_WDPA_WDOECM_IUCNcat_df.RData
 Table containing information about protection status in each 5km grid cell. Protection status is based on percentage of coverage of each IUCN category.
 
+
+SRC_Code.zip ------------------------
+
+01a_Prepare_2km_predictors_terra.R
+R code to prepare predictors at 2km resolution using terra package.
+
+01a_Prepare_5km_predictors_terra.R
+R code to prepare predictors at 5km resolution using terra package.
+
+01b_Combine_predictors.R
+R code to combine predictors into one raster stack and to normalize all variables (scale with mean of 0).
+
+01c_Colinearity_predictors.R
+R code to identify multicolinearity between predictors. Predictors are only excluded during the next step.
+
+01d_Clip_predictors.R
+R code to clip spatial extent of environmental stack. Grid cells with NA values in 1+ layers are removed.
+
+02a_OPTIONAL_Download_GBIF_occurrences.R
+R code to download GBIF in R using rgif package. Output is saved with different name than manually (DOI-linked) dataset.
+
+02b_Clean_GBIF_occurrences.R
+R code to clean GBIF occurrence records based on GBIF metadata.
+
+03a_Prepare_biodiversity_data.R
+R code to harmonize, merge and clean occurrence data from different sources using CoordinateCleaner package among others.
+
+03b_Occurrences_to_10km_grid.R
+OPTIONAL R code to rasterize occurrence point records into German 10km² grid system from project Faktencheck.
+
+03b_Occurrences_to_2km_grid.R
+R code to rasterize occurrence point records into European 2km² grid system. 
+
+03b_Occurrences_to_5km_grid.R
+OPTIONAL R code to rasterize occurrence point records into European 5km² grid system. Only used during preanalysis.
+
+04a_Prepare_input_data.R
+  * R code to prepare input using biomod2 package. Output is used for both, MaxEnt and BIOMOD analysis.
+
+04b_Identify_topPredictors.R
+R code to select top 10 important predictors by running MaxEnt analysis and identified variables with highest median permuttation importance.
+
+05_Build_SDMs.R
+R code to build Species Distribution Models (SDMs) using BIOMOD. Output is saved in folders per species.
+
+06a_Predict_SDM_current.R
+R code to predict species' presence into whole environment under current climate conditions. 
+
+06b_Predict_SDM_future.R
+R code to predict species' presence into whole environment under 15 future climate conditions. 
+
+07_Variable_importance.R
+R code to extract and combine variable importances from BIOMOD output.
+
+08_Uncertainty_analysis.R
+R code to extract uncertainty (coefficient of variance) from BIOMOD output and create dataframe containing proper spatial extent for mapping (uncertainty<0.1).
+
+09_Model_performance.R
+R code to extract model performance measures (AUC(ROC), TSS and Kappa) from BIOMOD output.
+
+10a_Calculate_richness_current.R
+R code to calculate species richness under current climatic conditions (i.e., using projections with current climate). Includes prelimiary beta diversity and cluster analysis.
+
+10b_Calculate_richness_future.R
+R code to calculate species richness under future climatic conditions (i.e., using projections with 15 future climate scenarios).
+
+11_Range_sizes.R
+R code to estimate range sizes of earthworm species under current and future climate conditions.
+
+12a_Prepare_protection.R
+R code to extract protection status of each 5km² grid cell based on WDPA and WDOEC networks in Europe. Protection status is estimated as percentage of cover of each protected area falling into one of the IUCN categories.
+
+12b_Estimate_conservation_status.R
+R code to calculate protection status of each earthworm species by counting presence grid cells covered by certain protected area categories.
+
+13_Climate_impact_analysis.R
+R code to test the effect of mean annual temperature and precipitation seasonality on future prediction by using both, only temperature, or only precipitation predicted into the future. Other variables are kept as they were under current climate condictions.
+
+14_Plotting_and_results.R
+R code to create and save figures, and extract some values.
+
+15a_Sensitivity_analysis_number.R
+R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 5, 10, 20, and 50 presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity
+
+15b_Sensitivity_analysis_percent.R
+R code to test the effect of the number of occurrences per species on species richness. Number of occurrences were subsetted to 50, 75, and 95% of the original number of presence grid cells for each of the focal species. Corresponding folder: ~/results/_Sensitivity_2
