@@ -330,7 +330,192 @@ unique(occ_country)
 table(occ_country)
 
 #- - - - - - - - - - - - - - - - - - - - -
-## Variable importance ####
+## Variable importance (MaxEnt) ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+## Visualize and get top 10
+var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_MaxEnt_noValid_", Taxon_name, ".csv"))
+var_imp
+
+# load predictor table to get classification of variables
+# load the predictor table containing the individual file names
+pred_tab <- readr::read_csv(file=paste0(here::here(), "/data_environment/METADATA_Predictors.csv"))
+
+# transform to long format and add variable categories
+var_imp <- var_imp %>%
+  left_join(pred_tab %>% dplyr::select(Predictor, Category), by="Predictor")
+
+# add category for clay.silt
+var_imp[var_imp$Predictor=="Clay.Silt","Category"] <- "Soil"
+
+# summarize mean & SD
+View(var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+       dplyr::select(-Species, -Category) %>% group_by(Predictor) %>% summarize_all(c(mean, sd)))
+
+# plot Permutation importance
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent,median)),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="grey30",
+             size=3, alpha=1) +
+  # stat_summary(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent,median)),
+  #              geom = "errorbar", fun.min = mean, fun = mean, fun.max = mean, width = .75, linetype="dashed")+
+  geom_jitter(data=var_imp, aes(x=maxent, y=reorder(Predictor, maxent, median), color=Category), alpha=0.3, height=0.2) +
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text = element_text(size=15), axis.title = element_text(size=15), axis.title.y=element_blank(),
+        legend.text = element_text(size=15), legend.title = element_blank(), legend.position = "none")
+plotVarImp
+
+pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_", Taxon_name, ".pdf")); plotVarImp; dev.off()
+
+# plot Importance of species with n>=100 records
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])), 
+               aes(x=maxent, y=reorder(Predictor, maxent, median)),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="black",
+             size=3, alpha=1) +
+  geom_jitter(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])), 
+              aes(x=maxent, y=reorder(Predictor, maxent, median), color=Category), alpha=0.3, height=0.2) +
+  geom_text(aes(x=45, y=3), label="Species with 100+ records", size=6)+
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text = element_text(size=15), axis.title = element_text(size=15), axis.title.y=element_blank(),
+        legend.text = element_text(size=15), legend.title = element_blank(), legend.position = "none")
+plotVarImp
+
+png(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_n100_", Taxon_name, ".png")); plotVarImp; dev.off()
+
+# plotVarImp_mean <- ggplot()+
+#   geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])), 
+#                aes(x=maxent, y=reorder(Predictor, maxent, mean), fill=Category),cex=0.2, outlier.size=0.2)+
+#   geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=100,"SpeciesID"])) %>% 
+#                group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+#              aes(x=maxent, y=reorder(Predictor, maxent, mean)), color="black", fill="black",
+#              size=3, alpha=1) +
+#   xlab("Variable importance (Permutation importance)")+
+#   ylab("Predictor")+
+#   geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+#   theme_bw()+
+#   theme(axis.text.y = element_text(size = 5), legend.position = c(0.7, 0.2))
+# plotVarImp_mean
+# 
+# pdf(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_n100_", Taxon_name, ".pdf"), width=12)
+# ggpubr::ggarrange(plotVarImp, plotVarImp_mean)
+# dev.off()
+
+# plot Importance of species with n>=10 but n<100 records
+plotVarImp <- ggplot()+
+  geom_boxplot(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=10 & speciesNames$NumCells_2km_biomod<100,"SpeciesID"])), 
+               aes(x=maxent, y=reorder(Predictor, maxent, median)),cex=0.2, outlier.size=0.2)+
+  geom_point(data=var_imp  %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=10 & speciesNames$NumCells_2km_biomod<100,"SpeciesID"])) %>% 
+               group_by(Predictor, Category) %>% summarize(across(maxent, mean)), 
+             aes(x=maxent, y=reorder(Predictor, maxent, median)), color="black", fill="black",
+             size=3, alpha=1) +
+  geom_jitter(data=var_imp %>% filter(Species %in% unique(speciesNames[speciesNames$NumCells_2km_biomod>=10 & speciesNames$NumCells_2km_biomod<100,"SpeciesID"])), 
+              aes(x=maxent, y=reorder(Predictor, maxent, median), color=Category), alpha=0.3, height=0.2) +
+  geom_text(aes(x=55, y=3), label="Species with 10-99 records", size=6)+
+  xlab("Variable importance (Permutation importance)")+
+  ylab("Predictor")+
+  geom_hline(yintercept=length(covarsNames)-9.5, lty=2)+
+  theme_bw()+
+  theme(axis.text = element_text(size=15), axis.title = element_text(size=15), axis.title.y=element_blank(),
+        legend.text = element_text(size=15), legend.title = element_blank(), legend.position = "none")
+plotVarImp
+
+png(paste0(here::here(), "/figures/VariableImportance_MaxEnt_noValid_n10-99_", Taxon_name, ".png")); plotVarImp; dev.off()
+
+## [Supplementary Figure 4] stacked barplot all species
+var_imp$Predictor <- factor(var_imp$Predictor, levels=c("MAP", "MAP_Seas", "MAT",
+                                                        "Aspect", "Dist_Coast", "Elev", "Dist_River", "Slope",
+                                                        "Agriculture","Dist_Urban", "Forest_Coni", "Forest_Deci", "NDVI", "Pastures", "Pop_Dens", "Shrubland",
+                                                        "CEC", "Clay.Silt", "Cu", "Hg","Moisture", "N", "P", "pH", "SOC"))
+
+plotAllVI <- ggplot(var_imp %>%
+                      full_join(var_imp %>% filter(Category=="Climate") %>%
+                                  dplyr::select(Species, Category, maxent)  %>%
+                                  group_by(Species, Category) %>% summarize_all(sum) %>%
+                                  group_by(Species) %>% top_n(1, maxent) %>% unique() %>%
+                                  dplyr::select(-Category) %>% rename("SumClimate"=maxent), by="Species"),
+                    aes(fill=Predictor, alpha=Predictor, y=maxent, x=reorder(Species, SumClimate))) +
+  geom_bar(position="stack", stat="identity")+
+  coord_flip()+
+  xlab("Species")+
+  scale_y_continuous(expand = c(0, 0))+
+  scale_alpha_manual(values=c("MAP"=0.75, "MAP_Seas"=0.55, "MAT"=0.35,
+                              "Aspect"=0.85, "Dist_Coast"=0.65, "Elev"=0.55,"Dist_Coast"=0.45, "Elev"=0.35, "Dist_River"=0.25, "Slope"=0.15,
+                              "Agriculture"=0.85,"Dist_Urban"=0.65, "Forest_Coni"=0.45, "Forest_Deci"=0.25, "NDVI"=0.75, "Pastures"=0.55,  "Pop_Dens"=0.35, "Shrubland"=0.15,
+                              "CEC"=0.75,"Clay.Silt"=0.65, "Cu"=0.55, "Hg"=0.45,"Moisture"=0.75, "N"=0.65, "P"=0.55, "pH"=0.45, "SOC"=0.35))+
+  scale_fill_manual(values=c("MAP"="#F8766D", "MAP_Seas"="#F8766D", "MAT"="#F8766D",
+                             "Aspect"="#00BFC4", "Dist_Coast"="#00BFC4", "Elev"="#00BFC4","Dist_Coast"="#00BFC4", "Elev"="#00BFC4", "Dist_River"="#00BFC4", "Slope"="#00BFC4",
+                             "Agriculture"="#7CAE00","Dist_Urban"="#7CAE00", "Forest_Coni"="#7CAE00", "Forest_Deci"="#7CAE00", "NDVI"="#698B22", "Pastures"="#698B22",  "Pop_Dens"="#698B22", "Shrubland"="#698B22",
+                             "CEC"="#C77CFF","Clay.Silt"="#C77CFF", "Cu"="#C77CFF", "Hg"="#C77CFF","Moisture"="#BF3EFF", "N"="#BF3EFF", "P"="#BF3EFF", "pH"="#BF3EFF", "SOC"="#BF3EFF"))+
+  theme_bw()+
+  theme(legend.position = "bottom", axis.text = element_text(size=15), axis.title = element_text(size=15),
+        legend.text = element_text(size=15), legend.title = element_blank())
+plotAllVI
+
+png(paste0(here::here(), "/figures/VariableImportance_maxent_species_", Taxon_name, ".png"), height=800, width=600); plotAllVI; dev.off()
+
+
+#- - - - - - - - - - - - - - - - - -
+## Estimate richness 
+
+## plot maps
+temp_files <- list.files(paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor"))
+temp_files <- temp_files[stringr::str_detect(temp_files, "SDM_maxent_[:graph:]*.RData")]
+
+plots <- lapply(c(1:length(temp_files)), function(m) {try({
+  print(temp_files[m]); print(m)
+  temp_pred <- get(load(file=paste0(here::here(), "/results/", Taxon_name, "/_TopPredictor/", temp_files[m])))[["prediction"]]
+  #print(m)
+  spID <- substr(temp_files[m], 12, 21)
+  ggplot(data=temp_pred, aes(x=x, y=y, fill=layer))+
+    geom_tile()+
+    ggtitle(paste0("MaxEnt for ", spID))+
+    scale_fill_viridis_c(limits = c(0,1))+
+    theme_bw()+
+    theme(axis.title = element_blank(), legend.title = element_blank(),
+          legend.position = "right")
+})})
+
+lapply(plots, class) # if error, remove that species
+
+#pdf(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_", spID, ".pdf"))
+png(file=paste0(here::here(), "/figures/DistributionMaps_", Taxon_name, "_MaxEnt.png"),width=3000, height=3000)
+do.call(gridExtra::grid.arrange, plots)
+dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - - -
+## View species stack
+
+load(file=paste0(here::here(), "/results/_TopPredictor/SDM_stack_MaxEnt_binary0.8_", Taxon_name, ".RData")) #species_stack
+
+species_stack$Richness[species_stack$Richness == 0] <- NA
+
+# species richness
+png(file=paste0(here::here(), "/figures/SpeciesRichness_MaxEnt0.8_", Taxon_name, ".png"),width=1000, height=1000)
+ggplot(data=species_stack, aes(x=x, y=y, fill=Richness))+
+  geom_tile()+
+  ggtitle("Species richness (number of species)",
+          subtitle=paste0("n = ", ncol(species_stack)-3))+
+  scale_fill_viridis_c(na.value = "grey")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position = c(0.1,0.4))
+dev.off()
+
+
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Variable importance (BioMod) ####
 #- - - - - - - - - - - - - - - - - - - - -
 
 var_imp <- read.csv(file=paste0(here::here(), "/results/Variable_importance_biomod_", Taxon_name, ".csv"))
@@ -1243,6 +1428,10 @@ cover_df <- cover_df %>% full_join(cover_df_current %>% mutate("SSP"="current"))
 
 cover_df$IUCNcat <- factor(cover_df$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected", "Protected", "Outside.PA"))
 cover_sr$IUCNcat <- factor(cover_sr$IUCNcat, level=c("Presence", "ProtectedAreas","Ia", "Ib", "II", "III", "IV", "V", "VI", "Not.Applicable", "Not.Assigned", "Not.Reported", "Unprotected", "Protected", "Outside.PA"))
+
+# save for Supplementary [Appendix S13]
+write.csv(cover_df, paste0(here::here(), "/results/ProtectionStatus_current+future_", Taxon_name, ".csv"),
+          row.names = F)
 
 # boxplot of percent area covered by PA overall
 boxplot_template <- function(data, col_name){
