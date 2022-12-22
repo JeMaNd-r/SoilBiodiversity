@@ -102,6 +102,9 @@ files
 # load env. stack
 Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
 
+# load grid for masking
+grid5k <- raster::raster(paste0(here::here(), "/data_environment/grid_5k_0p041.tif"))
+
 # load scaling parameters
 scale_values <- read.csv(file=paste0(here::here(), "/results/EnvPredictor_scaling.csv"))
 
@@ -125,7 +128,7 @@ for(no_future in futureNames){
     temp_raster <- raster::raster(temp_files[i])
     names(temp_raster) <- temp_name
     
-    temp_raster <- raster::mask(temp_raster, Env_clip[[1]])
+    temp_raster <- raster::mask(temp_raster, grid5k)
     
     # scale each predictor by the respective scale values (based on current climate)
     temp_mean <- scale_values[scale_values$predictor==temp_name, "scale_mean"]

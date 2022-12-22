@@ -83,8 +83,10 @@ foreach(spID = speciesSub,
               # load env. data with future climate (MAP, MAT, MAP_Seas)
               load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
               
+              temp_Env_df <- temp_Env_df[!is.na(temp_Env_df$Agriculture),]
+              
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
-              for(subclim in c("TP", "T", "P")){
+              for(subclim in c("TP", "T", "P")){  
                 
                 if(subclim=="TP"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
