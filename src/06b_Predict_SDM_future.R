@@ -25,7 +25,7 @@ library(doParallel)
 
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
-speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+speciesNames <- read.csv(file=paste0(here::here(), "/results/Species_list_", Taxon_name, ".csv"))
 speciesSub <- speciesNames %>% filter(NumCells_2km >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
@@ -65,7 +65,7 @@ foreach(spID = speciesSub,
             setwd(here::here())
           
             # list files in species-specific BIOMOD folder
-            temp_files <- list.files(paste0("./results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
+            temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", ".")), full.names = TRUE)
             
             temp_files
             
@@ -81,7 +81,7 @@ foreach(spID = speciesSub,
             for(no_future in scenarioNames){
               
               # load env. data with future climate (MAP, MAT, MAP_Seas)
-              load(paste0("./results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
+              load(paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_2041-2070_", no_future, "_5km_df_clipped.RData")) #temp_Env_df
               
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
               for(subclim in c("TP", "T", "P")){
@@ -151,4 +151,4 @@ foreach(spID = speciesSub,
           })}
           
 stopImplicitCluster()
-          
+        

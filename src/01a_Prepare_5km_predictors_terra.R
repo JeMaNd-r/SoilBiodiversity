@@ -15,7 +15,7 @@ terraOptions(tempdir =  "D:/00_datasets/Trash")
 grid5k <- terra::rast("D:/00_datasets/Grids/grid_5k_0p041.tif")
 
 # load the predictor table containing the individual file names
-pred_tab <- readr::read_csv(file="D:/_students/Romy/SoilBiodiversity/doc/Env_Predictors_table.csv")
+pred_tab <- readr::read_csv(file="D:/_students/Romy/SoilBiodiversity/data_environment/METADATA_Predictors.csv")
 
 # combine ID and Predictor name (to get folder names later on)
 pred_tab$Predictor_long <- pred_tab$Predictor

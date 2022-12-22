@@ -100,7 +100,10 @@ files
 
 
 # load env. stack
-Env_clip <- terra::rast(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
+Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km_clipped.grd"))
+
+# load scaling parameters
+scale_values <- read.csv(file=paste0(here::here(), "/results/EnvPredictor_scaling.csv"))
 
 for(no_future in futureNames){
   
@@ -119,11 +122,21 @@ for(no_future in futureNames){
     temp_name <- stringr::str_extract(basename(temp_files[i]), "[:graph:]*_2")
     temp_name <- substr(temp_name, 1, nchar(temp_name)-2)
     
-    temp_raster <- terra::rast(temp_files[i])
+    temp_raster <- raster::raster(temp_files[i])
     names(temp_raster) <- temp_name
     
-    temp_raster <- terra::mask(temp_raster, Env_clip[[1]])
-    temp_raster <- terra::scale(temp_raster)
+    temp_raster <- raster::mask(temp_raster, Env_clip[[1]])
+    
+    # scale each predictor by the respective scale values (based on current climate)
+    temp_mean <- scale_values[scale_values$predictor==temp_name, "scale_mean"]
+    temp_sd <- scale_values[scale_values$predictor==temp_name, "scale_sd"]
+      
+    temp_raster <- raster::calc(temp_raster, 
+                        fun = function(x, na.rm=T){(x - temp_mean) / temp_sd},
+                        na.rm=TRUE)
+    names(temp_raster) <- temp_name
+   
+    #temp_raster <- terra::scale(temp_raster) #not used as we want to scale with same values as current climate
     
     temp_Env[[temp_name]] <- temp_raster
     
@@ -135,5 +148,4 @@ for(no_future in futureNames){
   save(temp_Env_df, file=paste0(here::here(), "/results/_FutureEnvironment/EnvPredictor_", no_future, "_5km_df_clipped.RData"))
   
 }
-
 

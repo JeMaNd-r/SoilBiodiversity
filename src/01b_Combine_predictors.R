@@ -131,8 +131,17 @@ rm(Env_df)
 ## Scale predictors ####
 Env <- raster::stack(paste0(here::here(), "/results/EnvPredictor_5km.grd"))
 
+# save scaling parameters for future climate preparation (later)
+scale_values <- data.frame("predictor"=names(Env))
+scale_values$scale_mean <- cellStats(Env, stat="mean", na.rm=TRUE, asSample=FALSE)
+scale_values$scale_sd <- cellStats(Env, stat="sd", na.rm=TRUE, asSample=FALSE)
+
+# save scale parameters
+write.csv(scale_values, file=paste0(here::here(), "/results/EnvPredictor_scaling.csv"),
+          row.names = FALSE)
+
 # scale rasterStack
-Env_norm <- raster::scale(Env)
+Env_norm <- raster::scale(Env, center=TRUE, scale=TRUE)
 Env_norm <- raster::stack(Env_norm)
 
 # save Env_norm
