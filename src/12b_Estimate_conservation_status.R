@@ -171,8 +171,8 @@ for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
     # keep only presence rows
     temp_df <- temp_df[temp_df[,"Presence"]==1 & !is.na(temp_df[,"Presence"]),]
     
-    # 
-    if(nrow(temp_df)==0)
+    # make sure to keep information even if species has no predicted Presence with 1 (e.g. Dendr_illy_ssp585<=0.8)
+    if(nrow(temp_df)==0) temp_df[1,] <- c(rep(0, ncol(temp_df)-1), 1)
     
     # calculate sum of all columns (will give you coverage)
     temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))
