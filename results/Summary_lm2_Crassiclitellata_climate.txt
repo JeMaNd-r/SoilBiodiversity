@@ -1,0 +1,98 @@
+
+Call:
+lm(formula = Mean ~ climate, data = full_stack)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-5.589 -4.947 -1.995  4.071 12.805 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.19523    0.01023  508.04   <2e-16 ***
+climateT     0.35221    0.01446   24.36   <2e-16 ***
+climateTP    0.39361    0.01446   27.22   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.495 on 866145 degrees of freedom
+  (1995034 observations deleted due to missingness)
+Multiple R-squared:  0.001032,	Adjusted R-squared:  0.00103 
+F-statistic: 447.4 on 2 and 866145 DF,  p-value: < 2.2e-16
+
+Analysis of Variance Table
+
+Response: Mean
+              Df   Sum Sq Mean Sq F value    Pr(>F)    
+climate        2    27013 13506.7  447.37 < 2.2e-16 ***
+Residuals 866145 26149807    30.2                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+ climate emmean      SE     df lower.CL upper.CL
+ P        5.195 0.01023 866145    5.175    5.215
+ T        5.547 0.01023 866145    5.527    5.567
+ TP       5.589 0.01023 866145    5.569    5.609
+
+Confidence level used: 0.95 
+[1] "###################################################"
+
+Call:
+lm(formula = Mean ~ MAT + Dist_Coast + MAP_Seas + CEC + Elev + 
+    P + Pop_Dens + Agriculture + pH + Clay.Silt + climate, data = full_stack)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-40.768  -2.117  -0.195   2.012  11.257 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  4.197659   0.007449  563.55   <2e-16 ***
+MAT          3.277513   0.008785  373.07   <2e-16 ***
+Dist_Coast  -0.786003   0.006735 -116.70   <2e-16 ***
+MAP_Seas    -3.146545   0.006911 -455.32   <2e-16 ***
+CEC         -0.519599   0.004062 -127.92   <2e-16 ***
+Elev        -0.060281   0.005768  -10.45   <2e-16 ***
+P            2.970016   0.004247  699.40   <2e-16 ***
+Pop_Dens     1.057820   0.004402  240.29   <2e-16 ***
+Agriculture -2.361815   0.005421 -435.68   <2e-16 ***
+pH          -1.094522   0.006953 -157.42   <2e-16 ***
+Clay.Silt    2.327966   0.004687  496.70   <2e-16 ***
+climateT     0.352209   0.007775   45.30   <2e-16 ***
+climateTP    0.393607   0.007775   50.62   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.954 on 866135 degrees of freedom
+  (1995034 observations deleted due to missingness)
+Multiple R-squared:  0.7113,	Adjusted R-squared:  0.7112 
+F-statistic: 1.778e+05 on 12 and 866135 DF,  p-value: < 2.2e-16
+
+Analysis of Variance Table
+
+Response: Mean
+                Df  Sum Sq Mean Sq    F value    Pr(>F)    
+MAT              1  606575  606575   69508.04 < 2.2e-16 ***
+Dist_Coast       1   16926   16926    1939.56 < 2.2e-16 ***
+MAP_Seas         1 8983041 8983041 1029375.63 < 2.2e-16 ***
+CEC              1  465090  465090   53295.12 < 2.2e-16 ***
+Elev             1    5417    5417     620.73 < 2.2e-16 ***
+P                1 2883366 2883366  330407.79 < 2.2e-16 ***
+Pop_Dens         1 1011594 1011594  115919.57 < 2.2e-16 ***
+Agriculture      1 2449995 2449995  280747.34 < 2.2e-16 ***
+pH               1   16373   16373    1876.20 < 2.2e-16 ***
+Clay.Silt        1 2152939 2152939  246707.47 < 2.2e-16 ***
+climate          2   27013   13507    1547.74 < 2.2e-16 ***
+Residuals   866135 7558491       9                         
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+ climate emmean       SE     df lower.CL upper.CL
+ P        5.195 0.005498 866135    5.184    5.206
+ T        5.547 0.005498 866135    5.537    5.558
+ TP       5.589 0.005498 866135    5.578    5.600
+
+Confidence level used: 0.95 
+ contrast estimate      SE     df t.ratio p.value
+ P - T     -0.3522 0.00778 866135 -45.300  <.0001
+ P - TP    -0.3936 0.00778 866135 -50.624  <.0001
+ T - TP    -0.0414 0.00778 866135  -5.324  <.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates 
