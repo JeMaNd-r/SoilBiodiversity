@@ -86,7 +86,7 @@ cover_df <- rbind(cbind(cover_df %>% group_by(IUCNcat) %>%
 head(cover_df)
 
 write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_current_", Taxon_name, ".csv"), row.names=F)
-
+cover_df <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_current_", Taxon_name, ".csv"))
 
 ## Calculate number of species per IUCN category ####
 # load uncertainty extent for all maps
@@ -170,6 +170,9 @@ for(temp_ssp in c("ssp126", "ssp370", "ssp585")){
     
     # keep only presence rows
     temp_df <- temp_df[temp_df[,"Presence"]==1 & !is.na(temp_df[,"Presence"]),]
+    
+    # 
+    if(nrow(temp_df)==0)
     
     # calculate sum of all columns (will give you coverage)
     temp_cover <- data.frame("IUCNcat" = names(temp_df), "sumCell"= as.numeric(colSums(temp_df)))

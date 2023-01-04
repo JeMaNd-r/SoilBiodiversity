@@ -1285,6 +1285,7 @@ nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp585_g
 
 # where are all species lost?
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0 & !is.na(FutureRichness))))*5
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0 & !is.na(FutureRichness))))/nrow(extent_df)
 summary(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Richness>0 & FutureRichness==0)) %>% dplyr::select(Richness))
 
 ggplot()+
@@ -1504,11 +1505,12 @@ cover_matrix$IUCNcat <- factor(cover_matrix$IUCNcat, level=c("Presence", "Protec
 # We therefore use Outside.PA here, which excludes any protected areas.
 
 f <- ggplot(cover_matrix %>%
+              mutate(coverage_change=ifelse(coverage_change>1, 1.1, coverage_change)) %>%
               filter(IUCNcat!="Unprotected" & SSP!="current" & IUCNcat!="Presence" & IUCNcat!="Protected" & SpeciesID!="_SD"), 
               aes(x=SSP, y=reorder(SpeciesID, desc(SpeciesID))))+
   geom_tile(aes(fill=coverage_change*100))+
   scale_fill_gradient2(high="dodgerblue3", low="brown3", mid="white", name="Change in coverage [%]    ",
-                       na.value="white")+
+                       na.value="grey")+
   theme_bw()+
   ylab("")+
   xlab("")+

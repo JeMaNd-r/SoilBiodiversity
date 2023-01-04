@@ -66,6 +66,6 @@ range_sum$area_km2_change_p <- range_sum$area_km2_change / range_sum$area_km2
 range_sum$area_km2_p_sd <- range_sum$area_km2_sd / range_sum$area_km2
 
 range_sum %>% arrange(area_km2_change_p)
-mean(range_sum$area_km2_change_p); sd(range_sum$area_km2_change_p)
+mean(abs(range_sum$area_km2_change_p)); sd(abs(range_sum$area_km2_change_p))
 
 write.csv(range_sum, file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"), row.names=F)

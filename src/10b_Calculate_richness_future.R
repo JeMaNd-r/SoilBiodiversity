@@ -112,6 +112,8 @@ future_stack <- get(load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bes
 
 for(no_future in scenarioNames[2:length(scenarioNames)]){
   
+  print(no_future)
+  
   load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", "2041-2070_", no_future, "_TP.RData")) #species_stack
   
   # add layer to stack
@@ -130,7 +132,8 @@ for(spID in unique(speciesNames[speciesNames$NumCells_2km>=100,]$SpeciesID)){ tr
 colnames(future_stack)
 
 save(future_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon_name, ".RData"))
-
+rm(future_stack, biomod_list)
+gc()
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Average future predictions ####
@@ -187,7 +190,7 @@ average_stack$Change_f_ssp585 <- cut(average_stack$Change_ssp585,
                                      labels=c("[-15,-10]", "[-10,-5]", "[-5,0]", "[0,5]", "[5,10]"))
 
 save(average_stack, file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
-
+load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_richness_change_", Taxon_name, ".RData"))
 
 ## Agreement: Estimate number of scenarios that follow same trends ####
 # (cf. Delgado-Baquerizo et al. 2020, Soil borne pathogens, Fig. 4b)
