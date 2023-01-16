@@ -1746,6 +1746,54 @@ dat %>% dplyr::select(species, speciesKey) %>% unique() %>% arrange(species)
 
 
 #- - - - - - - - - - - - - - - - - - - -
+## Some more numbers ####
+#- - - - - - - - - - - - - - - - - - - -
+
+# relationship between life form (ecological group) and number of records
+bar_groups <- 
+  ggplot(data=speciesNames %>% filter(SpeciesID %in% species10) %>%
+         mutate(Ecogroup = ifelse(Ecogroup=="Epi-Endogeic", "Epi-endogeic", Ecogroup)), aes(x=Ecogroup, y=NumCells_2km_biomod, color=SpeciesID))+
+  geom_bar(stat="identity")+
+  #facet_wrap(vars(Ecogroup))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=45, hjust=1), legend.position = "none")
+ggsave(filename=paste0(here::here(), "/figures/NumberOccurrences_ecogroup_", Taxon_name, ".png"), bar_groups)
+
+bar_groups2 <- 
+  ggplot(data=speciesNames %>% filter(SpeciesID %in% species10) %>%
+           mutate(Ecogroup = ifelse(Ecogroup=="Epi-Endogeic", "Epi-endogeic", Ecogroup)), aes(x=Ecogroup, y=Records, color=SpeciesID))+
+  geom_bar(stat="identity")+
+  #facet_wrap(vars(Ecogroup))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=45, hjust=1), legend.position = "none")
+ggsave(filename=paste0(here::here(), "/figures/NumberRecords_ecogroup_", Taxon_name, ".png"), bar_groups2)
+
+#- - - - - - - - - - - - - - - - - - - -
+# records vs. threat level
+speciesStatus <- read.csv(paste0(here::here(), "/doc/Species_status_", Taxon_name, ".csv"))
+
+bar_status <- 
+  ggplot(data=speciesNames %>% filter(SpeciesID %in% species10) %>%
+           right_join(speciesStatus, by="SpeciesID") %>%
+           mutate(RedList_Germany=ifelse(RedList_Germany=="", NA, RedList_Germany)), aes(x=RedList_Germany, y=NumCells_2km_biomod, color=SpeciesID))+
+  geom_bar(stat="identity")+
+  #facet_wrap(vars(Ecogroup))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=45, hjust=1), legend.position = "none")
+ggsave(filename=paste0(here::here(), "/figures/NumberOccurrences_status_", Taxon_name, ".png"), bar_status)
+
+bar_status2 <- 
+  ggplot(data=speciesNames %>% filter(SpeciesID %in% species10) %>%
+           right_join(speciesStatus, by="SpeciesID") %>%
+           mutate(RedList_Germany=ifelse(RedList_Germany=="", NA, RedList_Germany)), aes(x=RedList_Germany, y=Records, color=SpeciesID))+
+  geom_bar(stat="identity")+
+  #facet_wrap(vars(Ecogroup))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=45, hjust=1), legend.position = "none")
+ggsave(filename=paste0(here::here(), "/figures/NumberRecords_status_", Taxon_name, ".png"), bar_status2)
+
+
+#- - - - - - - - - - - - - - - - - - - -
 ## DRAFT (old) plots ####
 #- - - - - - - - - - - - - - - - - - - -
 # 

@@ -114,6 +114,9 @@ The individual .tif files represent raster layers of each climatic variable pred
 * Species_list_Crassiclitellata.csv
   * Table with raw species names and their phylogeny based on ITIS. Raw species names were extracted from raw occurrence data.
 
+* Species_status_Crassiclitellata.csv
+  * Table with unique species IDs and their threat status based on the German Red List of species. Status is indicated as: N (not threated), DD (data deficient), PL (prewarn list), TU (unknown threat), NE (not evaluated), Rare (extremely rare species). Information on status derived on January 16th 2023.
+
 * Species_list_Crassiclitellata_Europe_MariaBriones.csv
   * Preliminary Species_list_Crassiclitellata.csv file with only species occurring in Europe and two additional rows added by taxonomic expert Maria J.I. Briones: MJI Briones (ecological group) and Correct name (corrected species name).
 
