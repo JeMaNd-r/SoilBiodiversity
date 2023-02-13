@@ -1,9 +1,4 @@
 ﻿
-```{r setting, echo=FALSE}
-print(paste0("Last updated: " ,Sys.Date())
-```
-
-
 # Soil Biodiversity across Europe based on SDMs
 
 The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for soil organisms across Europe.
@@ -21,11 +16,9 @@ Belowground biodiversity does not necessarily follow aboveground biodiversity pa
 * R version 4.1.2
 * RStudio version 1.2.5033
 
-R packages
+R packages:
 
-```{r Rpackages, echo=FALSE}
-sessionInfo()
-```
+...sessionInfo()...
 
 
 ### Installing
