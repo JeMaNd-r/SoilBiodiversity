@@ -23,7 +23,7 @@ R packages:
 
 ### Installing
 
-* Code is available at GitHub.
+* Code is available at GitHub (<5MB).
 * Data can be downloaded according to Zeiss et al. 2023.
 
 Folder structure should be maintained. Additionally, please download maxent.jar according to description from dismo package. Working directory during analysis should be the main folder. This is necessary to access all data files that will be called with `here::here()`.
