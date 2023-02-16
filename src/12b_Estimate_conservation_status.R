@@ -88,10 +88,20 @@ head(cover_df)
 write.csv(cover_df, file=paste0(here::here(), "/results/ProtectionStatus_current_", Taxon_name, ".csv"), row.names=F)
 cover_df <- read.csv(file=paste0(here::here(), "/results/ProtectionStatus_current_", Taxon_name, ".csv"))
 
-## Calculate number of species per IUCN category ####
 # load uncertainty extent for all maps
 load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData")) #extent_df
 
+# area covered per IUCN category
+protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(sum)
+protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(function(x) sum(x)*5)
+protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(function(x) sum(x)/nrow(extent_df))
+protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(sum) %>% 
+  dplyr::select(II:Ia, VI) %>% rowSums()
+# total area based on extent
+nrow(extent_df); nrow(extent_df)*5
+27343.11/nrow(extent_df)
+
+## Calculate number of species per IUCN category ####
 cover_sr_current <- protect_df %>% 
   mutate("Unprotected"=ifelse(rowSums(protect_df %>% dplyr::select(-x, -y))==0, 1, 0)) %>%
   full_join(species_stack %>% dplyr::select(x, y, Richness)) %>%
