@@ -1,9 +1,4 @@
 ﻿
-```{r setting, echo=FALSE}
-print(paste0("Last updated: " ,Sys.Date())
-```
-
-
 # Soil Biodiversity across Europe based on SDMs
 
 The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for soil organisms across Europe.
@@ -11,7 +6,7 @@ The following code used occurrence data and environmental variables to predict S
 
 ## Description
 
-Belowground biodiversity does not necessarily follow aboveground biodiversity patterns, but maps of soil biodiversity remain scarce because of limited data availability. Earthworms belong to the most thoroughly studied soil organisms, and  - in their role as ecosystem engineers - have a significant impact on ecosystem functioning. Here, we address the questions where and what is needed to protect European earthworm species. We focus on highly recorded species only, that is on species with broad geographic ranges and therefore an appropriate number of occurrence records in Europe (min. XX records). First, we map the spatial distribution of common earthworm species and the respective total species richness (i.e., number of species with a probability of presence above 60%). We use multiple environmental predictors spanning climatic, edaphic, and topological factors. In accordance with the literature, we predicted potential species distributions by well-performing models (i.e., MaxEnt, BRT, RF-downsized, and Ensemble modeling) (Valavi et al. 2021). Second, we investigate how well the different types of protected areas cover mean and individual species ranges by estimating the respective proportion of range area. Based on the protection coverage, we are able to identify vulnerable species, that is species whose ranges only sparsely overlap with current protected areas. 
+Belowground biodiversity does not necessarily follow aboveground biodiversity patterns, but maps of soil biodiversity remain scarce because of limited data availability. Earthworms belong to the most thoroughly studied soil organisms, and  - in their role as ecosystem engineers - have a significant impact on ecosystem functioning. Here, we address the questions where and what is needed to protect European earthworm species. We focus on highly recorded species only, that is on species with broad geographic ranges and therefore an appropriate number of occurrence records in Europe (min. 10 records). First, we map the spatial distribution of common earthworm species and the respective total species richness. We use multiple environmental predictors spanning climatic, edaphic, and topological factors. In accordance with the literature, we predicted potential species distributions by well-performing models (i.e., MaxEnt and Ensemble modeling). Second, we investigate how well the different types of protected areas cover mean and individual species ranges by estimating the respective proportion of range area. Based on the protection coverage, we are able to identify vulnerable species, that is species whose ranges only sparsely overlap with current protected areas. 
 
 ## Getting Started
 
@@ -21,16 +16,14 @@ Belowground biodiversity does not necessarily follow aboveground biodiversity pa
 * R version 4.1.2
 * RStudio version 1.2.5033
 
-R packages
+R packages:
 
-```{r Rpackages, echo=FALSE}
-sessionInfo()
-```
+...sessionInfo()...
 
 
 ### Installing
 
-* Code is available at GitHub.
+* Code is available at GitHub (<5MB).
 * Data can be downloaded according to Zeiss et al. 2023.
 
 Folder structure should be maintained. Additionally, please download maxent.jar according to description from dismo package. Working directory during analysis should be the main folder. This is necessary to access all data files that will be called with `here::here()`.
@@ -68,9 +61,7 @@ Pieces of SDM code are based on Valavi et al. 2021 [1]
 
 ## References
 
-[1] Valavi et al. (2021) Predictive performance of presence-only species distribution models: a benchmark study with reproducible code. Ecological Mponographs.
-
-[2] Zeiss et al. (in prep.)
+[1] Zeiss et al. (in prep.)
 
 
 
