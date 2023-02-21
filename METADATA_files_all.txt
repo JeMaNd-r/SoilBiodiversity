@@ -23,10 +23,13 @@
 #### data_environment
 
 * grid_2k_0p016.tif
-  * Raster file containing the ~2km grid across Europe.
+  * Raster file containing the ~2km² grid across Europe.
 
 * grid_5k_0p041.tif
-  * Raster file containing the ~5km grid across Europe.
+  * Raster file containing the ~5km² grid across Europe.
+
+* grid_10k_Germany.tif
+  * Raster file containing the ~10km² grid across Germany. For Faktencheck results only.
 
 * METADATA_Predictors.csv
   * Information about predictors such as source, resolution and processing.
@@ -55,6 +58,10 @@ Remaining .tif files represent raster layers of each environmental variable desc
   * Variable Temperature Seasonality (MAT_Seas) at ~5km resolution predicted into 15 future climate scenarios. Information about the variable can be found in METADATA_Predictors.
 
 The individual .tif files represent raster layers of each climatic variable predicted into one of 15 future scenarios. Variables are described in METADATA_Predictors.
+
+~/BGR_soil_types
+
+* Zip folder downloaded from BGR representing soil types in Germany. Used for Faktencheck results only.
 
 
 #### data_raw

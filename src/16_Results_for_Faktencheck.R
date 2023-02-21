@@ -13,6 +13,7 @@ library(tidyverse)
 library(here)
 
 library(raster)
+library(terra)
 
 library(ggplot2) 
 
@@ -30,17 +31,31 @@ speciesSub <- c(speciesSub$SpeciesID)
 
 
 ## Load grid system
-grid10 <- raster::raster("data/grid_10k_Germany.tif")
+grid10 <- raster::raster("data_environment/grid_10k_Germany.tif")
 grid10
 
-grid10_info <- read.csv("data/Faktencheck_MTB.csv")
+grid10_info <- read.csv("data_raw/Faktencheck_MTB.csv")
 grid10_info <- grid10_info %>% rename("ID"=1)
 head(grid10_info)
 
-#- - - - - - - - - - - - - - - - - - - - -
-## Transform data into the 10 km grid ####
-#- - - - - - - - - - - - - - - - - - - - -
 
+## Load BGR soil types
+grid_soil <- terra::vect("data_environment/BGR_soil_types/boart1000_ob_v20.shp") 
+grid_soil
+
+grid05 <- terra::rast("data_environment/grid_5k_0p041.tif")
+grid05
+#plot(grid_soil)
+
+grid_soil <- terra::project(grid_soil, crs(grid05))
+
+# transform to raster with 1 categorical layer
+stack_soil <- terra::rasterize(grid_soil, grid05, field="BODART_GR")
+stack_soil
+#plot(stack_soil)
+
+
+## Load earthworm results
 # load uncertainty extent for all maps
 load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData")) #extent_df
 
@@ -49,6 +64,88 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_"
 head(species_stack)
 
 earthworm_stack <- extent_df %>% inner_join(species_stack)
+
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Map soil types & earthworm richness ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+earthworm_rast <- terra::rasterize(terra::vect(earthworm_stack, geom=c("x", "y")), grid05, field="Richness")
+names(earthworm_rast) <- "Richness"
+
+stack_soil <- c(stack_soil, earthworm_rast)
+
+df_soil <- terra::as.data.frame(stack_soil, xy=TRUE)
+head(df_soil)
+
+summary(df_soil$Richness)
+
+#df_soil <- df_soil %>% mutate("Richness_f"=ifelse(Richness>=10, 2, ifelse(Richness>0, 1, 1)))
+unique(df_soil$BODART_GR)
+
+head(df_soil)
+
+#- - - - - - - - - - - - - - - - - - - - -
+# soil types X species richness
+png(file=paste0(here::here(), "/figures/Faktencheck_Richness_soilType_5k_", Taxon_name, ".png"), 
+    width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(5.5, 15.5) +
+  ylim(47.5, 55.5) +
+  
+  geom_tile(data=df_soil %>% 
+              filter(BODART_GR!="Siedlung" & BODART_GR!="Gewässer"), 
+            aes(x=x, y=y, fill=Richness))+
+  ggtitle("Species richness (number of species)")+
+  theme_bw()+
+  scale_fill_viridis_c()+
+  facet_wrap(vars(BODART_GR))+
+  theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
+        legend.position = "right", legend.direction = "vertical",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - -
+# all in 1 plot (bad readability)
+png(file=paste0(here::here(), "/figures/Faktencheck_Richness_soilTypeAll_5k_", Taxon_name, ".png"), 
+    width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(5.5, 15.5) +
+  ylim(47.5, 55.5) +
+  
+  geom_tile(data=df_soil %>% 
+              filter(BODART_GR!="Siedlung" & BODART_GR!="Gewässer"), 
+            aes(x=x, y=y, fill=BODART_GR, alpha=Richness))+
+  ggtitle("Species richness (number of species)")+
+  theme_bw()+
+  theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
+        legend.position = "right", legend.direction = "vertical",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - -
+# boxplot
+png(file=paste0(here::here(), "/figures/Faktencheck_boxplot_richness_soilType_", Taxon_name, ".png"))
+ggplot()+
+  geom_boxplot(data=df_soil, aes(x=BODART_GR, y=Richness, fill=BODART_GR))+
+  theme_bw()+
+  theme(legend.title = element_blank(), legend.text = element_text(size=10),
+        axis.text.x = element_text(angle=45, hjust=1),
+        legend.position = "none", legend.direction = "vertical")
+dev.off()
+
+
+#- - - - - - - - - - - - - - - - - - - - -
+## Transform earthworm data into the 10 km grid ####
+#- - - - - - - - - - - - - - - - - - - - -
 
 # transform richness to 10km grid system
 earthworm_stack_rich <- raster::rasterize(earthworm_stack %>% dplyr::select(x,y), grid10, earthworm_stack$Richness, fun=mean, na.rm=T)
@@ -111,7 +208,7 @@ ggplot()+
 #         legend.position = c(0.1,0.9), legend.direction = "horizontal")
 
 # amphibian data
-amphib_rich <- read.delim("data/Faktencheck_Rept_Amph_MTB_lat_long.txt", sep=";")
+amphib_rich <- read.delim("data_raw/Faktencheck_Rept_Amph_MTB_lat_long.txt", sep=";")
 head(amphib_rich)
 
 ggplot()+
@@ -174,7 +271,8 @@ earthworm_species <- earthworm_species %>% pivot_longer(cols=Allol_chlo:Satch_ma
 head(earthworm_species)
 
 # add full species names
-species_full_names <- read.delim(file=paste0("./data/Species_list_", Taxon_name, "_short.csv"))
+species_full_names <- read.delim(file=paste0("./data_raw/Species_list_", Taxon_name, "_short.csv"))
+colnames(species_full_names)[1] <- "Species_ID"
 earthworm_species <- earthworm_species %>% left_join(species_full_names %>% dplyr::select(Species_ID, Species) %>% unique(),
                                                       by="Species_ID")
 head(earthworm_species)
