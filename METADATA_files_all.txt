@@ -61,7 +61,7 @@ The individual .tif files represent raster layers of each climatic variable pred
 
 ~/BGR_soil_types
 
-* Zip folder downloaded from BGR representing soil types in Germany. Used for Faktencheck results only.
+* Data downloaded from BGR data portal representing soil types and soil landscapes in Germany. Used for Faktencheck results only.
 
 
 #### data_raw
