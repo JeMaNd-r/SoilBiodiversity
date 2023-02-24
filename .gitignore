@@ -82,3 +82,6 @@ results/Occurrence_rasterized_5km_Crassiclitellata.csv
 results/Occurrences_Crassiclitellata.csv
 results/Occurrence_rasterized_plusEnv_2km_Crassiclitellata.csv
 results/Species_list_Crassiclitellata_Europe_forMaria.csv
+*.style
+*.htm
+*.style
