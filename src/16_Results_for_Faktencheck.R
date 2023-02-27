@@ -224,11 +224,13 @@ ggplot()+
   ylim(47.5, 55.5) +
   
   geom_tile(data=df_soil, 
-            aes(x=x, y=y, fill=Richness))+
+            aes(x=x, y=y, alpha=Richness))+
   ggtitle("Species richness (number of species)")+
   
   geom_spatvector(data=grid_landscape_GE, color="white", fill=NA)+
-  scale_fill_viridis_c()+
+  geom_spatvector_text(data=grid_landscape_GE, aes(label=SOILNR, color=as.factor(SOILNR)), 
+                       size=5, fontface = "bold", show.legend = FALSE)+
+  #scale_fill_viridis_c()+
   theme_bw()+
   theme(axis.title = element_blank(), legend.title = element_blank(), legend.text = element_text(size=10),
         legend.position = "right", legend.direction = "vertical",
