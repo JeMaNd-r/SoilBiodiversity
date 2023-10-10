@@ -1,7 +1,7 @@
 
-# Soil Biodiversity across Europe based on SDMs
+# Distribution and protection of commonly observed earthworm species across Europe based on SDMs
 
-The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for soil organisms across Europe.
+The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for earthworms (Crassiclitellata) across Europe.
 
 
 ## Description
@@ -64,7 +64,7 @@ loaded via a namespace (and not attached):
 ### Installing
 
 * Code is available at GitHub (<5MB).
-* Data can be downloaded according to Zeiss et al. 2023.
+* Data can be downloaded according to Zeiss et al. (2023, Conservation Biology).
 
 Folder structure should be maintained. Additionally, please download maxent.jar according to description from dismo package. Working directory during analysis should be the main folder. This is necessary to access all data files that will be called with `here::here()`.
 
@@ -89,6 +89,14 @@ Contributors names and contact info
 Romy Zeiss  
 [@RomyZeiss](https://twitter.com/romyzeiss)
 
+Maria J. I. Briones
+Jérome Mathieu
+Angela Lomba
+Jessica Dahlke
+Laura-Fiona Heptner
+Gabriel Salako
+Nico Eisenhauer
+Carlos A. Guerra
 
 ## License
 
@@ -96,13 +104,13 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 
 ## Acknowledgments
 
-Pieces of SDM code are based on Valavi et al. 2021 [1]
+R.Z. acknowledge support of iDiv funded by the German Research Foundation (DFG FZT 118, 202548816), and L. Figueiredo from the iDiv Data & Code Unit for assistance with curation and archiving of the dataset. R.Z. was funded by the German Federal Environmental Foundation (DBU, 20021/752).  
 
 
 ## References
 
-[1] Zeiss et al. (in prep.)
-
+Zeiss, R., Briones, M. J., Mathieu, J., Lomba, A., Dahlke, J., Heptner, L. F., ... & Guerra, C. A. (2023). Effects of climate on the distribution and conservation of commonly observed European earthworms. Conservation Biology. 
+Zeiss, R., Guerra, C. A., Briones, M. J. I., Mathieu, J., Russel, D., & Cano-Díaz, C. (2023). Earthworm distribution and conservation in Europe (Version 1.0) [Dataset]. iDiv Data Repository. (iDiv) Halle-Jena-Leipzig. https://doi.org/10.25829/idiv.3524-gqvs4z
 
 
 ## Folder structure
