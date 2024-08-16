@@ -25,10 +25,10 @@ speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".cs
 # Note: to run the other grid, you have to comment & un-comment 4 lines
 
 ## load grid
-r <- raster::raster(paste0(here::here(),"/data/grid_5k_0p041.tif"))
+r <- raster::raster(paste0(here::here(),"/data_environment/grid_5k_0p041.tif"))
 
 ## Load occurrence data
-occ <- read.csv(file=paste0(here::here(), "/results/Occurrences_", Taxon_name, ".csv"))
+occ <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_", Taxon_name, ".csv"))
 occ$occ <- 1
 occ_stack <- raster()
 occ_points <- data.frame(x=0, y=0, year=1800)[0,]

@@ -5,7 +5,7 @@
 #       date: 18.08.2021          #
 #- - - - - - - - - - - - - - - - -#
 
-#setwd("D:/_students/Romy/SoilBiodiversity")
+#setwd("T:/_students/Romy/SoilBiodiversity")
 
 gc()
 library(tidyverse)
@@ -17,6 +17,9 @@ library(CoordinateCleaner)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+
+# geographic extent of Europe
+extent_Europe <- c(-23, 60, 31, 75)
 
 # - - - - - - - - - - - - - - - - - - -
 ## Data from sWorm ####
@@ -47,8 +50,10 @@ rm(sworm_occ, sworm_site)
 
 dat <- read.csv(file=paste0(here::here(), "/intermediates/Occurrences_GBIF_Crassiclitellata.csv")) #dat
 
+dat <- dat %>% filter(occurrenceStatus == "PRESENT") # remove absent records
+
 gbif <- dat[,c("species", "decimalLatitude", "decimalLongitude", "year")] %>%
-  mutate(datasource = "GBIF")
+  mutate(datasource = "GBIF") 
 
 rm(dat)
 

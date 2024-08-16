@@ -16,6 +16,9 @@ library(here)
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
 
+# geographic extent of Europe
+extent_Europe <- c(-23, 60, 31, 75)
+
 ## Load data ####
 
 # use data downloaded via R script

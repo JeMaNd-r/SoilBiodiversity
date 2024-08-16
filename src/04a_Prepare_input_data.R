@@ -17,11 +17,13 @@ library(biomod2) # also to create pseudo-absences
 library(parallel)
 library(doParallel)
 
+library(data.table)
+
 #write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 
 #- - - - - - - - - - - - - - - - - - - - -
 Taxon_name <- "Crassiclitellata"
-speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
+speciesNames <- fread(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
 speciesSub <- speciesNames %>% filter(NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
 #speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
 speciesSub <- c(speciesSub$SpeciesID)
@@ -33,7 +35,7 @@ Env_clip <- raster::stack(paste0(here::here(), "/results/EnvPredictor_2km_clippe
 
 #- - - - - - - - - - - - - - - - - - - - -
 ## Prepare data ####
-mySpeciesOcc <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
+mySpeciesOcc <- fread(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
 
 registerDoParallel(3)
 foreach(spID = speciesSub, 
