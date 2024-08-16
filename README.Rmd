@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 
 # Distribution and protection of commonly observed earthworm species across Europe based on SDMs
+=======
+﻿
+# Soil Biodiversity across Europe based on SDMs
+>>>>>>> Stashed changes
 
 The following code used occurrence data and environmental variables to predict Species Distribution Models (SDMs) for earthworms (Crassiclitellata) across Europe.
 
@@ -32,7 +37,7 @@ attached base packages:
 other attached packages:
  [1] exactextractr_0.8.2      sf_1.0-7                 rgdal_1.5-31             colorRamps_2.3.1         gridExtra_2.3           
  [6] ggpubr_0.4.0             doParallel_1.0.17        iterators_1.0.14         foreach_1.5.2            rJava_1.0-6             
-[11] dismo_1.3-5              biomod2_4.1-2            CoordinateCleaner_2.0-20 rgbif_3.7.2              caret_6.0-92            
+[11] dismo_1.3-5              biomod2_3.5-1            CoordinateCleaner_2.0-20 rgbif_3.7.2              caret_6.0-92            
 [16] lattice_0.20-45          usdm_1.1-18              here_1.0.1               raster_3.5-15            sp_1.4-7                
 [21] forcats_0.5.1            stringr_1.4.0            dplyr_1.0.9              purrr_0.3.4              readr_2.1.2             
 [26] tidyr_1.2.0              tibble_3.1.7             ggplot2_3.3.6            tidyverse_1.3.1          terra_1.5-21            

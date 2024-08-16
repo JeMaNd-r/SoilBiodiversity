@@ -72,7 +72,7 @@ for(spID in speciesSub){ try({
 	
 }, silent=TRUE)}
 
-cover_df$coverage_km2 <- round(cover_df$sumCell * 5, 2)
+cover_df$coverage_km2 <- round(cover_df$sumCell * 25, 2)
 
 cover_df <- cover_df %>% arrange(SpeciesID, IUCNcat) %>% filter(!is.na(coverage))
 
@@ -93,13 +93,14 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_n
 
 # area covered per IUCN category
 protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(sum)
-protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(function(x) sum(x)*5)
+protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(function(x) sum(x)*25)
 protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(function(x) sum(x)/nrow(extent_df))
 protect_df %>% inner_join(extent_df, by=c("x", "y")) %>% summarize_all(sum) %>% 
   dplyr::select(II:Ia, VI) %>% rowSums()
 # total area based on extent
-nrow(extent_df); nrow(extent_df)*5
+nrow(extent_df); nrow(extent_df)*25
 27343.11/nrow(extent_df)
+27343.11*25
 
 ## Calculate number of species per IUCN category ####
 cover_sr_current <- protect_df %>% 

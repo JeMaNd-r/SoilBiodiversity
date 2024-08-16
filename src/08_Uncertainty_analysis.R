@@ -79,3 +79,74 @@ extent_df <- uncertain_df %>% filter(Mean<0.1 & !is.na(Mean)) %>% dplyr::select(
 save(extent_df, file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_extent_", Taxon_name, ".RData"))
 
 
+#- - - - - - - - - - - - - - - - - - - - -
+## Clamping mask (extrapolated areas outside of calibration data range) ####
+#- - - - - - - - - - - - - - - - - - - - -
+
+clamping_df <- Env_clip_df %>% dplyr::select(x, y)
+
+for(spID in speciesSub){try({
+  
+  print(paste0("Species: ", spID))
+  
+  # list files in species-specific BIOMOD folder
+  temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", "."), "/proj_modeling"), full.names = TRUE)
+  
+  myBiomodEnProj <- get(load(temp_files[stringr::str_detect(temp_files,"ClampingMask.RData")]))
+  myBiomodEnProj <- data.frame(myBiomodEnProj)
+  colnames(myBiomodEnProj) <- spID
+  
+  # add layer to stack
+  clamping_df <- cbind(clamping_df, myBiomodEnProj)
+  
+})}
+
+head(clamping_df) #number of variables outside the range of calibration data
+
+clamping_df$Mean <- rowMeans(clamping_df %>% dplyr::select(-x, -y), na.rm=T)
+clamping_df$Sum <- rowSums(clamping_df %>% dplyr::select(-x, -y), na.rm=T)
+
+# calculate sd of predictions
+clamping_df$SD <- apply(clamping_df %>% dplyr::select(-x, -y, -Mean, -Sum), 1, sd, na.rm = TRUE)
+clamping_df$Max <- apply(clamping_df %>% dplyr::select(-x, -y, -Mean, -Sum, -SD), 1, max, na.rm = TRUE)
+
+head(clamping_df)
+
+save(clamping_df, file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_current_", Taxon_name, ".RData"))
+
+#- - - - - - - - - - - - - - - - - - - - -
+# same for future projections
+clamping_df <- Env_clip_df %>% dplyr::select(x, y)
+
+for(spID in speciesSub){try({
+  
+  print(paste0("Species: ", spID))
+  
+  for(no_future in scenarioNames){
+    
+    # list files in species-specific BIOMOD folder
+    temp_files <- list.files(paste0(here::here(), "/results/biomod_files/", stringr::str_replace(spID, "_", "."), "/proj_modeling_future_", no_future, "_TP"), full.names = TRUE)
+    
+    myBiomodEnProj <- get(load(temp_files[stringr::str_detect(temp_files,"ClampingMask.RData")]))
+    myBiomodEnProj <- data.frame(myBiomodEnProj)
+    colnames(myBiomodEnProj) <- paste0(spID, "_", no_future)
+    
+    # add layer to stack
+    clamping_df <- cbind(clamping_df, myBiomodEnProj)
+    
+  }
+})}
+
+head(clamping_df) #number of variables outside the range of calibration data
+
+clamping_df$Mean <- rowMeans(clamping_df %>% dplyr::select(-x, -y), na.rm=T)
+clamping_df$Sum <- rowSums(clamping_df %>% dplyr::select(-x, -y), na.rm=T)
+
+# calculate sd of predictions
+clamping_df$SD <- apply(clamping_df %>% dplyr::select(-x, -y, -Mean, -Sum), 1, sd, na.rm = TRUE)
+clamping_df$Max <- apply(clamping_df %>% dplyr::select(-x, -y, -Mean, -Sum, -SD), 1, max, na.rm = TRUE)
+
+head(clamping_df)
+
+save(clamping_df, file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_future_", Taxon_name, ".RData"))
+

@@ -40,7 +40,7 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_stack_future_species_", Taxon
 ## Calculate species ranges (area) ####
 range_df <- data.frame("scenario"=colnames(future_stack), 
                        "cells"=colSums(future_stack, na.rm=T), 
-                       "area_km2"=colSums(future_stack, na.rm=T)*5) %>%
+                       "area_km2"=colSums(future_stack, na.rm=T)*25) %>%
   filter(scenario!="x" & scenario!="y") %>%
   tidyr::separate(scenario, c("SpeciesID", "scenario"), "[.]")
 rownames(range_df) <- NULL
@@ -53,7 +53,7 @@ range_sum <- range_df[range_df$SpeciesID %in% range_df$SpeciesID[stringr::str_de
 load(file=paste0(here::here(), "/results/_Maps/SDM_stack_bestPrediction_binary_", Taxon_name, ".RData")) #species_stack
 range_df_current <- data.frame("scenario"=colnames(species_stack), 
                                "cells"=colSums(species_stack, na.rm=T), 
-                               "area_km2"=colSums(species_stack, na.rm=T)*5) %>%
+                               "area_km2"=colSums(species_stack, na.rm=T)*25) %>%
   filter(scenario!="x" & scenario!="y")
 rownames(range_df_current) <- NULL
 head(range_df_current)  

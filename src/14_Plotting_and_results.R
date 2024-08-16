@@ -651,7 +651,7 @@ load(file=paste0(here::here(), "/results/_Maps/SDM_Uncertainty_", Taxon_name, ".
 #- - - - - - - - - - - - - - - - - - - - - -
 
 # view uncertainty in map 
-world.inp <- map_data("world")
+#world.inp <- map_data("world")
 
 png(file=paste0(here::here(), "/figures/Uncertainty_", Taxon_name, ".png"), width=1000, height=1000)
 ggplot()+
@@ -786,6 +786,96 @@ do.call(grid.arrange, plots2)
 dev.off()
 
 #- - - - - - - - - - - - - - - - - - - - - -
+## Clamping mask (extrapolated area) ####
+#- - - - - - - - - - - - - - - - - - - - - -
+
+# current climate
+load(file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_current_", Taxon_name, ".RData")) #clamping_df
+
+png(file=paste0(here::here(), "/figures/ClampingMask_current_", Taxon_name, ".png"), width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  
+  geom_tile(data=clamping_df %>% filter(Max!=0), aes(x=x, y=y, fill=as.factor(Max)))+
+  geom_tile(data=clamping_df %>% filter(Max==0), aes(x=x, y=y), fill="linen")+
+  
+  ggtitle("Number of variables outside of range of traning data (average across SDMs)")+
+  scale_fill_viridis_d(option = "E", begin = 0.7, end = 0)+
+  theme_bw()+  
+  
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+dev.off()
+
+# future climate
+load(file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_future_", Taxon_name, ".RData")) #clamping_df
+
+png(file=paste0(here::here(), "/figures/ClampingMask_future_", Taxon_name, ".png"), width=1000, height=1000)
+ggplot()+
+  geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+  xlim(-10, 30) +
+  ylim(35, 70) +
+  
+  geom_tile(data=clamping_df %>% filter(Max!=0), aes(x=x, y=y, fill=as.factor(Max)))+
+  geom_tile(data=clamping_df %>% filter(Max==0), aes(x=x, y=y), fill="linen")+
+  ggtitle("Number of variables outside of range of traning data (average across SDMs)")+
+  scale_fill_viridis_d(option = "E", begin = 0.7, end = 0)+
+  theme_bw()+  
+  
+  theme(axis.title = element_blank(), legend.title = element_blank(),
+        legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+        axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+dev.off()
+
+## NO CHANGE IN FUTURE COMPARED TO CURRENT MAPS, ALL 0 CHANGE...
+# but there is slight change in e.g. MAT over time... probably not enough to exceed range of calibration data
+# # comparison current & future
+# load(file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_current_", Taxon_name, ".RData")) #clamping_df
+# clamp_current <- clamping_df
+# 
+# load(file=paste0(here::here(), "/results/_Maps/SDM_ClampingMask_future_", Taxon_name, ".RData")) #clamping_df
+# clamping_df$Max_f <- clamping_df$Max
+# clamping_df$Mean_f <- clamping_df$Mean
+# clamp_both <- cbind(clamp_current, clamping_df[, c("Mean_f", "Max_f")])
+# 
+# clamp_both$f_c <- clamp_both$Max_f - clamp_both$Max
+# 
+# png(file=paste0(here::here(), "/figures/ClampingMask_f-c_", Taxon_name, ".png"), width=1000, height=1000)
+# ggplot()+
+#   geom_map(data = world.inp, map = world.inp, aes(map_id = region), fill = "grey80") +
+#   xlim(-10, 30) +
+#   ylim(35, 70) +
+#   
+#   geom_tile(data=clamp_both %>% filter(f_c!=0), aes(x=x, y=y, fill=as.factor(f_c)))+
+#   geom_tile(data=clamp_both %>% filter(f_c==0), aes(x=x, y=y), fill="linen")+
+#   ggtitle("Number of variables outside of range of traning data (average across SDMs)")+
+#   scale_fill_viridis_d(option = "E", begin = 0.7, end = 0)+
+#   theme_bw()+  
+#   
+#   theme(axis.title = element_blank(), legend.title = element_blank(),
+#         legend.position =c(0.2, 0.85),legend.direction = "horizontal",
+#         axis.line = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(),
+#         legend.text = element_text(size=30), legend.key.size = unit(2, 'cm'),
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.border = element_blank(),
+#         panel.background = element_blank())
+# dev.off()
+
+#- - - - - - - - - - - - - - - - - - - - - -
 ## Species richness (current) ####
 #- - - - - - - - - - - - - - - - - - - - - -
 
@@ -827,6 +917,10 @@ ggplot()+
         panel.border = element_blank(),
         panel.background = element_blank())
 dev.off()
+
+ggsave(paste0("./figures/SpeciesRichness_cert0.1_", Taxon_name, ".pdf"), 
+       last_plot(),
+       height = 15, width = 15)
 
 while (!is.null(dev.list()))  dev.off()
 
@@ -959,11 +1053,14 @@ while (!is.null(dev.list()))  dev.off()
 #- - - - - - - - - - - - - - - - - - - - - -
 
 range_sum <- read.csv(file=paste0(here::here(), "/results/Range_shift_", Taxon_name, ".csv"))
+median(range_sum$area_km2)
+mean(range_sum$area_km2)
+sd(range_sum$area_km2)
 
 # plot species range decline
 png(file=paste0(here::here(), "/figures/Range_shift_", "2041-2070_", Taxon_name, ".png"), height=600, width=800)
 ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
-  geom_bar(aes(x=reorder(SpeciesID, area_km2), y=area_km2_change_p*1000,  fill="[-0.5, 0.75]",), 
+  geom_bar(aes(x=reorder(SpeciesID, area_km2), y=area_km2_change_p*1000,  fill="[-1, 1]",), 
            stat = "identity" ,alpha=0.4, col="grey60")+
   geom_errorbar(aes(x=reorder(SpeciesID, area_km2),
                     ymin=(area_km2_change_p*1000)-(area_km2_p_sd*1000),
@@ -977,14 +1074,15 @@ ggplot(range_sum %>% mutate("SpeciesID"=substr(range_sum$SpeciesID, 1, 10))) +
   
   scale_color_manual(values = c("black", "grey60"),
                      guide  = guide_legend(), 
-                     name   = "Range size in 1,000 km?",
+                     name   = "Range size in 1,000 km²",
                      labels = c("Current", "Future (mean)")) +
   scale_fill_manual(values = c("grey90"), 
-                    labels = c("[-0.5, 0.75]"),
+                    labels = c("[-1, 1]"),
                     name = "Proportional change in range size")+
   scale_y_continuous(
     # Features of the first axis
     name = "",
+    limits = c(-800,3800),
     # Add a second axis and specify its features
     sec.axis = sec_axis(~./1000)) + 
   coord_flip()+
@@ -1247,8 +1345,9 @@ print({ggplot()+
     #geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(Richness==0)), aes(x=x, y=y), fill="grey60")+
     geom_tile(data=extent_df %>% inner_join(average_stack %>% filter(!is.na(Change))), 
               aes(x=x, y=y, fill=No_change))+
-    ggtitle(paste0("Agreement between SSP scenarios"))+
-    scale_fill_manual(values=c("steelblue4", "steelblue2", "lightblue", "linen", "sandybrown", "darksalmon", "brown2", "brown4"))+
+    ggtitle(paste0("Agreement between SSP scenarios"))+ #khaki2 #EEE685, sandybrown (#F4A460), yellow3 #CDCD00
+    # color codes: steelblue4 #36648B, steelblue2 #5CACEE, lightblue #ADD8E6, linen #FAF0E6, darksalmon #E9967A, brown2 #EE3B3B, brown #A52A2A
+    scale_fill_manual(values=c("steelblue4", "steelblue2", "lightblue", "linen", "#E4E486", "darksalmon", "brown2", "brown4"))+
     theme_bw()+
     theme(axis.title = element_blank(), legend.title = element_blank(),
           legend.position = "right",
@@ -1264,7 +1363,7 @@ dev.off()
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Gain==3)))/nrow(extent_df)
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Loss==-3)))/nrow(extent_df)
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & No_change=="mixed")))/nrow(extent_df)
-nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & No_change=="mixed")))*5
+nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & No_change=="mixed")))*25
 
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & Unchanged==1)))/nrow(extent_df)
 nrow(extent_df %>% inner_join(average_stack %>% filter(!is.na(Change) & ssp126_unchanged==1)))/nrow(extent_df)
@@ -1542,6 +1641,9 @@ dev.off()
 ## Protection: some numbers ####
 #- - - - - - - - - - - - - - - - - - - -
 
+load(file=paste0(here::here(), "/intermediates/WDPA_WDOECM_IUCNcat_df.RData")) #protect_df
+head(protect_df)
+
 protect_df <- extent_df %>% inner_join(protect_df)
 sum(protect_df$protected); sum(protect_df$protected) / nrow(extent_df) 
 
@@ -1580,7 +1682,7 @@ cover_df %>% filter(SpeciesID!="_Mean" & SpeciesID!="_SD") %>% filter(IUCNcat=="
 cover_df %>% filter(SpeciesID!="_Mean" & SpeciesID!="_SD") %>% filter(IUCNcat=="Protected" & SSP=="current") %>% arrange(coverage)
 
 # current mean and SD of protected area across species
-cover_df %>% filter(SpeciesID=="_Mean" | SpeciesID=="_SD") %>% arrange(SpeciesID, coverage_km2)
+cover_df %>% filter(SpeciesID=="_Mean" & SSP == "current"| SpeciesID=="_SD" & SSP == "current") %>% arrange(SpeciesID, coverage_km2) %>% arrange(desc(coverage))
 
 # current mean and SD of protected area across species and scenarios
 cover_df %>% filter(SpeciesID!="_Mean" & SpeciesID!="_SD" & SSP=="current") %>% dplyr::select(-SpeciesID) %>% group_by(IUCNcat) %>% summarize_all(mean)

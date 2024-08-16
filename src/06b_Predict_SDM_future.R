@@ -54,7 +54,7 @@ setwd(paste0(here::here(), "/results/biomod_files"))
 load(paste0(here::here(),"/results/EnvPredictor_5km_df_clipped.RData")) #Env_clip_df
 
 no.cores <- 3
-registerDoParallel(no.cores)
+registerDoParallel(19)
 foreach(spID = speciesSub,
         .export = c("Env_clip_df", "Taxon_name"),
         .packages = c("tidyverse","biomod2")) %dopar% { try({
@@ -86,7 +86,7 @@ foreach(spID = speciesSub,
               temp_Env_df <- temp_Env_df[!is.na(temp_Env_df$Agriculture),]
               
               # one loop per future climate subset, one with both future, each one with only 1 future and 1 current climate
-              for(subclim in c("TP", "T", "P")){  
+              for(subclim in c("TP")){  #, "T", "P"
                 
                 if(subclim=="TP"){
                   temp_Env_sub <- temp_Env_df[,c("x", "y", colnames(temp_Env_df)[colnames(temp_Env_df) %in% covarsNames])]
@@ -113,7 +113,7 @@ foreach(spID = speciesSub,
                 # project single models (also needed for ensemble model)
                 myBiomodProj <- biomod2::BIOMOD_Projection(modeling.output = myBiomodModelOut,
                                                            new.env = temp_Env_sub[,colnames(temp_Env_sub) %in% covarsNames],        #column/variable names have to perfectly match with training
-                                                           proj.name = "modeling_future",  #name of the new folder being created
+                                                           proj.name = paste0("modeling_future_", no_future, "_", subclim),  #name of the new folder being created
                                                            selected.models = "all", #use all models
                                                            binary.meth = NULL,     #binary transformation according to criteria, or no transformation if NULL
                                                            compress = TRUE,         #compression format of objects stored on hard drive
