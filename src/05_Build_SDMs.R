@@ -7,16 +7,16 @@
 
 #setwd("D:/_students/Romy/SoilBiodiversity")
 
-gc()
+arguments <- commandArgs(trailingOnly = TRUE)
+Taxon_name <- arguments[1]
+species_csv <- arguments[2]
+output_dir <- arguments[3]
+
 library(tidyverse)
-library(here)
 
 library(raster)
 
 library(biomod2) # also to create pseudo-absences
-
-library(parallel)
-library(doParallel)
 
 #write("TMPDIR = 'D:/00_datasets/Trash'", file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 
@@ -24,11 +24,9 @@ library(doParallel)
 #raster::rasterOptions(tmpdir = "D:/00_datasets/Trash")
 
 #- - - - - - - - - - - - - - - - - - - - -
-Taxon_name <- "Crassiclitellata"
-speciesNames <- read.csv(file=paste0("./results/Species_list_", Taxon_name, ".csv"))
-speciesSub <- speciesNames %>% filter(NumCells_2km_biomod >=100) %>% dplyr::select(SpeciesID) %>% unique() %>% c()
-#speciesSub <- speciesNames %>% filter(family == "Lumbricidae" & NumCells_2km >=10) %>% dplyr::select(SpeciesID) %>% unique()
-speciesSub <- c(speciesSub$SpeciesID)
+species_table <- fread(species_csv)
+task <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID")) 
+species <- species_table$species[task]
 
 # covariates in order of importance (top 10 important)
 covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH", 
@@ -36,7 +34,7 @@ covarsNames <- c("MAT", "MAP_Seas", "Dist_Coast", "Agriculture", "pH",
 
 # load data with sampling year information
 occ_points <- read.csv(file=paste0(here::here(), "/results/Occurrence_rasterized_2km_", Taxon_name, ".csv"))
-occ_points <- occ_points %>% rename("x"="ï..x")
+occ_points <- occ_points %>% rename("x"="?..x")
 str(occ_points)
 
 # load environmental variables (for projections)
@@ -150,62 +148,57 @@ mymodels <- c("GLM","GBM","GAM","CTA","ANN", "SRE", "FDA","MARS","RF","MAXENT.Ph
 
 #- - - - - - - - - - - - - - - - - - - - -
 # if more than 100 occurrences   
-registerDoParallel(19)
-foreach(spID = speciesSub, 
-        .export = c("Env_clip", "Env_clip_df", "form", "occ_points"),
-        .packages = c("tidyverse","biomod2")) %dopar% { try({
-          
-          load(paste0(here::here(), "/intermediates/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
-          
-          # subset covarsNames
-          myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
-          
-          # define weights of presence records based on sampling year
-          temp_weights <- occ_points %>% dplyr::select(x, y, year, spID) %>% unique()
-          temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
-          temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
-          temp_weights$weight <- 0.1
-          temp_weights[!is.na(temp_weights$status),]$weight <- 0.2 #includes NA in year
-          try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1980 & !is.na(temp_weights$year),]$weight <- 0.3, silent=T)
-          try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1990 & !is.na(temp_weights$year),]$weight <- 0.4, silent=T)
-          try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2000 & !is.na(temp_weights$year),]$weight <- 0.5, silent=T)
-          try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2010 & !is.na(temp_weights$year),]$weight <- 0.6, silent=T)
-          try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2020 & !is.na(temp_weights$year),]$weight <- 0.7 , silent=T)
-          
-          # model fitting
-          #tmp <- proc.time()[3]
-          setwd(paste0(here::here(), "/results/biomod_files"))
-          
-          set.seed(32639)
-          myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
-                                                       models = mymodels,
-                                                       models.options = myBiomodOption,
-                                                       NbRunEval = 10,   # 3-fold crossvalidation evaluation run
-                                                       DataSplit = 80, # use subset of the data for training
-                                                       Yweights = temp_weights$weight, # weight to observations, here based on year
-                                                       models.eval.meth = "TSS",
-                                                       SaveObj = TRUE, #save output on hard drive?
-                                                       rescal.all.models = FALSE, #scale all predictions with binomial GLM?
-                                                       do.full.models = FALSE, # do evaluation & calibration with whole dataset
-                                                       modeling.id = paste(spID,"_Modeling", sep = ""))
-          
-          # ensemble modeling using mean probability
-          myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
-                                                         chosen.models = "all",  # all algorithms
-                                                         em.by = "all",    #evaluated over evaluation data if given (it is not, see Prepare_input.R)
-                                                         # note: evaluation not that important as we will calculate measures on independent data
-                                                         eval.metric = "TSS", # 'all' would takes same as above in BIOMOD_Modelling
-                                                         eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
-                                                         prob.mean = FALSE, #estimate mean probabilities across predictions
-                                                         prob.cv = TRUE,   #estimate coefficient of variation across predictions
-                                                         prob.ci = FALSE,  #estimate confidence interval around the prob.mean
-                                                         prob.median = FALSE, #estimate the median of probabilities
-                                                         committee.averaging = TRUE, #estimate committee averaging across predictions
-                                                         prob.mean.weight = TRUE, #estimate weighted sum of predictions
-                                                         prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
-                                                         VarImport = 5)    #number of permutations to estimate variable importance
-          #temp_model_time <- proc.time()[3] - tmp
-          
-          setwd(here::here())
-        })}
-stopImplicitCluster()
+
+load(paste0(here::here(), "/intermediates/BIOMOD_data/BiomodData_", Taxon_name,"_", spID, ".RData")) #myBiomodData
+
+# subset covarsNames
+myBiomodData@data.env.var <- myBiomodData@data.env.var[,colnames(myBiomodData@data.env.var) %in% covarsNames]
+
+# define weights of presence records based on sampling year
+temp_weights <- occ_points %>% dplyr::select(x, y, year, spID) %>% unique()
+temp_weights <- temp_weights[!is.na(temp_weights[,4]),]
+temp_weights <- get_PAtab(myBiomodData) %>% left_join(temp_weights, by=c("x","y"))
+temp_weights$weight <- 0.1
+temp_weights[!is.na(temp_weights$status),]$weight <- 0.2 #includes NA in year
+try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1980 & !is.na(temp_weights$year),]$weight <- 0.3, silent=T)
+try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 1990 & !is.na(temp_weights$year),]$weight <- 0.4, silent=T)
+try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2000 & !is.na(temp_weights$year),]$weight <- 0.5, silent=T)
+try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2010 & !is.na(temp_weights$year),]$weight <- 0.6, silent=T)
+try(temp_weights[!is.na(temp_weights$status) & temp_weights$year >= 2020 & !is.na(temp_weights$year),]$weight <- 0.7 , silent=T)
+
+# model fitting
+#tmp <- proc.time()[3]
+setwd(output_dir)
+
+set.seed(32639)
+myBiomodModelOut <- biomod2::BIOMOD_Modeling(myBiomodData,
+                                             models = mymodels,
+                                             models.options = myBiomodOption,
+                                             NbRunEval = 10,   # 3-fold crossvalidation evaluation run
+                                             DataSplit = 80, # use subset of the data for training
+                                             Yweights = temp_weights$weight, # weight to observations, here based on year
+                                             models.eval.meth = "TSS",
+                                             SaveObj = TRUE, #save output on hard drive?
+                                             rescal.all.models = FALSE, #scale all predictions with binomial GLM?
+                                             do.full.models = FALSE, # do evaluation & calibration with whole dataset
+                                             modeling.id = paste(spID,"_Modeling", sep = ""))
+
+# ensemble modeling using mean probability
+myBiomodEM <- biomod2::BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
+                                               chosen.models = "all",  # all algorithms
+                                               em.by = "all",    #evaluated over evaluation data if given (it is not, see Prepare_input.R)
+                                               # note: evaluation not that important as we will calculate measures on independent data
+                                               eval.metric = "TSS", # 'all' would takes same as above in BIOMOD_Modelling
+                                               eval.metric.quality.threshold = NULL, # since some species's auc are naturally low
+                                               prob.mean = FALSE, #estimate mean probabilities across predictions
+                                               prob.cv = TRUE,   #estimate coefficient of variation across predictions
+                                               prob.ci = FALSE,  #estimate confidence interval around the prob.mean
+                                               prob.median = FALSE, #estimate the median of probabilities
+                                               committee.averaging = TRUE, #estimate committee averaging across predictions
+                                               prob.mean.weight = TRUE, #estimate weighted sum of predictions
+                                               prob.mean.weight.decay = "proportional", #the better a model (performance), the higher weight
+                                               VarImport = 5)    #number of permutations to estimate variable importance
+#temp_model_time <- proc.time()[3] - tmp
+
+setwd(here::here())
+
